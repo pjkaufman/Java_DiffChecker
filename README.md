@@ -2,4 +2,5 @@
 ###### By Peter Kaufman
 This repo is a NetBeans project that compares databases in Java_DiffChecker  
 ## TODO
--Add db compare functions
+-Add db compare functions  
+-Convert NetBeans project to regular class files that work

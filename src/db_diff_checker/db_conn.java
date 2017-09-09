@@ -78,10 +78,44 @@ public class db_conn {
         }    
     }
     
+    public String[] getTables() {
+            
+        String[] tables = {};
+        
+        try {
+            
+            String sql = "SHOW TABLES", column = "Tables_in_" + this.db;
+            int i = 0;
+            Statement query = this.con.createStatement();
+            ResultSet set = query.executeQuery( sql );
+            set.last(); // get the last result
+            tables = new String[ set.getRow() ]; 
+            set.beforeFirst(); // reset the ResultSetObject
+                    
+            while (set.next()) {
+                
+                tables[ i ] = set.getString( column );
+                i++;
+            }
+            
+            return tables;
+        } catch (SQLException e) {
+            
+            System.err.println( e );
+        }
+        
+        return tables;
+    }
+    
     public static void main ( String[] args ) {
-//        db_conn blob = new db_conn( "root", "ch@1RLes2", "localhost", "3306", "blob" );
+        
+//        db_conn blob = new db_conn( "root", "ch@1RLes2", "localhost", "3306", "project1" );
 //        blob.make_conn();
-//        blob.query("Select * FROM `logins`");
+//        String[] tables = blob.getTables();
 //        blob.kill_conn();
+//        for ( int i = 0; i < tables.length; i++ ) {
+//            
+//            System.out.println( "Table #" + i + " is " + tables[i]  );
+//        }
     }
 }
