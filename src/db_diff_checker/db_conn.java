@@ -1,26 +1,30 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * db_conn establishes a connection with a MySQL database based on the password, 
+ * username, port, host, and database provided.
+ * @author Peter Kaufman
+ * @class db_conn
+ * @access public
+ * @version 9-9-17
+ * @since 9-6-17
  */
 package db_diff_checker;
 import java.sql.*;
-/**
- *
- * @author topse
- */
+import java.util.ArrayList;
 public class db_conn {
     
-    private String username, password, host, db, conn_string, port;
+    private final String username, password, host, db, conn_string, port;
     private Connection con = null;
     
     /**
+     * db_conn initializes objects of type db_conn
      * @author Peter Kaufman
-     * @param username is the username of the mysql account
-     * @param password is the password of the mysql account
-     * @param host is the host of the mysql account
-     * @param port is the port mysql is using
-     * @param database is the db in mysql that the connection is to be established with
+     * @type constructor
+     * @access public
+     * @param username is the username of the MySQL account
+     * @param password is the password of the MySQL account
+     * @param host is the host of the MySQL account
+     * @param port is the port MySQL is using
+     * @param database is the db in MySQL that the connection is to be established with
      */
     db_conn ( String username, String password, String host, String port, String database ) {
         
@@ -33,8 +37,10 @@ public class db_conn {
     }
     
     /**
-     * Make connection with the desired db
+     * make_conn makes a connection with the desired db
      * @author Juan Nadal
+     * @type function
+     * @access public
      * @see https://www.youtube.com/watch?v=e3gnhsGqNmI&t=158s        
      */
     public void make_conn() {
@@ -51,6 +57,8 @@ public class db_conn {
     /**
      * kill_conn kills the db connection
      * @author Peter Kaufman
+     * @type function
+     * @access public
      */
     public void kill_conn() {
         
@@ -78,24 +86,53 @@ public class db_conn {
         }    
     }
     
-    public String[] getTables() {
+    /**
+     * getCreateStatement gets and returns the create statement of the desired 
+     * table
+     * @author Peter Kaufman
+     * @type function
+     * @access public
+     * @param table is a String which is the name of the table for which the
+     * create statement should be retrieved
+     * @return a String which is the table's create statement
+     */
+    public String getCreateStatement( String table ) {
+    
+        try {
             
-        String[] tables = {};
+            Statement query = this.con.createStatement();
+            ResultSet set = query.executeQuery( "SHOW CREATE TABLE `" + table + "` -- create table" );
+            set.next(); // move to the first result
+            
+            return set.getString( "Create Table" );
+        } catch (SQLException e) {
+            
+            System.err.println( e );
+        }
+        
+        return "";
+    }
+    
+    /**
+     * getTables gets the tables of the db
+     * @author Peter Kaufman
+     * @type getter
+     * @access public
+     * @return tables is an ArrayList of Strings which are the names of the tables
+     */
+    public ArrayList<String> getTables() {
+            
+        ArrayList<String> tables = new ArrayList();
         
         try {
             
             String sql = "SHOW TABLES", column = "Tables_in_" + this.db;
-            int i = 0;
             Statement query = this.con.createStatement();
             ResultSet set = query.executeQuery( sql );
-            set.last(); // get the last result
-            tables = new String[ set.getRow() ]; 
-            set.beforeFirst(); // reset the ResultSetObject
                     
             while (set.next()) {
                 
-                tables[ i ] = set.getString( column );
-                i++;
+                tables.add( set.getString( column ));
             }
             
             return tables;
@@ -108,14 +145,5 @@ public class db_conn {
     }
     
     public static void main ( String[] args ) {
-        
-//        db_conn blob = new db_conn( "root", "ch@1RLes2", "localhost", "3306", "project1" );
-//        blob.make_conn();
-//        String[] tables = blob.getTables();
-//        blob.kill_conn();
-//        for ( int i = 0; i < tables.length; i++ ) {
-//            
-//            System.out.println( "Table #" + i + " is " + tables[i]  );
-//        }
     }
 }
