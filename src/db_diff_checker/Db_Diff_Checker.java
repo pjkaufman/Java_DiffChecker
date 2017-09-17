@@ -11,13 +11,14 @@
 package db_diff_checker;
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.io.IOException;
+import java.sql.SQLException;
 public class Db_Diff_Checker {
  
-    private static db_conn db1, db2;
+    private static Db_conn db1, db2;
+    private static Database dab1, dab2;
     private static ArrayList<String> sql = new ArrayList();
-    private static ArrayList<String> exclude = new ArrayList();
-    private static ArrayList<String> dev_tables = new ArrayList();
-    private static ArrayList<String> live_tables = new ArrayList();
+    private static ArrayList<String> update_tables = new ArrayList();
     private final static Scanner IN = new Scanner( System.in );
    
     /**
@@ -47,30 +48,74 @@ public class Db_Diff_Checker {
      * @type function
      * @access public
      */
-    public static void DBCompare1() {
+    public static void DBCompare1() { // works
         
-         String[] info;
-         info = getDBInfo( "development" );
-         db1 = new db_conn( info[0], info[1], info[2], info[3], info[4] );
-            
-         info = getDBInfo( "live" );
-         db2 = new db_conn( info[0], info[1], info[2], info[3], info[4] );
-         
-        // get developement tables
-         db1.make_conn();
-         dev_tables = db1.getTables();
-         db1.kill_conn();
-         // get live tables
-         db2.make_conn();
-         live_tables = db2.getTables();
-         db2.kill_conn();
-         
-         compareTables( dev_tables, live_tables, "add" );
-         compareTables( live_tables, dev_tables, "drop" );
-         
-         
-    }
+        String[] info;
+        info = getDBInfo( "development" );
+        db1 = new Db_conn( info[0], info[1], info[2], info[3], info[4] );
+        dab1 = new Database( db1 );
+        
+        info = getDBInfo( "live" );
+        db2 = new Db_conn( info[0], info[1], info[2], info[3], info[4] );
+        dab2 = new Database( db2 );
+        
+        sql.addAll( dab1.compareTables( dab2.getTables()));
+        update_tables.addAll( dab1.tablesDiffs( dab2.getTables()));
+        sql.addAll(dab1.updateTables( dab2.getTables(), update_tables ));
+        sql.addAll(dab1.updateViews( dab2.getViews()));      
+    } 
     
+     /**
+     * DBCompare1 compares two db's to determine if any SQL is needed to make 
+     * them the exact same 
+     * @author Peter Kaufman
+     * @type function
+     * @access public
+     */
+    public static void DBCompare2() { // logic error
+        
+        try {
+            
+            String[] info;
+            Database dab1 = FileConversion.readFrom(); 
+            
+//            ArrayList<Table> t = dab1.getTables();
+//            ArrayList<Views> v = dab1.getViews();
+//            ArrayList<Index> i;
+//            ArrayList<Column> c;
+//            
+//            for ( Table table: t ) {
+//            
+//                System.out.println(table.getName() + ":" + table.getCreateStatement());
+//                i = table.getIndices();
+//                c = table.getColumns();
+//                for ( Index index: i ) {
+//                System.out.println( index.getName() + ":" + index.getColumn() + ":" + index.getCreateStatement());
+//                }
+//                for ( Column column: c ) {
+//                System.out.println( column.getName() + ":" + column.getDetails());
+//                }
+//            }
+//            for ( Views view: v ) {
+//            
+//                System.out.println(view.getName() + ":" + view.getCreateStatement());
+//            }
+            info = getDBInfo( "live" );
+            db2 = new Db_conn( info[0], info[1], info[2], info[3], info[4] );
+            dab2 = new Database( db2 );
+
+            sql.addAll( dab1.compareTables( dab2.getTables()));
+            update_tables.addAll( dab1.tablesDiffs( dab2.getTables()));
+            sql.addAll( dab1.updateTables( dab2.getTables(), update_tables )); // logic error?
+            sql.addAll( dab1.updateViews( dab2.getViews()));  
+        } catch( IOException e ) {
+    
+            System.err.println( e );
+        } catch ( Exception e ) {
+        
+            System.err.println(e);
+        }
+    }    
     /**
      * displaySQL displays the result of the comparison: SQL will only be 
      * displayed if the db's are out of sync
@@ -80,7 +125,7 @@ public class Db_Diff_Checker {
      */
     public static void displaySQL() {
     
-        if ( sql.size() == 0 ) {
+        if ( sql.isEmpty() ) {
         
             System.out.println( "The databases are exactly the same." );
         } else {
@@ -92,65 +137,35 @@ public class Db_Diff_Checker {
                 System.out.println( sql.get(i));
             }
         }
-    }
-    /**
-     * inArray searches for toFind in check
-     * @author Peter Kaufman
-     * @type function
-     * @access public
-     * @param toFind is the String to be searched for in check
-     * @param check is an ArrayList of Strings to be searched for toFind
-     * @return is either true or false depending on if toFind is in check
-     */
-    public static boolean inArray( String toFind, ArrayList<String> check ) {
+    } 
+   
+    public static boolean takeSnapshot() { // works?
     
-        for ( int i = 0; i < check.size(); i++ ) {
-            if ( toFind.equals( check.get( i ))) {
-                
-                return true;
-            }
-        }
+        try {
+            
+            String[] info;
+            info = getDBInfo( "development" );
+            db1 = new Db_conn( info[0], info[1], info[2], info[3], info[4] );
+            dab1 = new Database( db1 );
+            FileConversion.writeTo( dab1 );
+            
+            return true;
+        } catch( Exception e ) {
         
-        return false;
-    }
-    
-    /**
-     * compareTables determines which table(s) is/are only in tables1 and 
-     * decides which SQL to use based on type
-     * @author Peter Kaufman
-     * @type function
-     * @access public 
-     * @param tables1 is an ArrayList of Strings containing table names
-     * @param tables2 is an ArrayList of Strings containing table names
-     * @param type is a String that determines whether to add or drop the tables
-     * that are found to exist in only in tables1
-     */
-    public static void compareTables( ArrayList<String> tables1, ArrayList<String> tables2, String type ) {
-    
-        for ( String table : tables1 ) {
-            if( !inArray( table, tables2 )){
-                if ( type.equals( "add" )) {
-                    // get the create statement
-                    db1.make_conn();
-                    sql.add( db1.getCreateStatement( table ) + ";" );
-                    db1.kill_conn();
-                } else {
-                    // drop the table
-                    sql.add( "DROP TABLE `" + table + "`;" );
-                }
-                exclude.add( table );
-            }
+            System.err.println( e );
+            
+            return false;
         }
     }
-    
     public static void main(String[] args) {
         
         int option;
         
-        System.out.println( "/***********************************************\\" );
-        System.out.println( "|1-Database compare using 2 database connections|" );
-        System.out.println( "|2-Database compare using 1 database connection |" );
-        System.out.println( "\\***********************************************/" );
+        System.out.println( "/*****************************************************\\" );
+        System.out.println( "|1-Database compare using 2 database connections      |" );
+        System.out.println( "|2-Database compare using 1 database connection       |" );
+        System.out.println( "|3-Take database snapshot using 1 database connection |" );
+        System.out.println( "\\*****************************************************/" );
         System.out.print( "Enter a value in order to choose the method to use: " );
         
         try {
@@ -159,13 +174,21 @@ public class Db_Diff_Checker {
             
             if ( option == 1 ) {
                
-                DBCompare1(); 
+                DBCompare1();
+                displaySQL();
+            } else if ( option == 2 ) {
+            
+                DBCompare2();
+                displaySQL();
             } else {
-            
-                System.out.println( "Option 2 was selected." );
+                if ( takeSnapshot()) {
+                
+                    System.out.println( "The database snapshot was taken successfully." );
+                } else {
+                
+                    System.out.println( "An error occcurred." );
+                }
             }
-            
-            displaySQL();
         } catch ( Exception e ) {
         
             System.err.println( e );
