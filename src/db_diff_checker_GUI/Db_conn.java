@@ -65,10 +65,11 @@ public class Db_conn {
         try {
             
             this.con = DriverManager.getConnection( this.conn_string , this.username, this.password );  
-        } catch (SQLException e) {
+        } catch ( SQLException e ) {
             
             System.err.println( e );
             e.printStackTrace();
+            error( "There was an error connecting to the " + this.db + " database."  );
         }
     }
   
@@ -95,10 +96,11 @@ public class Db_conn {
         try {
             
             this.con.close();
-        } catch (SQLException e) {
+        } catch ( SQLException e ) {
             
             System.err.println( e );
             e.printStackTrace();
+            error( "There was an error closing  the " + this.db + " database."  );
         }
     }
     
@@ -120,10 +122,11 @@ public class Db_conn {
             ResultSet set = query.executeQuery( "SHOW CREATE TABLE `" + table + "` -- create table;" );
             set.next(); // move to the first result
             return set.getString( "Create Table" );
-        } catch (SQLException e) {
+        } catch ( SQLException e ) {
       
             System.err.println( e );
             e.printStackTrace();
+            error( "There was an error getting the " + table + " table's create statement." );
         }
         
         return "";
@@ -148,10 +151,11 @@ public class Db_conn {
             set.next(); // move to the first result
             
             return set.getString( "Create View" );
-        } catch (SQLException e) {
+        } catch ( SQLException e ) {
             
             System.err.println( e );
             e.printStackTrace();
+            error( "There was an error getting the " + view + " view's create statement." );
         }
         
         return "";
@@ -292,10 +296,11 @@ public class Db_conn {
                 }
             
             return tables2;
-        } catch (SQLException e) {
+        } catch ( SQLException e ) {
             
             System.err.println( e );
             e.printStackTrace();
+            error( "There was an error getting the " + this.db + " database's table, column, and index details." );
         }
         
         return tables2;
@@ -336,10 +341,11 @@ public class Db_conn {
             }
             
             return views1;
-        } catch (SQLException e) {
+        } catch ( SQLException e ) {
             
             System.err.println( e );
             e.printStackTrace();
+            error( "There was an error getting the " + this.db + " database's view details." );
         }
         
         return views1;
@@ -375,5 +381,19 @@ public class Db_conn {
         }
         
         return type;
+    }
+    
+        /**
+     * error opens a JFrame with an error message 
+     * @author Peter Kaufman
+     * @type function
+     * @access private
+     * @param error is a String which represents the error message to display
+     */
+    private void error( String error ) {
+    
+        Error err = new Error( error );
+        err.setSize( 430, 100 );
+        err.setVisible( true );
     }
 }

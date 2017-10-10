@@ -278,7 +278,7 @@ public class DBCompare1 extends javax.swing.JFrame {
     private void error( String error ) {
     
         Error err = new Error( error );
-        err.setSize( 400, 100 );
+        err.setSize( 430, 100 );
         err.setVisible( true );
         this.error = true;
     }
