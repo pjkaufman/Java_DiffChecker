@@ -9,7 +9,7 @@
 package db_diff_checker;
 public class Views {
     
-    private String create = "", name = "", drop = ""; 
+    private String createStatement = "", name = "", drop = ""; 
     
     /**
      * Views initializes a Views object
@@ -18,7 +18,7 @@ public class Views {
      */
     public Views ( String name, String create ) {
     
-        this.create = create;
+        this.createStatement = create + ";";
         this.name = name;
         this.drop = "DROP VIEW `" + name + "`;";
     }
@@ -32,11 +32,11 @@ public class Views {
      * @author Peter Kaufman
      * @type getter
      * @access public
-     * @return name is a String which represents the create statement of the view
+     * @return createStatement is a String which represents the create statement of the view
      */
     public String getCreateStatement() {
     
-        return this.create;
+        return this.createStatement;
     }
     
     /**

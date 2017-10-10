@@ -49,20 +49,24 @@ public class Db_Diff_Checker {
      * @access public
      */
     public static void DBCompare1() { // works
+        try{
+            String[] info;
+            info = getDBInfo( "development" );
+            db1 = new Db_conn( info[0], info[1], info[2], info[3], info[4] );
+            dab1 = new Database( db1 );
+
+            info = getDBInfo( "live" );
+            db2 = new Db_conn( info[0], info[1], info[2], info[3], info[4] );
+            dab2 = new Database( db2 );
+
+            sql.addAll( dab1.compareTables( dab2.getTables()));
+            update_tables.addAll( dab1.tablesDiffs( dab2.getTables()));
+            sql.addAll(dab1.updateTables( dab2.getTables(), update_tables ));
+            sql.addAll(dab1.updateViews( dab2.getViews()));
+        } catch ( SQLException e ) {
         
-        String[] info;
-        info = getDBInfo( "development" );
-        db1 = new Db_conn( info[0], info[1], info[2], info[3], info[4] );
-        dab1 = new Database( db1 );
-        
-        info = getDBInfo( "live" );
-        db2 = new Db_conn( info[0], info[1], info[2], info[3], info[4] );
-        dab2 = new Database( db2 );
-        
-        sql.addAll( dab1.compareTables( dab2.getTables()));
-        update_tables.addAll( dab1.tablesDiffs( dab2.getTables()));
-        sql.addAll(dab1.updateTables( dab2.getTables(), update_tables ));
-        sql.addAll(dab1.updateViews( dab2.getViews()));      
+            System.err.println( e );
+        }
     } 
     
      /**
@@ -79,41 +83,18 @@ public class Db_Diff_Checker {
             String[] info;
             Database dab1 = FileConversion.readFrom(); 
             
-//            ArrayList<Table> t = dab1.getTables();
-//            ArrayList<Views> v = dab1.getViews();
-//            ArrayList<Index> i;
-//            ArrayList<Column> c;
-//            
-//            for ( Table table: t ) {
-//            
-//                System.out.println(table.getName() + ":" + table.getCreateStatement());
-//                i = table.getIndices();
-//                c = table.getColumns();
-//                for ( Index index: i ) {
-//                System.out.println( index.getName() + ":" + index.getColumn() + ":" + index.getCreateStatement());
-//                }
-//                for ( Column column: c ) {
-//                System.out.println( column.getName() + ":" + column.getDetails());
-//                }
-//            }
-//            for ( Views view: v ) {
-//            
-//                System.out.println(view.getName() + ":" + view.getCreateStatement());
-//            }
             info = getDBInfo( "live" );
             db2 = new Db_conn( info[0], info[1], info[2], info[3], info[4] );
             dab2 = new Database( db2 );
 
             sql.addAll( dab1.compareTables( dab2.getTables()));
             update_tables.addAll( dab1.tablesDiffs( dab2.getTables()));
-            sql.addAll( dab1.updateTables( dab2.getTables(), update_tables )); // logic error?
+            sql.addAll( dab1.updateTables( dab2.getTables(), update_tables )); 
             sql.addAll( dab1.updateViews( dab2.getViews()));  
-        } catch( IOException e ) {
+        } catch( IOException | SQLException e ) {
     
             System.err.println( e );
-        } catch ( Exception e ) {
-        
-            System.err.println(e);
+            e.printStackTrace();
         }
     }    
     /**
@@ -139,7 +120,7 @@ public class Db_Diff_Checker {
         }
     } 
    
-    public static boolean takeSnapshot() { // works?
+    public static boolean takeSnapshot() { 
     
         try {
             
@@ -153,6 +134,7 @@ public class Db_Diff_Checker {
         } catch( Exception e ) {
         
             System.err.println( e );
+            e.printStackTrace();
             
             return false;
         }
@@ -192,6 +174,7 @@ public class Db_Diff_Checker {
         } catch ( Exception e ) {
         
             System.err.println( e );
+            e.printStackTrace();
         }
         
     }

@@ -8,14 +8,10 @@
  */
 package db_diff_checker;
 import java.util.ArrayList;
-import java.util.List;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collections;
 public class Table {
 
     private String name, createStatement, charSet, collation, auto_increment;
-    private ArrayList<Column> columns = new ArrayList(), order_of_columns = new ArrayList();
+    private ArrayList<Column> columns = new ArrayList();
     private ArrayList<Index> indices = new ArrayList();
     
     /**
@@ -24,22 +20,34 @@ public class Table {
      * @type constructor
      * @access public
      * @param table is a String that is the name of the table
-     * @param db is a Db_conn object that allows the table to get the necessary 
+     * @param db is a Db_conn object that allows the table to get the necessary
+     * @param create is a String which represents the create statement of the table
      * info to create its columns
      */
-    public Table( String table, Db_conn db ) {
+    public Table( String table, Db_conn db, String create ) {
     
         this.name = table;
         db.make_conn();
-        this.createStatement = db.getTableCreateStatement( this.name ) + ";";
-        getColumns( db );
-        orderColumns();
-        getIndices( db );
-        db.kill_conn();
+        this.createStatement = create + ";";
+        //this.createStatement = db.getTableCreateStatement( this.name ) + ";";
+        //getColumns( db );
+        //orderColumns();
+        //getIndices( db );
+        //db.kill_conn();
     }
     
     public Table() {
         // defualt constructor - needed for file conversion
+    }
+    
+    public void addColumn( Column col ) {
+    
+        this.columns.add( col );
+    }
+    
+    public void addIndex( Index index ) {
+    
+        this.indices.add( index );
     }
     
      /**
@@ -64,6 +72,42 @@ public class Table {
     public String getCharSet() {
     
         return this.charSet;
+    }
+    
+    /**
+     * setCollation sets the collation of the table
+     * @author Peter Kaufman
+     * @type setter
+     * @access public
+     * @param collation is a String which represents the collation of the table
+     */
+    public void setCollation( String collation ) {
+    
+        this.collation = collation;
+    }
+    
+    /**
+     * setCharSet sets the character set of the table
+     * @author Peter Kaufman
+     * @type setter
+     * @access public
+     * @param charSet is a String which represents the character set of the table
+     */
+    public void setCharSet( String charSet ) {
+    
+         this.charSet = charSet;
+    }
+    
+    /**
+     * setAutoIncrement sets the autoIncrement count of the table
+     * @author Peter Kaufman
+     * @type setter
+     * @access public
+     * @param autoIncrement is a String which represents the autoIncrement count of the table
+     */
+    public void setAutoIncrement( String autoIncrement ) {
+    
+         this.auto_increment = autoIncrement;
     }
     
     /**
@@ -158,191 +202,6 @@ public class Table {
     }
     
     /**
-     * getIndices takes in a Db_conn and returns all the indices in the table
-     * @author Peter Kaufman
-     * @type function
-     * @access private
-     * @param db is a Db_conn object which allows all of the table's indices 
-     * to be accessed
-     */
-    private void getIndices( Db_conn db ) {
-    
-        try {
-            
-            String query = "SELECT t.`name` AS `Table`, i.`name` AS `Index`, " + 
-                "i.`TYPE`, GROUP_CONCAT(f.`name` ORDER BY f.`pos`) AS `Columns` "
-                + "FROM information_schema.innodb_sys_tables t JOIN " + 
-                "information_schema.innodb_sys_indexes i USING (`table_id`) " + 
-                "JOIN information_schema.innodb_sys_fields f USING (`index_id`)" +
-                " WHERE t.`name` = '" + db.getDB()+ "/" + this.name + 
-                "' AND i.`name` NOT LIKE \"FTS%\" GROUP BY 1,2;";
-            
-            db.make_conn();
-            
-            ResultSet set = db.query( query ); 
-            while ( set.next() ) {
-                
-                String index = set.getString( "Index" ), 
-                       type = getType(Integer.parseInt( set.getString( "TYPE" )))
-                       , column = set.getString( "Columns" );
- 
-                this.indices.add( new Index( index, type, column ));
-            }
-            
-            db.kill_conn();
-            
-        } catch( SQLException e ) {
-            
-            System.err.println(e);
-        }
-    }
-    
-    /**
-     * getType takes in a number and returns the name of the type of index
-     * @author Peter Kaufman
-     * @type function
-     * @access private
-     * @param num is an integer which is the type of the index
-     * @return type is a String which is the name of the type of index
-     */
-    private String getType( int num ) {
-        
-        String type = "";
-        
-        if ( num == 3 ) {
-            
-            type = " PRIMARY KEY ";
-        } else if ( num == 3 ) {
-            
-            type = " UNIQUE INDEX ";
-        } else if ( num == 64 ) {
-        
-            type = " SPATIAL INDEX ";
-        } else if ( num == 32 ) {
-        
-            type = " FULLTEXT INDEX ";
-        } else {
-            
-            type = " INDEX ";
-        }
-        
-        return type;
-    }
-    
-    /**
-     * getColumns gets the column data and initializes the columns ArrayList of 
-     * the table
-     * @author Peter Kaufman
-     * @type function
-     * @access private
-     * @param db is a Db_conn object that allows the table to access the 
-     * appropriate db
-     */
-    private void getColumns( Db_conn db) {
-    
-        try {
-            String query = "SELECT DISTINCT\n" +
-            "    (CONCAT(a.`TABLE_NAME`, `COLUMN_NAME`)) AS 'distinct',\n" +
-            "    a.`TABLE_NAME` AS `table`,\n" +
-            "    `COLUMN_NAME` AS `name`,\n" +
-            "    `COLUMN_TYPE` AS `type`,\n" +
-            "    `COLLATION_NAME` AS `collation`,\n" +
-            "    `ChARACTER_SET_NAME` AS `charcter_set`,\n" +
-            "    `COLUMN_DEFAULT` AS `default`,\n" +
-            "    `EXTRA` AS `extra`,\n" +
-            "    `IS_NULLABLE`,\n" +
-            "    `AUTO_INCREMENT` AS `auto_increment`\n" +
-            "FROM\n" +
-            "    information_schema.COLUMNS a\n" +
-            "        LEFT JOIN\n" +
-            "    INFORMATION_SCHEMA.TABLES b ON a.`TABLE_NAME` = b.`TABLE_NAME`\n" +
-            "WHERE\n" +
-            "    a.`TABLE_SCHEMA` = \"" + db.getDB() + "\"\n" +
-            "    AND a.`TABLE_NAME` = \"" + name + "\"\n" +
-            "GROUP BY `distinct`\n" +
-            "ORDER BY `collation` DESC;";
-            
-            db.make_conn();
-            ResultSet set = db.query( query );
-            // get the info 
-            while ( set.next() ) {
-                
-                String info = "";
-                if ( set.isFirst()) {
-                    
-                    this.charSet = set.getString( "charcter_set" );
-                    this.collation = set.getString( "collation" );
-                    this.auto_increment = set.getString( "auto_increment" ); 
-                }
-                info += set.getString( "type" );
-                // determine if the column is nullable
-                if ( set.getString( "IS_NULLABLE" ).equals( "NO" )) {
-                
-                    info += " NOT NULL ";
-                } else {
-                    
-                    info += " NULL ";
-                }
-                // determine the default of the column
-                if ( !set.getString( "extra" ).equals("auto_increment")) { // makes the sql syntax correct when modifying a column that is AI
-                    info += "DEFAULT ";
-                    if ( set.getString( "default" ) != null && 
-                            !set.getString( "default" ).equals( "" )) {
-
-                        info += set.getString( "default" ) + " ";
-                    } else if( set.getString( "default" ) != null && 
-                            set.getString( "default" ).equals( "" )) {
-
-                        info += "'' ";
-                    } else {
-
-                        info += "NULL ";
-                    }
-                }
-                
-                if ( set.getString( "extra" ).equals( "auto_increment" )){
-                    
-                    info += "AUTO_INCREMENT";
-                }
-                
-                columns.add( new Column( set.getString( "name" ), info ));
-            }
-            
-            db.kill_conn();
-        } catch( SQLException e ) {
-        
-            System.err.println( e );
-        }
-    } 
-   
-    /**
-     * orderColumns orders the columns from first to last
-     * @author Peter Kaufman
-     * @type function
-     * @access private
-     */
-    private void orderColumns() {
-    
-        List<Integer> cols = new ArrayList();
-        for ( Column col : columns ) {
-            
-            cols.add( this.createStatement.indexOf( "`" + col.getName() + "`"));
-        }
-        
-        Collections.sort( cols );
-        
-        for ( int i = 0; i < cols.size(); i++) {
-            for ( Column col : columns ) {
-                if ( this.createStatement.indexOf( "`" + col.getName() + "`") == 
-                        cols.get( i )) {
-                    
-                    this.order_of_columns.add( col );
-                }
-            }
-        }
-    }
-    
-    /**
      * checkCols takes two ArrayLists of Column objects and returns SQL to make 
      * the columns the same
      * @author Peter Kaufman
@@ -356,13 +215,14 @@ public class Table {
     private ArrayList<String> checkCols( ArrayList<Column> cols1, ArrayList<Column> cols2 ) {
     
         ArrayList<String> sql = new ArrayList();
+        String last = "";
         
          for ( Column col: cols1 ) {
+            System.out.println(col.getName());
             if ( !inArray( col.getName(), cols2 )) {
                 
-                String statement = placeStatement( col.getName());
                 sql.add( "ALTER TABLE `" + this.name + "` ADD COLUMN `" + 
-                        col.getName() + "` " + col.getDetails() + statement + 
+                        col.getName() + "` " + col.getDetails() + last + 
                         ";" );
             } else {
                 for ( Column col2: cols2 ){
@@ -378,6 +238,7 @@ public class Table {
                     }
                 }
             }
+            last = " AFTER `" + col.getName() + "`";
         }
         // check for columns to drop
         for ( Column col: cols2 ) {
@@ -389,39 +250,6 @@ public class Table {
         }
         
         return sql;
-    }
-    
-    /**
-     * placeStatement takes in the name of a colum and returns the SQL statement
-     * for where it should be placed
-     * @author Peter Kaufman
-     * @type function
-     * @access private
-     * @param col is a String which represents the name of a column in the table
-     * @return statement is a String which represents where the column will be 
-     * placed in a table using SQL
-     */
-    private String placeStatement( String col ) {
-    
-        String last = "", statement = "";
-        for ( Column col1: order_of_columns ) {
-            if ( col.equals( col1.getName())) {
-                if ( last.equals( "" )) {
-                    
-                    statement = " FIRST";
-                } else {
-                
-                    statement = " AFTER `" + last + "`";
-                }
-                
-                break;
-            } else {
-            
-                last = col1.getName();
-            }
-        }
-        
-        return statement;
     }
     
      /**

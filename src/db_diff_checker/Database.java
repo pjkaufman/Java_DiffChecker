@@ -1,35 +1,26 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Database models a MYSQL database schema
+ * @author Peter Kaufman
+ * @class Database
+ * @access public
+ * @version 10-9-17
+ * @since 9-18-17
  */
 package db_diff_checker;
-
 import java.util.ArrayList;
-
-/**
- *
- * @author topse
- */
 public class Database {
     
     private ArrayList<Table> tables = new ArrayList();
     private ArrayList<Views> views = new ArrayList();
-    private ArrayList<String> exclude = new ArrayList(), view_names = new ArrayList();
+    private ArrayList<String> exclude = new ArrayList();
     
     public Database( Db_conn db ) {
     
         // get tables
         db.make_conn();
-        this.view_names = db.getViewNames();
-        getViewList( db );
-        ArrayList<String> tables1 = db.getTableList();
-        db.kill_conn();
-        for ( String table : tables1 ) {
-            if ( !inArray( table, this.view_names )) {
-                this.tables.add( new Table( table, db ));
-            }
-        }
+        this.views = db.getViews();
+        this.tables = db.getTableList();
+
     }
     
     public Database() {
@@ -132,7 +123,6 @@ public class Database {
      * @return is either true or false depending on if toFind is in check
      */
     private boolean inArray( String toFind, ArrayList<String> check ) {
-    
         for ( int i = 0; i < check.size(); i++ ) {
             if ( toFind.equals( check.get( i ))) {
                 
@@ -153,7 +143,6 @@ public class Database {
      * @return is either true or false depending on if toFind is in check
      */
     private boolean inArrayList( String toFind, ArrayList<Table> check ) {
-    
         for ( Table table: check ) {
             if ( toFind.equals( table.getName() )) {
                 
@@ -233,21 +222,5 @@ public class Database {
         }
         
         return update_tables;
-    }
-    
-    /**
-     * getViewList gets all the views in the db's
-     * @author Peter Kaufman
-     * @type function
-     * @access private
-     */
-    private void getViewList( Db_conn db) {
-    
-        ArrayList<String> dev = db.getViewNames();
-       
-        for ( String view1: dev ) {
-       
-           this.views.add( new Views( view1, db.getViewCreateStatement( view1 )));
-        }
     }
 }

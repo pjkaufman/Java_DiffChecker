@@ -3,7 +3,7 @@
  * @author Peter Kaufman
  * @class Index
  * @access public
- * @version 9-12-17
+ * @version 10-9-17
  * @since 9-12-17 
  */
 package db_diff_checker;
@@ -18,7 +18,7 @@ public class Index {
      * @access public
      * @param name is a String which represents the name of the index
      * @param create is a String which represents the create statement of an
-     * index
+     * @param column is a String which represents the column of an index
      */
     public Index( String name, String create, String column ) {
     
@@ -68,6 +68,24 @@ public class Index {
         return this.column;
     }
     
+    /**
+     * Index initializes an Index object    
+     * @author Peter Kaufman
+     * @type constructor
+     * @access public
+     * @param name is a String which represents the name of the index
+     * @param create is a String which represents the create statement of an
+     * @param column is a String which represents the column of an index
+     */
+    /**
+     * formatCols converts a String that represents the column(s) of an index
+     * into a usable format for an index, meant especially for a composite index
+     * @author Peter Kaufman
+     * @type function
+     * @access public
+     * @param columns is a String which  represents the column(s) of an index
+     * @return col a String which is a usable format for an index
+     */
     public String formatCols( String columns ) {
     
        String col = "";
