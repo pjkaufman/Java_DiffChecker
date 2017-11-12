@@ -3,10 +3,10 @@
  * @author Peter Kaufman
  * @class Index
  * @access public
- * @version 10-9-17
+ * @version 10-21-17
  * @since 9-12-17 
  */
-package db_diff_checker_GUI;
+package db_diff_checker_gui2;
 public class Index {
     
     private String name, createStatement, column;

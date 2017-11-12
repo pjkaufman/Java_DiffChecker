@@ -3,14 +3,15 @@
  * @author Peter Kaufman
  * @class Table
  * @access public
- * @version 10-13-17
+ * @version 10-21-17
  * @since 9-10-17 
  */
-package db_diff_checker_GUI;
+package db_diff_checker_gui2;
 import java.util.ArrayList;
 public class Table {
 
-    private String name, createStatement, charSet, collation, auto_increment;
+    private String name = "", createStatement = "", charSet = "", collation = "", auto_increment = "";
+    private int count = 0;
     private ArrayList<Column> columns = new ArrayList();
     private ArrayList<Index> indices = new ArrayList();
     
@@ -26,8 +27,10 @@ public class Table {
      */
     public Table( String table, Db_conn db, String create ) {
     
+        String temp = create.substring( create.indexOf( "DEFAULT CHARSET=" ) + 16 ) + " ";
         this.name = table;
         this.createStatement = create + ";";
+        this.charSet = temp.substring( 0, temp.indexOf( " " ));
     }
     
     public Table() {
@@ -56,6 +59,18 @@ public class Table {
     public String getCharSet() {
     
         return this.charSet;
+    }
+    
+    /**
+     * getAI returns the auto_increment count of the table
+     * @author Peter Kaufman
+     * @type getter
+     * @access public
+     * @return auto_increment is the auto_increment count of the table
+     */
+    public String getAI() {
+    
+        return this.auto_increment;
     }
     
     /**
@@ -179,80 +194,186 @@ public class Table {
     public ArrayList<String> equals( Table t1 ) {
     
         ArrayList<String> sql = new ArrayList();
-        
-        // check to see if the table has any upper level differences
-        if ( t1.auto_increment == null && this.auto_increment == null ) {
-            // do nothing neither of the tables have auto_increment
-        } else if ( !( t1.auto_increment == null | this.auto_increment == null )
-                & !t1.auto_increment.equals( this.auto_increment )) {
+        String sql2 = "ALTER TABLE `" + this.name + "`\n";
 
-            sql.add( "ALTER TABLE `" + this.name + "` AUTO_INCREMENT=" + 
-                    this.auto_increment + ";" );
-        } else if ( this.auto_increment != null & !t1.auto_increment.equals( 
-                this.auto_increment )  ) {
+        if (  !this.charSet.equals( t1.charSet ) | !this.collation.equals( t1.collation )) {
         
-            sql.add( "ALTER TABLE `" + this.name + "` AUTO_INCREMENT=" + 
-                    this.auto_increment + ";" );
+            sql2 += "CHARACTER SET " + this.charSet + " COLLATE " + this.collation;
+            this.count++;
         }
         
-        if ( !this.charSet.equals( t1.charSet ) | 
-                !this.collation.equals( t1.collation )) {
-        
-            sql.add( "ALTER TABLE `" + this.name + "` CHARACTER SET " + 
-                    this.charSet + " COLLATE " + this.collation + ";" );
+        sql2 += dropIndices( this.indices, t1.getIndices());
+        sql2 += otherCols( this.columns, t1.getColumns());
+        sql2 += dropCols( this.columns, t1.getColumns());
+        sql2 += otherIndices( this.indices, t1.getIndices()) + ";";
+        if ( this.count != 0 ) {
+            
+            sql.add( sql2 );
         }
-        // check to make sure the columns are the same
-        sql.addAll( checkCols( this.columns, t1.getColumns())); // error
-        // check the indidices of the two tables 
-        sql.addAll( checkIndices( this.indices, t1.getIndices())); // error
         
         return sql;
     }
     
     /**
-     * checkCols takes two ArrayLists of Column objects and returns SQL to make 
-     * the columns the same
+     * dropCols takes two ArrayLists of Column objects and returns part of a SQL statement that makes 
+     * the columns the same-- checks for columns to drop
      * @author Peter Kaufman
      * @type function
      * @access private
      * @param cols1 is an AarrayList of Column objects
      * @param cols2 is an AarrayList of Column objects
-     * @return sql is an ArrayList of Strings which represent the SQL to make 
+     * @return sql is an String which represent part of a SQL statement that makes 
      * the columns the same
      */
-    private ArrayList<String> checkCols( ArrayList<Column> cols1, ArrayList<Column> cols2 ) {
+    private String dropCols( ArrayList<Column> cols1, ArrayList<Column> cols2 ) {
     
-        ArrayList<String> sql = new ArrayList();
+        String sql = "";
+        // check for columns to drop
+        for ( Column col: cols2 ) {
+            if (!inArray( col.getName(), cols1 )) {
+                if ( this.count == 0 ) {
+
+                    sql += "DROP COLUMN `" + col.getName() + "`"; 
+                } else {
+
+                    sql += ", \nDROP COLUMN `" + col.getName() + "`"; 
+                }
+
+                this.count++;
+            }
+        }
+        
+        return sql;
+    }
+    
+    /**
+     * otherCols takes two ArrayLists of Column objects and returns part of a SQL statement that makes 
+     * the columns the same-- checks for columns to add and modify
+     * @author Peter Kaufman
+     * @type function
+     * @access private
+     * @param cols1 is an AarrayList of Column objects
+     * @param cols2 is an AarrayList of Column objects
+     * @return sql is an String which represent part of a SQL statement that makes 
+     * the columns the same
+     */
+    private String otherCols( ArrayList<Column> cols1, ArrayList<Column> cols2 ) {
+    
+        String sql = "";
         String last = "";
         
          for ( Column col: cols1 ) {
             if ( !inArray( col.getName(), cols2 )) {
-                System.out.println(col.getName() + " " + this.name);
-                sql.add( "ALTER TABLE `" + this.name + "` ADD COLUMN `" + 
-                        col.getName() + "` " + col.getDetails() + last + 
-                        ";" );
+                if ( this.count == 0 ) {
+                        
+                    sql += "ADD COLUMN `" + col.getName() + "` " + col.getDetails() + last; 
+                } else {
+
+                    sql += ", \nADD COLUMN `" + col.getName() + "` " + col.getDetails() + last; 
+                }
+
+                this.count++;
             } else {
                 for ( Column col2: cols2 ){
                     if( col.getName().equals( col2.getName())){ // columns are the same
                         if ( !col.getDetails().equals( col2.getDetails())) { // column details are different
+                            if ( this.count == 0 ) {
+                        
+                                sql += "MODIFY COLUMN `" + col.getName() + "` " + col.getDetails(); 
+                            } else {
+
+                                sql += ", \nMODIFY COLUMN `" + col.getName() + "` " + col.getDetails(); 
+                            }
                             
-                            sql.add( "ALTER TABLE `" + this.name + 
-                                    "` MODIFY COLUMN `" + col.getName() + "` " + 
-                                    col.getDetails() + ";" );
+                            this.count++;
                         }
                         
                         break;
                     }
                 }
             }
+            
             last = " AFTER `" + col.getName() + "`";
         }
-        // check for columns to drop
-        for ( Column col: cols2 ) {
-            if (!inArray( col.getName(), cols1 )) {
+        
+        return sql;
+    }
+    
+    /**
+     * dropIndices takes in two lists of Indices and returns part of a SQL statement
+     * to make them the same-- checks for indices to drop
+     * @author Peter Kaufman
+     * @type function
+     * @access private
+     * @param dev is an ArrayList of Index objects that are in the dev db
+     * @param live is an ArrayList of Index objects that are in the live db
+     * @return sql is a String which represents part of a SQL statement
+     * to make them the same
+     */
+    private String dropIndices( ArrayList<Index> dev, ArrayList<Index> live ) {
+    
+        String sql = "";
+        // check for indices to remove
+        for ( Index indices1: live ) {
+            // if the index column is not present and the index name is not present, add the index
+            if ( inArrayList( indices1, dev ) == -1 ) {
+                if ( this.count == 0 ) {
+                        
+                    sql += "DROP INDEX `" + indices1.getName() + "`"; 
+                } else {
+
+                    sql += ", \nDROP INDEX `" + indices1.getName() + "`"; 
+                }
+                
+                this.count++;
+            } 
+        }
+        
+        return sql;
+    }
+    
+    /**
+     * otherIndices takes in two lists of Indices and returns part of a SQL statement
+     * to make them the same-- checks for indices to drop and add or just add
+     * @author Peter Kaufman
+     * @type function
+     * @access private
+     * @param dev is an ArrayList of Index objects that are in the dev db
+     * @param live is an ArrayList of Index objects that are in the live db
+     * @return sql is a String which represents part of a SQL statement
+     * to make them the same
+     */
+    private String otherIndices( ArrayList<Index> dev, ArrayList<Index> live ) {
+    
+        String sql = "";
+        // check for missing indices
+        for ( Index indices1: dev ) {
+            // if the index column is not present and the index name is not present, add the index
+            if ( inArrayList( indices1, live ) == 1 ) {
+                if ( this.count == 0 ) {
+                        
+                    sql += "DROP INDEX `" + indices1.getName() + "`"; 
+                    sql += ", \nADD" + indices1.getCreateStatement() + "`" + indices1.getName() + "` (" + indices1.getColumn() + ")";
+                } else {
+
+                    sql += ", \nDROP INDEX `" + indices1.getName() + "`";
+                    sql += ", \nADD" + indices1.getCreateStatement() + "`" + indices1.getName() + "` (" + indices1.getColumn() + ")";
+                }
+                
+                this.count++;
+            } else if ( inArrayList( indices1, live ) == -1 ) {   
+                if ( this.count == 0 ) {
+                        
+                    sql += "ADD" + indices1.getCreateStatement() + "`" + indices1.getName() + "` (" + indices1.getColumn() + ")";
+                } else {
+
+                    sql += ", \nADD" + indices1.getCreateStatement() + "`" + indices1.getName() + "` (" + indices1.getColumn() + ")";
+                }
+                
+                this.count++;
+            } else {
             
-                sql.add( "ALTER TABLE `" + this.name + "` DROP COLUMN `" + 
-                        col.getName() + "`;" );
+                // do nothing, they are the exact same
             }
         }
         
@@ -269,9 +390,9 @@ public class Table {
      * @return is either true or false depending on if toFind is in check
      */
     private boolean inArray( String toFind, ArrayList<Column> check ) {
-    
         for ( int i = 0; i < check.size(); i++ ) {
             if ( toFind.equals( check.get( i ).getName())) {
+                
                 return true;
             }
         }
@@ -279,66 +400,6 @@ public class Table {
         return false;
     }
     
-    /**
-     * checkIndices takes in two lists of Indices and returns the SQL statements
-     * to make them the same
-     * @author Peter Kaufman
-     * @type function
-     * @access private
-     * @param dev is an ArrayList of Index objects that are in the dev db
-     * @param live is an ArrayList of Index objects that are in the live db
-     * @return sql is an ArrayList of Strings which represents the SQL statements
-     * to make the indices the same
-     */
-    private ArrayList<String> checkIndices( ArrayList<Index> dev, ArrayList<Index> live ) {
-    
-        ArrayList<String> sql = new ArrayList();
-        
-        // check for missing indices
-        for ( Index indices1: dev ) {
-            // if the index column is not present and the index name is not present, add the index
-            if ( inArrayList( indices1, live ) == 1 ) {
-                if ( indices1.getCreateStatement().trim().equals( "PRIMARY KEY" )){
-                    
-                    sql.add( "ALTER TABLE `" + this.name + "` DROP PRIMARY KEY;" );
-                    sql.add( "ALTER TABLE `" + this.name + "` ADD PRIMARY KEY (" + indices1.getColumn() + ");" );
-                } else {
-                
-                    sql.add( "ALTER TABLE `" + this.name + "` DROP INDEX `" + indices1.getName() + "`;" );
-                    sql.add( "ALTER TABLE `" + this.name + "` ADD" + indices1.getCreateStatement() + "`" + indices1.getName() + "` (" + indices1.getColumn() + ");" );
-                }               
-            } else if ( inArrayList( indices1, live ) == -1 ) {   
-                if ( indices1.getCreateStatement().trim().equals( "PRIMARY KEY" )){
-                    
-                    sql.add( "ALTER TABLE `" + this.name + "` ADD PRIMARY KEY (" + indices1.getColumn() + ");" );
-                } else {
-                
-                    sql.add( "ALTER TABLE `" + this.name + "` ADD" + indices1.getCreateStatement() + "`" + indices1.getName() + "` (" + indices1.getColumn() + ");" );
-                }
-            } else {
-            
-                // do nothing, they are the exact same
-            }
-        }
-        // check for indices to remove
-        for ( Index indices1: live ) {
-            // if the index column is not present and the index name is not present, add the index
-            if ( inArrayList( indices1, dev ) == -1 ) {
-                if ( indices1.getCreateStatement().equals( " PRIMARY KEY " )){
-                    
-                    sql.add( "ALTER TABLE `" + this.name + "` DROP PRIMARY KEY;" );
-                } else {
-                
-                    sql.add( "ALTER TABLE `" + this.name + "` DROP INDEX `" + indices1.getName() + "`;" );
-                }
-            } else {
-            
-                // do nothing, index not needed to be dropped
-            }
-        }
-        
-        return sql;
-    }
     
     /**
      * inArrayList searches for toFind in check

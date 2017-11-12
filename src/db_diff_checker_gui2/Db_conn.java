@@ -4,16 +4,17 @@
  * @author Peter Kaufman
  * @class Db_conn
  * @access public
- * @version 10-9-17
+ * @version 10-26-17
  * @since 9-6-17
  */
-package db_diff_checker_GUI;
+package db_diff_checker_gui2;
 import java.sql.*;
 import java.util.ArrayList;
 public class Db_conn {
     
-    private String username = "", password = "", host = "", db = "", conn_string = "", port = "";
+    private String username = "", password = "", host = "", db = "", conn_string = "", port = "", type ="";
     private Connection con = null;
+    private ArrayList<String> firstSteps = new ArrayList();
     
     /**
      * Db_conn initializes objects of type db_conn
@@ -25,11 +26,13 @@ public class Db_conn {
      * @param host is the host of the MySQL account
      * @param port is the port MySQL is using
      * @param database is the db in MySQL that the connection is to be established with
+     * @param type is a String which is to be either dev or live
      * @throws SQLException which represents an error that occured in making a db
      * connection
      */
-    Db_conn ( String username, String password, String host, String port, String database ) throws SQLException {
+    Db_conn ( String username, String password, String host, String port, String database, String type ) throws SQLException {
         
+        this.type = type;
         this.username = username;
         this.password = password;
         this.host = host;
@@ -38,7 +41,8 @@ public class Db_conn {
         this.conn_string = "jdbc:mysql://" + this.host + ":" +  this.port + "/" + this.db + "?autoReconnect=true&useSSL=false&maxReconnects=150";
         this.testConn();
     }
-     /**
+    
+    /**
      * getDB returns the name of the db
      * @author Peter Kaufman
      * @type getter
@@ -48,6 +52,19 @@ public class Db_conn {
     public String getDB() {
     
         return this.db;
+    }
+    
+    /**
+     * getFirstSteps returns the first steps to be taken in order to run the SQL statements
+     * @author Peter Kaufman
+     * @type getter
+     * @access public
+     * @return firstSteps is an ArrayList of Strings which represents the 
+     * first steps to be taken in order to run the SQL statements
+     */
+    public ArrayList<String> getFirstSteps () {
+    
+        return this.firstSteps;
     }
         
     /**
@@ -76,8 +93,7 @@ public class Db_conn {
      * @type function
      * @access public
      */
-    public void kill_conn() {
-        
+    public void kill_conn() {    
         try {
             
             this.con.close();
@@ -100,12 +116,12 @@ public class Db_conn {
      * @return a String which is the table's create statement
      */
     public String getTableCreateStatement( String table ) {
-    
         try {
             
             Statement query = this.con.createStatement();
             ResultSet set = query.executeQuery( "SHOW CREATE TABLE `" + table + "` -- create table;" );
             set.next(); // move to the first result
+            
             return set.getString( "Create Table" );
         } catch ( SQLException e ) {
       
@@ -128,7 +144,6 @@ public class Db_conn {
      * @return a String which is the view's create statement
      */
     public String getViewCreateStatement( String view ) {
-    
         try {
             
             Statement query = this.con.createStatement();
@@ -161,8 +176,8 @@ public class Db_conn {
             String sql = "SELECT DISTINCT\n" +
                     "    (CONCAT(a.`TABLE_NAME`, `COLUMN_NAME`)) AS `distinct`,\n" +
                     "    a.`TABLE_NAME` AS `table`,\n" +
-                    "    `CHARACTER_SET_NAME` AS `charSet`,\n" +
-                    "    `COLLATION_NAME` AS `collation`,\n" +
+                    "    IFNULL(`CHARACTER_SET_NAME`, '') AS `charSet`,\n" +
+                    "    IFNULL(`COLLATION_NAME`, '') AS `collation`,\n" +
                     "    `TABLE_TYPE` AS `table_type`,\n" +
                     "    `COLUMN_NAME` AS `name`,\n" +
                     "    `ORDINAL_POSITION` AS `pos`,\n" +
@@ -170,7 +185,7 @@ public class Db_conn {
                     "    `COLUMN_DEFAULT` AS `default`,\n" +
                     "    `EXTRA` AS `extra`,\n" +
                     "    `IS_NULLABLE`,\n" +
-                    "    `AUTO_INCREMENT` AS `auto_increment`,\n" +
+                    "    IFNULL(`AUTO_INCREMENT`, '') AS `auto_increment`,\n" +
                     "    '' AS `index`,\n" +
                     "    NULL AS `indexType`,\n" +
                     "    '' AS `columns`\n" +
@@ -210,25 +225,78 @@ public class Db_conn {
                     "    t.`name` LIKE \"" + this.db + "/%\"  AND i.`name` NOT LIKE \"FTS%\"\n" +
                     "GROUP BY 1 , 2\n" +
                     "ORDER BY `table`, `pos`;";
-            String table = "", info = "";
+            String table = "", info = "", primary = "", firstStep = "", create = "";
             Table add = null;
+            int count = 0;
             Statement query = this.con.createStatement();
             ResultSet set = query.executeQuery( sql );
-                    
-            while (set.next()) {
+
+            while ( set.next()) {
                 if ( !table.equals( set.getString( "table" ))) {
-                    //this.tables.add( set.getString( "table" ));
+                    
+                    String temp = "";
                     table = set.getString( "table" );
-                    add = new Table( table, this, getTableCreateStatement( table ));
+                    create = getTableCreateStatement( table );
+                    if ( this.type.equals( "live" ) && create.contains( "PRIMARY KEY" )) {
+                        // remove auto_increment value statement
+                        if ( create.contains( "AUTO_INCREMENT" )) {
+                            if ( create.contains( "AUTO_INCREMENT=" )){
+                                
+                                create = create.substring( 0, create.indexOf( "AUTO_INCREMENT=" )) +
+                                        create.substring( create.indexOf( "DEFAULT CHARSET" ));
+                            }
+                            create = create.replace( "AUTO_INCREMENT", "" ); // remove auto-increment from column
+                        }
+                        // determine how many columns are in the PRIMARY KEY and replace the PRIMARY KEY reference
+                        temp = create.substring( create.indexOf( "PRIMARY KEY"));
+                        create = create.substring( 0, create.indexOf( "PRIMARY KEY")) + 
+                                create.substring( create.indexOf( "PRIMARY KEY") 
+                                    +  temp.indexOf( ")" ) + 2 ); 
+                        
+                        // check to see if the PRIMARY KEY was the last table line inside the create statement
+                        if ( !create.contains( "KEY" )) {
+                        
+                            create = create.substring( 0, create.lastIndexOf( "," )) + "\n" +
+                                    create.substring( create.lastIndexOf( "," ) + 2 );
+                        }
+                        
+                        add = new Table( table, this, create );
+                    } else {
+                    
+                        add = new Table( table, this, create );
+                    }
+                    
                     tables2.add( add );
+                    if ( count != 0 && this.type.equals( "live" )) {
+                        if ( !firstStep.contains( "COLUMN" )) {
+                        
+                            firstSteps.add( firstStep + "DROP PRIMARY KEY;" );
+                        } else {
+                        
+                            
+                            firstSteps.add( firstStep + ", \nDROP PRIMARY KEY;" );
+                        }
+                    } else if ( count != 0 && this.type.equals( "dev" )) {
+                        
+                        firstSteps.add( firstStep + ";" );
+                    }
+                    
+                    count = 0;
+                    primary = "";
+                    firstStep = "ALTER TABLE `" + table + "` \n";
                 }
-                
-                if( set.getString( "indexType" ) != null) {
-                
-                    add.addIndex( new Index( set.getString( "index"), 
+                if( set.getString( "indexType" ) != null ) {
+                    if ( getType( Integer.parseInt( set.getString( "indexType" ))).equals( " PRIMARY KEY " )){ // do not add to the indices list
+                    
+                        primary = set.getString( "columns" );
+                    } else {
+                    
+                        add.addIndex( new Index( set.getString( "index"), 
                             getType( Integer.parseInt( set.getString( "indexType" ))),
                             set.getString( "columns" )));
+                    }
                 } else {
+                    
                     info += set.getString( "type" );
                     // determine if the column is nullable
                     if ( set.getString( "IS_NULLABLE" ).equals( "NO" )) {
@@ -244,7 +312,7 @@ public class Db_conn {
                         if ( set.getString( "default" ) != null && 
                                 !set.getString( "default" ).equals( "" )) {
 
-                            info += set.getString( "default" ) + " ";
+                            info += "'" + set.getString( "default" ) + "' ";
                         } else if( set.getString( "default" ) != null && 
                                 set.getString( "default" ).equals( "" )) {
 
@@ -254,31 +322,75 @@ public class Db_conn {
                             info += "NULL ";
                         }
                     }
-
                     if ( set.getString( "extra" ).equals( "auto_increment" )){
 
                         info += "AUTO_INCREMENT";
-                    }
-
-                    if ( set.getString( "auto_increment" ) != null ) {
-
                         add.setAutoIncrement( set.getString( "auto_increment" ));
                     }
-
-                    if ( set.getString( "charSet" ) != null ) {
-
-                        add.setCharSet( set.getString( "charSet" ));
-                    }
-
-                    if ( set.getString( "collation" ) != null ) {
+                    if ( !set.getString( "collation" ).equals( "" )) {
 
                         add.setCollation( set.getString( "collation" ));
                     }
+                     // law of noncontradiction check
+                    if ( info.contains( "NOT NULL DEFAULT NULL" )) {
+                    
+                        info = info.replace( "DEFAULT NULL", "").trim();
+                    }
+                    // the primary key column is an auto_increment column, so remove the auto_increment 
+                    if ( primary.contains( set.getString( "name" )) && this.type.equals( "live" )) {
+                        if ( info.contains( "AUTO_INCREMENT" )){
+                            info = info.replace( "AUTO_INCREMENT", "" );
+                            if ( count == 0 ) {
 
+                                firstStep += "MODIFY COLUMN `" + set.getString( "name" ) + "` " + info;
+                            } else {
+
+                                firstStep += ", \n MODIFY COLUMN `" + set.getString( "name" ) + "` " + info;
+                            }
+                        }     
+                        
+                        count++;
+                    } else if ( primary.contains( set.getString( "name" )) && this.type.equals( "dev" )) {
+                        if ( count == 0 ) {                          
+
+                            Index tempIndex = new Index();
+                            firstStep += "ADD PRIMARY KEY (" + tempIndex.formatCols( primary ) + ")";
+                            
+                            if ( info.contains( "AUTO_INCREMENT" )) {
+                                
+                                firstStep += ", \nMODIFY COLUMN `" + set.getString( "name" ) + "` " + info.trim();
+                                firstStep += ", \nAUTO_INCREMENT=" + add.getAI();
+                                info = info.replace( " AUTO_INCREMENT", "" );
+                            } 
+                        } else {
+                            if ( info.contains( "AUTO_INCREMENT" )) {
+                        
+                                firstStep += ", \nMODIFY COLUMN `" + set.getString( "name" ) + "` " + info.trim();
+                                firstStep += ", \nAUTO_INCREMENT=" + add.getAI();
+                                info = info.replace( " AUTO_INCREMENT", "" );
+                            } 
+                        }
+                        
+                        count++;
+                    }
+                    
                     add.addColumn( new Column( set.getString( "name" ), info ));
                     info = "";
                     }
                 }
+            if ( count != 0 && this.type.equals( "live" )) {
+                if ( !firstStep.contains( "COLUMN" )) {
+
+                    firstSteps.add( firstStep + "DROP PRIMARY KEY;" );
+                } else {
+
+
+                    firstSteps.add( firstStep + ", \nDROP PRIMARY KEY;" );
+                }
+            } else if ( count != 0 && this.type.equals( "dev" )) {
+
+                firstSteps.add( firstStep + ";" );
+            }
             
             return tables2;
         } catch ( SQLException e ) {
@@ -303,26 +415,15 @@ public class Db_conn {
         ArrayList<Views> views1 = new ArrayList();
  
         try {
-            
-           String sql = "SELECT DISTINCT\n" +
-            "    (CONCAT(a.`TABLE_NAME`, a.`TABLE_NAME`)) AS 'distinct',\n" +
-            "    a.`TABLE_NAME` AS `table`,\n" +
-            "    `TABLE_TYPE` AS `table_type`\n" +
-            "FROM\n" +
-            "    information_schema.COLUMNS a\n" +
-            "        LEFT JOIN\n" +
-            "    INFORMATION_SCHEMA.TABLES b ON a.`TABLE_NAME` = b.`TABLE_NAME`\n" +
-            "WHERE\n" +
-            "    a.`TABLE_SCHEMA` = '" + this.db + "'AND\n" +
-            "    `TABLE_TYPE` = 'VIEW'\n" +
-            "ORDER BY a.`TABLE_NAME`;";
+            // sql is from https://geeksww.com/tutorials/database_management_systems/mysql/tips_and_tricks/mysql_query_to_find_all_views_in_a_database.php
+            String sql = "SHOW FULL TABLES IN `" + this.db + "` WHERE TABLE_TYPE LIKE 'VIEW';";
             Statement query = this.con.createStatement();
             ResultSet set = query.executeQuery( sql );
                     
             while (set.next()) {
                 
-                views1.add( new Views( set.getString( "table" ), 
-                        getViewCreateStatement( set.getString( "table" ))));
+                views1.add( new Views( set.getString( "Tables_in_" + this.db ), 
+                        getViewCreateStatement( set.getString( "Tables_in_" + this.db ))));
             }
             
             return views1;
@@ -334,7 +435,38 @@ public class Db_conn {
         }
         
         return views1;
-    }    
+    }   
+    
+    /**
+     * runSQL takes a SQL statement/statement list and runs it 
+     * @author Peter Kaufman
+     * @type function
+     * @access public
+     * @param sql is an ArrayList of Strings which represents a SQL statement/statement list
+     * @return either true or false depending on whether the SQL runs correctly
+     */
+    public boolean runSQL ( ArrayList<String> sql ) {
+        try{
+            
+            this.make_conn();
+            Statement query = this.con.createStatement();
+            for ( String statement: sql ) {
+                
+                query.executeUpdate( statement );
+            }
+            this.kill_conn();
+            
+            return true;
+        }catch( SQLException e ) {
+        
+            System.err.println( e );
+            e.printStackTrace();
+            error( "There was an error running SQL statement(s) on the " + this.db + " database." );
+            
+            return false;
+        }
+        
+    }
     
     /**
      * getType takes in a number and returns the name of the type of index

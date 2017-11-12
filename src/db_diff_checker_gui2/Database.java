@@ -3,17 +3,23 @@
  * @author Peter Kaufman
  * @class Database
  * @access public
- * @version 10-9-17
+ * @version 10-31-17
  * @since 9-18-17
  */
-package db_diff_checker_GUI;
+package db_diff_checker_gui2;
 import java.util.ArrayList;
 public class Database {
     
     private ArrayList<Table> tables = new ArrayList();
     private ArrayList<Views> views = new ArrayList();
-    private ArrayList<String> exclude = new ArrayList();
-    
+    private ArrayList<String> exclude = new ArrayList(), firstSteps = new ArrayList();
+    /**
+     * Database initializes a Database object
+     * @author Peter Kaufman
+     * @type constructor
+     * @access public
+     * @param db is a Db_conn connection which is used to get db information
+     */
     public Database( Db_conn db ) {
     
         // get tables
@@ -21,10 +27,25 @@ public class Database {
         this.views = db.getViews();
         this.tables = db.getTableList();
         db.kill_conn();
+        this.firstSteps = db.getFirstSteps();
     }
     
     public Database() {
         // defualt constructor - needed to make file conversion
+    }
+    
+    /**
+     * getFirstSteps returns the first steps to be taken in order to run the SQL statements
+     * @author Peter Kaufman
+     * @type getter
+     * @access public
+     * @return firstSteps is an ArrayList of Strings which represents the 
+     * first steps to be taken in order to run the SQL statements
+     */
+    public ArrayList<String> getFirstSteps () {
+    
+        checkFirstSteps();
+        return this.firstSteps;
     }
     
     /**
@@ -223,5 +244,26 @@ public class Database {
         }
         
         return false;
+    }
+    
+    /**
+     * checkFirstSteps checks to see if any of the SQL statements in the fistSteps
+     * ArrayList in the exclusion list. If it is, it is removed.
+     * @author Peter Kaufman
+     * @type function
+     * @access private
+     */
+    private void checkFirstSteps() {
+    
+        for ( String table: exclude ) {
+            for ( int i = 0; i < firstSteps.size(); i++ ) {
+
+                if ( firstSteps.get( i ).contains( "ALTER TABLE `" + table + "`" )) {
+                
+                    firstSteps.remove( i );
+                    break;
+                }
+            }
+        }
     }
 }

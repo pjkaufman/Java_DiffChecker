@@ -3,10 +3,10 @@
  * @author Peter Kaufman
  * @class Column
  * @access public
- * @version 9-10-17
+ * @version 10-25-17
  * @since 9-10-17 
  */
-package db_diff_checker_GUI;
+package db_diff_checker_gui2;
 public class Column {
     
     private String name = "", details = "";
@@ -28,6 +28,7 @@ public class Column {
     public Column() {
         // defualt constructor - needed for file conversion
     }
+    
     /**
      * getDetails returns the info about the column
      * @author Peter Kaufman

@@ -3,10 +3,10 @@
  * @author Peter Kaufman
  * @class Views
  * @access public
- * @version 9-16-17
+ * @version 10-21-17
  * @since 9-15-17 
  */
-package db_diff_checker_GUI;
+package db_diff_checker_gui2;
 public class Views {
     
     private String createStatement = "", name = "", drop = ""; 
