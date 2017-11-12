@@ -148,16 +148,19 @@ public class DB_Diff_Checker_GUI extends javax.swing.JFrame {
             compare1DB_DBSnapshot.setTitle( "Compare Database to Snapshot" );
             compare1DB_DBSnapshot.setVisible( true );
             this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-        } else {
+        } else if ( input.getText().trim().equals( "3" )) {
         
             DBCompare1 compare1DB_DBSnapshot = new DBCompare1();
             compare1DB_DBSnapshot.setSize( 350 , 275 );
             compare1DB_DBSnapshot.setTitle( "Take Database Snapshot" );
-            compare1DB_DBSnapshot.setButtonTxt("Snapshot" );
+            compare1DB_DBSnapshot.setButtonTxt( "Snapshot" );
             compare1DB_DBSnapshot.setVisible( true );
             this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
             
-        } 
+        } else {
+        
+            jLabel2.setText( "Please enter a number 1 to 3.");
+        }
     }//GEN-LAST:event_jContinueMouseClicked
    
     public static void main(String args[]) {

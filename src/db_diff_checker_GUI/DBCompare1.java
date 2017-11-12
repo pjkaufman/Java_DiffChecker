@@ -57,7 +57,7 @@ public class DBCompare1 extends javax.swing.JFrame {
         });
 
         jLabel23.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel23.setText("Enter Live Database Information Below");
+        jLabel23.setText("Enter Database Information Below");
 
         jLabel18.setText("Enter MySQL Username:");
 
@@ -153,20 +153,20 @@ public class DBCompare1 extends javax.swing.JFrame {
                 new String(password3.getPassword()).equals( "" ) | host3.getText().equals( "" ) |
                 database3.getText().equals( "" ))) {
 
-            if ( this.getTitle().equals( "Compare Database to Snapshot" )) {
+                if ( this.getTitle().equals( "Compare Database to Snapshot" )) {
 
-                this.error = false;
-                compare2();
+                    this.error = false;
+                    compare2();
+                } else {
+
+                    this.error = false;
+                    takeSnapshot();
+                }
+
             } else {
 
-                this.error = false;
-                takeSnapshot();
+                jLabel23.setText( "Please do not leave any fields blank." );
             }
-
-        } else {
-
-            jLabel23.setText( "Please do not leave any fields blank." );
-        }
         } catch( IOException e ) {
 
             error( "There was an error with the database snapshot file." );

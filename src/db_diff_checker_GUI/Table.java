@@ -3,7 +3,7 @@
  * @author Peter Kaufman
  * @class Table
  * @access public
- * @version 9-10-17
+ * @version 10-13-17
  * @since 9-10-17 
  */
 package db_diff_checker_GUI;
@@ -27,30 +27,14 @@ public class Table {
     public Table( String table, Db_conn db, String create ) {
     
         this.name = table;
-        db.make_conn();
         this.createStatement = create + ";";
-        //this.createStatement = db.getTableCreateStatement( this.name ) + ";";
-        //getColumns( db );
-        //orderColumns();
-        //getIndices( db );
-        //db.kill_conn();
     }
     
     public Table() {
         // defualt constructor - needed for file conversion
     }
     
-    public void addColumn( Column col ) {
-    
-        this.columns.add( col );
-    }
-    
-    public void addIndex( Index index ) {
-    
-        this.indices.add( index );
-    }
-    
-     /**
+    /**
      * getCollation returns the collation of the table
      * @author Peter Kaufman
      * @type getter
@@ -72,42 +56,6 @@ public class Table {
     public String getCharSet() {
     
         return this.charSet;
-    }
-    
-    /**
-     * setCollation sets the collation of the table
-     * @author Peter Kaufman
-     * @type setter
-     * @access public
-     * @param collation is a String which represents the collation of the table
-     */
-    public void setCollation( String collation ) {
-    
-        this.collation = collation;
-    }
-    
-    /**
-     * setCharSet sets the character set of the table
-     * @author Peter Kaufman
-     * @type setter
-     * @access public
-     * @param charSet is a String which represents the character set of the table
-     */
-    public void setCharSet( String charSet ) {
-    
-         this.charSet = charSet;
-    }
-    
-    /**
-     * setAutoIncrement sets the autoIncrement count of the table
-     * @author Peter Kaufman
-     * @type setter
-     * @access public
-     * @param autoIncrement is a String which represents the autoIncrement count of the table
-     */
-    public void setAutoIncrement( String autoIncrement ) {
-    
-         this.auto_increment = autoIncrement;
     }
     
     /**
@@ -159,6 +107,66 @@ public class Table {
     }
     
     /**
+     * setCollation sets the collation of the table
+     * @author Peter Kaufman
+     * @type setter
+     * @access public
+     * @param collation is a String which represents the collation of the table
+     */
+    public void setCollation( String collation ) {
+    
+        this.collation = collation;
+    }
+    
+    /**
+     * setCharSet sets the character set of the table
+     * @author Peter Kaufman
+     * @type setter
+     * @access public
+     * @param charSet is a String which represents the character set of the table
+     */
+    public void setCharSet( String charSet ) {
+    
+         this.charSet = charSet;
+    }
+    
+    /**
+     * setAutoIncrement sets the autoIncrement count of the table
+     * @author Peter Kaufman
+     * @type setter
+     * @access public
+     * @param autoIncrement is a String which represents the autoIncrement count of the table
+     */
+    public void setAutoIncrement( String autoIncrement ) {
+    
+         this.auto_increment = autoIncrement;
+    }
+    
+    /**
+     * addColumn adds a column to the columns ArrayList
+     * @author Peter Kaufman
+     * @type function
+     * @access public
+     * @param col is a Column object which is to be added to the column list
+     */
+    public void addColumn( Column col ) {
+    
+        this.columns.add( col );
+    }
+    
+    /**
+     * addIndex adds an index to the indices ArrayList
+     * @author Peter Kaufman
+     * @type function
+     * @access public
+     * @param index is an Index object which is to be added to the index list
+     */
+    public void addIndex( Index index ) {
+    
+        this.indices.add( index );
+    }
+    
+    /**
      * equals takes in a Table and compares it to the current one, the result is 
      * SQL to make them the same
      * @author Peter Kaufman
@@ -194,9 +202,9 @@ public class Table {
                     this.charSet + " COLLATE " + this.collation + ";" );
         }
         // check to make sure the columns are the same
-        sql.addAll( checkCols( this.columns, t1.getColumns()));
+        sql.addAll( checkCols( this.columns, t1.getColumns())); // error
         // check the indidices of the two tables 
-        sql.addAll( checkIndices( this.indices, t1.getIndices()));
+        sql.addAll( checkIndices( this.indices, t1.getIndices())); // error
         
         return sql;
     }
@@ -219,7 +227,7 @@ public class Table {
         
          for ( Column col: cols1 ) {
             if ( !inArray( col.getName(), cols2 )) {
-                
+                System.out.println(col.getName() + " " + this.name);
                 sql.add( "ALTER TABLE `" + this.name + "` ADD COLUMN `" + 
                         col.getName() + "` " + col.getDetails() + last + 
                         ";" );
@@ -264,7 +272,6 @@ public class Table {
     
         for ( int i = 0; i < check.size(); i++ ) {
             if ( toFind.equals( check.get( i ).getName())) {
-                
                 return true;
             }
         }

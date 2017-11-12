@@ -79,6 +79,7 @@ public class Database {
         
         return sql;
     }
+    
     /**
      * compareTables determines which table(s) is/are only in tables1 and 
      * decides which SQL to use based on type
@@ -112,47 +113,7 @@ public class Database {
         
         return sql;
     }
-    
-     /**
-     * inArray searches for toFind in check
-     * @author Peter Kaufman
-     * @type function
-     * @access public
-     * @param toFind is the String to be searched for in check
-     * @param check is an ArrayList of Strings to be searched for toFind
-     * @return is either true or false depending on if toFind is in check
-     */
-    private boolean inArray( String toFind, ArrayList<String> check ) {
-        for ( int i = 0; i < check.size(); i++ ) {
-            if ( toFind.equals( check.get( i ))) {
-                
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
-    /**
-     * inArrayList searches for toFind in check
-     * @author Peter Kaufman
-     * @type function
-     * @access public
-     * @param toFind is the String to be searched for in check
-     * @param check is an ArrayList of Strings to be searched for toFind
-     * @return is either true or false depending on if toFind is in check
-     */
-    private boolean inArrayList( String toFind, ArrayList<Table> check ) {
-        for ( Table table: check ) {
-            if ( toFind.equals( table.getName() )) {
-                
-                return true;
-            }
-        }
-        
-        return false;
-    }
-     
+         
     /**
      * updateTables takes in two table lists and updates the SQL statements to 
      * make them the same
@@ -222,5 +183,45 @@ public class Database {
         }
         
         return update_tables;
+    }
+    
+    /**
+     * inArray searches for toFind in check
+     * @author Peter Kaufman
+     * @type function
+     * @access public
+     * @param toFind is the String to be searched for in check
+     * @param check is an ArrayList of Strings to be searched for toFind
+     * @return is either true or false depending on if toFind is in check
+     */
+    private boolean inArray( String toFind, ArrayList<String> check ) {
+        for ( int i = 0; i < check.size(); i++ ) {
+            if ( toFind.equals( check.get( i ))) {
+                
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * inArrayList searches for toFind in check
+     * @author Peter Kaufman
+     * @type function
+     * @access public
+     * @param toFind is the String to be searched for in check
+     * @param check is an ArrayList of Strings to be searched for toFind
+     * @return is either true or false depending on if toFind is in check
+     */
+    private boolean inArrayList( String toFind, ArrayList<Table> check ) {
+        for ( Table table: check ) {
+            if ( toFind.equals( table.getName() )) {
+                
+                return true;
+            }
+        }
+        
+        return false;
     }
 }

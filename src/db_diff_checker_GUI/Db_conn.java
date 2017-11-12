@@ -38,21 +38,18 @@ public class Db_conn {
         this.conn_string = "jdbc:mysql://" + this.host + ":" +  this.port + "/" + this.db + "?autoReconnect=true&useSSL=false&maxReconnects=150";
         this.testConn();
     }
-    
-    /**
-     * testConn determines if the connection to the db is correct or not
+     /**
+     * getDB returns the name of the db
      * @author Peter Kaufman
-     * @type function
-     * @access private
-     * @throws SQLException which represents an error that occurred in making a db
-     * connection
+     * @type getter
+     * @access public
+     * @return db is a String which is the name of the db
      */
-    private void testConn() throws SQLException {
+    public String getDB() {
     
-            this.con = DriverManager.getConnection( "jdbc:mysql://" + this.host + ":" +  this.port + "/" + this.db + "?autoReconnect=true&useSSL=false&maxReconnects=5" , this.username, this.password );  
-            this.con.close();
+        return this.db;
     }
-    
+        
     /**
      * make_conn makes a connection with the desired db
      * @author Juan Nadal
@@ -73,18 +70,6 @@ public class Db_conn {
         }
     }
   
-    /**
-     * getDB returns the name of the db
-     * @author Peter Kaufman
-     * @type getter
-     * @access public
-     * @return db is a String which is the name of the db
-     */
-    public String getDB() {
-    
-        return this.db;
-    }
-    
     /**
      * kill_conn kills the db connection
      * @author Peter Kaufman
@@ -162,9 +147,9 @@ public class Db_conn {
     }
     
     /**
-     * getTables gets the tables of the db
+     * getTableList gets the tables, columns, and indices of the db
      * @author Peter Kaufman
-     * @type getter
+     * @type function
      * @access public
      * @return tables is an ArrayList of Strings which are the names of the tables
      */
@@ -205,7 +190,7 @@ public class Db_conn {
                     "    '' AS `collation`,\n" +
                     "    '' AS `table_type`,\n" +
                     "	 '' AS `name`,\n" +
-                    "    '' AS `pos`,\n" +
+                    "    0 AS `pos`,\n" +
                     "    '' AS `type`,\n" +
                     "    '' AS `default`,\n" +
                     "    '' AS `extra`,\n" +
@@ -224,7 +209,7 @@ public class Db_conn {
                     "WHERE\n" +
                     "    t.`name` LIKE \"" + this.db + "/%\"  AND i.`name` NOT LIKE \"FTS%\"\n" +
                     "GROUP BY 1 , 2\n" +
-                    "ORDER BY `table`, `pos` ASC;";
+                    "ORDER BY `table`, `pos`;";
             String table = "", info = "";
             Table add = null;
             Statement query = this.con.createStatement();
@@ -366,7 +351,7 @@ public class Db_conn {
         if ( num == 3 ) {
             
             type = " PRIMARY KEY ";
-        } else if ( num == 3 ) { // to be fixed
+        } else if ( num == 2 ) { 
             
             type = " UNIQUE INDEX ";
         } else if ( num == 64 ) {
@@ -383,7 +368,7 @@ public class Db_conn {
         return type;
     }
     
-        /**
+    /**
      * error opens a JFrame with an error message 
      * @author Peter Kaufman
      * @type function
@@ -395,5 +380,19 @@ public class Db_conn {
         Error err = new Error( error );
         err.setSize( 430, 100 );
         err.setVisible( true );
+    }
+    
+    /**
+     * testConn determines if the connection to the db is correct or not
+     * @author Peter Kaufman
+     * @type function
+     * @access private
+     * @throws SQLException which represents an error that occurred in making a db
+     * connection
+     */
+    private void testConn() throws SQLException {
+    
+            this.con = DriverManager.getConnection( "jdbc:mysql://" + this.host + ":" +  this.port + "/" + this.db + "?autoReconnect=true&useSSL=false&maxReconnects=5" , this.username, this.password );  
+            this.con.close();
     }
 }

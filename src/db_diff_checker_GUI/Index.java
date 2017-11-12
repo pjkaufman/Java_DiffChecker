@@ -69,15 +69,6 @@ public class Index {
     }
     
     /**
-     * Index initializes an Index object    
-     * @author Peter Kaufman
-     * @type constructor
-     * @access public
-     * @param name is a String which represents the name of the index
-     * @param create is a String which represents the create statement of an
-     * @param column is a String which represents the column of an index
-     */
-    /**
      * formatCols converts a String that represents the column(s) of an index
      * into a usable format for an index, meant especially for a composite index
      * @author Peter Kaufman
