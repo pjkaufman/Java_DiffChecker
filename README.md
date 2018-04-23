@@ -3,9 +3,11 @@
 This repo is a project that compares MySQL databases using Java.
 ## Running
 ### Windows
-Go to the batch directory and run makeJar.bat.
+1.Go to the batch directory and run makeJar.bat
 
-Then run run.bat (This step is currently not working)
+2.Then run run.bat.
+
+3.If run.bat did not work try running manifest.bat and then repeat steps 1 and 2 (not  quite complete)
 ## Linux/Mac
 Go to the bash directory and run makeJar.sh (Currently in progress)
 
