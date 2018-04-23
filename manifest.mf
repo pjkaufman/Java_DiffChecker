@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Ant-Version: Apache Ant 1.9.7
-Class-Path: lib\jackson-annotations-2.0.1.jar lib\mysql-connector-java-8.0.11.jar lib\jackson-databind-2.0.1.jar lib\jackson-core-2.0.1.jar
+Class-Path: lib\jackson-annotations-2.0.1.jar lib\jackson-core-2.0.1.jar lib\jackson-databind-2.0.1.jar lib\mysql-connector-java-8.0.11.jar 
 Main-Class: db_diff_checker_gui2.DB_Diff_Checker_GUI

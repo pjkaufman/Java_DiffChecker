@@ -2,13 +2,4 @@
 ###### By Peter Kaufman
 This repo is a project that compares MySQL databases using Java.
 ## Running
-### Windows
-1.Go to the batch directory and run makeJar.bat
-
-2.Then run run.bat.
-
-3.If run.bat did not work try running manifest.bat and then repeat steps 1 and 2 (not  quite complete)
-## Linux/Mac
-Go to the bash directory and run makeJar.sh (Currently in progress)
-
-Then run run.sh (This step is currently not working)
+1. go to the python folder and run the makeJar.py file
