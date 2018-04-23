@@ -9,6 +9,7 @@
  */
 package db_diff_checker_gui2;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import javax.swing.border.Border;
+
 public class Result extends JFrame {
         // Variable declaration
         private Db_conn db;
@@ -26,13 +28,14 @@ public class Result extends JFrame {
         private JLabel jLabel17;
         private StopWatch sw = new StopWatch();
         private JProgressBar progressBar = new JProgressBar();
+        private boolean done = false;
 
         /**
          * Creates new form Result
          * @author Peter Kaufman
          * @type constructor
          * @access
-         * @param db is a Db_conn object which is the connection for the live database
+         * @param db1 is a Db_conn object which is the connection for the live database
          */
         public Result( Db_conn db ) {
 
@@ -41,12 +44,9 @@ public class Result extends JFrame {
                 if ( db == null ) {
 
                         hideRun();
-                } else {
-
-                        progressBar.setVisible( true );
+                        progressBar.setVisible( false );
                 }
-
-                this.setIconImage( new ImageIcon( getClass().getResource( "/Images/DBCompare.png" )).getImage());
+                setIconImage( new ImageIcon( getClass().getResource( "/Images/DBCompare.png" )).getImage());
         }
 
         /**
@@ -64,7 +64,7 @@ public class Result extends JFrame {
                 btnRun = new JButton();
                 progressBar.setValue(0);
                 progressBar.setStringPainted(true);
-                Border border = BorderFactory.createTitledBorder("");
+                Border border = BorderFactory.createTitledBorder( "Waiting On Action" );
                 progressBar.setBorder(border);
                 setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
                 setTitle("SQL To Run");
@@ -146,55 +146,89 @@ public class Result extends JFrame {
          */
         private void btnRunActionPerformed(ActionEvent evt) {
 
-                Border border = BorderFactory.createTitledBorder("Running SQL...");
-                progressBar.setBorder(border);
-                progressBar.setMaximum( this.sql.size());
-                progressBar.setIndeterminate(false);
+                hideRun();
                 ArrayList<String> log = new ArrayList();
                 // code by Artur: https://stackoverflow.com/questions/833768/java-code-for-getting-current-time
                 Calendar cal = Calendar.getInstance();
                 SimpleDateFormat date = new SimpleDateFormat( "yyyy-MM-dd" );
                 SimpleDateFormat hour = new SimpleDateFormat( "HH:mm" );
-                hideRun();
-                boolean cont = true;
-                ArrayList<String> temp = new ArrayList();
-                temp.add( "" );
-                sw.start();
-                for ( int i = 0; i < this.sql.size(); i++ ) {
+                SwingWorker<Boolean, Integer> swingW = new SwingWorker<Boolean, Integer>() {
 
-                        //border = BorderFactory.createTitledBorder("Running SQL " + i + 1 + " of " + this.sql.size());
-                        progressBar.setBorder(border);
-                        temp.set(0, this.sql.get(i));
-                        cont = this.db.runSQL( temp );
-                        if ( !cont ) {
+                        @Override
+                        protected Boolean doInBackground() throws Exception {
 
-                                progressBar.setValue(progressBar.getMaximum());
-                                progressBar.setString(progressBar.getPercentComplete() + "%" );
-                                break;
+                                ArrayList<String> temp = new ArrayList();
+                                temp.add( "" );
+                                boolean cont = true;
+                                sw.start();
+                                for ( int i = 0; i < sql.size(); i++ ) {
+
+                                        temp.set(0, sql.get(i));
+                                        cont = db.runSQL( temp );
+                                        if ( !cont ) {
+
+                                                throw new Exception( "There was an error running: " + temp.get(0));
+                                        }
+                                        publish(i);
+                                }
+                                sw.stop();
+
+                                return true;
                         }
-                        progressBar.setValue(i);
-                        progressBar.setString(progressBar.getPercentComplete( )+"%" );
-                        System.out.println((int)(( i + 1.0 ) * 100 / this.sql.size()));
-                }
-                sw.stop();
-                if ( cont ) {
 
-                        Border nBorder = BorderFactory.createTitledBorder("Done");
-                        progressBar.setBorder(nBorder);
-                        log.add( "Ran on " + date.format(cal.getTime()) + " at " + hour.format(cal.getTime()) + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
-                        jLabel17.setText( "The database has been updated." );
-                } else {
+                        @Override
+                        protected void done() {
 
-                        log.add( "Ran on " + date.format(cal.getTime()) + " at " + hour.format(cal.getTime()) + " with an error updating the database." );
-                }
+                                try {
+
+                                        get();
+                                        done = true;
+                                        jLabel17.setText( "The database has been updated." );
+                                        Border nBorder = BorderFactory.createTitledBorder("Done");
+                                        progressBar.setBorder(nBorder);
+                                        progressBar.setValue(100);
+                                        log.add( "Ran on " + date.format(cal.getTime()) + " at " + hour.format(cal.getTime()) + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
+                                        try {
+
+                                                FileConversion.writeTo( log, "Log.txt" );
+                                        } catch( IOException e ) {
+
+                                                e.printStackTrace();
+                                                error( "There was an error writing to the log file" );
+                                        }
+                                } catch ( Exception e ) {
+
+                                }
+                        }
+
+                        @Override
+                        protected void process( List<Integer> chunks ) {
+
+                                hideRun();
+                                Border nBorder = BorderFactory.createTitledBorder( "Running SQL.. " );
+                                progressBar.setBorder(nBorder);
+                                progressBar.setValue((int)(( chunks.get( chunks.size() - 1) + 1.0 ) * 100 / sql.size()));
+                                progressBar.setString( progressBar.getPercentComplete() * 100 + "%" );
+                        }
+
+                };
                 try {
 
-                        FileConversion.writeTo( log, "Log.txt" );
-                } catch( IOException e ) {
+                        swingW.execute();
+                } catch ( Exception e ) {
 
-                        e.printStackTrace();
-                        error( "There was an error writing to the log file" );
+                        sw.stop();
+                        log.add( "Ran on " + date.format(cal.getTime()) + " at " + hour.format(cal.getTime()) + " with an error updating the database." );
+                        try {
+
+                                FileConversion.writeTo( log, "Log.txt" );
+                        } catch( IOException e2 ) {
+
+                                e2.printStackTrace();
+                                error( "There was an error writing to the log file" );
+                        }
                 }
+
         }
 
         /**

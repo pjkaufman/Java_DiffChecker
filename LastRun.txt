@@ -11,56 +11,27 @@ MODIFY COLUMN `id` int(11) unsigned NOT NULL ,
 DROP PRIMARY KEY;
 ALTER TABLE `versions` 
 DROP PRIMARY KEY;
-CREATE TABLE `bloat` (
-  `bloatware` int(11) NOT NULL,
-  PRIMARY KEY (`bloatware`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-DROP TABLE `3`;
-DROP TABLE `af`;
-DROP TABLE `afa`;
-DROP TABLE `ci_sessions`;
-DROP TABLE `config`;
-DROP TABLE `d`;
-DROP TABLE `da`;
-DROP TABLE `das`;
-DROP TABLE `dass`;
-DROP TABLE `dfas`;
-DROP TABLE `dfasdfsa`;
-DROP TABLE `dfasdfsafff`;
-DROP TABLE `l`;
-DROP TABLE `lab`;
-DROP TABLE `logins`;
-DROP TABLE `new_table`;
-DROP TABLE `new_table2`;
-DROP TABLE `r`;
-DROP TABLE `rds`;
-DROP TABLE `rdsf`;
-DROP TABLE `rdsff`;
-DROP TABLE `rdsffdaf`;
-DROP TABLE `versions`;
-DROP TABLE `vldakl`;
-DROP TABLE `vldakldsa`;
-DROP TABLE `vldakldsafds`;
-DROP TABLE `vldakldsafdsfdsasfd`;
+ALTER TABLE `config`
+MODIFY COLUMN `id` int(11) unsigned NOT NULL;
+ALTER TABLE `logins`
+MODIFY COLUMN `id` int(11) unsigned NOT NULL;
 ALTER TABLE `users`
-ADD COLUMN `userid` int(11) NOT NULL, 
-ADD COLUMN `remove` varchar(45) NULL DEFAULT NULL  AFTER `userid`, 
-DROP COLUMN `id`, 
-DROP COLUMN `username`, 
-DROP COLUMN `email`, 
-DROP COLUMN `password`, 
-DROP COLUMN `avatar`, 
-DROP COLUMN `created_at`, 
-DROP COLUMN `is_admin`, 
-DROP COLUMN `is_confirmed`, 
-DROP COLUMN `is_deleted`, 
-DROP COLUMN `last_login`, 
-DROP COLUMN `num_logins`, 
-ADD INDEX `removeI` (`userid`);
-ALTER TABLE `users` 
-ADD PRIMARY KEY (`userid`), 
-MODIFY COLUMN `userid` int(11) NOT NULL AUTO_INCREMENT, 
+MODIFY COLUMN `id` int(11) unsigned NOT NULL;
+ALTER TABLE `ci_sessions` 
+ADD PRIMARY KEY (`id`);
+ALTER TABLE `config` 
+ADD PRIMARY KEY (`id`), 
+MODIFY COLUMN `id` int(11) unsigned NOT NULL AUTO_INCREMENT, 
 AUTO_INCREMENT=1;
+ALTER TABLE `logins` 
+ADD PRIMARY KEY (`id`), 
+MODIFY COLUMN `id` int(11) unsigned NOT NULL AUTO_INCREMENT, 
+AUTO_INCREMENT=1;
+ALTER TABLE `users` 
+ADD PRIMARY KEY (`id`), 
+MODIFY COLUMN `id` int(11) unsigned NOT NULL AUTO_INCREMENT, 
+AUTO_INCREMENT=1;
+ALTER TABLE `versions` 
+ADD PRIMARY KEY (`id`);
 DROP VIEW `new_view`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `bloatlist` AS select `bloat`.`bloatware` AS `bloatware` from `bloat`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `userlist` AS select `users`.`userid` AS `userid`,`users`.`remove` AS `add` from `users`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `new_view` AS select `logins`.`id` AS `id`,`logins`.`username` AS `username`,`logins`.`login` AS `login`,`logins`.`logout` AS `logout`,`logins`.`datestamp` AS `datestamp` from `logins`;
