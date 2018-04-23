@@ -2,9 +2,11 @@
 ###### By Peter Kaufman
 This repo is a project that compares MySQL databases using Java.
 ## Running
-# Windows
+### Windows
 Go to the batch directory and run makeJar.bat.
+
 Then run run.bat (This step is currently not working)
-# Linux/Mac
+## Linux/Mac
 Go to the bash directory and run makeJar.sh (Currently in progress)
+
 Then run run.bat (This step is currently not working)
