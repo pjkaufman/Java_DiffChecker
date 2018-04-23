@@ -9,4 +9,4 @@ Then run run.bat (This step is currently not working)
 ## Linux/Mac
 Go to the bash directory and run makeJar.sh (Currently in progress)
 
-Then run run.bat (This step is currently not working)
+Then run run.sh (This step is currently not working)
