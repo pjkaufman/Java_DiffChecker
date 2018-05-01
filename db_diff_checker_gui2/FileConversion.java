@@ -29,9 +29,8 @@ public class FileConversion {
         public static void writeTo( Database obj ) throws IOException {
 
                 ObjectMapper mapper = new ObjectMapper();
-
                 //Object to JSON in file
-                mapper.writeValue( new File( "dbsnapshot.json" ), obj );
+                mapper.writeValue( new File( "logs\\dbsnapshot.json" ), obj );
         }
 
         /**
@@ -47,9 +46,8 @@ public class FileConversion {
 
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.configure( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false );
-
                 //JSON from file to Object
-                Database obj = mapper.readValue( new File( "dbsnapshot.json" ), Database.class );
+                Database obj = mapper.readValue( new File( "logs\\dbsnapshot.json" ), Database.class );
 
                 return obj;
         }
@@ -65,7 +63,7 @@ public class FileConversion {
          */
         public static boolean fileExists( String file ) {
 
-                return new File( file ).isFile();
+                return new File( "logs\\" + file ).isFile();
         }
 
         /**
@@ -82,10 +80,10 @@ public class FileConversion {
                 PrintWriter out;
                 if ( !file.equals( "LastRun.txt" )) {
 
-                        out = new PrintWriter(new FileWriter( new File( file ), true));
+                        out = new PrintWriter(new FileWriter( new File( "logs\\" + file ), true));
                 } else {
 
-                        out = new PrintWriter( new FileWriter( new File( file )));
+                        out = new PrintWriter( new FileWriter( new File( "logs\\" + file )));
                 }
                 for ( String statement: SQL ) {
 
@@ -105,7 +103,7 @@ public class FileConversion {
          */
         public static ArrayList<String> readFrom( String file ) throws IOException {
 
-                Scanner in = new Scanner( new File( file ));
+                Scanner in = new Scanner( new File( "logs\\" + file ));
                 ArrayList<String> SQL = new ArrayList();
                 while( in.hasNextLine()) {
 

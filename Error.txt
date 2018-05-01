@@ -1,7 +1,0 @@
-2018-04-21 20:51: There was an error with the database connection. Please try again.
-2018-04-22 08:21: There was an error with the database connection. Please try again.
-2018-04-22 08:23: There was an error with the database connection. Please try again.
-2018-04-22 08:24: There was an error with the database connection. Please try again.
-2018-04-22 08:24: There was an error with the database connection. Please try again.
-2018-04-22 08:30: There was an error with the database connection. Please try again.
-2018-04-22 19:35: There was an error with the database connection. Please try again.

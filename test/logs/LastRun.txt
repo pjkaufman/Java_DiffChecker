@@ -1,0 +1,37 @@
+ALTER TABLE `ci_sessions` 
+DROP PRIMARY KEY;
+ALTER TABLE `config` 
+MODIFY COLUMN `id` int(11) unsigned NOT NULL , 
+DROP PRIMARY KEY;
+ALTER TABLE `logins` 
+MODIFY COLUMN `id` int(11) unsigned NOT NULL , 
+DROP PRIMARY KEY;
+ALTER TABLE `users` 
+MODIFY COLUMN `id` int(11) unsigned NOT NULL , 
+DROP PRIMARY KEY;
+ALTER TABLE `versions` 
+DROP PRIMARY KEY;
+ALTER TABLE `config`
+MODIFY COLUMN `id` int(11) unsigned NOT NULL;
+ALTER TABLE `logins`
+MODIFY COLUMN `id` int(11) unsigned NOT NULL;
+ALTER TABLE `users`
+MODIFY COLUMN `id` int(11) unsigned NOT NULL;
+ALTER TABLE `ci_sessions` 
+ADD PRIMARY KEY (`id`);
+ALTER TABLE `config` 
+ADD PRIMARY KEY (`id`), 
+MODIFY COLUMN `id` int(11) unsigned NOT NULL AUTO_INCREMENT, 
+AUTO_INCREMENT=1;
+ALTER TABLE `logins` 
+ADD PRIMARY KEY (`id`), 
+MODIFY COLUMN `id` int(11) unsigned NOT NULL AUTO_INCREMENT, 
+AUTO_INCREMENT=1;
+ALTER TABLE `users` 
+ADD PRIMARY KEY (`id`), 
+MODIFY COLUMN `id` int(11) unsigned NOT NULL AUTO_INCREMENT, 
+AUTO_INCREMENT=1;
+ALTER TABLE `versions` 
+ADD PRIMARY KEY (`id`);
+DROP VIEW `new_view`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `new_view` AS select `logins`.`id` AS `id`,`logins`.`username` AS `username`,`logins`.`login` AS `login`,`logins`.`logout` AS `logout`,`logins`.`datestamp` AS `datestamp` from `logins`;
