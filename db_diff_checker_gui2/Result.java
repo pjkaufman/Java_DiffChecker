@@ -14,7 +14,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;;
-import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 
 public class Result extends JFrame {
         // Variable declaration
@@ -27,6 +27,7 @@ public class Result extends JFrame {
         private StopWatch sw = new StopWatch();
         private JProgressBar progressBar = new JProgressBar();
         private boolean done = false;
+        private Font myFont;
 
         /**
          * Creates new form Result
@@ -62,7 +63,8 @@ public class Result extends JFrame {
                 btnRun = new JButton();
                 progressBar.setValue(0);
                 progressBar.setStringPainted(true);
-                Border border = BorderFactory.createTitledBorder( "Waiting On Action" );
+                TitledBorder border = BorderFactory.createTitledBorder( "Waiting On Action" );
+                border.setTitleFont( myFont );
                 progressBar.setBorder(border);
                 setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
                 setTitle("SQL To Run");
@@ -103,6 +105,7 @@ public class Result extends JFrame {
                                 jLabel17.setFont( title );
                                 SQLShow.setFont( reg );
                                 btnRun.setFont( reg );
+                                myFont = reg;
 
                         }
                         public void componentHidden(ComponentEvent e) {
@@ -178,7 +181,8 @@ public class Result extends JFrame {
                                         get();
                                         done = true;
                                         jLabel17.setText( "The database has been updated." );
-                                        Border nBorder = BorderFactory.createTitledBorder("Done");
+                                        TitledBorder nBorder = BorderFactory.createTitledBorder( "Done" );
+                                        nBorder.setTitleFont( myFont );
                                         progressBar.setBorder(nBorder);
                                         progressBar.setValue(100);
                                         log.add( "Ran SQL on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
@@ -199,7 +203,8 @@ public class Result extends JFrame {
                         protected void process( List<Integer> chunks ) {
 
                                 hideRun();
-                                Border nBorder = BorderFactory.createTitledBorder( "Running SQL.. " );
+                                TitledBorder nBorder = BorderFactory.createTitledBorder( "Running SQL.. " );
+                                nBorder.setTitleFont( myFont );
                                 progressBar.setBorder(nBorder);
                                 progressBar.setValue((int)(( chunks.get( chunks.size() - 1) + 1.0 ) * 100 / sql.size()));
                                 progressBar.setString( progressBar.getPercentComplete() * 100 + "%" );

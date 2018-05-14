@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.HashMap;
 import javax.swing.*;
 import java.awt.*;
-import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 public class DBCompare1 extends JFrame {
         // Variable declaration
         private boolean error = true;
@@ -39,6 +39,7 @@ public class DBCompare1 extends JFrame {
         private JProgressBar pb = new JProgressBar();
         private StopWatch sw = new StopWatch();
         private boolean done = false;
+        private Font myFont;
 
         /**
          * Creates new form DBCompare1
@@ -75,12 +76,12 @@ public class DBCompare1 extends JFrame {
                 username3 = new JTextField();
                 pb.setVisible( false );
                 JPanel header = new JPanel( new BorderLayout()), content = new JPanel( new GridLayout( 5, 2 )),
-                       footer = new JPanel( new FlowLayout()), part1 = new JPanel( new FlowLayout()),
+                       footer = new JPanel( new BorderLayout()), part1 = new JPanel( new FlowLayout()),
                        part2 = new JPanel( new FlowLayout()), part3 = new JPanel( new FlowLayout()),
                        part4 = new JPanel( new FlowLayout()), part5 = new JPanel( new FlowLayout()),
                        part6 = new JPanel( new FlowLayout()), part7 = new JPanel( new FlowLayout()),
                        part8 = new JPanel( new FlowLayout()), part9 = new JPanel( new FlowLayout()),
-                       part10 = new JPanel( new FlowLayout());
+                       part10 = new JPanel( new FlowLayout()), footc = new JPanel( new FlowLayout());
 
                 jLabel19.setText("Enter MySQL Password:");
                 jLabel20.setText("Enter MySQL Host:");
@@ -128,7 +129,7 @@ public class DBCompare1 extends JFrame {
                                 jLabel21.setFont( reg );
                                 jLabel22.setFont( reg );
                                 username3.setFont( reg );
-                                pb.setFont( reg );
+                                myFont = reg;
                         }
                         public void componentHidden(ComponentEvent e) {
                         }
@@ -166,8 +167,9 @@ public class DBCompare1 extends JFrame {
                 content.add( part8 );
                 content.add( part9 );
                 content.add( part10 );
-                footer.add( DB1btn );
-                footer.add( pb );
+                footc.add( DB1btn );
+                footer.add(  footc, BorderLayout.CENTER );
+                footer.add( pb, BorderLayout.SOUTH );
                 add( header, BorderLayout.NORTH);
                 add( content, BorderLayout.CENTER);
                 add( footer, BorderLayout.SOUTH);
@@ -234,7 +236,9 @@ public class DBCompare1 extends JFrame {
 
                 ArrayList<String> log = new ArrayList();
                 pb.setIndeterminate( true );
-                pb.setBorder( BorderFactory.createTitledBorder( "Establishing Database Connection" ));
+                TitledBorder nBorder = BorderFactory.createTitledBorder( "Establishing Database Connection" );
+                nBorder.setTitleFont( myFont );
+                pb.setBorder( nBorder );
                 pb.setVisible( true );
 
                 SwingWorker<Boolean, Integer> swingW = new SwingWorker<Boolean, Integer>() {
@@ -276,7 +280,9 @@ public class DBCompare1 extends JFrame {
                                 try {
 
                                         get();
-                                        pb.setBorder( BorderFactory.createTitledBorder( "Database Snapshot Complete" ));
+                                        TitledBorder nBorder2 = BorderFactory.createTitledBorder( "Database Snapshot Complete" );
+                                        nBorder2.setTitleFont( myFont );
+                                        pb.setBorder( nBorder2 );
                                         pb.setIndeterminate( false );
                                         if ( done ) {
 
@@ -304,15 +310,16 @@ public class DBCompare1 extends JFrame {
                         @Override
                         protected void process( List<Integer> chunks ) {
 
-                                Border nBorder = BorderFactory.createTitledBorder( "Establishing Database Connection" );
+                                TitledBorder nBorder2 = BorderFactory.createTitledBorder( "Establishing Database Connection" );
                                 if ( chunks.get( chunks.size() - 1) == 2 ) {
 
-                                        nBorder = BorderFactory.createTitledBorder( "Gathering Database Information" );
+                                        nBorder2 = BorderFactory.createTitledBorder( "Gathering Database Information" );
                                 } else if ( chunks.get( chunks.size() - 1) == 3 ) {
 
-                                        nBorder = BorderFactory.createTitledBorder( "Writing to JSON File" );
+                                        nBorder2 = BorderFactory.createTitledBorder( "Writing to JSON File" );
                                 }
-                                pb.setBorder(nBorder);
+                                nBorder2.setTitleFont( myFont );
+                                pb.setBorder(nBorder2);
                         }
                 };
 
@@ -343,7 +350,9 @@ public class DBCompare1 extends JFrame {
 
                 pb.setIndeterminate( true );
                 ArrayList<String> log = new ArrayList();
-                pb.setBorder( BorderFactory.createTitledBorder( "Reading in The DB Snapshot" ));
+                TitledBorder b = BorderFactory.createTitledBorder( "Reading in The DB Snapshot" );
+                b.setTitleFont( myFont );
+                pb.setBorder( b );
                 pb.setVisible( true );
                 sw.reset();
                 SwingWorker<Boolean, Integer> swingW = new SwingWorker<Boolean, Integer>() {
@@ -392,7 +401,9 @@ public class DBCompare1 extends JFrame {
                                 try {
 
                                         get();
-                                        pb.setBorder( BorderFactory.createTitledBorder( "Database Snapshot Comparison Complete" ));
+                                        TitledBorder b2 = BorderFactory.createTitledBorder( "Database Snapshot Comparison Complete" );
+                                        b2.setTitleFont( myFont );
+                                        pb.setBorder( b2 );
                                         pb.setIndeterminate( false );
                                         try {
 
@@ -412,7 +423,7 @@ public class DBCompare1 extends JFrame {
                         @Override
                         protected void process( List<Integer> chunks ) {
 
-                                Border nBorder = BorderFactory.createTitledBorder( "Reading in The DB Snapshot" );
+                                TitledBorder nBorder = BorderFactory.createTitledBorder( "Reading in The DB Snapshot" );
                                 if ( chunks.get( chunks.size() - 1) == 2 ) {
 
                                         nBorder = BorderFactory.createTitledBorder( "Establishing Live Database Connection" );
@@ -438,6 +449,7 @@ public class DBCompare1 extends JFrame {
 
                                         nBorder = BorderFactory.createTitledBorder( "Adding Dev's Views" );
                                 }
+                                nBorder.setTitleFont( myFont );
                                 pb.setBorder(nBorder);
                         }
                 };

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.io.IOException;
 import javax.swing.*;
-import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 public class DBCompare2 extends JFrame {
         // Variable declaration
         private boolean error = true;
@@ -48,6 +48,7 @@ public class DBCompare2 extends JFrame {
         private JTextField username2;
         private StopWatch sw = new StopWatch();
         private JProgressBar pb = new JProgressBar();
+        private Font myFont;
 
         /**
          * Creates new form DBCompare2
@@ -94,7 +95,7 @@ public class DBCompare2 extends JFrame {
                 username2 = new JTextField();
                 host1 = new JTextField();
                 JPanel header = new JPanel( new BorderLayout()), content = new JPanel( new BorderLayout()),
-                       footer = new JPanel( new FlowLayout()), part1 = new JPanel( new FlowLayout()),
+                       footer = new JPanel( new BorderLayout()), part1 = new JPanel( new FlowLayout()),
                        part2 = new JPanel( new FlowLayout()), part3 = new JPanel( new FlowLayout()),
                        part4 = new JPanel( new FlowLayout()), part5 = new JPanel( new FlowLayout()),
                        part6 = new JPanel( new FlowLayout()), part7 = new JPanel( new FlowLayout()),
@@ -105,7 +106,7 @@ public class DBCompare2 extends JFrame {
                        part16 = new JPanel( new FlowLayout()), part17 = new JPanel( new FlowLayout()),
                        part18 = new JPanel( new FlowLayout()), part19 = new JPanel( new FlowLayout()),
                        part20 = new JPanel( new FlowLayout()), c1 = new JPanel( new GridLayout( 5, 2 )),
-                       c2 = new JPanel( new GridLayout( 5, 2 ));
+                       c2 = new JPanel( new GridLayout( 5, 2 )), footc = new JPanel( new FlowLayout());
 
                 header.add( jLabel6, BorderLayout.CENTER );
                 part1.add( jLabel7 );
@@ -150,8 +151,9 @@ public class DBCompare2 extends JFrame {
                 c2.add( part20 );
                 content.add( c1, BorderLayout.WEST );
                 content.add( c2, BorderLayout.EAST );
-                footer.add( jButton1 );
-                footer.add( pb );
+                footc.add( jButton1 );
+                footer.add( footc, BorderLayout.CENTER );
+                footer.add( pb, BorderLayout.SOUTH );
 
                 setMinimumSize( new Dimension( 630, 325 ));
                 setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -191,6 +193,7 @@ public class DBCompare2 extends JFrame {
                                 database1.setFont( reg );
                                 database2.setFont( reg );
                                 jButton1.setFont( button );
+                                myFont = reg;
 
                         }
                         public void componentHidden(ComponentEvent e) {
@@ -368,7 +371,7 @@ public class DBCompare2 extends JFrame {
                         @Override
                         protected void process( List<Integer> chunks ) {
 
-                                Border nBorder = BorderFactory.createTitledBorder( "Establishing Dev Database Connection" );
+                                TitledBorder nBorder = BorderFactory.createTitledBorder( "Establishing Dev Database Connection" );
                                 if ( chunks.get( chunks.size() - 1) == 2 ) {
 
                                         nBorder = BorderFactory.createTitledBorder( "Gathering Dev Database Info" );
