@@ -1,17 +1,31 @@
-ALTER TABLE `bloat` 
+ALTER TABLE `ci_sessions` 
+DROP PRIMARY KEY;
+ALTER TABLE `config` 
+MODIFY COLUMN `id` int(11) unsigned NOT NULL , 
+DROP PRIMARY KEY;
+ALTER TABLE `logins` 
+MODIFY COLUMN `id` int(11) unsigned NOT NULL , 
 DROP PRIMARY KEY;
 ALTER TABLE `users` 
-MODIFY COLUMN `userid` int(11) NOT NULL , 
+MODIFY COLUMN `id` int(11) unsigned NOT NULL , 
 DROP PRIMARY KEY;
-ALTER TABLE `users`
-MODIFY COLUMN `userid` int(11) NOT NULL;
-ALTER TABLE `bloat` 
-ADD PRIMARY KEY (`bloatware`);
-ALTER TABLE `users` 
-ADD PRIMARY KEY (`userid`), 
-MODIFY COLUMN `userid` int(11) NOT NULL AUTO_INCREMENT, 
+ALTER TABLE `versions` 
+DROP PRIMARY KEY;
+ALTER TABLE `ci_sessions` 
+ADD PRIMARY KEY (`id`);
+ALTER TABLE `config` 
+ADD PRIMARY KEY (`id`), 
+MODIFY COLUMN `id` int(11) unsigned NOT NULL AUTO_INCREMENT, 
 AUTO_INCREMENT=1;
-DROP VIEW `bloatlist`;
-DROP VIEW `userlist`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `bloatlist` AS select `bloat`.`bloatware` AS `bloatware` from `bloat`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `userlist` AS select `users`.`userid` AS `userid`,`users`.`remove` AS `add` from `users`;
+ALTER TABLE `logins` 
+ADD PRIMARY KEY (`id`), 
+MODIFY COLUMN `id` int(11) unsigned NOT NULL AUTO_INCREMENT, 
+AUTO_INCREMENT=1;
+ALTER TABLE `users` 
+ADD PRIMARY KEY (`id`), 
+MODIFY COLUMN `id` int(11) unsigned NOT NULL AUTO_INCREMENT, 
+AUTO_INCREMENT=1;
+ALTER TABLE `versions` 
+ADD PRIMARY KEY (`id`);
+DROP VIEW `new_view`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `new_view` AS select `logins`.`id` AS `id`,`logins`.`username` AS `username`,`logins`.`login` AS `login`,`logins`.`logout` AS `logout`,`logins`.`datestamp` AS `datestamp` from `logins`;
