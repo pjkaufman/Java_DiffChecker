@@ -12,8 +12,11 @@ import java.awt.event.*;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
+import java.io.IOException;
 import javax.swing.*;
+import javax.swing.border.Border;
 public class DBCompare2 extends JFrame {
         // Variable declaration
         private boolean error = true;
@@ -43,6 +46,8 @@ public class DBCompare2 extends JFrame {
         private JTextField port2;
         private JTextField username1;
         private JTextField username2;
+        private StopWatch sw = new StopWatch();
+        private JProgressBar pb = new JProgressBar();
 
         /**
          * Creates new form DBCompare2
@@ -65,6 +70,7 @@ public class DBCompare2 extends JFrame {
          */
         private void initComponents() {
 
+                pb.setVisible( false );
                 password2 = new JPasswordField();
                 port1 = new JTextField();
                 host2 = new JTextField();
@@ -145,6 +151,7 @@ public class DBCompare2 extends JFrame {
                 content.add( c1, BorderLayout.WEST );
                 content.add( c2, BorderLayout.EAST );
                 footer.add( jButton1 );
+                footer.add( pb );
 
                 setMinimumSize( new Dimension( 630, 325 ));
                 setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -286,29 +293,115 @@ public class DBCompare2 extends JFrame {
          * @access private
          */
         private void compare1() {
-                try {
 
-                        db1 = new Db_conn( username1.getText(), new String(password1.getPassword()),
-                                           host1.getText(), port1.getText(), database1.getText(), "dev" );
-                        dab1 = new Database( db1 );
+                pb.setIndeterminate( true );
+                ArrayList<String> log = new ArrayList();
+                pb.setBorder( BorderFactory.createTitledBorder( "Establishing Dev Database Connection" ));
+                pb.setVisible( true );
+                sw.reset();
+                SwingWorker<Boolean, Integer> swingW = new SwingWorker<Boolean, Integer>() {
 
-                        db2 = new Db_conn( username2.getText(), new String(password2.getPassword()),
-                                           host2.getText(), port2.getText(), database2.getText(), "live" );
-                        dab2 = new Database( db2 );
+                        @Override
+                        protected Boolean doInBackground() throws Exception {
 
-                        sql.addAll( dab2.getFirstSteps());
-                        sql.addAll( dab1.compareTables( dab2.getTables()));
-                        update_tables.putAll( dab1.tablesDiffs( dab2.getTables()));
-                        sql.addAll(dab1.updateTables( dab2.getTables(), update_tables ));
-                        sql.addAll( dab1.getFirstSteps());
-                        sql.addAll(dab1.updateViews( dab2.getViews()));
+                                try {
 
-                        displayResult( db2 );
-                        this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-                } catch ( SQLException e ) {
+                                        publish( 1 );
+                                        sw.start();
+                                        db1 = new Db_conn( username1.getText(), new String(password1.getPassword()),
+                                                           host1.getText(), port1.getText(), database1.getText(), "dev" );
+                                        publish( 2 );
+                                        dab1 = new Database( db1 );
+                                        publish( 3 );
+                                        db2 = new Db_conn( username2.getText(), new String(password2.getPassword()),
+                                                           host2.getText(), port2.getText(), database2.getText(), "live" );
+                                        publish( 4 );
+                                        dab2 = new Database( db2 );
+                                        publish( 5 );
+                                        sql.addAll( dab2.getFirstSteps());
+                                        publish( 6 );
+                                        sql.addAll( dab1.compareTables( dab2.getTables()));
+                                        publish( 7 );
+                                        update_tables.putAll( dab1.tablesDiffs( dab2.getTables()));
+                                        publish( 8 );
+                                        sql.addAll(dab1.updateTables( dab2.getTables(), update_tables ));
+                                        publish( 9 );
+                                        sql.addAll( dab1.getFirstSteps());
+                                        publish( 10 );
+                                        sql.addAll(dab1.updateViews( dab2.getViews()));
+                                        sw.stop();
+                                        log.add( "DB Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
+                                } catch ( SQLException e ) {
 
-                        error( "There was an error with the database connection. Please try again." );
-                }
+                                        sw.stop();
+                                        log.add( "DB Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an error." );
+                                        error( "There was an error with the database connection. Please try again." );
+                                }
+
+                                return true;
+
+                        }
+
+                        @Override
+                        protected void done() {
+
+                                try {
+
+                                        get();
+                                        pb.setBorder( BorderFactory.createTitledBorder( "Database Comparison Complete" ));
+                                        pb.setIndeterminate( false );
+                                        try {
+
+                                                FileConversion.writeTo( log, "Log.txt" );
+                                        } catch( IOException e ) {
+
+                                                e.printStackTrace();
+                                                error( "There was an error writing to the log file" );
+                                        }
+                                        displayResult( db2 );
+                                        dispose();
+                                } catch ( Exception e ) {
+
+                                }
+                        }
+
+                        @Override
+                        protected void process( List<Integer> chunks ) {
+
+                                Border nBorder = BorderFactory.createTitledBorder( "Establishing Dev Database Connection" );
+                                if ( chunks.get( chunks.size() - 1) == 2 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Gathering Dev Database Info" );
+                                } else if ( chunks.get( chunks.size() - 1) == 3 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Establishing Live Database Connection" );
+                                } else if ( chunks.get( chunks.size() - 1) == 4 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Gathering Live Database Info" );
+                                } else if ( chunks.get( chunks.size() - 1) == 5 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Checking Live First Steps" );
+                                } else if ( chunks.get( chunks.size() - 1) == 6 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Comparing Tables" );
+                                } else if ( chunks.get( chunks.size() - 1) == 7 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Comparing Tables" );
+                                }  else if ( chunks.get( chunks.size() - 1) == 8 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Comparing Tables" );
+                                } else if ( chunks.get( chunks.size() - 1) == 9 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Checking Dev First Steps" );
+                                } else if ( chunks.get( chunks.size() - 1) == 10 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Adding Dev's Views" );
+                                }
+                                pb.setBorder(nBorder);
+                        }
+                };
+
+                swingW.execute();
         }
 
         /**

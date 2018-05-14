@@ -26,7 +26,6 @@ if ( OS == 'Windows' ):
         #run compiled files with classPath
         #move to run directory
         os.chdir( "test" )
-        print "\n" + p
         call( "java -cp " + p + " db_diff_checker_gui2.DB_Diff_Checker_GUI" )
         #move back to the python directory
         os.chdir( "..\\python" )

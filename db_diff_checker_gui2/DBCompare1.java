@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.HashMap;
 import javax.swing.*;
 import java.awt.*;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import javax.swing.border.Border;
 public class DBCompare1 extends JFrame {
         // Variable declaration
@@ -177,7 +175,7 @@ public class DBCompare1 extends JFrame {
 
         /**
          * DB1btnActionPerformed determines if the user has put in the appropriate
-         * info and either takes a db snapshot or compares a database to a database
+         * Information and either takes a db snapshot or compares a database to a database
          * snapshot
          * @author Peter Kaufman
          * @type function
@@ -236,10 +234,6 @@ public class DBCompare1 extends JFrame {
 
                 pb.setIndeterminate( true );
                 ArrayList<String> log = new ArrayList();
-                // code by Artur: https://stackoverflow.com/questions/833768/java-code-for-getting-current-time
-                Calendar cal = Calendar.getInstance();
-                SimpleDateFormat date = new SimpleDateFormat( "yyyy-MM-dd" );
-                SimpleDateFormat hour = new SimpleDateFormat( "HH:mm" );
                 pb.setBorder( BorderFactory.createTitledBorder( "Establishing Database Connection" ));
                 pb.setVisible( true );
 
@@ -286,11 +280,11 @@ public class DBCompare1 extends JFrame {
                                         pb.setIndeterminate( false );
                                         if ( done ) {
 
-                                                log.add( "Took a DB Snapshot on " + date.format(cal.getTime()) + " at " + hour.format(cal.getTime()) + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
+                                                log.add( "Took a DB Snapshot on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
 
                                         } else {
 
-                                                log.add( "Took a DB Snapshot on " + date.format(cal.getTime()) + " at " + hour.format(cal.getTime()) + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an error." );
+                                                log.add( "Took a DB Snapshot on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an error." );
                                         }
                                         try {
 
@@ -347,27 +341,109 @@ public class DBCompare1 extends JFrame {
          * snapshot file
          */
         private void compare2() throws IOException {
-                try {
 
-                        dab1 = FileConversion.readFrom();
+                pb.setIndeterminate( true );
+                ArrayList<String> log = new ArrayList();
+                pb.setBorder( BorderFactory.createTitledBorder( "Reading in The DB Snapshot" ));
+                pb.setVisible( true );
+                sw.reset();
+                SwingWorker<Boolean, Integer> swingW = new SwingWorker<Boolean, Integer>() {
 
-                        db2 = new Db_conn( username3.getText(), new String(password3.getPassword()),
-                                           host3.getText(), port3.getText(), database3.getText(), "live" );
-                        dab2 = new Database( db2 );
+                        @Override
+                        protected Boolean doInBackground() throws Exception {
 
-                        sql.addAll( dab2.getFirstSteps());
-                        sql.addAll( dab1.compareTables( dab2.getTables()));
-                        update_tables.putAll( dab1.tablesDiffs( dab2.getTables()));
-                        sql.addAll( dab1.updateTables( dab2.getTables(), update_tables ));
-                        sql.addAll( dab1.getFirstSteps());
-                        sql.addAll( dab1.updateViews( dab2.getViews()));
+                                try {
 
-                        displayResult( db2 );
-                        this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-                } catch ( SQLException e ) {
+                                        publish( 1 );
+                                        sw.start();
+                                        dab1 = FileConversion.readFrom();
+                                        publish( 2 );
+                                        db2 = new Db_conn( username3.getText(), new String(password3.getPassword()),
+                                                           host3.getText(), port3.getText(), database3.getText(), "live" );
+                                        publish( 3 );
+                                        dab2 = new Database( db2 );
+                                        publish( 4 );
+                                        sql.addAll( dab2.getFirstSteps());
+                                        publish( 5 );
+                                        sql.addAll( dab1.compareTables( dab2.getTables()));
+                                        publish( 6 );
+                                        update_tables.putAll( dab1.tablesDiffs( dab2.getTables()));
+                                        publish( 7 );
+                                        sql.addAll( dab1.updateTables( dab2.getTables(), update_tables ));
+                                        publish( 8 );
+                                        sql.addAll( dab1.getFirstSteps());
+                                        publish( 9 );
+                                        sql.addAll( dab1.updateViews( dab2.getViews()));
+                                        sw.stop();
+                                        log.add( "DB Snapshot Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
+                                } catch ( SQLException e ) {
 
-                        error( "There was an error with the database connection. Please try again." );
-                }
+                                        sw.stop();
+                                        log.add( "DB Snapshot Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an error." );
+                                        error( "There was an error with the database connection. Please try again." );
+                                }
+
+                                return true;
+
+                        }
+
+                        @Override
+                        protected void done() {
+
+                                try {
+
+                                        get();
+                                        pb.setBorder( BorderFactory.createTitledBorder( "Database Snapshot Comparison Complete" ));
+                                        pb.setIndeterminate( false );
+                                        try {
+
+                                                FileConversion.writeTo( log, "Log.txt" );
+                                        } catch( IOException e ) {
+
+                                                e.printStackTrace();
+                                                error( "There was an error writing to the log file" );
+                                        }
+                                        displayResult( db2 );
+                                        dispose();
+                                } catch ( Exception e ) {
+
+                                }
+                        }
+
+                        @Override
+                        protected void process( List<Integer> chunks ) {
+
+                                Border nBorder = BorderFactory.createTitledBorder( "Reading in The DB Snapshot" );
+                                if ( chunks.get( chunks.size() - 1) == 2 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Establishing Live Database Connection" );
+                                } else if ( chunks.get( chunks.size() - 1) == 3 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Gathering Live Database Info" );
+                                } else if ( chunks.get( chunks.size() - 1) == 4 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Checking Live First Steps" );
+                                } else if ( chunks.get( chunks.size() - 1) == 5 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Finding Missing Or Unneccessary Tables" );
+                                } else if ( chunks.get( chunks.size() - 1) == 6 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Comparing Tables" );
+                                } else if ( chunks.get( chunks.size() - 1) == 7 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Comparing Tables" );
+                                } else if ( chunks.get( chunks.size() - 1) == 8 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Checking Dev First Steps" );
+                                } else if ( chunks.get( chunks.size() - 1) == 9 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Adding Dev's Views" );
+                                }
+                                pb.setBorder(nBorder);
+                        }
+                };
+
+                swingW.execute();
         }
 
         /**
