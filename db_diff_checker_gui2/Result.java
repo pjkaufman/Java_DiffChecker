@@ -4,7 +4,7 @@
  * @author Peter Kaufman
  * @class Result
  * @access public
- * @version 10-31-17
+ * @version 5-13-18
  * @since 9-20-17
  */
 package db_diff_checker_gui2;
@@ -13,9 +13,7 @@ import java.util.List;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.io.IOException;;
 import javax.swing.border.Border;
 
 public class Result extends JFrame {
@@ -34,7 +32,7 @@ public class Result extends JFrame {
          * Creates new form Result
          * @author Peter Kaufman
          * @type constructor
-         * @access
+         * @access public
          * @param db1 is a Db_conn object which is the connection for the live database
          */
         public Result( Db_conn db ) {
@@ -148,10 +146,6 @@ public class Result extends JFrame {
 
                 hideRun();
                 ArrayList<String> log = new ArrayList();
-                // code by Artur: https://stackoverflow.com/questions/833768/java-code-for-getting-current-time
-                Calendar cal = Calendar.getInstance();
-                SimpleDateFormat date = new SimpleDateFormat( "yyyy-MM-dd" );
-                SimpleDateFormat hour = new SimpleDateFormat( "HH:mm" );
                 SwingWorker<Boolean, Integer> swingW = new SwingWorker<Boolean, Integer>() {
 
                         @Override
@@ -187,7 +181,7 @@ public class Result extends JFrame {
                                         Border nBorder = BorderFactory.createTitledBorder("Done");
                                         progressBar.setBorder(nBorder);
                                         progressBar.setValue(100);
-                                        log.add( "Ran on " + date.format(cal.getTime()) + " at " + hour.format(cal.getTime()) + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
+                                        log.add( "Ran SQL on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
                                         try {
 
                                                 FileConversion.writeTo( log, "Log.txt" );
@@ -218,7 +212,7 @@ public class Result extends JFrame {
                 } catch ( Exception e ) {
 
                         sw.stop();
-                        log.add( "Ran on " + date.format(cal.getTime()) + " at " + hour.format(cal.getTime()) + " with an error updating the database." );
+                        log.add( "Ran SQL on " + sw.getHour() + " at " + sw.getDate() + " with an error updating the database." );
                         try {
 
                                 FileConversion.writeTo( log, "Log.txt" );

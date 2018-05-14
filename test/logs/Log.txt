@@ -1,6 +1,16 @@
 Ran on 2018-04-30 at 21:41 in 8.636s with no errors.
-Took a DB Snapshot on 2018-05-14 at 00:11 in 2.558s with no errors.
-Took a DB Snapshot on 2018-05-14 at 00:13 in 0.968s with no errors.
-Took a DB Snapshot on 2018-05-14 at 00:14 in 0.645s with no errors.
-Took a DB Snapshot on 2018-05-14 at 00:17 in 2.58s with no errors.
-Took a DB Snapshot on 2018-05-14 at 00:17 in 0.94s with no errors.
+Ran on 2018-05-13 at 17:10 in 9.603s with no errors.
+Ran on 2018-05-13 at 21:34 in 9.282s with no errors.
+Took a DB Snapshot on 2018-05-13 at 23:48 in 2.857s with no errors.
+Took a DB Snapshot on 2018-05-13 at 23:50 in 1.118s with no errors.
+Took a DB Snapshot on 2018-05-14 at 00:22 in 3.497s with no errors.
+Took a DB Snapshot on 2018-05-14 at 00:23 in 1.087s with no errors.
+Took a DB Snapshot on 2018-05-14 at 00:23 in 0.787s with no errors.
+DB Snapshot Comparison Complete on 2018-05-14  at 01:05 in 5.627s with no errors.
+Ran SQL on 2018-05-14  at 01:05 in 7.83s with no errors.
+DB Comparison Complete on 2018-05-14  at 01:30 in 2.076s with no errors.
+Ran SQL on 2018-05-14  at 01:31 in 3.527s with no errors.
+DB Comparison Complete on 2018-05-14  at 01:34 in 3.694s with no errors.
+Ran SQL on 2018-05-14  at 01:35 in 9.816s with no errors.
+DB Comparison Complete on 2018-05-14  at 01:36 in 3.287s with no errors.
+Ran SQL on 2018-05-14  at 01:36 in 11.655s with no errors.

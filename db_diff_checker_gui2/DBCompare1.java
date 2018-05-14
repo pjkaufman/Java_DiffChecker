@@ -4,7 +4,7 @@
  * @author Peter Kaufman
  * @class DBCompare1
  * @access public
- * @version 10-25-17
+ * @version 5-13-18
  * @since 9-20-17
  */
 package db_diff_checker_gui2;
@@ -12,17 +12,18 @@ import java.sql.SQLException;
 import java.awt.event.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.HashMap;
 import javax.swing.*;
 import java.awt.*;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import javax.swing.border.Border;
 public class DBCompare1 extends JFrame {
         // Variable declaration
         private boolean error = true;
         private Db_conn db1, db2;
         private Database dab1, dab2;
         private ArrayList<String> sql = new ArrayList();
-        private ArrayList<String> update_tables = new ArrayList();
+        private HashMap<String, String> update_tables = new HashMap();
         private JButton DB1btn;
         private JTextField database3;
         private JTextField host3;
@@ -35,7 +36,9 @@ public class DBCompare1 extends JFrame {
         private JPasswordField password3;
         private JTextField port3;
         private JTextField username3;
+        private JProgressBar pb = new JProgressBar();
         private StopWatch sw = new StopWatch();
+        private boolean done = false;
 
         /**
          * Creates new form DBCompare1
@@ -70,6 +73,7 @@ public class DBCompare1 extends JFrame {
                 jLabel21 = new JLabel();
                 jLabel22 = new JLabel();
                 username3 = new JTextField();
+                pb.setVisible( false );
                 JPanel header = new JPanel( new BorderLayout()), content = new JPanel( new GridLayout( 5, 2 )),
                        footer = new JPanel( new FlowLayout()), part1 = new JPanel( new FlowLayout()),
                        part2 = new JPanel( new FlowLayout()), part3 = new JPanel( new FlowLayout()),
@@ -124,6 +128,7 @@ public class DBCompare1 extends JFrame {
                                 jLabel21.setFont( reg );
                                 jLabel22.setFont( reg );
                                 username3.setFont( reg );
+                                pb.setFont( reg );
                         }
                         public void componentHidden(ComponentEvent e) {
                         }
@@ -162,6 +167,7 @@ public class DBCompare1 extends JFrame {
                 content.add( part9 );
                 content.add( part10 );
                 footer.add( DB1btn );
+                footer.add( pb );
                 add( header, BorderLayout.NORTH);
                 add( content, BorderLayout.CENTER);
                 add( footer, BorderLayout.SOUTH);
@@ -169,7 +175,7 @@ public class DBCompare1 extends JFrame {
 
         /**
          * DB1btnActionPerformed determines if the user has put in the appropriate
-         * info and either takes a db snapshot or compares a database to a database
+         * Information and either takes a db snapshot or compares a database to a database
          * snapshot
          * @author Peter Kaufman
          * @type function
@@ -227,48 +233,90 @@ public class DBCompare1 extends JFrame {
         public void takeSnapshot() {
 
                 ArrayList<String> log = new ArrayList();
-                // code by Artur: https://stackoverflow.com/questions/833768/java-code-for-getting-current-time
-                Calendar cal = Calendar.getInstance();
-                SimpleDateFormat date = new SimpleDateFormat( "yyyy-MM-dd" );
-                SimpleDateFormat hour = new SimpleDateFormat( "HH:mm" );
-                try {
+                pb.setIndeterminate( true );
+                pb.setBorder( BorderFactory.createTitledBorder( "Establishing Database Connection" ));
+                pb.setVisible( true );
 
-                        sw.start();
-                        db1 = new Db_conn( username3.getText(), new String(password3.getPassword()),
-                                           host3.getText(), port3.getText(), database3.getText(), "dev" );
-                        dab1 = new Database( db1 );
-                        FileConversion.writeTo( dab1 );
-                        sw.stop();
-                        log.add( "Took a DB Snapshot on " + date.format(cal.getTime()) + " at " + hour.format(cal.getTime()) + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
-                        try {
+                SwingWorker<Boolean, Integer> swingW = new SwingWorker<Boolean, Integer>() {
 
-                                FileConversion.writeTo( log, "Log.txt" );
-                        } catch( IOException e ) {
+                        @Override
+                        protected Boolean doInBackground() throws Exception {
 
-                                e.printStackTrace();
-                                error( "There was an error writing to the log file" );
+                                try {
+                                        publish( 1 );
+                                        sw.start();
+                                        db1 = new Db_conn( username3.getText(), new String(password3.getPassword()),
+                                                           host3.getText(), port3.getText(), database3.getText(), "dev" );
+
+                                        publish( 2 );
+                                        dab1 = new Database( db1 );
+                                        publish( 3 );
+                                        FileConversion.writeTo( dab1 );
+                                        sw.stop();
+                                        done = true;
+                                } catch( IOException e ) {
+
+                                        sw.stop();
+                                        done = false;
+                                        error( "There was an error when trying to take a database snapshot." );
+                                } catch ( SQLException e ) {
+
+                                        sw.stop();
+                                        done = false;
+                                        error( "There was an error with the database connection. Please try again." );
+                                }
+
+                                return true;
+
                         }
-                        this.error = true;
-                        this.dispose();
-                } catch( IOException e ) {
 
-                        sw.stop();
-                        error( "There was an error when trying to take a database snapshot." );
-                        log.add( "Attempted to take a DB Snapshot on " + date.format(cal.getTime()) + " at " + hour.format(cal.getTime()) + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an error." );
-                        try {
+                        @Override
+                        protected void done() {
 
-                                FileConversion.writeTo( log, "Log.txt" );
-                        } catch( IOException e2 ) {
+                                try {
 
-                                e2.printStackTrace();
-                                error( "There was an error writing to the log file" );
+                                        get();
+                                        pb.setBorder( BorderFactory.createTitledBorder( "Database Snapshot Complete" ));
+                                        pb.setIndeterminate( false );
+                                        if ( done ) {
+
+                                                log.add( "Took a DB Snapshot on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
+
+                                        } else {
+
+                                                log.add( "Took a DB Snapshot on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an error." );
+                                        }
+                                        try {
+
+                                                FileConversion.writeTo( log, "Log.txt" );
+                                        } catch( IOException e ) {
+
+                                                e.printStackTrace();
+                                                error( "There was an error writing to the log file" );
+                                        }
+                                        error = true;
+                                        dispose();
+                                } catch ( Exception e ) {
+
+                                }
                         }
 
-                } catch ( SQLException e ) {
+                        @Override
+                        protected void process( List<Integer> chunks ) {
 
-                        sw.stop();
-                        error( "There was an error with the database connection. Please try again." );
-                }
+                                Border nBorder = BorderFactory.createTitledBorder( "Establishing Database Connection" );
+                                if ( chunks.get( chunks.size() - 1) == 2 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Gathering Database Information" );
+                                } else if ( chunks.get( chunks.size() - 1) == 3 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Writing to JSON File" );
+                                }
+                                pb.setBorder(nBorder);
+                        }
+                };
+
+                swingW.execute();
         }
 
         /**
@@ -292,27 +340,109 @@ public class DBCompare1 extends JFrame {
          * snapshot file
          */
         private void compare2() throws IOException {
-                try {
 
-                        dab1 = FileConversion.readFrom();
+                pb.setIndeterminate( true );
+                ArrayList<String> log = new ArrayList();
+                pb.setBorder( BorderFactory.createTitledBorder( "Reading in The DB Snapshot" ));
+                pb.setVisible( true );
+                sw.reset();
+                SwingWorker<Boolean, Integer> swingW = new SwingWorker<Boolean, Integer>() {
 
-                        db2 = new Db_conn( username3.getText(), new String(password3.getPassword()),
-                                           host3.getText(), port3.getText(), database3.getText(), "live" );
-                        dab2 = new Database( db2 );
+                        @Override
+                        protected Boolean doInBackground() throws Exception {
 
-                        sql.addAll( dab2.getFirstSteps());
-                        sql.addAll( dab1.compareTables( dab2.getTables()));
-                        update_tables.addAll( dab1.tablesDiffs( dab2.getTables()));
-                        sql.addAll( dab1.updateTables( dab2.getTables(), update_tables ));
-                        sql.addAll( dab1.getFirstSteps());
-                        sql.addAll( dab1.updateViews( dab2.getViews()));
+                                try {
 
-                        displayResult( db2 );
-                        this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-                } catch ( SQLException e ) {
+                                        publish( 1 );
+                                        sw.start();
+                                        dab1 = FileConversion.readFrom();
+                                        publish( 2 );
+                                        db2 = new Db_conn( username3.getText(), new String(password3.getPassword()),
+                                                           host3.getText(), port3.getText(), database3.getText(), "live" );
+                                        publish( 3 );
+                                        dab2 = new Database( db2 );
+                                        publish( 4 );
+                                        sql.addAll( dab2.getFirstSteps());
+                                        publish( 5 );
+                                        sql.addAll( dab1.compareTables( dab2.getTables()));
+                                        publish( 6 );
+                                        update_tables.putAll( dab1.tablesDiffs( dab2.getTables()));
+                                        publish( 7 );
+                                        sql.addAll( dab1.updateTables( dab2.getTables(), update_tables ));
+                                        publish( 8 );
+                                        sql.addAll( dab1.getFirstSteps());
+                                        publish( 9 );
+                                        sql.addAll( dab1.updateViews( dab2.getViews()));
+                                        sw.stop();
+                                        log.add( "DB Snapshot Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
+                                } catch ( SQLException e ) {
 
-                        error( "There was an error with the database connection. Please try again." );
-                }
+                                        sw.stop();
+                                        log.add( "DB Snapshot Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an error." );
+                                        error( "There was an error with the database connection. Please try again." );
+                                }
+
+                                return true;
+
+                        }
+
+                        @Override
+                        protected void done() {
+
+                                try {
+
+                                        get();
+                                        pb.setBorder( BorderFactory.createTitledBorder( "Database Snapshot Comparison Complete" ));
+                                        pb.setIndeterminate( false );
+                                        try {
+
+                                                FileConversion.writeTo( log, "Log.txt" );
+                                        } catch( IOException e ) {
+
+                                                e.printStackTrace();
+                                                error( "There was an error writing to the log file" );
+                                        }
+                                        displayResult( db2 );
+                                        dispose();
+                                } catch ( Exception e ) {
+
+                                }
+                        }
+
+                        @Override
+                        protected void process( List<Integer> chunks ) {
+
+                                Border nBorder = BorderFactory.createTitledBorder( "Reading in The DB Snapshot" );
+                                if ( chunks.get( chunks.size() - 1) == 2 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Establishing Live Database Connection" );
+                                } else if ( chunks.get( chunks.size() - 1) == 3 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Gathering Live Database Info" );
+                                } else if ( chunks.get( chunks.size() - 1) == 4 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Checking Live First Steps" );
+                                } else if ( chunks.get( chunks.size() - 1) == 5 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Finding Missing Or Unneccessary Tables" );
+                                } else if ( chunks.get( chunks.size() - 1) == 6 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Comparing Tables" );
+                                } else if ( chunks.get( chunks.size() - 1) == 7 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Comparing Tables" );
+                                } else if ( chunks.get( chunks.size() - 1) == 8 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Checking Dev First Steps" );
+                                } else if ( chunks.get( chunks.size() - 1) == 9 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Adding Dev's Views" );
+                                }
+                                pb.setBorder(nBorder);
+                        }
+                };
+
+                swingW.execute();
         }
 
         /**

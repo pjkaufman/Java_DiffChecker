@@ -4,12 +4,13 @@
  * @author Peter Kaufman
  * @class Db_conn
  * @access public
- * @version 10-26-17
+ * @version 5-13-18
  * @since 9-6-17
  */
 package db_diff_checker_gui2;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 public class Db_conn {
 
         private String username = "", password = "", host = "", db = "", conn_string = "", port = "", type ="";
@@ -166,11 +167,12 @@ public class Db_conn {
          * @author Peter Kaufman
          * @type function
          * @access public
-         * @return tables is an ArrayList of Strings which are the names of the tables
+         * @return tables is a HashMap of Strings which are the names of the tables
+         * and Tables which contain data about the table
          */
-        public ArrayList<Table> getTableList() {
+        public HashMap<String, Table> getTableList() {
 
-                ArrayList<Table> tables2 = new ArrayList();
+                HashMap<String, Table> tables2 = new HashMap();
 
                 try {
                         String sql = "SELECT DISTINCT\n" +
@@ -266,7 +268,7 @@ public class Db_conn {
                                                 add = new Table( table, this, create );
                                         }
 
-                                        tables2.add( add );
+                                        tables2.put( add.getName(), add );
                                         if ( count != 0 && this.type.equals( "live" )) {
                                                 if ( !firstStep.contains( "COLUMN" )) {
 
@@ -408,7 +410,7 @@ public class Db_conn {
          * @author Peter Kaufman
          * @type function
          * @access public
-         * @return tables is an ArrayList of Strings which are the names of the tables
+         * @return tables is an ArrayList of Views which contain the view's properties
          */
         public ArrayList<Views> getViews() {
 
@@ -419,7 +421,6 @@ public class Db_conn {
                         String sql = "SHOW FULL TABLES IN `" + this.db + "` WHERE TABLE_TYPE LIKE 'VIEW';";
                         Statement query = this.con.createStatement();
                         ResultSet set = query.executeQuery( sql );
-
                         while (set.next()) {
 
                                 views1.add( new Views( set.getString( "Tables_in_" + this.db ),

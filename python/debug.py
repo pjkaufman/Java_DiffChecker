@@ -1,6 +1,7 @@
 import os
 import platform
 from subprocess import call
+from subprocess import check_output
 from shutil import copy
 
 OS = platform.system()
@@ -18,15 +19,18 @@ if ( OS == 'Windows' ):
     #move back to the python directory
     os.chdir( "..\\python" )
     #compile the java files and make the jar file
-    call( 'javac -d ..\\test -cp ' + p + ' ..\\db_diff_checker_gui2\\*.java' )
-    os.chdir( ".." )
-    print "Compiled files"
-    #run compiled files with classPath
-    #move to run directory
-    os.chdir( "test" )
-    call( "java -cp " + p + " db_diff_checker_gui2.DB_Diff_Checker_GUI" )
-    #move back to the python directory
-    os.chdir( "..\\python" )
+    try:
+        check_output( 'javac -d ..\\test -cp ' + p + ' ..\\db_diff_checker_gui2\\*.java' )
+        os.chdir( ".." )
+        print "Compiled files"
+        #run compiled files with classPath
+        #move to run directory
+        os.chdir( "test" )
+        call( "java -cp " + p + " db_diff_checker_gui2.DB_Diff_Checker_GUI" )
+        #move back to the python directory
+        os.chdir( "..\\python" )
+    except:
+        print "An error occurred during compilation"
 else:
     #change directory to jar file location
     os.chdir( "../jarLibrary" )
@@ -39,12 +43,15 @@ else:
     #move back to the python directory
     os.chdir( "../python" )
     #compile the java files and make the jar file
-    call( 'javac -d ../test -cp ' + p + ' ../db_diff_checker_gui2/*.java' )
-    print "Compiled files"
-    os.chdir( ".." )
-    #run compiled files with classPath
-    #move to run directory
-    os.chdir( "test" )
-    call( "java -cp " + p + " db_diff_checker_gui2.DB_Diff_Checker_GUI" )
-    #move back to the python directory
-    os.chdir( "../python" )
+    try:
+        check_output( 'javac -d ../test -cp ' + p + ' ../db_diff_checker_gui2/*.java' )
+        print "Compiled files"
+        os.chdir( ".." )
+        #run compiled files with classPath
+        #move to run directory
+        os.chdir( "test" )
+        call( "java -cp " + p + " db_diff_checker_gui2.DB_Diff_Checker_GUI" )
+        #move back to the python directory
+        os.chdir( "../python" )
+    except:
+        print "An error occurred during compilation"
