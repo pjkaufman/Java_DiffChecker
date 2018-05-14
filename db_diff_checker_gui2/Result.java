@@ -187,7 +187,7 @@ public class Result extends JFrame {
                                         Border nBorder = BorderFactory.createTitledBorder("Done");
                                         progressBar.setBorder(nBorder);
                                         progressBar.setValue(100);
-                                        log.add( "Ran on " + date.format(cal.getTime()) + " at " + hour.format(cal.getTime()) + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
+                                        log.add( "Ran SQL on " + date.format(cal.getTime()) + " at " + hour.format(cal.getTime()) + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
                                         try {
 
                                                 FileConversion.writeTo( log, "Log.txt" );
@@ -218,7 +218,7 @@ public class Result extends JFrame {
                 } catch ( Exception e ) {
 
                         sw.stop();
-                        log.add( "Ran on " + date.format(cal.getTime()) + " at " + hour.format(cal.getTime()) + " with an error updating the database." );
+                        log.add( "Ran SQL on " + date.format(cal.getTime()) + " at " + hour.format(cal.getTime()) + " with an error updating the database." );
                         try {
 
                                 FileConversion.writeTo( log, "Log.txt" );

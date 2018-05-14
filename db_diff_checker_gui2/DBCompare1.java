@@ -12,10 +12,13 @@ import java.sql.SQLException;
 import java.awt.event.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import javax.swing.*;
 import java.awt.*;
-import javax.swing.JProgressBar;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import javax.swing.border.Border;
 public class DBCompare1 extends JFrame {
         // Variable declaration
         private boolean error = true;
@@ -36,6 +39,8 @@ public class DBCompare1 extends JFrame {
         private JTextField port3;
         private JTextField username3;
         private JProgressBar pb = new JProgressBar();
+        private StopWatch sw = new StopWatch();
+        private boolean done = false;
 
         /**
          * Creates new form DBCompare1
@@ -125,6 +130,7 @@ public class DBCompare1 extends JFrame {
                                 jLabel21.setFont( reg );
                                 jLabel22.setFont( reg );
                                 username3.setFont( reg );
+                                pb.setFont( reg );
                         }
                         public void componentHidden(ComponentEvent e) {
                         }
@@ -229,27 +235,95 @@ public class DBCompare1 extends JFrame {
         public void takeSnapshot() {
 
                 pb.setIndeterminate( true );
-                try {
+                ArrayList<String> log = new ArrayList();
+                // code by Artur: https://stackoverflow.com/questions/833768/java-code-for-getting-current-time
+                Calendar cal = Calendar.getInstance();
+                SimpleDateFormat date = new SimpleDateFormat( "yyyy-MM-dd" );
+                SimpleDateFormat hour = new SimpleDateFormat( "HH:mm" );
+                pb.setBorder( BorderFactory.createTitledBorder( "Establishing Database Connection" ));
+                pb.setVisible( true );
 
-                        pb.setString( "Establishing Database Connection" );
-                        pb.setVisible( true );
-                        db1 = new Db_conn( username3.getText(), new String(password3.getPassword()),
-                                           host3.getText(), port3.getText(), database3.getText(), "dev" );
-                        pb.setString( "Gathering Database Information" );
-                        dab1 = new Database( db1 );
-                        pb.setString( "Writing to JSON File" );
-                        FileConversion.writeTo( dab1 );
-                        pb.setString( "Database Snapshot Complete" );
-                        pb.setIndeterminate( false );
-                        this.error = true;
-                        this.dispose();
-                } catch( IOException e ) {
+                SwingWorker<Boolean, Integer> swingW = new SwingWorker<Boolean, Integer>() {
 
-                        error( "There was an error when trying to take a database snapshot." );
-                } catch ( SQLException e ) {
+                        @Override
+                        protected Boolean doInBackground() throws Exception {
 
-                        error( "There was an error with the database connection. Please try again." );
-                }
+                                try {
+                                        publish( 1 );
+                                        sw.start();
+                                        db1 = new Db_conn( username3.getText(), new String(password3.getPassword()),
+                                                           host3.getText(), port3.getText(), database3.getText(), "dev" );
+
+                                        publish( 2 );
+                                        dab1 = new Database( db1 );
+                                        publish( 3 );
+                                        FileConversion.writeTo( dab1 );
+                                        sw.stop();
+                                        done = true;
+                                } catch( IOException e ) {
+
+                                        sw.stop();
+                                        done = false;
+                                        error( "There was an error when trying to take a database snapshot." );
+                                } catch ( SQLException e ) {
+
+                                        sw.stop();
+                                        done = false;
+                                        error( "There was an error with the database connection. Please try again." );
+                                }
+
+                                return true;
+
+                        }
+
+                        @Override
+                        protected void done() {
+
+                                try {
+
+                                        get();
+                                        pb.setBorder( BorderFactory.createTitledBorder( "Database Snapshot Complete" ));
+                                        pb.setIndeterminate( false );
+                                        if ( done ) {
+
+                                                log.add( "Took a DB Snapshot on " + date.format(cal.getTime()) + " at " + hour.format(cal.getTime()) + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
+
+                                        } else {
+
+                                                log.add( "Took a DB Snapshot on " + date.format(cal.getTime()) + " at " + hour.format(cal.getTime()) + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an error." );
+                                        }
+                                        try {
+
+                                                FileConversion.writeTo( log, "Log.txt" );
+                                        } catch( IOException e ) {
+
+                                                e.printStackTrace();
+                                                error( "There was an error writing to the log file" );
+                                        }
+                                        error = true;
+                                        dispose();
+                                } catch ( Exception e ) {
+
+                                }
+                        }
+
+                        @Override
+                        protected void process( List<Integer> chunks ) {
+
+                                Border nBorder = BorderFactory.createTitledBorder( "Establishing Database Connection" );
+                                if ( chunks.get( chunks.size() - 1) == 2 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Gathering Database Information" );
+                                } else if ( chunks.get( chunks.size() - 1) == 3 ) {
+
+                                        nBorder = BorderFactory.createTitledBorder( "Writing to JSON File" );
+                                }
+                                pb.setBorder(nBorder);
+                        }
+                };
+
+                swingW.execute();
+
         }
 
         /**

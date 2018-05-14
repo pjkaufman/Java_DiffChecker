@@ -16,7 +16,6 @@ if ( OS == 'Windows' ):
         p += "\".;..\\jarLibrary\\" + fi + "\";"
     p = p[:-1]
     print "Set up class path"
-    print "\n" + p
     #move back to the python directory
     os.chdir( "..\\python" )
     #compile the java files and make the jar file
@@ -27,6 +26,7 @@ if ( OS == 'Windows' ):
         #run compiled files with classPath
         #move to run directory
         os.chdir( "test" )
+        print "\n" + p
         call( "java -cp " + p + " db_diff_checker_gui2.DB_Diff_Checker_GUI" )
         #move back to the python directory
         os.chdir( "..\\python" )
