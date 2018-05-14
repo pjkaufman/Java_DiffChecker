@@ -4,7 +4,7 @@
  * @author Peter Kaufman
  * @class Result
  * @access public
- * @version 10-31-17
+ * @version 5-13-18
  * @since 9-20-17
  */
 package db_diff_checker_gui2;
@@ -34,7 +34,7 @@ public class Result extends JFrame {
          * Creates new form Result
          * @author Peter Kaufman
          * @type constructor
-         * @access
+         * @access public
          * @param db1 is a Db_conn object which is the connection for the live database
          */
         public Result( Db_conn db ) {

@@ -11,12 +11,6 @@ MODIFY COLUMN `id` int(11) unsigned NOT NULL ,
 DROP PRIMARY KEY;
 ALTER TABLE `versions` 
 DROP PRIMARY KEY;
-ALTER TABLE `config`
-MODIFY COLUMN `id` int(11) unsigned NOT NULL;
-ALTER TABLE `logins`
-MODIFY COLUMN `id` int(11) unsigned NOT NULL;
-ALTER TABLE `users`
-MODIFY COLUMN `id` int(11) unsigned NOT NULL;
 ALTER TABLE `ci_sessions` 
 ADD PRIMARY KEY (`id`);
 ALTER TABLE `config` 
