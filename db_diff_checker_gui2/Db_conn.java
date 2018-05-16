@@ -15,7 +15,7 @@ public class Db_conn {
 
         private String username = "", password = "", host = "", db = "", conn_string = "", port = "", type ="";
         private Connection con = null;
-        private ArrayList<String> firstSteps = new ArrayList();
+        private ArrayList<String> firstSteps = new ArrayList<>();
 
         /**
          * Db_conn initializes objects of type db_conn
@@ -76,7 +76,6 @@ public class Db_conn {
          * @see https://www.youtube.com/watch?v=e3gnhsGqNmI&t=158s
          */
         public void make_conn() {
-
                 try {
 
                         this.con = DriverManager.getConnection( this.conn_string, this.username, this.password );
@@ -172,7 +171,7 @@ public class Db_conn {
          */
         public HashMap<String, Table> getTableList() {
 
-                HashMap<String, Table> tables2 = new HashMap();
+                HashMap<String, Table> tables2 = new HashMap<>();
 
                 try {
                         String sql = "SELECT DISTINCT\n" +
@@ -414,7 +413,7 @@ public class Db_conn {
          */
         public ArrayList<Views> getViews() {
 
-                ArrayList<Views> views1 = new ArrayList();
+                ArrayList<Views> views1 = new ArrayList<>();
 
                 try {
                         // sql is from https://geeksww.com/tutorials/database_management_systems/mysql/tips_and_tricks/mysql_query_to_find_all_views_in_a_database.php

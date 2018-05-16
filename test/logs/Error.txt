@@ -4,3 +4,11 @@
 2018-05-14 09:15: There was an error running SQL statement(s) on the  live2 database.
 2018-05-16 09:35: There was an error with the database connection. Please try again.
 2018-05-16 09:35: There was an error with the database connection. Please try again.
+2018-05-16 10:55: There was an error with the database connection. Please try again.
+2018-05-16 10:56: There was an error with the database connection. Please try again.
+2018-05-16 14:06: java.lang.Exception: There was an error with the database connection. Please try again.
+2018-05-16 14:10:  There was an error with the database connection. Please try again.
+2018-05-16 14:12:  There was an error with the database connection. Please try again.
+2018-05-16 14:40:  There was an error with the database connection. Please try again.
+2018-05-16 14:43:  There was an error with the database connection. Please try again.
+2018-05-16 14:48:  There was an error with the database connection. Please try again.

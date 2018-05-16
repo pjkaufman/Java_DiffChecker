@@ -3,22 +3,19 @@
  * @author Peter Kaufman
  * @class Database
  * @access public
- * @version 5-13-18
+ * @version 5-15-18
  * @since 9-18-17
  */
 package db_diff_checker_gui2;
 import java.util.ArrayList;
 import java.util.HashMap;
 public class Database {
-        // member variables
-        private HashMap<String, Table> tables = new HashMap();
-        private HashMap<String, String> exclude = new HashMap();
-        private ArrayList<Views> views = new ArrayList();
-        private ArrayList<String> firstSteps = new ArrayList();
+        // Instance variables
+        private HashMap<String, Table> tables = new HashMap<>();
+        private HashMap<String, String> exclude = new HashMap<>();
+        private ArrayList<Views> views = new ArrayList<>();
+        private ArrayList<String> firstSteps = new ArrayList<>();
 
-        /*  private ArrayList<Table> tables = new ArrayList();
-           private ArrayList<Views> views = new ArrayList();
-           private ArrayList<String> exclude = new ArrayList(), firstSteps = new ArrayList();*/
         /**
          * Database initializes a Database object
          * @author Peter Kaufman
@@ -92,7 +89,7 @@ public class Database {
          */
         public ArrayList<String> updateViews ( ArrayList<Views> views1) {
 
-                ArrayList<String> sql = new ArrayList();
+                ArrayList<String> sql = new ArrayList<>();
                 // drop all views
                 for ( Views view1: views1 ) {
 
@@ -120,7 +117,7 @@ public class Database {
          */
         public ArrayList<String> compareTables( HashMap<String, Table> tables2 ) {
 
-                ArrayList<String> sql = new ArrayList();
+                ArrayList<String> sql = new ArrayList<>();
                 // get the create statement
                 for ( String tName : this.tables.keySet()) {
                         if ( !tables2.containsKey( tName )) {
@@ -156,7 +153,7 @@ public class Database {
          */
         public ArrayList<String> updateTables( HashMap<String, Table> live, HashMap<String, String> update_tables ) {
 
-                ArrayList<String> sql = new ArrayList();
+                ArrayList<String> sql = new ArrayList<>();
                 // find the info that is differnet between the tables
                 for ( String tName : this.tables.keySet()) {
                         if ( !exclude.containsKey( tName ) && update_tables.containsKey( tName )) {
@@ -181,7 +178,7 @@ public class Database {
          */
         public HashMap<String, String> tablesDiffs( HashMap<String, Table> tables ) {
 
-                HashMap<String, String> dev_structure = new HashMap(), live_structure = new HashMap(), update_tables = new HashMap();
+                HashMap<String, String> dev_structure = new HashMap<>(), live_structure = new HashMap<>(), update_tables = new HashMap<>();
                 // get dev db's table structure
                 String struct = null;
                 for ( String tName : this.tables.keySet()) {

@@ -3,17 +3,15 @@
  * @author Peter Kaufman
  * @class Error
  * @access public
- * @version 5-14-18
+ * @version 5-15-18
  * @since 9-21-17
  */
 package db_diff_checker_gui2;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
-import javax.swing.*;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import javax.swing.*;
 
 public class Error extends JFrameV2 {
         // Instance variables
@@ -31,14 +29,10 @@ public class Error extends JFrameV2 {
                 this.error = false;
                 initComponents();
                 this.errorLabel.setText( error );
-                //clase = this.getClass().getName();
                 try{
 
-                        ArrayList<String> err = new ArrayList();
-                        // code by Artur: https://stackoverflow.com/questions/833768/java-code-for-getting-current-time
-                        Calendar cal = Calendar.getInstance();
-                        SimpleDateFormat date = new SimpleDateFormat( "yyyy-MM-dd HH:mm" );
-                        err.add( date.format( cal.getTime()) + ": " + error );
+                        ArrayList<String> err = new ArrayList<>();
+                        err.add( sw.getDate() + " " + sw.getHour() + ": " + error );
                         FileConversion.writeTo( err, "Error.txt" );
                 } catch( IOException e ) {
 

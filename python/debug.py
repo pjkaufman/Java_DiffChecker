@@ -20,7 +20,7 @@ if ( OS == 'Windows' ):
     os.chdir( "..\\python" )
     #compile the java files and make the jar file
     try:
-        check_output( 'javac -d ..\\test -cp ' + p + ' ..\\db_diff_checker_gui2\\*.java' )
+        check_output( 'javac -Xlint:unchecked -d ..\\test -cp ' + p + ' ..\\db_diff_checker_gui2\\*.java' )
         os.chdir( ".." )
         print "Compiled files"
         #run compiled files with classPath
@@ -44,7 +44,7 @@ else:
     os.chdir( "../python" )
     #compile the java files and make the jar file
     try:
-        check_output( 'javac -d ../test -cp ' + p + ' ../db_diff_checker_gui2/*.java' )
+        check_output( 'javac -Xlint:unchecked -d ../test -cp ' + p + ' ../db_diff_checker_gui2/*.java' )
         print "Compiled files"
         os.chdir( ".." )
         #run compiled files with classPath

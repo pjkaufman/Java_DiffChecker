@@ -179,9 +179,9 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
                 } catch( IOException e ) {
 
                         System.err.println( e );
-                        e.printStackTrace();
+                        //e.printStackTrace();
                         error( "There was an error recovering the last list of SQL statements." );
-
+                        //error( e );
                 }
         }
 

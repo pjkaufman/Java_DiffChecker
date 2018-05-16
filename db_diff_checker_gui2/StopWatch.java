@@ -34,7 +34,6 @@ public class StopWatch {
                 if (isRunning) {
                         throw new RuntimeException("Stopwatch is already running.");
                 }
-                cal = Calendar.getInstance();
                 this.isRunning = true;
                 startTime = Instant.now();
         }
@@ -91,23 +90,27 @@ public class StopWatch {
         }
 
         /**
-         * getDate gets the date for when the timer started
+         * getDate gets the date when the method is called
          * @author Peter Kaufman
          * @type function
          * @access public
          */
         public String getDate() {
 
-                return date.format(cal.getTime()) + " ";
+                cal = Calendar.getInstance();
+
+                return date.format(cal.getTime()) + "";
         }
 
         /**
-         * getHour gets the hour for when the timer started
+         * getHour gets the hour when the method is called
          * @author Peter Kaufman
          * @type function
          * @access public
          */
         public String getHour() {
+
+                cal = Calendar.getInstance();
 
                 return hour.format(cal.getTime()) + "";
         }

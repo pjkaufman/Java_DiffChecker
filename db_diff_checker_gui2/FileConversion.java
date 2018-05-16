@@ -104,7 +104,7 @@ public class FileConversion {
         public static ArrayList<String> readFrom( String file ) throws IOException {
 
                 Scanner in = new Scanner( new File( "logs\\" + file ));
-                ArrayList<String> SQL = new ArrayList();
+                ArrayList<String> SQL = new ArrayList<>();
                 while( in.hasNextLine()) {
 
                         SQL.add( in.nextLine());

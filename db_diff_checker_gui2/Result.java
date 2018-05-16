@@ -25,7 +25,6 @@ public class Result extends JFrameV2 {
         private JTextArea SQLShow = new JTextArea( 5, 20 );
         private JButton btnRun = new JButton( "Run" );
         private JLabel jLabel17 = new JLabel( "Run the following SQL to make the two databases the same:" );
-        private boolean done = false;
 
         /**
          * Creates new form Result
@@ -96,13 +95,13 @@ public class Result extends JFrameV2 {
         private void btnRunActionPerformed(ActionEvent evt) {
 
                 hideRun();
-                ArrayList<String> log = new ArrayList();
+                ArrayList<String> log = new ArrayList<>();
                 SwingWorker<Boolean, Integer> swingW = new SwingWorker<Boolean, Integer>() {
 
                         @Override
                         protected Boolean doInBackground() throws Exception {
 
-                                ArrayList<String> temp = new ArrayList();
+                                ArrayList<String> temp = new ArrayList<>();
                                 temp.add( "" );
                                 boolean cont = true;
                                 sw.start();
@@ -112,6 +111,8 @@ public class Result extends JFrameV2 {
                                         cont = db.runSQL( temp );
                                         if ( !cont ) {
 
+                                                sw.stop();
+                                                log.add( "Ran SQL on " + sw.getHour() + " at " + sw.getDate() + " with an error updating the database." );
                                                 throw new Exception( "There was an error running: " + temp.get(0));
                                         }
                                         publish(i);
@@ -123,11 +124,9 @@ public class Result extends JFrameV2 {
 
                         @Override
                         protected void done() {
-
                                 try {
 
                                         get();
-                                        done = true;
                                         jLabel17.setText( "The database has been updated." );
                                         TitledBorder nBorder = BorderFactory.createTitledBorder( "Done" );
                                         nBorder.setTitleFont( myFont );
@@ -139,11 +138,26 @@ public class Result extends JFrameV2 {
                                                 FileConversion.writeTo( log, "Log.txt" );
                                         } catch( IOException e ) {
 
-                                                e.printStackTrace();
+                                                //e.printStackTrace();
                                                 error( "There was an error writing to the log file" );
+                                                //error( e );
                                         }
                                 } catch ( Exception e ) {
 
+                                        pb.setIndeterminate( false );
+                                        pb.setVisible( false );
+                                        //e.printStackTrace();
+                                        //error( e );
+                                        error( e.getMessage().substring( e.getMessage().indexOf( ":" ) + 1 ));
+                                }
+                                try {
+
+                                        FileConversion.writeTo( log, "Log.txt" );
+                                } catch( IOException e ) {
+
+                                        //e.printStackTrace();
+                                        error( "There was an error writing to the log file" );
+                                        //error( e );
                                 }
                         }
 
@@ -159,22 +173,14 @@ public class Result extends JFrameV2 {
                         }
 
                 };
-                try {
+                //  try {
 
-                        swingW.execute();
-                } catch ( Exception e ) {
+                swingW.execute();
+                //} catch ( Exception e ) {
 
-                        sw.stop();
-                        log.add( "Ran SQL on " + sw.getHour() + " at " + sw.getDate() + " with an error updating the database." );
-                        try {
+                //sw.stop();
 
-                                FileConversion.writeTo( log, "Log.txt" );
-                        } catch( IOException e2 ) {
-
-                                e2.printStackTrace();
-                                error( "There was an error writing to the log file" );
-                        }
-                }
+                //}
 
         }
 
@@ -215,8 +221,9 @@ public class Result extends JFrameV2 {
                 } catch( IOException e ) {
 
                         System.err.println( e );
-                        e.printStackTrace();
+                        //e.printStackTrace();
                         error( "There was an error writing the SQL statement(s) to a file." );
+                        //error( e );
                 }
         }
 

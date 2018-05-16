@@ -13,10 +13,8 @@ public class Table {
 
         private String name = "", createStatement = "", charSet = "", collation = "", auto_increment = "";
         private int count = 0;
-        private HashMap<String, Column> columns = new HashMap();
-        private HashMap<String, Index> indices = new HashMap();
-        /*private ArrayList<Column> columns = new ArrayList();
-           private ArrayList<Index> indices = new ArrayList();*/
+        private HashMap<String, Column> columns = new HashMap<>();
+        private HashMap<String, Index> indices = new HashMap<>();
 
         /**
          * Table initializes a table object
@@ -198,7 +196,7 @@ public class Table {
          */
         public ArrayList<String> equals( Table t1 ) {
 
-                ArrayList<String> sql = new ArrayList();
+                ArrayList<String> sql = new ArrayList<>();
                 String sql2 = "ALTER TABLE `" + this.name + "`\n";
 
                 if (  !this.charSet.equals( t1.charSet ) | !this.collation.equals( t1.collation )) {

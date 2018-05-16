@@ -4,7 +4,7 @@
  * @author Peter Kaufman
  * @class DBCompare2
  * @access public
- * @version 5-14-18
+ * @version 5-15-18
  * @since 9-20-17
  */
 package db_diff_checker_gui2;
@@ -22,23 +22,23 @@ public class DBCompare2 extends JFrameV2 {
         // Instance variables
         private Db_conn db1, db2;
         private Database dab1, dab2;
-        private HashMap<String, String> update_tables = new HashMap();
+        private HashMap<String, String> update_tables = new HashMap<>();
         private JTextField database1 = new JTextField( 10 ), database2 = new JTextField( 10 ),
                            host1 = new JTextField( 10 ), host2 = new JTextField( 10 ),
                            port1 = new JTextField( 10 ), port2 = new JTextField( 10 ),
                            username1 = new JTextField( 10 ), username2 = new JTextField( 10 );
-        private JButton jButton1 = new JButton( "Compare" );
-        private JLabel jLabel10 = new JLabel( "Enter MySQL Dev Port:     " ),
-                       jLabel11 = new JLabel( "Enter MySQL Dev Database: " ),
-                       jLabel12 = new JLabel( "Enter MySQL Live Username:" ),
-                       jLabel13 = new JLabel( "Enter MySQL Live Password:" ),
-                       jLabel14 = new JLabel( "Enter MySQL Live Host:    " ),
-                       jLabel15 = new JLabel( "Enter MySQL Live Port:    " ),
-                       jLabel16 = new JLabel( "Enter MySQL Live Database:" ),
-                       jLabel6 = new JLabel( "Enter The Folowing Information:" ),
-                       jLabel7 = new JLabel( "Enter MySQL Dev Username: " ),
-                       jLabel8 = new JLabel( "Enter MySQL Dev Password: " ),
-                       jLabel9 = new JLabel( "Enter MySQL Dev Host:     " );
+        private JButton execute = new JButton( "Compare" );
+        private JLabel devPortLabel = new JLabel( "Enter MySQL Dev Port:     " ),
+                       devDBLabel = new JLabel( "Enter MySQL Dev Database: " ),
+                       liveUserNameLabel = new JLabel( "Enter MySQL Live Username:" ),
+                       livePassLabel = new JLabel( "Enter MySQL Live Password:" ),
+                       liveHostLabel = new JLabel( "Enter MySQL Live Host:    " ),
+                       livePortLabel = new JLabel( "Enter MySQL Live Port:    " ),
+                       liveDBLabel = new JLabel( "Enter MySQL Live Database:" ),
+                       headT = new JLabel( "Enter The Folowing Information:" ),
+                       devUserNameLabel = new JLabel( "Enter MySQL Dev Username: " ),
+                       devPassLabel = new JLabel( "Enter MySQL Dev Password: " ),
+                       devHostLabel = new JLabel( "Enter MySQL Dev Host:     " );
         private JPasswordField password1 = new JPasswordField( 10 ), password2 = new JPasswordField( 10 );
 
         /**
@@ -62,18 +62,18 @@ public class DBCompare2 extends JFrameV2 {
          */
         private void initComponents() {
                 // add components to the appropriate ArrayList
-                cpnt.add( jLabel6 );
-                cpnt.add( jButton1 );
-                cpnr.add( jLabel7 );
-                cpnr.add( jLabel8 );
-                cpnr.add( jLabel9 );
-                cpnr.add( jLabel10 );
-                cpnr.add( jLabel11 );
-                cpnr.add( jLabel12 );
-                cpnr.add( jLabel13 );
-                cpnr.add( jLabel14 );
-                cpnr.add( jLabel15 );
-                cpnr.add( jLabel16 );
+                cpnt.add( headT );
+                cpnt.add( execute );
+                cpnr.add( devUserNameLabel );
+                cpnr.add( devPassLabel );
+                cpnr.add( devHostLabel );
+                cpnr.add( devPortLabel );
+                cpnr.add( devDBLabel );
+                cpnr.add( liveUserNameLabel );
+                cpnr.add( livePassLabel );
+                cpnr.add( liveHostLabel );
+                cpnr.add( livePortLabel );
+                cpnr.add( liveDBLabel );
                 cpnr.add( username1 );
                 cpnr.add( password1 );
                 cpnr.add( username2 );
@@ -89,9 +89,9 @@ public class DBCompare2 extends JFrameV2 {
                 setTitle("Compare Two Databases");
                 // set component properties
                 pb.setVisible( false );
-                jLabel6.setHorizontalAlignment( SwingConstants.CENTER );
-                jLabel6.setFont(new Font("Tahoma", 1, 24));
-                jButton1.setFont(new Font("Tahoma", 0, 18));
+                headT.setHorizontalAlignment( SwingConstants.CENTER );
+                headT.setFont(new Font("Tahoma", 1, 24));
+                execute.setFont(new Font("Tahoma", 0, 18));
                 // create JPanels
                 JPanel header = new JPanel( new BorderLayout()), content = new JPanel( new BorderLayout()),
                        footer = new JPanel( new BorderLayout()), part1 = new JPanel( new FlowLayout()),
@@ -120,17 +120,17 @@ public class DBCompare2 extends JFrameV2 {
                                         button = new Font("Tahoma", Font.BOLD, (int)( width / 34 ));
                                 }
 
-                                jLabel6.setFont( title );
-                                jLabel7.setFont( reg );
-                                jLabel8.setFont( reg );
-                                jLabel9.setFont( reg );
-                                jLabel10.setFont( reg );
-                                jLabel11.setFont( reg );
-                                jLabel12.setFont( reg );
-                                jLabel13.setFont( reg );
-                                jLabel14.setFont( reg );
-                                jLabel15.setFont( reg );
-                                jLabel16.setFont( reg );
+                                headT.setFont( title );
+                                devUserNameLabel.setFont( reg );
+                                devPassLabel.setFont( reg );
+                                devHostLabel.setFont( reg );
+                                devPortLabel.setFont( reg );
+                                devDBLabel.setFont( reg );
+                                liveUserNameLabel.setFont( reg );
+                                livePassLabel.setFont( reg );
+                                liveHostLabel.setFont( reg );
+                                livePortLabel.setFont( reg );
+                                liveDBLabel.setFont( reg );
                                 username1.setFont( reg );
                                 password1.setFont( reg );
                                 username2.setFont( reg );
@@ -141,7 +141,7 @@ public class DBCompare2 extends JFrameV2 {
                                 port2.setFont( reg );
                                 database1.setFont( reg );
                                 database2.setFont( reg );
-                                jButton1.setFont( button );
+                                execute.setFont( button );
                                 myFont = reg;
 
                         }
@@ -152,23 +152,23 @@ public class DBCompare2 extends JFrameV2 {
                         public void componentMoved(ComponentEvent e) {
                         }
                 });
-                jButton1.addActionListener(new ActionListener() {
+                execute.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent evt) {
-                                jButton1ActionPerformed(evt);
+                                executeActionPerformed(evt);
                         }
                 });
                 // add components
-                header.add( jLabel6, BorderLayout.CENTER );
-                part1.add( jLabel7 );
-                part2.add( jLabel12 );
-                part3.add( jLabel8 );
-                part4.add( jLabel13 );
-                part5.add( jLabel9 );
-                part6.add( jLabel14 );
-                part7.add( jLabel10 );
-                part8.add( jLabel15 );
-                part9.add( jLabel11 );
-                part10.add( jLabel16 );
+                header.add( headT, BorderLayout.CENTER );
+                part1.add( devUserNameLabel );
+                part2.add( liveUserNameLabel );
+                part3.add( devPassLabel );
+                part4.add( livePassLabel );
+                part5.add( devHostLabel );
+                part6.add( liveHostLabel );
+                part7.add( devPortLabel );
+                part8.add( livePortLabel );
+                part9.add( devDBLabel );
+                part10.add( liveDBLabel );
                 part11.add( username1 );
                 part12.add( username2 );
                 part13.add( password1 );
@@ -201,7 +201,7 @@ public class DBCompare2 extends JFrameV2 {
                 c2.add( part20 );
                 content.add( c1, BorderLayout.WEST );
                 content.add( c2, BorderLayout.EAST );
-                footc.add( jButton1 );
+                footc.add( execute );
                 footer.add( footc, BorderLayout.CENTER );
                 footer.add( pb, BorderLayout.SOUTH );
                 getContentPane().setLayout( new BorderLayout());
@@ -211,7 +211,7 @@ public class DBCompare2 extends JFrameV2 {
         }
 
         /**
-         * jButton1ActionPerformed determines whether the information supplied by the
+         * executeActionPerformed determines whether the information supplied by the
          * user is adequate, if so 2 databases are compared otherwise a message is
          * displayed
          * @author Peter Kaufman
@@ -219,7 +219,7 @@ public class DBCompare2 extends JFrameV2 {
          * @access private
          * @param evt is an ActionEvent which results when the compare button is clicked
          */
-        private void jButton1ActionPerformed(ActionEvent evt) {
+        private void executeActionPerformed(ActionEvent evt) {
                 if ( !( port1.getText().equals( "" ) | port2.getText().equals( "" ) |
                         username1.getText().equals( "" ) | username2.getText().equals( "" ) |
                         new String(password1.getPassword()).equals( "" ) | new String(password2.getPassword()).equals( "" ) |
@@ -230,7 +230,7 @@ public class DBCompare2 extends JFrameV2 {
                         compare1();
                 } else {
 
-                        jLabel6.setText( "Please do not leave any fields blank." );
+                        headT.setText( "Please do not leave any fields blank." );
                 }
         }
 
@@ -243,39 +243,37 @@ public class DBCompare2 extends JFrameV2 {
         private void compare1() {
 
                 pb.setIndeterminate( true );
-                ArrayList<String> log = new ArrayList();
+                ArrayList<String> log = new ArrayList<>();
                 pb.setBorder( BorderFactory.createTitledBorder( "Establishing Dev Database Connection" ));
                 pb.setVisible( true );
                 sw.reset();
-                SwingWorker<Boolean, Integer> swingW = new SwingWorker<Boolean, Integer>() {
+                SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {
 
                         @Override
                         protected Boolean doInBackground() throws Exception {
-
                                 try {
 
-                                        publish( 1 );
+                                        publish( "Establishing Dev Database Connection" );
                                         sw.start();
                                         db1 = new Db_conn( username1.getText(), new String(password1.getPassword()),
                                                            host1.getText(), port1.getText(), database1.getText(), "dev" );
-                                        publish( 2 );
+                                        publish( "Gathering Dev Database Info" );
                                         dab1 = new Database( db1 );
-                                        publish( 3 );
+                                        publish( "Establishing Live Database Connection" );
                                         db2 = new Db_conn( username2.getText(), new String(password2.getPassword()),
                                                            host2.getText(), port2.getText(), database2.getText(), "live" );
-                                        publish( 4 );
+                                        publish( "Gathering Live Database Info" );
                                         dab2 = new Database( db2 );
-                                        publish( 5 );
+                                        publish( "Checking Live First Steps" );
                                         sql.addAll( dab2.getFirstSteps());
-                                        publish( 6 );
+                                        publish( "Comparing Tables" );
                                         sql.addAll( dab1.compareTables( dab2.getTables()));
-                                        publish( 7 );
+                                        publish( "Comparing Tables" );
                                         update_tables.putAll( dab1.tablesDiffs( dab2.getTables()));
-                                        publish( 8 );
                                         sql.addAll(dab1.updateTables( dab2.getTables(), update_tables ));
-                                        publish( 9 );
+                                        publish( "Checking Dev First Steps" );
                                         sql.addAll( dab1.getFirstSteps());
-                                        publish( 10 );
+                                        publish( "Adding Dev's Views" );
                                         sql.addAll(dab1.updateViews( dab2.getViews()));
                                         sw.stop();
                                         log.add( "DB Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
@@ -283,68 +281,45 @@ public class DBCompare2 extends JFrameV2 {
 
                                         sw.stop();
                                         log.add( "DB Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an error." );
-                                        error( "There was an error with the database connection. Please try again." );
+                                        throw new Exception( "There was an error with the database connection. Please try again." );
                                 }
 
                                 return true;
-
                         }
 
                         @Override
                         protected void done() {
-
                                 try {
 
                                         get();
                                         pb.setBorder( BorderFactory.createTitledBorder( "Database Comparison Complete" ));
                                         pb.setIndeterminate( false );
-                                        try {
-
-                                                FileConversion.writeTo( log, "Log.txt" );
-                                        } catch( IOException e ) {
-
-                                                e.printStackTrace();
-                                                error( "There was an error writing to the log file" );
-                                        }
                                         displayResult( db2 );
                                         dispose();
                                 } catch ( Exception e ) {
 
+                                        pb.setIndeterminate( false );
+                                        pb.setVisible( false );
+                                        //e.printStackTrace();
+                                        error( e.getMessage().substring( e.getMessage().indexOf( ":" ) + 1 ));
+                                        //error( e );
+                                }
+                                try {
+
+                                        FileConversion.writeTo( log, "Log.txt" );
+                                } catch( IOException e ) {
+
+                                        //  e.printStackTrace();
+                                        error( "There was an error writing to the log file" );
+                                        //error( e );
                                 }
                         }
 
                         @Override
-                        protected void process( List<Integer> chunks ) {
+                        protected void process( List<String> chunks ) {
 
-                                TitledBorder nBorder = BorderFactory.createTitledBorder( "Establishing Dev Database Connection" );
-                                if ( chunks.get( chunks.size() - 1) == 2 ) {
-
-                                        nBorder = BorderFactory.createTitledBorder( "Gathering Dev Database Info" );
-                                } else if ( chunks.get( chunks.size() - 1) == 3 ) {
-
-                                        nBorder = BorderFactory.createTitledBorder( "Establishing Live Database Connection" );
-                                } else if ( chunks.get( chunks.size() - 1) == 4 ) {
-
-                                        nBorder = BorderFactory.createTitledBorder( "Gathering Live Database Info" );
-                                } else if ( chunks.get( chunks.size() - 1) == 5 ) {
-
-                                        nBorder = BorderFactory.createTitledBorder( "Checking Live First Steps" );
-                                } else if ( chunks.get( chunks.size() - 1) == 6 ) {
-
-                                        nBorder = BorderFactory.createTitledBorder( "Comparing Tables" );
-                                } else if ( chunks.get( chunks.size() - 1) == 7 ) {
-
-                                        nBorder = BorderFactory.createTitledBorder( "Comparing Tables" );
-                                }  else if ( chunks.get( chunks.size() - 1) == 8 ) {
-
-                                        nBorder = BorderFactory.createTitledBorder( "Comparing Tables" );
-                                } else if ( chunks.get( chunks.size() - 1) == 9 ) {
-
-                                        nBorder = BorderFactory.createTitledBorder( "Checking Dev First Steps" );
-                                } else if ( chunks.get( chunks.size() - 1) == 10 ) {
-
-                                        nBorder = BorderFactory.createTitledBorder( "Adding Dev's Views" );
-                                }
+                                TitledBorder nBorder = BorderFactory.createTitledBorder( chunks.get( chunks.size() - 1 ));
+                                nBorder.setTitleFont( myFont );
                                 pb.setBorder(nBorder);
                         }
                 };
