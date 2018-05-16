@@ -33,3 +33,7 @@ DB Comparison Complete on 2018-05-14  at 09:21 in 2.574s with no errors.
 Ran SQL on 2018-05-14  at 09:21 in 8.408s with no errors.
 DB Comparison Complete on 2018-05-14  at 09:39 in 2.833s with no errors.
 Ran SQL on 2018-05-14  at 09:39 in 9.224s with no errors.
+DB Comparison Complete on 2018-05-14  at 11:30 in 2.901s with no errors.
+Ran SQL on 2018-05-14  at 11:30 in 9.083s with no errors.
+DB Comparison Complete on 2018-05-16  at 09:35 in 5.134s with an error.
+Took a DB Snapshot on 2018-05-16  at 09:35 in 0.006s with an error.

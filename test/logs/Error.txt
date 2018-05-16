@@ -2,3 +2,5 @@
 2018-05-14 00:15: There was an error with the database connection. Please try again.
 2018-05-14 09:14: There was an error getting the  live2 database's view details.
 2018-05-14 09:15: There was an error running SQL statement(s) on the  live2 database.
+2018-05-16 09:35: There was an error with the database connection. Please try again.
+2018-05-16 09:35: There was an error with the database connection. Please try again.

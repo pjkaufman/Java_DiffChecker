@@ -4,51 +4,42 @@
  * @author Peter Kaufman
  * @class DBCompare2
  * @access public
- * @version 5-13-18
+ * @version 5-14-18
  * @since 9-20-17
  */
 package db_diff_checker_gui2;
-import java.awt.event.*;
 import java.awt.*;
+import java.awt.event.*;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
-import java.io.IOException;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-public class DBCompare2 extends JFrame {
-        // Variable declaration
-        private boolean error = true;
+
+public class DBCompare2 extends JFrameV2 {
+        // Instance variables
         private Db_conn db1, db2;
         private Database dab1, dab2;
-        private ArrayList<String> sql = new ArrayList();
         private HashMap<String, String> update_tables = new HashMap();
-        private JTextField database1;
-        private JTextField database2;
-        private JTextField host1;
-        private JTextField host2;
-        private JButton jButton1;
-        private JLabel jLabel10;
-        private JLabel jLabel11;
-        private JLabel jLabel12;
-        private JLabel jLabel13;
-        private JLabel jLabel14;
-        private JLabel jLabel15;
-        private JLabel jLabel16;
-        private JLabel jLabel6;
-        private JLabel jLabel7;
-        private JLabel jLabel8;
-        private JLabel jLabel9;
-        private JPasswordField password1;
-        private JPasswordField password2;
-        private JTextField port1;
-        private JTextField port2;
-        private JTextField username1;
-        private JTextField username2;
-        private StopWatch sw = new StopWatch();
-        private JProgressBar pb = new JProgressBar();
-        private Font myFont;
+        private JTextField database1 = new JTextField( 10 ), database2 = new JTextField( 10 ),
+                           host1 = new JTextField( 10 ), host2 = new JTextField( 10 ),
+                           port1 = new JTextField( 10 ), port2 = new JTextField( 10 ),
+                           username1 = new JTextField( 10 ), username2 = new JTextField( 10 );
+        private JButton jButton1 = new JButton( "Compare" );
+        private JLabel jLabel10 = new JLabel( "Enter MySQL Dev Port:     " ),
+                       jLabel11 = new JLabel( "Enter MySQL Dev Database: " ),
+                       jLabel12 = new JLabel( "Enter MySQL Live Username:" ),
+                       jLabel13 = new JLabel( "Enter MySQL Live Password:" ),
+                       jLabel14 = new JLabel( "Enter MySQL Live Host:    " ),
+                       jLabel15 = new JLabel( "Enter MySQL Live Port:    " ),
+                       jLabel16 = new JLabel( "Enter MySQL Live Database:" ),
+                       jLabel6 = new JLabel( "Enter The Folowing Information:" ),
+                       jLabel7 = new JLabel( "Enter MySQL Dev Username: " ),
+                       jLabel8 = new JLabel( "Enter MySQL Dev Password: " ),
+                       jLabel9 = new JLabel( "Enter MySQL Dev Host:     " );
+        private JPasswordField password1 = new JPasswordField( 10 ), password2 = new JPasswordField( 10 );
 
         /**
          * Creates new form DBCompare2
@@ -59,7 +50,7 @@ public class DBCompare2 extends JFrame {
         public DBCompare2() {
 
                 initComponents();
-                this.setIconImage( new ImageIcon( getClass().getResource( "/Images/DBCompare.png" )).getImage());
+                clase = this.getClass().getName();
         }
 
         /**
@@ -70,30 +61,38 @@ public class DBCompare2 extends JFrame {
          * @access private
          */
         private void initComponents() {
-
+                // add components to the appropriate ArrayList
+                cpnt.add( jLabel6 );
+                cpnt.add( jButton1 );
+                cpnr.add( jLabel7 );
+                cpnr.add( jLabel8 );
+                cpnr.add( jLabel9 );
+                cpnr.add( jLabel10 );
+                cpnr.add( jLabel11 );
+                cpnr.add( jLabel12 );
+                cpnr.add( jLabel13 );
+                cpnr.add( jLabel14 );
+                cpnr.add( jLabel15 );
+                cpnr.add( jLabel16 );
+                cpnr.add( username1 );
+                cpnr.add( password1 );
+                cpnr.add( username2 );
+                cpnr.add( password2 );
+                cpnr.add( host1 );
+                cpnr.add( host2 );
+                cpnr.add( port1 );
+                cpnr.add( port2 );
+                cpnr.add( database1 );
+                cpnr.add( database2 );
+                // set up JFrame properties
+                setMinimumSize( new Dimension( 630, 325 ));
+                setTitle("Compare Two Databases");
+                // set component properties
                 pb.setVisible( false );
-                password2 = new JPasswordField();
-                port1 = new JTextField();
-                host2 = new JTextField();
-                database1 = new JTextField();
-                port2 = new JTextField();
-                password1 = new JPasswordField();
-                database2 = new JTextField();
-                jLabel6 = new JLabel();
-                jLabel12 = new JLabel();
-                jLabel7 = new JLabel();
-                jLabel13 = new JLabel();
-                jLabel8 = new JLabel();
-                jLabel14 = new JLabel();
-                jLabel9 = new JLabel();
-                jLabel15 = new JLabel();
-                jLabel10 = new JLabel();
-                jLabel16 = new JLabel();
-                jLabel11 = new JLabel();
-                jButton1 = new JButton();
-                username1 = new JTextField();
-                username2 = new JTextField();
-                host1 = new JTextField();
+                jLabel6.setHorizontalAlignment( SwingConstants.CENTER );
+                jLabel6.setFont(new Font("Tahoma", 1, 24));
+                jButton1.setFont(new Font("Tahoma", 0, 18));
+                // create JPanels
                 JPanel header = new JPanel( new BorderLayout()), content = new JPanel( new BorderLayout()),
                        footer = new JPanel( new BorderLayout()), part1 = new JPanel( new FlowLayout()),
                        part2 = new JPanel( new FlowLayout()), part3 = new JPanel( new FlowLayout()),
@@ -107,7 +106,58 @@ public class DBCompare2 extends JFrame {
                        part18 = new JPanel( new FlowLayout()), part19 = new JPanel( new FlowLayout()),
                        part20 = new JPanel( new FlowLayout()), c1 = new JPanel( new GridLayout( 5, 2 )),
                        c2 = new JPanel( new GridLayout( 5, 2 )), footc = new JPanel( new FlowLayout());
+                // add listeners
+                addComponentListener(new ComponentListener() {
+                        public void componentResized(ComponentEvent e) {
 
+                                double width = e.getComponent().getWidth();
+                                Font title = new Font("Tahoma", Font.BOLD, 24), reg = new Font("Tahoma", Font.PLAIN, 11),
+                                button = new Font("Tahoma", Font.BOLD, 18);
+                                if ( width >= 660 ) {
+
+                                        title = new Font("Tahoma", Font.BOLD, (int)( width / 25 ));
+                                        reg = new Font("Tahoma", Font.PLAIN, (int)( width / 56 ));
+                                        button = new Font("Tahoma", Font.BOLD, (int)( width / 34 ));
+                                }
+
+                                jLabel6.setFont( title );
+                                jLabel7.setFont( reg );
+                                jLabel8.setFont( reg );
+                                jLabel9.setFont( reg );
+                                jLabel10.setFont( reg );
+                                jLabel11.setFont( reg );
+                                jLabel12.setFont( reg );
+                                jLabel13.setFont( reg );
+                                jLabel14.setFont( reg );
+                                jLabel15.setFont( reg );
+                                jLabel16.setFont( reg );
+                                username1.setFont( reg );
+                                password1.setFont( reg );
+                                username2.setFont( reg );
+                                password2.setFont( reg );
+                                host1.setFont( reg );
+                                host2.setFont( reg );
+                                port1.setFont( reg );
+                                port2.setFont( reg );
+                                database1.setFont( reg );
+                                database2.setFont( reg );
+                                jButton1.setFont( button );
+                                myFont = reg;
+
+                        }
+                        public void componentHidden(ComponentEvent e) {
+                        }
+                        public void componentShown(ComponentEvent e) {
+                        }
+                        public void componentMoved(ComponentEvent e) {
+                        }
+                });
+                jButton1.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent evt) {
+                                jButton1ActionPerformed(evt);
+                        }
+                });
+                // add components
                 header.add( jLabel6, BorderLayout.CENTER );
                 part1.add( jLabel7 );
                 part2.add( jLabel12 );
@@ -154,98 +204,10 @@ public class DBCompare2 extends JFrame {
                 footc.add( jButton1 );
                 footer.add( footc, BorderLayout.CENTER );
                 footer.add( pb, BorderLayout.SOUTH );
-
-                setMinimumSize( new Dimension( 630, 325 ));
-                setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-                setTitle("Compare Two Databases");
-                addComponentListener(new ComponentListener() {
-                        public void componentResized(ComponentEvent e) {
-
-                                double width = e.getComponent().getWidth();
-                                Font title = new Font("Tahoma", Font.BOLD, 24), reg = new Font("Tahoma", Font.PLAIN, 11),
-                                button = new Font("Tahoma", Font.BOLD, 18);
-                                if ( width >= 660 ) {
-
-                                        title = new Font("Tahoma", Font.BOLD, (int)( width / 25 ));
-                                        reg = new Font("Tahoma", Font.PLAIN, (int)( width / 56 ));
-                                        button = new Font("Tahoma", Font.BOLD, (int)( width / 34 ));
-                                }
-
-                                jLabel6.setFont( title );
-                                jLabel7.setFont( reg );
-                                jLabel8.setFont( reg );
-                                jLabel9.setFont( reg );
-                                jLabel10.setFont( reg );
-                                jLabel11.setFont( reg );
-                                jLabel12.setFont( reg );
-                                jLabel13.setFont( reg );
-                                jLabel14.setFont( reg );
-                                jLabel15.setFont( reg );
-                                jLabel16.setFont( reg );
-                                username1.setFont( reg );
-                                password1.setFont( reg );
-                                username2.setFont( reg );
-                                password2.setFont( reg );
-                                host1.setFont( reg );
-                                host2.setFont( reg );
-                                port1.setFont( reg );
-                                port2.setFont( reg );
-                                database1.setFont( reg );
-                                database2.setFont( reg );
-                                jButton1.setFont( button );
-                                myFont = reg;
-
-                        }
-                        public void componentHidden(ComponentEvent e) {
-                        }
-                        public void componentShown(ComponentEvent e) {
-                        }
-                        public void componentMoved(ComponentEvent e) {
-                        }
-                });
-                addWindowListener(new WindowAdapter() {
-                        public void windowClosing(WindowEvent evt) {
-                                formWindowClosing(evt);
-                        }
-                });
-
-                jLabel6.setHorizontalAlignment( SwingConstants.CENTER );
-                jLabel6.setFont(new Font("Tahoma", 1, 24));
-                jLabel6.setText( "Enter The Folowing Information:" );
-                jLabel12.setText( "Enter MySQL Live Username:" );
-                jLabel7.setText( "Enter MySQL Dev Username: " );
-                jLabel13.setText( "Enter MySQL Live Password:" );
-                jLabel8.setText( "Enter MySQL Dev Password: " );
-                jLabel14.setText( "Enter MySQL Live Host:    " );
-                jLabel9.setText( "Enter MySQL Dev Host:     " );
-                jLabel15.setText( "Enter MySQL Live Port:    " );
-                jLabel10.setText( "Enter MySQL Dev Port:     " );
-                jLabel16.setText( "Enter MySQL Live Database:" );
-                jLabel11.setText( "Enter MySQL Dev Database: " );
-                database1.setColumns(10);
-                host1.setColumns(10);
-                port1.setColumns(10);
-                password1.setColumns(10);
-                username1.setColumns(10);
-                database2.setColumns(10);
-                host2.setColumns(10);
-                port2.setColumns(10);
-                password2.setColumns(10);
-                username2.setColumns(10);
-
-                jButton1.setFont(new Font("Tahoma", 0, 18));
-                jButton1.setText("Compare");
-                jButton1.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent evt) {
-                                jButton1ActionPerformed(evt);
-                        }
-                });
-
                 getContentPane().setLayout( new BorderLayout());
                 add( header, BorderLayout.NORTH );
                 add( content, BorderLayout.CENTER );
                 add( footer, BorderLayout.SOUTH );
-
         }
 
         /**
@@ -269,23 +231,6 @@ public class DBCompare2 extends JFrame {
                 } else {
 
                         jLabel6.setText( "Please do not leave any fields blank." );
-                }
-        }
-
-        /**
-         * formWindowClosing opens the start JFrame when the form is closing and the
-         * compare button has not been clicked
-         * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param evt is a WindowEvent which represents the JFrame closing
-         */
-        private void formWindowClosing(WindowEvent evt) {
-                if ( error ) {
-
-                        DB_Diff_Checker_GUI start = new DB_Diff_Checker_GUI();
-                        start.setSize( 375, 225 );
-                        start.setVisible( true );
                 }
         }
 
@@ -405,33 +350,5 @@ public class DBCompare2 extends JFrame {
                 };
 
                 swingW.execute();
-        }
-
-        /**
-         * displayResult opens a JFrame with the result of the comparison
-         * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param db is a Db_conn object which is the connection for the live database
-         */
-        private void displayResult( Db_conn db ) {
-
-                Result rs = new Result( db );
-                rs.results( sql, "Run the following SQL to make the two databases the same:" );
-        }
-
-        /**
-         * error opens a JFrame with an error message
-         * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param error is a String which represents the error message to display
-         */
-        private void error( String error ) {
-
-                Error err = new Error( error );
-                err.setSize( 430, 100 );
-                err.setVisible( true );
-                this.error = true;
         }
 }

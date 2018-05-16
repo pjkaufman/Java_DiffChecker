@@ -4,29 +4,29 @@
  * @author Peter Kaufman
  * @class DB_Diff_Checker_GUI
  * @access public
- * @version 10-31-17
+ * @version 5-14-18
  * @since 9-20-17
  */
 package db_diff_checker_gui2;
-import java.io.IOException;
-import java.awt.event.*;
-import javax.swing.*;
 import java.awt.*;
-public class DB_Diff_Checker_GUI extends JFrame {
-        // Variable declaration
-        private JFrame Start;
-        private JTextField input;
-        private JButton jContinue;
-        private JLabel jLabel1;
-        private JLabel jLabel2;
-        private JLabel jLabel3;
-        private JLabel jLabel4;
-        private JLabel jLabel5;
-        private JLabel jLabel6;
-        private JLabel jLabel7;
-        private JLabel jLabel8;
-        private JPanel jPanel1;
-        private JPanel jPanel2;
+import java.awt.event.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import javax.swing.*;
+
+public class DB_Diff_Checker_GUI extends JFrameV2 {
+        // Instance variables
+        private JTextField input = new JTextField( 1 );
+        private JButton jContinue = new JButton( "Continue" );
+        private JLabel jLabel1 = new JLabel( "1-Database compare using 2 database connections", SwingConstants.CENTER),
+                       jLabel2 = new JLabel( "Database Options", SwingConstants.CENTER),
+                       jLabel3 = new JLabel( "2-Database compare using 1 database connection", SwingConstants.CENTER),
+                       jLabel4 = new JLabel( "3-Take database snapshot using 1 database connection", SwingConstants.CENTER),
+                       jLabel5 = new JLabel( "Enter method to use:" ),
+                       jLabel6 = new JLabel( "4-Review the SQL statement(s) from the last run ", SwingConstants.CENTER),
+                       jLabel7 = new JLabel( "5-Review the run log", SwingConstants.CENTER),
+                       jLabel8 = new JLabel( "6-View the error log", SwingConstants.CENTER);
+        private JPanel jPanel1 = new JPanel(), jPanel2 = new JPanel();
 
         /**
          * Creates new form DB_Diff_Checker_GUI
@@ -37,7 +37,8 @@ public class DB_Diff_Checker_GUI extends JFrame {
         public DB_Diff_Checker_GUI() {
 
                 initComponents();
-                this.setIconImage( new ImageIcon( getClass().getResource( "/Images/DBCompare.png" )).getImage());
+                error = false;
+                clase = this.getClass().getName();
         }
 
         /**
@@ -48,40 +49,31 @@ public class DB_Diff_Checker_GUI extends JFrame {
          * @access private
          */
         private void initComponents() {
-
-                Start = new JFrame();
-                jPanel1 = new JPanel();
-                jLabel2 = new JLabel( "", SwingConstants.CENTER);
-                jLabel1 = new JLabel( "", SwingConstants.CENTER);
-                jLabel3 = new JLabel( "", SwingConstants.CENTER);
-                jLabel4 = new JLabel( "", SwingConstants.CENTER);
-                jLabel6 = new JLabel( "", SwingConstants.CENTER);
-                jLabel7 = new JLabel( "", SwingConstants.CENTER);
-                jLabel8 = new JLabel( "", SwingConstants.CENTER);
-                jPanel2 = new JPanel();
-                jContinue = new JButton();
-                input = new JTextField();
-                jLabel5 = new JLabel();
-
-                Start.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-
-                setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-                setTitle("Database Difference Checker");
-                setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+                // add components to the appropriate ArrayList
+                cpnr.add( jLabel1 );
+                cpnr.add( jLabel3 );
+                cpnr.add( jLabel4 );
+                cpnr.add( jLabel5 );
+                cpnr.add( jLabel6 );
+                cpnr.add( jLabel7 );
+                cpnr.add( jLabel8 );
+                cpnr.add( input );
+                cpnr.add( jContinue );
+                cpnt.add( jLabel2 );
+                // set up JFrame properties
+                setSize( 330, 230 );
                 setLocation(new Point(200, 200));
                 setMinimumSize( new Dimension( 370, 200 ));
-                setName("Start");
-
+                this.setTitle( "Database Difference Checker" );
+                // set component properties
                 jLabel2.setFont(new Font("Tahoma", 1, 11));
-                jLabel2.setText("Database Options");
-
-                jLabel1.setText("1-Database compare using 2 database connections");
-                jLabel3.setText("2-Database compare using 1 database connection");
-                jLabel4.setText("3-Take database snapshot using 1 database connection");
-                jLabel6.setText("4-Review the SQL statement(s) from the last run ");
-                jLabel7.setText("5-Review the run log");
-                jLabel8.setText("6-View the error log");
-
+                // add listeners
+                jContinue.addMouseListener(new MouseAdapter() {
+                        public void mouseClicked(MouseEvent evt) {
+                                jContinueMouseClicked(evt);
+                        }
+                });
+                // add components
                 jPanel1.setLayout(new GridLayout(6,1));
                 jPanel1.add(jLabel1);
                 jPanel1.add(jLabel3);
@@ -89,57 +81,15 @@ public class DB_Diff_Checker_GUI extends JFrame {
                 jPanel1.add(jLabel6);
                 jPanel1.add(jLabel7);
                 jPanel1.add(jLabel8);
-
-                jContinue.setText("Continue");
-                jContinue.addMouseListener(new MouseAdapter() {
-                        public void mouseClicked(MouseEvent evt) {
-                                jContinueMouseClicked(evt);
-                        }
-                });
-
-                addComponentListener(new ComponentListener() {
-                        public void componentResized(ComponentEvent e) {
-
-                                double width = e.getComponent().getWidth();
-                                Font title = new Font("Tahoma", Font.BOLD, 14), reg = new Font("Tahoma", Font.PLAIN, 12);
-                                if ( width >= 419 ) {
-
-                                        title = new Font("Tahoma", Font.BOLD, (int)( width / 25 ));
-                                        reg = new Font("Tahoma", Font.PLAIN, (int)( width / 25 ) - 2);
-                                }
-
-                                jLabel2.setFont( title );
-                                jLabel1.setFont( reg );
-                                jLabel3.setFont( reg );
-                                jLabel4.setFont( reg );
-                                jLabel6.setFont( reg );
-                                jLabel5.setFont( reg );
-                                jLabel7.setFont( reg );
-                                jLabel8.setFont( reg );
-                                input.setFont( reg );
-                                jContinue.setFont( reg );
-                        }
-                        public void componentHidden(ComponentEvent e) {
-                        }
-                        public void componentShown(ComponentEvent e) {
-                        }
-                        public void componentMoved(ComponentEvent e) {
-                        }
-                });
-
-                jLabel5.setText("Enter method to use:");
-                input.setColumns(1);
                 jPanel2.setLayout(new FlowLayout());
                 jPanel2.add(jLabel5);
                 jPanel2.add(input);
                 jPanel2.add(jContinue);
-
                 getContentPane().setLayout(new BorderLayout());
                 this.add(jLabel2, BorderLayout.NORTH);
                 this.add(jPanel1, BorderLayout.CENTER);
                 this.add(jPanel2, BorderLayout.SOUTH);
                 pack();
-                setSize( 330, 230 );
         }
 
         /**
@@ -177,7 +127,7 @@ public class DB_Diff_Checker_GUI extends JFrame {
                         jLabel2.setText( "Please create a DB snapshot first." );
                 } else if ( input.getText().trim().equals( "4" ) && FileConversion.fileExists( "LastRun.txt" )) {
 
-                        displayResult( "LastRun.txt" );
+                        displayLog( "LastRun.txt" );
                         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
                 } else if (( input.getText().trim().equals( "4" ) && !FileConversion.fileExists( "LastRun.txt" )) ||
                            ( input.getText().trim().equals( "5" ) && !FileConversion.fileExists( "Log.txt" ))) {
@@ -185,14 +135,14 @@ public class DB_Diff_Checker_GUI extends JFrame {
                         jLabel2.setText( "The DBC has not been run before." );
                 } else if ( input.getText().trim().equals( "5" ) && FileConversion.fileExists( "Log.txt" )) {
 
-                        displayResult( "Log.txt" );
+                        displayLog( "Log.txt" );
                         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
                 } else if ( input.getText().trim().equals( "6" ) && !FileConversion.fileExists( "Error.txt" )) {
 
                         jLabel2.setText( "An error has not occurred/error log was deleted." );
                 } else if ( input.getText().trim().equals( "6" ) && FileConversion.fileExists( "Error.txt" )) {
 
-                        displayResult( "Error.txt" );
+                        displayLog( "Error.txt" );
                         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
                 } else {
 
@@ -201,7 +151,7 @@ public class DB_Diff_Checker_GUI extends JFrame {
         }
 
         /**
-         * displayResult opens a JFrame with the result depending on what file name
+         * displayLog opens a JFrame with the result depending on what file name
          * is passed to it
          * @author Peter Kaufman
          * @type function
@@ -209,7 +159,7 @@ public class DB_Diff_Checker_GUI extends JFrame {
          * @param file is a String which represents the file to have its contents
          * displayed
          */
-        private void displayResult( String file ) {
+        private void displayLog( String file ) {
                 try{
 
                         String title;
@@ -233,20 +183,6 @@ public class DB_Diff_Checker_GUI extends JFrame {
                         error( "There was an error recovering the last list of SQL statements." );
 
                 }
-        }
-
-        /**
-         * error opens a JFrame with an error message
-         * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param error is a String which represents the error message to display
-         */
-        private void error( String error ) {
-
-                Error err = new Error( error );
-                err.setSize( 430, 100 );
-                err.setVisible( true );
         }
 
         public static void main(String args[]) {

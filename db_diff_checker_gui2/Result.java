@@ -4,30 +4,28 @@
  * @author Peter Kaufman
  * @class Result
  * @access public
- * @version 5-13-18
+ * @version 5-14-18
  * @since 9-20-17
  */
 package db_diff_checker_gui2;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
-public class Result extends JFrame {
-        // Variable declaration
+public class Result extends JFrameV2 {
+        // Instance variables
         private Db_conn db;
-        private ArrayList<String> sql;
-        private JScrollPane SQL;
-        private JTextArea SQLShow;
-        private JButton btnRun;
-        private JLabel jLabel17;
-        private StopWatch sw = new StopWatch();
-        private JProgressBar progressBar = new JProgressBar();
+        private JScrollPane SQL = new JScrollPane();
+        private JTextArea SQLShow = new JTextArea( 5, 20 );
+        private JButton btnRun = new JButton( "Run" );
+        private JLabel jLabel17 = new JLabel( "Run the following SQL to make the two databases the same:" );
         private boolean done = false;
-        private Font myFont;
 
         /**
          * Creates new form Result
@@ -43,9 +41,9 @@ public class Result extends JFrame {
                 if ( db == null ) {
 
                         hideRun();
-                        progressBar.setVisible( false );
+                        pb.setVisible( false );
                 }
-                setIconImage( new ImageIcon( getClass().getResource( "/Images/DBCompare.png" )).getImage());
+                clase = this.getClass().getName();
         }
 
         /**
@@ -56,86 +54,36 @@ public class Result extends JFrame {
          * @access private
          */
         private void initComponents() {
-
-                jLabel17 = new JLabel();
-                SQL = new JScrollPane();
-                SQLShow = new JTextArea();
-                btnRun = new JButton();
-                progressBar.setValue(0);
-                progressBar.setStringPainted(true);
+                // add components to the appropriate ArrayList
+                cpnt.add( jLabel17 );
+                cpnr.add( SQLShow );
+                cpnr.add( btnRun );
+                // set up JFrame properties
+                setTitle("SQL To Run");
+                setMinimumSize( new Dimension( 600, 210 ));
+                // set component properties
+                pb.setValue(0);
+                pb.setStringPainted(true);
                 TitledBorder border = BorderFactory.createTitledBorder( "Waiting On Action" );
                 border.setTitleFont( myFont );
-                progressBar.setBorder(border);
-                setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-                setTitle("SQL To Run");
-                addWindowListener(new WindowAdapter() {
-                        public void windowClosing(WindowEvent evt) {
-                                formWindowClosing(evt);
-                        }
-                });
-
+                pb.setBorder(border);
                 jLabel17.setFont(new Font("Tahoma", 1, 18));
-                jLabel17.setText("Run the following SQL to make the two databases the same:");
-
                 SQL.setAutoscrolls(true);
-
                 SQLShow.setEditable(false);
-                SQLShow.setColumns(20);
-                SQLShow.setRows(5);
                 SQL.setViewportView(SQLShow);
-
-                btnRun.setText("Run");
-                setMinimumSize( new Dimension( 600, 210 ));
+                // add listeners
                 btnRun.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent evt) {
                                 btnRunActionPerformed(evt);
                         }
                 });
-                addComponentListener(new ComponentListener() {
-                        public void componentResized(ComponentEvent e) {
-
-                                double width = e.getComponent().getWidth();
-                                Font title = new Font("Tahoma", Font.BOLD, 18), reg = new Font("Tahoma", Font.PLAIN, 14);
-                                if ( width >= 660 ) {
-
-                                        title = new Font("Tahoma", Font.BOLD, (int)( width / 33 ));
-                                        reg = new Font("Tahoma", Font.PLAIN, (int)( width / 46 ));
-                                }
-
-                                jLabel17.setFont( title );
-                                SQLShow.setFont( reg );
-                                btnRun.setFont( reg );
-                                myFont = reg;
-
-                        }
-                        public void componentHidden(ComponentEvent e) {
-                        }
-                        public void componentShown(ComponentEvent e) {
-                        }
-                        public void componentMoved(ComponentEvent e) {
-                        }
-                });
-
+                // add components
                 getContentPane().setLayout( new BorderLayout());
                 add( jLabel17, BorderLayout.NORTH );
                 add( SQL, BorderLayout.CENTER );
                 add( btnRun, BorderLayout.EAST );
-                add( progressBar, BorderLayout.SOUTH );
+                add( pb, BorderLayout.SOUTH );
                 pack();
-        }
-
-        /**
-         * formWindowClosing opens the start JFrame
-         * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param evt is a WindowEvent which represents the window closing
-         */
-        private void formWindowClosing(WindowEvent evt) {
-
-                DB_Diff_Checker_GUI start = new DB_Diff_Checker_GUI();
-                start.setSize( 375, 225 );
-                start.setVisible( true );
         }
 
         /**
@@ -183,8 +131,8 @@ public class Result extends JFrame {
                                         jLabel17.setText( "The database has been updated." );
                                         TitledBorder nBorder = BorderFactory.createTitledBorder( "Done" );
                                         nBorder.setTitleFont( myFont );
-                                        progressBar.setBorder(nBorder);
-                                        progressBar.setValue(100);
+                                        pb.setBorder(nBorder);
+                                        pb.setValue(100);
                                         log.add( "Ran SQL on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
                                         try {
 
@@ -205,9 +153,9 @@ public class Result extends JFrame {
                                 hideRun();
                                 TitledBorder nBorder = BorderFactory.createTitledBorder( "Running SQL.. " );
                                 nBorder.setTitleFont( myFont );
-                                progressBar.setBorder(nBorder);
-                                progressBar.setValue((int)(( chunks.get( chunks.size() - 1) + 1.0 ) * 100 / sql.size()));
-                                progressBar.setString( progressBar.getPercentComplete() * 100 + "%" );
+                                pb.setBorder(nBorder);
+                                pb.setValue((int)(( chunks.get( chunks.size() - 1) + 1.0 ) * 100 / sql.size()));
+                                pb.setString( pb.getPercentComplete() * 100 + "%" );
                         }
 
                 };
@@ -281,19 +229,5 @@ public class Result extends JFrame {
         public void hideRun() {
 
                 this.btnRun.setVisible( false );
-        }
-
-        /**
-         * error opens a JFrame with an error message
-         * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param error is a String which represents the error message to display
-         */
-        private void error( String error ) {
-
-                Error err = new Error( error );
-                err.setSize( 430, 100 );
-                err.setVisible( true );
         }
 }
