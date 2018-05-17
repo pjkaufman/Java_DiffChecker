@@ -16,33 +16,36 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 
 public class DBCompare1 extends JFrameV2 {
         // Instance variables
         private Db_conn db1, db2;
         private Database dab1, dab2;
-        private ArrayList<String> sql = new ArrayList<>();
         private HashMap<String, String> update_tables = new HashMap<>();
         private JButton DB1btn = new JButton( "Compare" );
-        private JTextField database3 = new JTextField( 10 ), host3 = new JTextField( 10 ),
-                           port3 = new JTextField( 10 ), username3 = new JTextField( 10 );
-        private JLabel jLabel18 = new JLabel( "Enter MySQL Username:" ),
-                       jLabel19 = new JLabel( "Enter MySQL Password:" ),
-                       jLabel20 = new JLabel( "Enter MySQL Host:" ),
-                       jLabel21 = new JLabel(  "Enter MySQL Port:" ),
-                       jLabel22 = new JLabel( "Enter MySQL Database:" ),
-                       jLabel23 = new JLabel( "Enter Database Information Below", SwingConstants.CENTER );
-        private JPasswordField password3 = new JPasswordField( 10 );
+        private JTextField database = new JTextField( 10 ), host = new JTextField( 10 ),
+                           port = new JTextField( 10 ), username = new JTextField( 10 );
+        private JLabel usernameLabel = new JLabel( "Enter MySQL username:" ),
+                       passLabel = new JLabel( "Enter MySQL Password:" ),
+                       hostLabel = new JLabel( "Enter MySQL Host:" ),
+                       portLabel = new JLabel(  "Enter MySQL Port:" ),
+                       DBLabel = new JLabel( "Enter MySQL Database:" ),
+                       headT = new JLabel( "Enter Database Information Below", SwingConstants.CENTER );
+        private JPasswordField password = new JPasswordField( 10 );
 
         /**
          * Creates new form DBCompare1
          * @author Peter Kaufman
          * @type constructor
          * @access public
+         * @param title is a String which represents the title of this JFrame
+         * @param buttonTxt is a String which represents the text to be displayed
+         * on the DB1btn
          */
-        public DBCompare1() {
-
+        public DBCompare1( String title, String buttonTxt ) {
+                // use parameters to set JFrame properties
+                setTitle( "Take Database Snapshot" );
+                DB1btn.setText( "Snapshot" );
                 initComponents();
                 clase = this.getClass().getName();
         }
@@ -56,23 +59,22 @@ public class DBCompare1 extends JFrameV2 {
          */
         private void initComponents() {
                 // add components to the appropriate ArrayList
-                cpnt.add( jLabel23 );
-                cpnr.add( host3 );
-                cpnr.add( port3 );
-                cpnr.add( database3 );
-                cpnr.add( password3 );
-                cpnr.add( jLabel18 );
+                cpnt.add( headT );
+                cpnr.add( host );
+                cpnr.add( port );
+                cpnr.add( database );
+                cpnr.add( password );
+                cpnr.add( usernameLabel );
                 cpnr.add( DB1btn );
-                cpnr.add( jLabel19 );
-                cpnr.add( jLabel20 );
-                cpnr.add( jLabel21 );
-                cpnr.add( jLabel22 );
-                cpnr.add( username3 );
+                cpnr.add( passLabel );
+                cpnr.add( hostLabel );
+                cpnr.add( portLabel );
+                cpnr.add( DBLabel );
+                cpnr.add( username );
                 // set up JFrame properties
                 setMinimumSize( new Dimension( 100, 100 ));
                 // set component properties
-                pb.setVisible( false );
-                jLabel23.setFont(new Font("Tahoma", 1, 14));
+                headT.setFont(new Font("Tahoma", 1, 14));
                 DB1btn.setFont(new Font("Tahoma", 0, 18));
                 // create JPanels
                 JPanel header = new JPanel( new BorderLayout()), content = new JPanel( new GridLayout( 5, 2 )),
@@ -90,17 +92,17 @@ public class DBCompare1 extends JFrameV2 {
                 });
                 // add components
                 getContentPane().setLayout( new BorderLayout());
-                header.add( jLabel23, BorderLayout.CENTER );
-                part1.add( jLabel18 );
-                part2.add( username3 );
-                part3.add( jLabel19 );
-                part4.add( password3 );
-                part5.add( jLabel20 );
-                part6.add( host3 );
-                part7.add( jLabel21 );
-                part8.add( port3 );
-                part9.add( jLabel22 );
-                part10.add( database3 );
+                header.add( headT, BorderLayout.CENTER );
+                part1.add( usernameLabel );
+                part2.add( username );
+                part3.add( passLabel );
+                part4.add( password );
+                part5.add( hostLabel );
+                part6.add( host );
+                part7.add( portLabel );
+                part8.add( port );
+                part9.add( DBLabel );
+                part10.add( database );
                 content.add( part1 );
                 content.add( part2 );
                 content.add( part3 );
@@ -130,27 +132,25 @@ public class DBCompare1 extends JFrameV2 {
          */
         private void DB1btnActionPerformed(ActionEvent evt) {
                 try {
-                        if ( !( port3.getText().equals( "" ) |username3.getText().equals( "" ) |
-                                new String(password3.getPassword()).equals( "" ) | host3.getText().equals( "" ) |
-                                database3.getText().equals( "" ))) {
+                        if ( !( port.getText().equals( "" ) |username.getText().equals( "" ) |
+                                new String(password.getPassword()).equals( "" ) | host.getText().equals( "" ) |
+                                database.getText().equals( "" ))) {
+
+                                this.error = false;
                                 if ( this.getTitle().equals( "Compare Database to Snapshot" )) {
 
-                                        this.error = false;
                                         compare2();
                                 } else {
 
-                                        this.error = false;
                                         takeSnapshot();
                                 }
-
                         } else {
 
-                                jLabel23.setText( "Please do not leave any fields blank." );
+                                headT.setText( "Please do not leave any fields blank." );
                         }
                 } catch( IOException e ) {
 
-                        error( "There was an error with the database snapshot file." );
-                        //error( e );
+                        error( "There was an error with the database snapshot file.", e );
                 }
         }
 
@@ -162,13 +162,7 @@ public class DBCompare1 extends JFrameV2 {
          */
         public void takeSnapshot() {
 
-                ArrayList<String> log = new ArrayList<>();
-                pb.setIndeterminate( true );
-                TitledBorder nBorder = BorderFactory.createTitledBorder( "Establishing Database Connection" );
-                nBorder.setTitleFont( myFont );
-                pb.setBorder( nBorder );
-                pb.setVisible( true );
-
+                prepProgressBar( "Establishing Database Connection", true );
                 SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {
 
                         @Override
@@ -176,28 +170,26 @@ public class DBCompare1 extends JFrameV2 {
                                 try {
                                         publish( "Establishing Database Connection" );
                                         sw.start();
-                                        db1 = new Db_conn( username3.getText(), new String(password3.getPassword()),
-                                                           host3.getText(), port3.getText(), database3.getText(), "dev" );
+                                        db1 = new Db_conn( username.getText(), new String(password.getPassword()),
+                                                           host.getText(), port.getText(), database.getText(), "dev" );
 
                                         publish( "Gathering Database Information" );
                                         dab1 = new Database( db1 );
                                         publish( "Writing to JSON File" );
                                         FileConversion.writeTo( dab1 );
                                         sw.stop();
-                                        log.add( "Took a DB Snapshot on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
+                                        log( "Took a DB Snapshot on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.", stdLog );
                                 } catch( IOException e ) {
 
                                         sw.stop();
-                                        error( "There was an error when trying to take a database snapshot." );
-                                        //error( e );
-                                        log.add( "Took a DB Snapshot on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an error." );
+                                        error( "There was an error when trying to take a database snapshot.", e );
+                                        log( "Took a DB Snapshot on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an File error.", stdErr );
                                         throw new Exception( "There was an error when trying to take a database snapshot." );
                                 } catch ( SQLException e ) {
 
                                         sw.stop();
-                                        log.add( "Took a DB Snapshot on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an error." );
-                                        //error( e );
-                                        error( "There was an error with the database connection. Please try again." );
+                                        log( "Took a DB Snapshot on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an SQL error.", stdErr );
+                                        error( "There was an error with the database connection. Please try again.", e );
                                         throw new Exception( "There was an error when trying to take a database snapshot." );
                                 }
 
@@ -209,53 +201,24 @@ public class DBCompare1 extends JFrameV2 {
                                 try {
 
                                         get();
-                                        TitledBorder nBorder2 = BorderFactory.createTitledBorder( "Database Snapshot Complete" );
-                                        nBorder2.setTitleFont( myFont );
-                                        pb.setBorder( nBorder2 );
-                                        pb.setIndeterminate( false );
+                                        endProgressBar( "Database Snapshot Complete" );
                                         error = true;
-                                        dispose();
+                                        close();
                                 } catch ( Exception e ) {
 
-                                        pb.setIndeterminate( false );
-                                        pb.setVisible( false );
-                                        e.printStackTrace();
-                                        error( e.getMessage().substring( e.getMessage().indexOf( ":" ) + 1 ));
-                                        //error( e );
-                                }
-                                try {
-
-                                        FileConversion.writeTo( log, "Log.txt" );
-                                } catch( IOException e ) {
-
-                                        //e.printStackTrace();
-                                        error( "There was an error writing to the log file" );
-                                        //error( e );
+                                        endProgressBar( "An Error Occurred" );
+                                        error( e.getMessage().substring( e.getMessage().indexOf( ":" ) + 1 ), e );
                                 }
                         }
 
                         @Override
                         protected void process( List<String> chunks ) {
 
-                                TitledBorder nBorder2 = BorderFactory.createTitledBorder( chunks.get( chunks.size() - 1 ));
-                                nBorder2.setTitleFont( myFont );
-                                pb.setBorder(nBorder2);
+                                newBorder( chunks.get( chunks.size() - 1 ));
                         }
                 };
 
                 swingW.execute();
-        }
-
-        /**
-         * setButtonTxt sets the text of DB1btn based on text input
-         * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @param text is a String which will be the DB1btn's text
-         */
-        public void setButtonTxt( String text ) {
-
-                DB1btn.setText( text );
         }
 
         /**
@@ -268,26 +231,19 @@ public class DBCompare1 extends JFrameV2 {
          */
         private void compare2() throws IOException {
 
-                pb.setIndeterminate( true );
-                ArrayList<String> log = new ArrayList<>();
-                TitledBorder b = BorderFactory.createTitledBorder( "Reading in The DB Snapshot" );
-                b.setTitleFont( myFont );
-                pb.setBorder( b );
-                pb.setVisible( true );
-                sw.reset();
+                prepProgressBar( "Reading in The DB Snapshot", true );
                 SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {
 
                         @Override
                         protected Boolean doInBackground() throws Exception {
-
                                 try {
 
                                         publish( "Reading in The DB Snapshot" );
                                         sw.start();
                                         dab1 = FileConversion.readFrom();
                                         publish( "Establishing Live Database Connection" );
-                                        db2 = new Db_conn( username3.getText(), new String(password3.getPassword()),
-                                                           host3.getText(), port3.getText(), database3.getText(), "live" );
+                                        db2 = new Db_conn( username.getText(), new String(password.getPassword()),
+                                                           host.getText(), port.getText(), database.getText(), "live" );
                                         publish( "Gathering Live Database Info" );
                                         dab2 = new Database( db2 );
                                         publish( "Checking Live First Steps" );
@@ -302,16 +258,15 @@ public class DBCompare1 extends JFrameV2 {
                                         publish( "Adding Dev's Views" );
                                         sql.addAll( dab1.updateViews( dab2.getViews()));
                                         sw.stop();
-                                        log.add( "DB Snapshot Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
+                                        log( "DB Snapshot Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.", stdLog );
                                 } catch ( SQLException e ) {
 
                                         sw.stop();
-                                        log.add( "DB Snapshot Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an error." );
+                                        log( "DB Snapshot Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an SQL error.", stdErr );
                                         throw new Exception( "There was an error with the database connection. Please try again." );
                                 }
 
                                 return true;
-
                         }
 
                         @Override
@@ -319,37 +274,20 @@ public class DBCompare1 extends JFrameV2 {
                                 try {
 
                                         get();
-                                        TitledBorder b2 = BorderFactory.createTitledBorder( "Database Snapshot Comparison Complete" );
-                                        b2.setTitleFont( myFont );
-                                        pb.setBorder( b2 );
-                                        pb.setIndeterminate( false );
-                                        try {
-
-                                                FileConversion.writeTo( log, "Log.txt" );
-                                        } catch( IOException e ) {
-
-                                                //  e.printStackTrace();
-                                                error( "There was an error writing to the log file" );
-                                                //error( e );
-                                        }
+                                        endProgressBar( "Database Snapshot Comparison Complete" );
                                         displayResult( db2 );
-                                        dispose();
+                                        close();
                                 } catch ( Exception e ) {
 
-                                        pb.setIndeterminate( false );
-                                        pb.setVisible( false );
-                                        //e.printStackTrace();
-                                        error( e.getMessage().substring( e.getMessage().indexOf( ":" ) + 1 ));
-                                        //error( e );
+                                        endProgressBar( "An Error Occurred" );
+                                        error( e.getMessage().substring( e.getMessage().indexOf( ":" ) + 1 ), e );
                                 }
                         }
 
                         @Override
                         protected void process( List<String> chunks ) {
 
-                                TitledBorder nBorder = BorderFactory.createTitledBorder( chunks.get( chunks.size() - 1 ));
-                                nBorder.setTitleFont( myFont );
-                                pb.setBorder(nBorder);
+                                newBorder( chunks.get( chunks.size() - 1 ));
                         }
                 };
 

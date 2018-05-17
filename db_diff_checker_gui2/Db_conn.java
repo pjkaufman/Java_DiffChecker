@@ -31,7 +31,7 @@ public class Db_conn {
          * @throws SQLException which represents an error that occured in making a db
          * connection
          */
-        Db_conn ( String username, String password, String host, String port, String database, String type ) throws SQLException {
+        public Db_conn ( String username, String password, String host, String port, String database, String type ) throws SQLException {
 
                 this.type = type;
                 this.username = username;
@@ -81,8 +81,6 @@ public class Db_conn {
                         this.con = DriverManager.getConnection( this.conn_string, this.username, this.password );
                 } catch ( SQLException e ) {
 
-                        System.err.println( e );
-                        e.printStackTrace();
                         error( "There was an error connecting to the " + this.db + " database."  );
                 }
         }
@@ -99,8 +97,6 @@ public class Db_conn {
                         this.con.close();
                 } catch ( SQLException e ) {
 
-                        System.err.println( e );
-                        e.printStackTrace();
                         error( "There was an error closing  the " + this.db + " database."  );
                 }
         }
@@ -125,8 +121,6 @@ public class Db_conn {
                         return set.getString( "Create Table" );
                 } catch ( SQLException e ) {
 
-                        System.err.println( e );
-                        e.printStackTrace();
                         error( "There was an error getting the " + table + " table's create statement." );
                 }
 
@@ -153,8 +147,6 @@ public class Db_conn {
                         return set.getString( "Create View" );
                 } catch ( SQLException e ) {
 
-                        System.err.println( e );
-                        e.printStackTrace();
                         error( "There was an error getting the " + view + " view's create statement." );
                 }
 
@@ -396,8 +388,6 @@ public class Db_conn {
                         return tables2;
                 } catch ( SQLException e ) {
 
-                        System.err.println( e );
-                        e.printStackTrace();
                         error( "There was an error getting the " + this.db + " database's table, column, and index details." );
                 }
 
@@ -429,8 +419,6 @@ public class Db_conn {
                         return views1;
                 } catch ( SQLException e ) {
 
-                        System.err.println( e );
-                        e.printStackTrace();
                         error( "There was an error getting the " + this.db + " database's view details." );
                 }
 
@@ -438,30 +426,25 @@ public class Db_conn {
         }
 
         /**
-         * runSQL takes a SQL statement/statement list and runs it
+         * runSQL takes an SQL statement and runs it
          * @author Peter Kaufman
          * @type function
          * @access public
-         * @param sql is an ArrayList of Strings which represents a SQL statement/statement list
+         * @param sql is a String which represents an SQL statement
          * @return either true or false depending on whether the SQL runs correctly
          */
-        public boolean runSQL ( ArrayList<String> sql ) {
+        public boolean runSQL ( String sql ) {
                 try{
 
                         this.make_conn();
                         Statement query = this.con.createStatement();
-                        for ( String statement: sql ) {
-
-                                query.executeUpdate( statement );
-                        }
+                        query.executeUpdate( sql );
                         this.kill_conn();
 
                         return true;
                 }catch( SQLException e ) {
 
-                        System.err.println( e );
-                        e.printStackTrace();
-                        error( "There was an error running SQL statement(s) on the " + this.db + " database." );
+                        error( "There was an error running " + sql + " on the " + this.db + " database." );
 
                         return false;
                 }
@@ -478,26 +461,18 @@ public class Db_conn {
          */
         private String getType( int num ) {
 
-                String type = "";
-
-                if ( num == 3 ) {
-
-                        type = " PRIMARY KEY ";
-                } else if ( num == 2 ) {
-
-                        type = " UNIQUE INDEX ";
-                } else if ( num == 64 ) {
-
-                        type = " SPATIAL INDEX ";
-                } else if ( num == 32 ) {
-
-                        type = " FULLTEXT INDEX ";
-                } else {
-
-                        type = " INDEX ";
+                switch( num ) {
+                case 2:
+                        return " UNIQUE INDEX ";
+                case 3:
+                        return " PRIMARY KEY ";
+                case 32:
+                        return " FULLTEXT INDEX ";
+                case 64:
+                        return " SPATIAL INDEX ";
+                default:
+                        return " INDEX ";
                 }
-
-                return type;
         }
 
         /**

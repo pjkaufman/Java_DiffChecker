@@ -3,13 +3,13 @@
  * @author Peter Kaufman
  * @class Index
  * @access public
- * @version 5-13-18
+ * @version 5-17-18
  * @since 9-12-17
  */
 package db_diff_checker_gui2;
-public class Index {
+public class Index extends Schema {
 
-        private String name, createStatement, column;
+        private String column = "";
 
         /**
          * Index initializes an Index object
@@ -25,31 +25,6 @@ public class Index {
                 this.name = name;
                 this.createStatement = create;
                 this.column = formatCols( column );
-        }
-
-        /**
-         * getCreateStatement returns the create statement of the index
-         * @author Peter Kaufman
-         * @type getter
-         * @access public
-         * @return create is a String which represents the create statement of the
-         * index
-         */
-        public String getCreateStatement() {
-
-                return this.createStatement;
-        }
-
-        /**
-         * getName returns the name of the index
-         * @author Peter Kaufman
-         * @type getter
-         * @access public
-         * @return name is a String which represents the name of the index
-         */
-        public String getName() {
-
-                return this.name;
         }
 
         public Index() {

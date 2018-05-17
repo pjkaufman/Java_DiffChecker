@@ -3,7 +3,7 @@
  * @author mkyong
  * @class FileConversion
  * @access public
- * @version 10-25-17
+ * @version 5-15-18
  * @since 9-12-17
  * @see https://www.mkyong.com/java/jackson-2-convert-java-object-to-from-json/
  */
@@ -67,28 +67,36 @@ public class FileConversion {
         }
 
         /**
-         * writeTo takes an ArrayList of Strings and writes them to a file
+         * writeTo takes an ArrayList of Strings and writes them to LastRun.txt
          * @author Peter Kaufman
          * @type function
          * @access public
          * @param SQL is an ArrayList of SQL statement(s)
-         * @param file is a String which represents the name of the file to be written to
          * @throws IOException represents an error while writing SQL statements to a file
          */
-        public static void writeTo( ArrayList<String> SQL, String file ) throws IOException {
+        public static void writeTo( ArrayList<String> SQL ) throws IOException {
 
-                PrintWriter out;
-                if ( !file.equals( "LastRun.txt" )) {
-
-                        out = new PrintWriter(new FileWriter( new File( "logs\\" + file ), true));
-                } else {
-
-                        out = new PrintWriter( new FileWriter( new File( "logs\\" + file )));
-                }
+                PrintWriter out = new PrintWriter( new FileWriter( new File( "logs\\LastRun.txt" )));
                 for ( String statement: SQL ) {
 
                         out.println( statement );
                 }
+                out.close();
+        }
+
+        /**
+         * writeTo takes a String and writes it to either Error.txt or Log.txt
+         * @author Peter Kaufman
+         * @type function
+         * @access public
+         * @param data is a String which is to be written to either Error.txt or Log.txt
+         * @param file is a String which represents the name of the file to be written to
+         * @throws IOException represents an error while writing SQL statements to a file
+         */
+        public static void writeTo( String data, String file ) throws IOException {
+
+                PrintWriter out = new PrintWriter( new FileWriter( new File( "logs\\" + file ), true ));
+                out.println( data );
                 out.close();
         }
 
@@ -110,6 +118,7 @@ public class FileConversion {
                         SQL.add( in.nextLine());
                 }
                 in.close();
+
                 return SQL;
         }
 }

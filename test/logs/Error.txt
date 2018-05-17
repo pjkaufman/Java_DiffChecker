@@ -12,3 +12,7 @@
 2018-05-16 14:40:  There was an error with the database connection. Please try again.
 2018-05-16 14:43:  There was an error with the database connection. Please try again.
 2018-05-16 14:48:  There was an error with the database connection. Please try again.
+Took a DB Snapshot on 2018-05-17 at 00:46 in 10.732s with an SQL error.
+DB Comparison Complete on 2018-05-17 at 01:19 in 8.117s with an SQL error.
+DB Snapshot Comparison Complete on 2018-05-17 at 09:12 in 19.835s with an SQL error.
+Took a DB Snapshot on 2018-05-17 at 09:46 in 0.222s with an SQL error.

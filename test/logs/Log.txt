@@ -48,3 +48,31 @@ DB Comparison Complete on 2018-05-16  at 14:12 in 0.245s with an error.
 DB Comparison Complete on 2018-05-16  at 14:40 in 0.22s with an error.
 DB Comparison Complete on 2018-05-16  at 14:43 in 0.24s with an error.
 DB Comparison Complete on 2018-05-16  at 14:48 in 0.228s with an error.
+DB Comparison Complete on 2018-05-17 at 00:48 in 11.564s with no errors.
+Ran SQL on 2018-05-17 at 00:48 in 10.445s with no errors.
+DB Comparison Complete on 2018-05-17 at 00:49 in 1.596s with no errors.
+Ran SQL on 2018-05-17 at 00:49 in 9.512s with no errors.
+DB Comparison Complete on 2018-05-17 at 00:52 in 2.721s with no errors.
+Ran SQL on 2018-05-17 at 00:52 in 8.841s with no errors.
+Took a DB Snapshot on 2018-05-17 at 00:52 in 2.086s with no errors.
+Took a DB Snapshot on 2018-05-17 at 00:58 in 2.663s with no errors.
+Took a DB Snapshot on 2018-05-17 at 01:01 in 2.521s with no errors.
+Took a DB Snapshot on 2018-05-17 at 01:03 in 2.433s with no errors.
+Took a DB Snapshot on 2018-05-17 at 01:07 in 2.607s with no errors.
+Took a DB Snapshot on 2018-05-17 at 01:13 in 2.387s with no errors.
+DB Snapshot Comparison Complete on 2018-05-17 at 01:17 in 2.636s with no errors.
+DB Comparison Complete on 2018-05-17 at 01:19 in 1.764s with no errors.
+Took a DB Snapshot on 2018-05-17 at 01:19 in 1.023s with no errors.
+DB Snapshot Comparison Complete on 2018-05-17 at 01:21 in 2.068s with no errors.
+Took a DB Snapshot on 2018-05-17 at 01:24 in 2.318s with no errors.
+DB Snapshot Comparison Complete on 2018-05-17 at 01:26 in 1.005s with no errors.
+DB Snapshot Comparison Complete on 2018-05-17 at 09:12 in 4.286s with no errors.
+DB Comparison Complete on 2018-05-17 at 09:27 in 5.297s with no errors.
+DB Snapshot Comparison Complete on 2018-05-17 at 09:30 in 2.362s with no errors.
+DB Snapshot Comparison Complete on 2018-05-17 at 09:32 in 2.473s with no errors.
+DB Snapshot Comparison Complete on 2018-05-17 at 09:33 in 2.397s with no errors.
+DB Comparison Complete on 2018-05-17 at 09:34 in 1.51s with no errors.
+DB Snapshot Comparison Complete on 2018-05-17 at 09:36 in 2.429s with no errors.
+DB Comparison Complete on 2018-05-17 at 10:32 in 3.067s with no errors.
+Ran SQL on 2018-05-17 at 10:32 in 8.98s with no errors.
+Took a DB Snapshot on 2018-05-17 at 10:33 in 2.755s with no errors.

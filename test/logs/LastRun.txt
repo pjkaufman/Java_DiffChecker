@@ -11,21 +11,56 @@ MODIFY COLUMN `id` int(11) unsigned NOT NULL ,
 DROP PRIMARY KEY;
 ALTER TABLE `versions` 
 DROP PRIMARY KEY;
-ALTER TABLE `ci_sessions` 
-ADD PRIMARY KEY (`id`);
-ALTER TABLE `config` 
-ADD PRIMARY KEY (`id`), 
-MODIFY COLUMN `id` int(11) unsigned NOT NULL AUTO_INCREMENT, 
-AUTO_INCREMENT=1;
-ALTER TABLE `logins` 
-ADD PRIMARY KEY (`id`), 
-MODIFY COLUMN `id` int(11) unsigned NOT NULL AUTO_INCREMENT, 
-AUTO_INCREMENT=1;
+CREATE TABLE `bloat` (
+  `bloatware` int(11) NOT NULL,
+  PRIMARY KEY (`bloatware`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+DROP TABLE `rds`;
+DROP TABLE `new_table2`;
+DROP TABLE `vldakldsafdsfdsasfd`;
+DROP TABLE `vldakldsa`;
+DROP TABLE `lab`;
+DROP TABLE `dfasdfsafff`;
+DROP TABLE `das`;
+DROP TABLE `rdsffdaf`;
+DROP TABLE `dfas`;
+DROP TABLE `afa`;
+DROP TABLE `new_table`;
+DROP TABLE `ci_sessions`;
+DROP TABLE `d`;
+DROP TABLE `af`;
+DROP TABLE `vldakl`;
+DROP TABLE `l`;
+DROP TABLE `rdsf`;
+DROP TABLE `r`;
+DROP TABLE `3`;
+DROP TABLE `dass`;
+DROP TABLE `rdsff`;
+DROP TABLE `versions`;
+DROP TABLE `vldakldsafds`;
+DROP TABLE `config`;
+DROP TABLE `da`;
+DROP TABLE `logins`;
+DROP TABLE `dfasdfsa`;
+ALTER TABLE `users`
+ADD COLUMN `userid` int(11) NOT NULL, 
+ADD COLUMN `remove` varchar(45) NULL DEFAULT NULL  AFTER `userid`, 
+DROP COLUMN `is_admin`, 
+DROP COLUMN `password`, 
+DROP COLUMN `is_deleted`, 
+DROP COLUMN `is_confirmed`, 
+DROP COLUMN `last_login`, 
+DROP COLUMN `created_at`, 
+DROP COLUMN `id`, 
+DROP COLUMN `avatar`, 
+DROP COLUMN `email`, 
+DROP COLUMN `num_logins`, 
+DROP COLUMN `username`, 
+ADD INDEX `removeI` (`userid`);
 ALTER TABLE `users` 
-ADD PRIMARY KEY (`id`), 
-MODIFY COLUMN `id` int(11) unsigned NOT NULL AUTO_INCREMENT, 
+ADD PRIMARY KEY (`userid`), 
+MODIFY COLUMN `userid` int(11) NOT NULL AUTO_INCREMENT, 
 AUTO_INCREMENT=1;
-ALTER TABLE `versions` 
-ADD PRIMARY KEY (`id`);
 DROP VIEW `new_view`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `new_view` AS select `logins`.`id` AS `id`,`logins`.`username` AS `username`,`logins`.`login` AS `login`,`logins`.`logout` AS `logout`,`logins`.`datestamp` AS `datestamp` from `logins`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `bloatlist` AS select `bloat`.`bloatware` AS `bloatware` from `bloat`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `userlist` AS select `users`.`userid` AS `userid`,`users`.`remove` AS `add` from `users`;

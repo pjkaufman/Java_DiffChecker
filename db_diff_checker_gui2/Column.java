@@ -3,13 +3,13 @@
  * @author Peter Kaufman
  * @class Column
  * @access public
- * @version 10-25-17
+ * @version 5-17-18
  * @since 9-10-17
  */
 package db_diff_checker_gui2;
-public class Column {
+public class Column extends Schema {
 
-        private String name = "", details = "";
+        private String details = "";
 
         /**
          * Column initializes a column object
@@ -39,17 +39,5 @@ public class Column {
         public String getDetails() {
 
                 return this.details;
-        }
-
-        /**
-         * getName returns the name of the column
-         * @author Peter Kaufman
-         * @type getter
-         * @access public
-         * @return name is a String which represents the name of the column
-         */
-        public String getName() {
-
-                return this.name;
         }
 }

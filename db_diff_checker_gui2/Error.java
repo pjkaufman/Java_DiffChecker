@@ -29,15 +29,6 @@ public class Error extends JFrameV2 {
                 this.error = false;
                 initComponents();
                 this.errorLabel.setText( error );
-                try{
-
-                        ArrayList<String> err = new ArrayList<>();
-                        err.add( sw.getDate() + " " + sw.getHour() + ": " + error );
-                        FileConversion.writeTo( err, "Error.txt" );
-                } catch( IOException e ) {
-
-                        e.printStackTrace();
-                }
         }
 
         /**
@@ -49,14 +40,14 @@ public class Error extends JFrameV2 {
          */
         private void initComponents() {
                 // set up JFrame properties
-                setTitle("Error");
-                setType(Window.Type.POPUP);
+                setTitle( "Error" );
+                setType( Window.Type.POPUP );
                 setMinimumSize( new Dimension( 476, 90 ));
-                setResizable(false);
+                setResizable( false );
                 // set component properties
-                titleLabel.setFont(new Font("Tahoma", 1, 18));
-                titleLabel.setText("An Error Occured.");
-                errorLabel.setFont(new Font("Tahoma", 0, 14));
+                titleLabel.setFont( new Font( "Tahoma", 1, 18 ));
+                titleLabel.setText( "An Error Occured." );
+                errorLabel.setFont( new Font( "Tahoma", 0, 14 ));
                 // add components
                 getContentPane().setLayout( new BorderLayout());
                 add( titleLabel, BorderLayout.NORTH );

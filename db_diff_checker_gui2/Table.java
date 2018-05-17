@@ -3,15 +3,15 @@
  * @author Peter Kaufman
  * @class Table
  * @access public
- * @version 5-13-18
+ * @version 5-17-18
  * @since 9-10-17
  */
 package db_diff_checker_gui2;
 import java.util.ArrayList;
 import java.util.HashMap;
-public class Table {
+public class Table extends Schema {
 
-        private String name = "", createStatement = "", charSet = "", collation = "", auto_increment = "";
+        private String charSet = "", collation = "", auto_increment = "";
         private int count = 0;
         private HashMap<String, Column> columns = new HashMap<>();
         private HashMap<String, Index> indices = new HashMap<>();
@@ -72,30 +72,6 @@ public class Table {
         public String getAI() {
 
                 return this.auto_increment;
-        }
-
-        /**
-         * getCreateStatement returns the create statement of the table
-         * @author Peter Kaufman
-         * @type getter
-         * @access public
-         * @return create is the create statement of the table
-         */
-        public String getCreateStatement() {
-
-                return this.createStatement;
-        }
-
-        /**
-         * getName returns the name of the table
-         * @author Peter Kaufman
-         * @type getter
-         * @access public
-         * @return name is the name of the table
-         */
-        public String getName() {
-
-                return this.name;
         }
 
         /**

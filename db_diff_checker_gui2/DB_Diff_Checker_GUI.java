@@ -4,7 +4,7 @@
  * @author Peter Kaufman
  * @class DB_Diff_Checker_GUI
  * @access public
- * @version 5-14-18
+ * @version 5-15-18
  * @since 9-20-17
  */
 package db_diff_checker_gui2;
@@ -62,7 +62,6 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
                 cpnt.add( jLabel2 );
                 // set up JFrame properties
                 setSize( 330, 230 );
-                setLocation(new Point(200, 200));
                 setMinimumSize( new Dimension( 370, 200 ));
                 this.setTitle( "Database Difference Checker" );
                 // set component properties
@@ -105,45 +104,41 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
                         DBCompare2 compare2DBS = new DBCompare2();
                         compare2DBS.setSize( 575, 325 );
                         compare2DBS.setVisible( true );
-                        this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-                } else if ( input.getText().trim().equals( "2" ) && FileConversion.fileExists( "dbsnapshot.json" )) {
+                        this.close();
+                } else if ( input.getText().trim().equals( "2" ) && FileConversion.fileExists( stdSnap )) {
 
-                        DBCompare1 compare1DB_DBSnapshot = new DBCompare1();
+                        DBCompare1 compare1DB_DBSnapshot = new DBCompare1( "Compare Database to Snapshot", "Compare" );
                         compare1DB_DBSnapshot.setSize( 350, 275 );
-                        compare1DB_DBSnapshot.setButtonTxt( "Compare" );
-                        compare1DB_DBSnapshot.setTitle( "Compare Database to Snapshot" );
                         compare1DB_DBSnapshot.setVisible( true );
-                        this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+                        this.close();
                 } else if ( input.getText().trim().equals( "3" )) {
 
-                        DBCompare1 compare1DB_DBSnapshot = new DBCompare1();
+                        DBCompare1 compare1DB_DBSnapshot = new DBCompare1( "Take Database Snapshot", "Snapshot" );
                         compare1DB_DBSnapshot.setSize( 350, 275 );
-                        compare1DB_DBSnapshot.setTitle( "Take Database Snapshot" );
-                        compare1DB_DBSnapshot.setButtonTxt( "Snapshot" );
                         compare1DB_DBSnapshot.setVisible( true );
-                        this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-                } else if ( input.getText().trim().equals( "2" ) && !FileConversion.fileExists( "dbsnapshot.json" )) {
+                        this.close();
+                } else if ( input.getText().trim().equals( "2" ) && !FileConversion.fileExists( stdSnap )) {
 
                         jLabel2.setText( "Please create a DB snapshot first." );
-                } else if ( input.getText().trim().equals( "4" ) && FileConversion.fileExists( "LastRun.txt" )) {
+                } else if ( input.getText().trim().equals( "4" ) && FileConversion.fileExists( stdOut )) {
 
-                        displayLog( "LastRun.txt" );
-                        this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-                } else if (( input.getText().trim().equals( "4" ) && !FileConversion.fileExists( "LastRun.txt" )) ||
-                           ( input.getText().trim().equals( "5" ) && !FileConversion.fileExists( "Log.txt" ))) {
+                        displayLog( stdOut );
+                        this.close();
+                } else if (( input.getText().trim().equals( "4" ) && !FileConversion.fileExists( stdOut )) ||
+                           ( input.getText().trim().equals( "5" ) && !FileConversion.fileExists( stdLog ))) {
 
                         jLabel2.setText( "The DBC has not been run before." );
-                } else if ( input.getText().trim().equals( "5" ) && FileConversion.fileExists( "Log.txt" )) {
+                } else if ( input.getText().trim().equals( "5" ) && FileConversion.fileExists( stdLog )) {
 
-                        displayLog( "Log.txt" );
-                        this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-                } else if ( input.getText().trim().equals( "6" ) && !FileConversion.fileExists( "Error.txt" )) {
+                        displayLog( stdLog );
+                        this.close();
+                } else if ( input.getText().trim().equals( "6" ) && !FileConversion.fileExists( stdErr )) {
 
                         jLabel2.setText( "An error has not occurred/error log was deleted." );
-                } else if ( input.getText().trim().equals( "6" ) && FileConversion.fileExists( "Error.txt" )) {
+                } else if ( input.getText().trim().equals( "6" ) && FileConversion.fileExists( stdErr )) {
 
-                        displayLog( "Error.txt" );
-                        this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+                        displayLog( stdErr );
+                        this.close();
                 } else {
 
                         jLabel2.setText( "Please enter a number 1 to 6." );
@@ -164,10 +159,10 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
 
                         String title;
                         Result rs = new Result( null );
-                        if ( file.equals( "Log.txt" )) {
+                        if ( file.equals( stdLog )) {
 
                                 title = "The Run Log:";
-                        } else if ( file.equals( "Error.txt" )) {
+                        } else if ( file.equals( stdErr )) {
 
                                 title = "The Error Log:";
                         } else {
@@ -178,10 +173,8 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
                         rs.setTitle( title.substring( 0, title.length() - 1 ));
                 } catch( IOException e ) {
 
-                        System.err.println( e );
-                        //e.printStackTrace();
-                        error( "There was an error recovering the last list of SQL statements." );
-                        //error( e );
+                        log( "There was an error recovering the last list of SQL statements on " + sw.getDate() + " at " + sw.getHour(), stdErr );
+                        error( "There was an error recovering the last list of SQL statements.", e );
                 }
         }
 

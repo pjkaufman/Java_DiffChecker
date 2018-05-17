@@ -219,7 +219,6 @@ public class Database {
          * @access private
          */
         private void checkFirstSteps() {
-
                 for ( String table: exclude.keySet()) {
                         for ( int i = 0; i < firstSteps.size(); i++ ) {
                                 if ( firstSteps.get( i ).contains( "ALTER TABLE `" + table + "`" )) {

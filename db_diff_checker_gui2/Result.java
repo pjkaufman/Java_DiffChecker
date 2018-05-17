@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 
 public class Result extends JFrameV2 {
         // Instance variables
@@ -24,7 +23,7 @@ public class Result extends JFrameV2 {
         private JScrollPane SQL = new JScrollPane();
         private JTextArea SQLShow = new JTextArea( 5, 20 );
         private JButton btnRun = new JButton( "Run" );
-        private JLabel jLabel17 = new JLabel( "Run the following SQL to make the two databases the same:" );
+        private JLabel instructLabel = new JLabel( "Run the following SQL to make the two databases the same:" );
 
         /**
          * Creates new form Result
@@ -39,8 +38,7 @@ public class Result extends JFrameV2 {
                 initComponents();
                 if ( db == null ) {
 
-                        hideRun();
-                        pb.setVisible( false );
+                        btnRun.setVisible( false );
                 }
                 clase = this.getClass().getName();
         }
@@ -54,19 +52,14 @@ public class Result extends JFrameV2 {
          */
         private void initComponents() {
                 // add components to the appropriate ArrayList
-                cpnt.add( jLabel17 );
+                cpnt.add( instructLabel );
                 cpnr.add( SQLShow );
                 cpnr.add( btnRun );
                 // set up JFrame properties
-                setTitle("SQL To Run");
+                setTitle( "SQL To Run" );
                 setMinimumSize( new Dimension( 600, 210 ));
                 // set component properties
-                pb.setValue(0);
-                pb.setStringPainted(true);
-                TitledBorder border = BorderFactory.createTitledBorder( "Waiting On Action" );
-                border.setTitleFont( myFont );
-                pb.setBorder(border);
-                jLabel17.setFont(new Font("Tahoma", 1, 18));
+                instructLabel.setFont(new Font("Tahoma", 1, 18));
                 SQL.setAutoscrolls(true);
                 SQLShow.setEditable(false);
                 SQL.setViewportView(SQLShow);
@@ -78,7 +71,7 @@ public class Result extends JFrameV2 {
                 });
                 // add components
                 getContentPane().setLayout( new BorderLayout());
-                add( jLabel17, BorderLayout.NORTH );
+                add( instructLabel, BorderLayout.NORTH );
                 add( SQL, BorderLayout.CENTER );
                 add( btnRun, BorderLayout.EAST );
                 add( pb, BorderLayout.SOUTH );
@@ -94,30 +87,30 @@ public class Result extends JFrameV2 {
          */
         private void btnRunActionPerformed(ActionEvent evt) {
 
-                hideRun();
-                ArrayList<String> log = new ArrayList<>();
+                btnRun.setVisible( false );
+                prepProgressBar( "Waiting On Action", false );
                 SwingWorker<Boolean, Integer> swingW = new SwingWorker<Boolean, Integer>() {
 
                         @Override
                         protected Boolean doInBackground() throws Exception {
 
-                                ArrayList<String> temp = new ArrayList<>();
-                                temp.add( "" );
                                 boolean cont = true;
+                                String temp = null;
                                 sw.start();
                                 for ( int i = 0; i < sql.size(); i++ ) {
 
-                                        temp.set(0, sql.get(i));
+                                        temp = sql.get( i );
                                         cont = db.runSQL( temp );
                                         if ( !cont ) {
 
                                                 sw.stop();
-                                                log.add( "Ran SQL on " + sw.getHour() + " at " + sw.getDate() + " with an error updating the database." );
-                                                throw new Exception( "There was an error running: " + temp.get(0));
+                                                log( "Ran SQL on " + sw.getHour() + " at " + sw.getDate() + " with an error updating the database.", stdErr );
+                                                throw new Exception( "There was an error running: " + temp );
                                         }
                                         publish(i);
                                 }
                                 sw.stop();
+                                log( "Ran SQL on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.", stdLog );
 
                                 return true;
                         }
@@ -127,61 +120,27 @@ public class Result extends JFrameV2 {
                                 try {
 
                                         get();
-                                        jLabel17.setText( "The database has been updated." );
-                                        TitledBorder nBorder = BorderFactory.createTitledBorder( "Done" );
-                                        nBorder.setTitleFont( myFont );
-                                        pb.setBorder(nBorder);
-                                        pb.setValue(100);
-                                        log.add( "Ran SQL on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
-                                        try {
-
-                                                FileConversion.writeTo( log, "Log.txt" );
-                                        } catch( IOException e ) {
-
-                                                //e.printStackTrace();
-                                                error( "There was an error writing to the log file" );
-                                                //error( e );
-                                        }
+                                        instructLabel.setText( "The database has been updated." );
+                                        endProgressBar( "Done" );
                                 } catch ( Exception e ) {
 
-                                        pb.setIndeterminate( false );
-                                        pb.setVisible( false );
-                                        //e.printStackTrace();
-                                        //error( e );
-                                        error( e.getMessage().substring( e.getMessage().indexOf( ":" ) + 1 ));
-                                }
-                                try {
-
-                                        FileConversion.writeTo( log, "Log.txt" );
-                                } catch( IOException e ) {
-
-                                        //e.printStackTrace();
-                                        error( "There was an error writing to the log file" );
-                                        //error( e );
+                                        endProgressBar( "An Error Occurred" );
+                                        error( e.getMessage().substring( e.getMessage().indexOf( ":" ) + 1 ), e);
                                 }
                         }
 
                         @Override
                         protected void process( List<Integer> chunks ) {
 
-                                hideRun();
-                                TitledBorder nBorder = BorderFactory.createTitledBorder( "Running SQL.. " );
-                                nBorder.setTitleFont( myFont );
-                                pb.setBorder(nBorder);
+                                btnRun.setVisible( false );
+                                newBorder( "Running SQL.. " );
                                 pb.setValue((int)(( chunks.get( chunks.size() - 1) + 1.0 ) * 100 / sql.size()));
                                 pb.setString( pb.getPercentComplete() * 100 + "%" );
                         }
 
                 };
-                //  try {
 
                 swingW.execute();
-                //} catch ( Exception e ) {
-
-                //sw.stop();
-
-                //}
-
         }
 
         /**
@@ -199,7 +158,7 @@ public class Result extends JFrameV2 {
                                 this.setSize( 300, 75 );
                                 if ( this.db != null ) {
 
-                                        jLabel17.setText( "The databases are in sync." );
+                                        instructLabel.setText( "The databases are in sync." );
                                 }
                         } else {
 
@@ -211,30 +170,17 @@ public class Result extends JFrameV2 {
 
                                 if ( title.equals( "Run the following SQL to make the two databases the same:" )) {
 
-                                        FileConversion.writeTo( SQL, "LastRun.txt" );
+                                        FileConversion.writeTo( SQL );
                                 }
-                                jLabel17.setText( title );
+                                instructLabel.setText( title );
                                 this.setSize( 600, 210 );
                         }
 
                         this.setVisible( true );
                 } catch( IOException e ) {
 
-                        System.err.println( e );
-                        //e.printStackTrace();
-                        error( "There was an error writing the SQL statement(s) to a file." );
-                        //error( e );
+                        log( "There was an error writing the SQL statement(s) to a file.", stdErr );
+                        error( "There was an error writing the SQL statement(s) to a file.", e );
                 }
-        }
-
-        /**
-         * hideRun hides the btnRun
-         * @author Peter Kaufman
-         * @type function
-         * @access public
-         */
-        public void hideRun() {
-
-                this.btnRun.setVisible( false );
         }
 }

@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 
 public class DBCompare2 extends JFrameV2 {
         // Instance variables
@@ -88,7 +87,6 @@ public class DBCompare2 extends JFrameV2 {
                 setMinimumSize( new Dimension( 630, 325 ));
                 setTitle("Compare Two Databases");
                 // set component properties
-                pb.setVisible( false );
                 headT.setHorizontalAlignment( SwingConstants.CENTER );
                 headT.setFont(new Font("Tahoma", 1, 24));
                 execute.setFont(new Font("Tahoma", 0, 18));
@@ -242,11 +240,7 @@ public class DBCompare2 extends JFrameV2 {
          */
         private void compare1() {
 
-                pb.setIndeterminate( true );
-                ArrayList<String> log = new ArrayList<>();
-                pb.setBorder( BorderFactory.createTitledBorder( "Establishing Dev Database Connection" ));
-                pb.setVisible( true );
-                sw.reset();
+                prepProgressBar( "Establishing Dev Database Connection", true );
                 SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {
 
                         @Override
@@ -276,11 +270,11 @@ public class DBCompare2 extends JFrameV2 {
                                         publish( "Adding Dev's Views" );
                                         sql.addAll(dab1.updateViews( dab2.getViews()));
                                         sw.stop();
-                                        log.add( "DB Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors." );
+                                        log( "DB Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.", stdLog );
                                 } catch ( SQLException e ) {
 
                                         sw.stop();
-                                        log.add( "DB Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an error." );
+                                        log( "DB Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with an SQL error.", stdErr );
                                         throw new Exception( "There was an error with the database connection. Please try again." );
                                 }
 
@@ -292,35 +286,20 @@ public class DBCompare2 extends JFrameV2 {
                                 try {
 
                                         get();
-                                        pb.setBorder( BorderFactory.createTitledBorder( "Database Comparison Complete" ));
-                                        pb.setIndeterminate( false );
+                                        endProgressBar( "Database Comparison Complete" );
                                         displayResult( db2 );
-                                        dispose();
+                                        close();
                                 } catch ( Exception e ) {
 
-                                        pb.setIndeterminate( false );
-                                        pb.setVisible( false );
-                                        //e.printStackTrace();
-                                        error( e.getMessage().substring( e.getMessage().indexOf( ":" ) + 1 ));
-                                        //error( e );
-                                }
-                                try {
-
-                                        FileConversion.writeTo( log, "Log.txt" );
-                                } catch( IOException e ) {
-
-                                        //  e.printStackTrace();
-                                        error( "There was an error writing to the log file" );
-                                        //error( e );
+                                        endProgressBar( "An Error Occurred" );
+                                        error( e.getMessage().substring( e.getMessage().indexOf( ":" ) + 1 ), e);
                                 }
                         }
 
                         @Override
                         protected void process( List<String> chunks ) {
 
-                                TitledBorder nBorder = BorderFactory.createTitledBorder( chunks.get( chunks.size() - 1 ));
-                                nBorder.setTitleFont( myFont );
-                                pb.setBorder(nBorder);
+                                newBorder( chunks.get( chunks.size() - 1 ));
                         }
                 };
 
