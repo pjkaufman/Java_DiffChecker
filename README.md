@@ -3,3 +3,7 @@
 This repo is a project that compares MySQL databases using Java.
 ## Running
 1. go to the python folder and run the makeJar.py file
+2. run the run.py file
+## Dependencies
+1. Java 
+2. Python 2.7
