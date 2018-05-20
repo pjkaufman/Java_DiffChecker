@@ -6,3 +6,5 @@ Go to the python folder and run the routines.py file. Then type in run.
 ## Dependencies
 1. Java 
 2. Python 2.7
+## Documentation
+[![Documetation](https://pjkaufman.github.io/Java_DiffChecker/)]
