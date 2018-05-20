@@ -242,6 +242,8 @@ class Routines:
 
     #push cleans and push the repo
     def push( self ):
+        #document the repo
+        self.document()
         #get rid of unnecessary files
         self.clean()
         #get necessary information from the user
@@ -250,6 +252,17 @@ class Routines:
         call( 'git add -A' )
         call( 'git commit -a -m \"' + message + '\"' )
         call( 'git push ')
+        return None
+    #documnet documents the repo
+    def document(self):
+        if ( self.getOS() == "Windows" ):
+            os.chdir('..')
+            call('javadoc -d "docs" "db_diff_checker_gui2"')
+            os.chdir('python')
+        else:
+            os.chdir('..')
+            call('javadoc -d "docs" "db_diff_checker_gui2"')
+            os.chdir('python')
         return None
 
 def main():

@@ -164,7 +164,6 @@ public class Db_conn {
         public HashMap<String, Table> getTableList() {
 
                 HashMap<String, Table> tables2 = new HashMap<>();
-
                 try {
                         String sql = "SELECT DISTINCT\n" +
                                      "    (CONCAT(a.`TABLE_NAME`, `COLUMN_NAME`)) AS `distinct`,\n" +
