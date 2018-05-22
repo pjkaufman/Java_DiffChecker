@@ -5,7 +5,7 @@
  * @access public
  * @version 5-15-18
  * @since 9-12-17
- * @see https://www.mkyong.com/java/jackson-2-convert-java-object-to-from-json/
+ * @see <a href="https://www.mkyong.com/java/jackson-2-convert-java-object-to-from-json/">https://www.mkyong.com/java/jackson-2-convert-java-object-to-from-json/</a>
  */
 package db_diff_checker_gui2;
 import java.io.File;
@@ -59,7 +59,7 @@ public class FileConversion {
          * @access public
          * @param file is a String which represents the file path
          * @return true or false depending on whether the file exists or not
-         * @see https://stackoverflow.com/questions/1816673/how-do-i-check-if-a-file-exists-in-java
+         * @see <a href="https://stackoverflow.com/questions/1816673/how-do-i-check-if-a-file-exists-in-java">https://stackoverflow.com/questions/1816673/how-do-i-check-if-a-file-exists-in-java</a>
          */
         public static boolean fileExists( String file ) {
 

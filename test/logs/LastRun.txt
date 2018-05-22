@@ -1,66 +1,114 @@
-ALTER TABLE `ci_sessions` 
-DROP PRIMARY KEY;
-ALTER TABLE `config` 
-MODIFY COLUMN `id` int(11) unsigned NOT NULL , 
-DROP PRIMARY KEY;
-ALTER TABLE `logins` 
-MODIFY COLUMN `id` int(11) unsigned NOT NULL , 
-DROP PRIMARY KEY;
-ALTER TABLE `users` 
-MODIFY COLUMN `id` int(11) unsigned NOT NULL , 
-DROP PRIMARY KEY;
-ALTER TABLE `versions` 
-DROP PRIMARY KEY;
-CREATE TABLE `bloat` (
-  `bloatware` int(11) NOT NULL,
-  PRIMARY KEY (`bloatware`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-DROP TABLE `rds`;
-DROP TABLE `new_table2`;
-DROP TABLE `vldakldsafdsfdsasfd`;
-DROP TABLE `vldakldsa`;
-DROP TABLE `lab`;
-DROP TABLE `dfasdfsafff`;
-DROP TABLE `das`;
-DROP TABLE `rdsffdaf`;
-DROP TABLE `dfas`;
-DROP TABLE `afa`;
-DROP TABLE `new_table`;
-DROP TABLE `ci_sessions`;
-DROP TABLE `d`;
-DROP TABLE `af`;
-DROP TABLE `vldakl`;
-DROP TABLE `l`;
-DROP TABLE `rdsf`;
-DROP TABLE `r`;
-DROP TABLE `3`;
-DROP TABLE `dass`;
-DROP TABLE `rdsff`;
-DROP TABLE `versions`;
-DROP TABLE `vldakldsafds`;
-DROP TABLE `config`;
-DROP TABLE `da`;
-DROP TABLE `logins`;
-DROP TABLE `dfasdfsa`;
+ALTER TABLE `3`
+ DROP PRIMARY KEY;
+ALTER TABLE `af`
+ DROP PRIMARY KEY;
+ALTER TABLE `afa`
+ DROP PRIMARY KEY;
+ALTER TABLE `ci_sessions`
+ DROP PRIMARY KEY;
+ALTER TABLE `config`
+ DROP PRIMARY KEY;
+ALTER TABLE `d`
+ DROP PRIMARY KEY;
+ALTER TABLE `da`
+ DROP PRIMARY KEY;
+ALTER TABLE `das`
+ DROP PRIMARY KEY;
+ALTER TABLE `dass`
+ DROP PRIMARY KEY;
+ALTER TABLE `dfas`
+ DROP PRIMARY KEY;
+ALTER TABLE `dfasdfsa`
+ DROP PRIMARY KEY;
+ALTER TABLE `dfasdfsafff`
+ DROP PRIMARY KEY;
+ALTER TABLE `l`
+ DROP PRIMARY KEY;
+ALTER TABLE `lab`
+ DROP PRIMARY KEY;
+ALTER TABLE `logins`
+ DROP PRIMARY KEY;
+ALTER TABLE `new_table`
+ DROP PRIMARY KEY;
+ALTER TABLE `new_table2`
+ DROP PRIMARY KEY;
+ALTER TABLE `r`
+ DROP PRIMARY KEY;
+ALTER TABLE `rds`
+ DROP PRIMARY KEY;
+ALTER TABLE `rdsf`
+ DROP PRIMARY KEY;
+ALTER TABLE `rdsff`
+ DROP PRIMARY KEY;
+ALTER TABLE `rdsffdaf`
+ DROP PRIMARY KEY;
 ALTER TABLE `users`
-ADD COLUMN `userid` int(11) NOT NULL, 
-ADD COLUMN `remove` varchar(45) NULL DEFAULT NULL  AFTER `userid`, 
-DROP COLUMN `is_admin`, 
-DROP COLUMN `password`, 
-DROP COLUMN `is_deleted`, 
-DROP COLUMN `is_confirmed`, 
-DROP COLUMN `last_login`, 
-DROP COLUMN `created_at`, 
-DROP COLUMN `id`, 
-DROP COLUMN `avatar`, 
-DROP COLUMN `email`, 
-DROP COLUMN `num_logins`, 
-DROP COLUMN `username`, 
-ADD INDEX `removeI` (`userid`);
-ALTER TABLE `users` 
-ADD PRIMARY KEY (`userid`), 
-MODIFY COLUMN `userid` int(11) NOT NULL AUTO_INCREMENT, 
-AUTO_INCREMENT=1;
+ DROP PRIMARY KEY;
+ALTER TABLE `versions`
+ DROP PRIMARY KEY;
+ALTER TABLE `vldakl`
+ DROP PRIMARY KEY;
+ALTER TABLE `vldakldsa`
+ DROP PRIMARY KEY;
+ALTER TABLE `vldakldsafds`
+ DROP PRIMARY KEY;
+ALTER TABLE `vldakldsafdsfdsasfd`
+ DROP PRIMARY KEY;
+ALTER TABLE `rds`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `new_table2`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `vldakldsafdsfdsasfd`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `vldakldsa`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `lab`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `dfasdfsafff`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `das`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `rdsffdaf`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `dfas`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `afa`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `new_table`
+ ADD PRIMARY KEY(`idnew_table`);
+ALTER TABLE `ci_sessions`
+ ADD PRIMARY KEY(`id`);
+ALTER TABLE `d`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `af`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `vldakl`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `l`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `users`
+ ADD PRIMARY KEY(`id`);
+ALTER TABLE `rdsf`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `r`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `3`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `dass`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `rdsff`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `versions`
+ ADD PRIMARY KEY(`id`);
+ALTER TABLE `vldakldsafds`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `config`
+ ADD PRIMARY KEY(`id`);
+ALTER TABLE `da`
+ ADD PRIMARY KEY(`idnew_table2`);
+ALTER TABLE `logins`
+ ADD PRIMARY KEY(`id`);
+ALTER TABLE `dfasdfsa`
+ ADD PRIMARY KEY(`idnew_table2`);
 DROP VIEW `new_view`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `bloatlist` AS select `bloat`.`bloatware` AS `bloatware` from `bloat`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `userlist` AS select `users`.`userid` AS `userid`,`users`.`remove` AS `add` from `users`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `new_view` AS select `logins`.`id` AS `id`,`logins`.`username` AS `username`,`logins`.`login` AS `login`,`logins`.`logout` AS `logout`,`logins`.`datestamp` AS `datestamp` from `logins`;

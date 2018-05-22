@@ -24,7 +24,7 @@ public class Index extends Schema {
 
                 this.name = name;
                 this.createStatement = create;
-                this.column = formatCols( column );
+                this.column = column;
         }
 
         public Index() {
@@ -44,33 +44,6 @@ public class Index extends Schema {
         }
 
         /**
-         * formatCols converts a String that represents the column(s) of an index
-         * into a usable format for an index, meant especially for a composite index
-         * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @param columns is a String which  represents the column(s) of an index
-         * @return col a String which is a usable format for an index
-         */
-        public String formatCols( String columns ) {
-
-                String col = "";
-                String[] temp = columns.split(",");
-
-                for ( int i = 0; i < temp.length; i++ ) {
-                        if ( i == temp.length - 1 ) {
-
-                                col += "`" + temp[ i ] + "`";
-                        } else {
-
-                                col += "`" + temp[ i ] + "`,";
-                        }
-                }
-
-                return col;
-        }
-
-        /**
          * compareTo determines what if anything needs to be done to an index
          * @author Peter Kaufman
          * @type function
@@ -79,7 +52,6 @@ public class Index extends Schema {
          * @return is an integer which is either 0, or 1 depending on the action needed to be done
          */
         public int compareTo( Index ind ) {
-
                 if ( this.createStatement.equals( ind.createStatement ) && this.column.equals( ind.column)) {
 
                         return 0; // the indices are the exact same

@@ -6,7 +6,7 @@
  * @access public
  * @version 5-13-18
  * @since 10-26-17
- * @see https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java
+ * @see <a href="https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java">https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java</a>
  */
 package db_diff_checker_gui2;
 import java.time.Duration;
@@ -94,6 +94,7 @@ public class StopWatch {
          * @author Peter Kaufman
          * @type function
          * @access public
+         * @return is a String which represents the date this function is called
          */
         public String getDate() {
 
@@ -107,6 +108,7 @@ public class StopWatch {
          * @author Peter Kaufman
          * @type function
          * @access public
+         * @return is a String which represents the hour this function is called
          */
         public String getHour() {
 

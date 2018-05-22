@@ -349,11 +349,11 @@ public class Table extends Schema {
                                         if ( this.count == 0 ) {
 
                                                 sql += "DROP INDEX `" + indices1.getName() + "`";
-                                                sql += ", \nADD" + indices1.getCreateStatement() + "`" + indices1.getName() + "` (" + indices1.getColumn() + ")";
+                                                sql += ", \n" + indices1.getCreateStatement();
                                         } else {
 
                                                 sql += ", \nDROP INDEX `" + indices1.getName() + "`";
-                                                sql += ", \nADD" + indices1.getCreateStatement() + "`" + indices1.getName() + "` (" + indices1.getColumn() + ")";
+                                                sql += ", \n" + indices1.getCreateStatement();
                                         }
 
                                         this.count++;
@@ -361,10 +361,10 @@ public class Table extends Schema {
                         } else {
                                 if ( this.count == 0 ) {
 
-                                        sql += "ADD" + indices1.getCreateStatement() + "`" + indices1.getName() + "` (" + indices1.getColumn() + ")";
+                                        sql += "" + indices1.getCreateStatement();
                                 } else {
 
-                                        sql += ", \nADD" + indices1.getCreateStatement() + "`" + indices1.getName() + "` (" + indices1.getColumn() + ")";
+                                        sql += ", \n" + indices1.getCreateStatement();
                                 }
 
                                 this.count++;

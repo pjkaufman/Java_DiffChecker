@@ -100,8 +100,7 @@ public class JFrameV2 extends JFrame {
                 err.setSize( 430, 100 );
                 err.setVisible( true );
                 System.out.println( error );
-                System.out.println( "Message: " + e.getMessage());
-                System.out.println( "Cause: " + e.getCause());
+                e.printStackTrace();
                 this.error = true;
         }
 

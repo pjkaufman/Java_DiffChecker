@@ -292,7 +292,13 @@ public class DBCompare2 extends JFrameV2 {
                                 } catch ( Exception e ) {
 
                                         endProgressBar( "An Error Occurred" );
-                                        error( e.getMessage().substring( e.getMessage().indexOf( ":" ) + 1 ), e);
+                                        if ( e.getMessage().contains( ":" )) {
+                                                error( e.getMessage().substring( e.getMessage().indexOf( ":" ) + 1 ), e);
+                                        } else {
+
+                                                error( e.getMessage(), e);
+                                        }
+
                                 }
                         }
 

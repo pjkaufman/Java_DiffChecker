@@ -30,7 +30,7 @@ public class Result extends JFrameV2 {
          * @author Peter Kaufman
          * @type constructor
          * @access public
-         * @param db1 is a Db_conn object which is the connection for the live database
+         * @param db is a Db_conn object which is the connection for the live database
          */
         public Result( Db_conn db ) {
 
