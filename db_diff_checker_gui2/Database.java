@@ -1,9 +1,7 @@
 /**
  * Database models a MYSQL database schema
  * @author Peter Kaufman
- * @class Database
- * @access public
- * @version 5-15-18
+ * @version 5-24-18
  * @since 9-18-17
  */
 package db_diff_checker_gui2;
@@ -17,33 +15,35 @@ public class Database {
         private ArrayList<String> firstSteps = new ArrayList<>();
 
         /**
-         * Database initializes a Database object
+         * Database initializes a Database object by using a database connection. the database provided connection is used to
+         * initialize a HashMap of tables and views that exist in the database provided and get SQL statements to drop all 
+         * Primary Keys and remove all auot_increments in the database provided which will only be used on the live database. 
          * @author Peter Kaufman
-         * @type constructor
-         * @access public
          * @param db is a Db_conn connection which is used to get db information
          */
         public Database( Db_conn db ) {
 
-                // get tables
-                db.make_conn();
+                // get tables and views
+                db.makeConn();
                 this.views = db.getViews();
                 this.tables = db.getTableList();
-                db.kill_conn();
+                db.killConn();
+                // get SQL statements to drop all Primary Keys and remove all auot_increments 
                 this.firstSteps = db.getFirstSteps();
         }
 
-        public Database() {
-                // defualt constructor - needed to make file conversion
-        }
+        /**
+         * This is the default constructor for this class which is needed for the file conversion to JSON. 
+         */
+        public Database() { }
 
         /**
-         * getFirstSteps returns the first steps to be taken in order to run the SQL statements
+         * getFirstSteps returns the first steps to be taken in order to run the SQL statements. These SQL 
+         * statements are used to drop Primary Keys and remove auto_increments on the database provided. <b>Note: this funntion
+         * will return an empty ArrayList if the function is called on the dev database.</b>
          * @author Peter Kaufman
-         * @type getter
-         * @access public
-         * @return firstSteps is an ArrayList of Strings which represents the
-         * first steps to be taken in order to run the SQL statements
+         * @return firstSteps is an ArrayList of Strings which is the first steps to be taken 
+         * in order to run the SQL statements
          */
         public ArrayList<String> getFirstSteps () {
 
@@ -52,11 +52,11 @@ public class Database {
         }
 
         /**
-         * getTables returns an ArrayList of Table objects that are in the db
-         * @author Petr Kaufman
-         * @type getter
-         * @access public
-         * @return tables is an ArrayList of Table objects that are in the db
+         * getTables returns an HashMap of tables that are in the database provided. The key is the name of the 
+         * table and the value is a Table object.
+         * @author Peter Kaufman
+         * @return tables is an HashMap with a set of String and Table objects which is all of the tables 
+         * in the database provided.
          */
         public HashMap<String, Table> getTables() {
 
@@ -64,12 +64,8 @@ public class Database {
         }
 
         /**
-         * getViews returns an ArrayList of Views objects that represents the all
-         * the views in the db
-         * @author Peter Kaufman
-         * @type getter
-         * @access public
-         * @return  views
+         * getViews returns an ArrayList of Views objects which is the all of the views in the database provided.
+         * @return views is an ArrayList of View objects which represent all of the views in the database provided.  
          */
         public ArrayList<Views> getViews() {
 
@@ -77,57 +73,52 @@ public class Database {
         }
 
         /**
-         * updateViews takes in a list of views and returns the SQL statements needed
-         * to make the two db's views to be th same
+         * updateViews takes in a list of views and returns the SQL statements needed to make the two databases
+         * have the exact same views. <b>Note: all views in the live database will be dropped and all from the
+         * dev database will be created.</b>
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @param views1 is an ArrayList of Views objects which represents all of
-         * the views in the live db
-         * @return sql is an ArrayList of Strings which represents the SQL statements
-         * to get the views in the db's to be the same
+         * @param liveViews is an ArrayList of Views objects which is all of the views in the live database.
+         * @return sql is an ArrayList of Strings which is the SQL statements to run in order to make the
+         * live database have the same views as the dev one. 
          */
-        public ArrayList<String> updateViews ( ArrayList<Views> views1) {
+        public ArrayList<String> updateViews ( ArrayList<Views> liveViews) {
 
                 ArrayList<String> sql = new ArrayList<>();
                 // drop all views
-                for ( Views view1: views1 ) {
+                for ( Views liveView: liveViews ) {
 
-                        sql.add( view1.getDrop() );
+                        sql.add( liveView.getDrop() );
                 }
                 // add all views
-                for ( Views view1: this.views ) {
+                for ( Views devView: this.views ) {
 
-                        sql.add( view1.getCreateStatement());
+                        sql.add( devView.getCreateStatement());
                 }
 
                 return sql;
         }
 
         /**
-         * compareTables determines which table(s) is/are only in tables1 and
-         * decides which SQL to use based on type
+         * compareTables determines which table(s) is/are to be created or dropped.
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @param tables2 is a HashMap of Strings which are table names and Table
-         * objects which represent all tables in the live db containing table names
-         * @return sql which is an ArrayList of Strings which represents the SQL
-         * statements to be run to make all the tables in the db's the same
+         * @param liveTables is a HashMap of String and Table object pairs which represent all tables in the 
+         * live database.
+         * @return sql is an ArrayList of Strings which is the SQL statements to run in order to
+         * remove and/or create tables in the live database.
          */
-        public ArrayList<String> compareTables( HashMap<String, Table> tables2 ) {
+        public ArrayList<String> compareTables( HashMap<String, Table> liveTables ) {
 
                 ArrayList<String> sql = new ArrayList<>();
                 // get the create statement
                 for ( String tName : this.tables.keySet()) {
-                        if ( !tables2.containsKey( tName )) {
+                        if ( !liveTables.containsKey( tName )) {
 
                                 sql.add( this.tables.get( tName ).getCreateStatement());
                                 this.exclude.put( tName, tName );
                         }
                 }
                 // drop the table
-                for ( String tName : tables2.keySet() ) {
+                for ( String tName : liveTables.keySet() ) {
                         if ( !this.tables.containsKey( tName ) ) {
 
                                 sql.add( "DROP TABLE `" + tName + "`;" );
@@ -139,17 +130,15 @@ public class Database {
         }
 
         /**
-         * updateTables takes in two table lists and updates the SQL statements to
-         * make them the same
+         * updateTables takes in two table lists which are HashMaps, and returns the SQL statements to run in order
+         * to make the live database have the same table definitions as the dev one.
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @param live is a HashMap of Strings which are the names of the tables and
-         * Table objects that represents each table in the live db
-         * @param update_tables is a HashMap of Strings which represents all the
-         * table differences between the db's where the key and the value are the same
-         * @return sql is an ArrayList of Strings which represents the SQL statements
-         * to be run to make make the tables the same
+         * @param live is a HashMap of String and Table object pairs which are the names of the tables and
+         * table data for each table in the live database.
+         * @param update_tables is a HashMap of String and String pairs where the key and the value are the same,
+         * which is all the tables which are not the same in the live and dev databases. 
+         * @return sql is an ArrayList of Strings which is the SQL statements to run in order to make 
+         * the live database have the same table definitions as the dev one.
          */
         public ArrayList<String> updateTables( HashMap<String, Table> live, HashMap<String, String> update_tables ) {
 
@@ -166,17 +155,14 @@ public class Database {
         }
 
         /**
-         * tablesDiffs updates the list of tables which are not the same in dev
-         * and live
+         * tablesDiffs compares the two HashMaps which represent the tables in the live and dev databases, and 
+         * returns a HashMap of table names whose structure did not match between the dev and live databases.
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @param tables is a HashMap of Strings which are the table names and
-         * Table objects which are in the live db
-         * @return update_tables is an HashMap which represents the tables that
-         * are to be updated
+         * @param liveTables is a HashMap of String and Table object pairs which are the table names and table data for all tables in the live database.
+         * @return update_tables is an HashMap which is the tables that are to be updated because their
+         * structures did not match between the dev and live databases.
          */
-        public HashMap<String, String> tablesDiffs( HashMap<String, Table> tables ) {
+        public HashMap<String, String> tablesDiffs( HashMap<String, Table> liveTables ) {
 
                 HashMap<String, String> dev_structure = new HashMap<>(), live_structure = new HashMap<>(), update_tables = new HashMap<>();
                 // get dev db's table structure
@@ -189,10 +175,10 @@ public class Database {
                         }
                 }
                 // get live db's table structures
-                for ( String tName: tables.keySet()) {
+                for ( String tName: liveTables.keySet()) {
                         if ( !this.exclude.containsKey( tName )) {
 
-                                struct = tables.get( tName ).getCreateStatement() + ";";
+                                struct = liveTables.get( tName ).getCreateStatement() + ";";
                                 live_structure.put( struct, struct );
                         }
                 }
@@ -213,10 +199,8 @@ public class Database {
 
         /**
          * checkFirstSteps checks to see if any of the SQL statements in the fistSteps
-         * ArrayList in the exclusion list. If it is, it is removed.
+         * ArrayList are also in the exclusion list. If it is, it is removed.
          * @author Peter Kaufman
-         * @type function
-         * @access private
          */
         private void checkFirstSteps() {
                 for ( String table: exclude.keySet()) {

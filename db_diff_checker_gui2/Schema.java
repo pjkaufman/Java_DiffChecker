@@ -1,9 +1,7 @@
 /**
- * Schema holds common methods and instance variables for Schema subclasses
+ * Schema holds common methods and instance variables for Schema subclasses.
  * @author Peter Kaufman
- * @class Schema
- * @access public
- * @version 5-17-18
+ * @version 5-24-18
  * @since 5-17-18
  */
 package db_diff_checker_gui2;
@@ -11,16 +9,15 @@ public class Schema {
         // Defuat instance variables
         protected String name = "", createStatement = "";
 
-        public Schema () {
-
-        }
+        /**
+         * This is the default constructor Schema, it initializes the object. 
+         */
+        public Schema () { }
 
         /**
-         * getName returns the name of the Schema object
+         * getName returns the name of the Schema object.
          * @author Peter Kaufman
-         * @type getter
-         * @access protected
-         * @return name is a String which represents the name of the Schema object
+         * @return name is a String which is the name of the Schema object.
          */
         protected String getName() {
 
@@ -28,12 +25,9 @@ public class Schema {
         }
 
         /**
-         * getCreateStatement returns the create statement of the Schema object
+         * getCreateStatement returns the create statement of the Schema object.
          * @author Peter Kaufman
-         * @type getter
-         * @access protected
-         * @return create is a String which represents the create statement of the
-         * of the Schema object
+         * @return create is a String which is the create statement of the of the Schema object.
          */
         protected String getCreateStatement() {
 

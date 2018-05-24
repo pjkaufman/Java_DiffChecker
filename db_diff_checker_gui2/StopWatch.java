@@ -1,12 +1,11 @@
 /**
- * StopWatch models a stopwatch and can determine how much time has elapsed since
- * the last start and end method calls
- * @author Jonas_Hess and Peter Kaufman
- * @class StopWatch
- * @access public
- * @version 5-13-18
+ * StopWatch models a stopwatch and can determine how much time has elapsed since the last start and 
+ * end method calls.
+ * @author Jonas_Hess, Peter Kaufman, and Arthur
+ * @version 5-24-18
  * @since 10-26-17
  * @see <a href="https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java">https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java</a>
+ * @see<a href="https://stackoverflow.com/questions/833768/java-code-for-getting-current-time">https://stackoverflow.com/questions/833768/java-code-for-getting-current-time</a>
  */
 package db_diff_checker_gui2;
 import java.time.Duration;
@@ -14,40 +13,36 @@ import java.time.Instant;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 public class StopWatch {
-
+        // Instance Variables
         private Instant startTime, endTime;
         private Duration duration;
         private boolean isRunning = false;
-        // code by Artur: https://stackoverflow.com/questions/833768/java-code-for-getting-current-time
         private Calendar cal;
         private SimpleDateFormat date = new SimpleDateFormat( "yyyy-MM-dd" );
         private SimpleDateFormat hour = new SimpleDateFormat( "HH:mm" );
 
         /**
-         * start checks to see if the program is running. If it is not running, then start time
-         * is set. Otherwise a RuntimeException error is thrown.
+         * start checks to see if the program is running. If it is not running, then start time is set. 
+         * Otherwise a RuntimeException error is thrown.
          * @author Jonas_Hess
-         * @type function
-         * @access public
+         * @throws RuntimeException the stopwatch was running when this function was called.
          */
-        public void start() {
+        public void start() throws RuntimeException {
                 if (isRunning) {
-                        throw new RuntimeException("Stopwatch is already running.");
+                        throw new RuntimeException( "Stopwatch is already running." );
                 }
                 this.isRunning = true;
                 startTime = Instant.now();
         }
 
         /**
-         * stop checks to see if the program is running. If it is running, then stop time
-         * is set, and the duration that the program has run is set and returned.
-         * Otherwise a RuntimeException error is thrown.
+         * stop checks to see if the program is running. If it is running, then stop time is set, 
+         * and the duration that the program has run is set and returned. Otherwise a RuntimeException error is thrown.
          * @author Jonas_Hess
-         * @type function
-         * @access public
-         * @return the amount of time elapsed since the last start method was called
+         * @return the amount of time elapsed since the last start method was called.
+         * @throws RuntimeException the stopwatch has not been started.
          */
-        public Duration stop() {
+        public Duration stop() throws RuntimeException {
                 this.endTime = Instant.now();
                 if (!isRunning) {
                         throw new RuntimeException("Stopwatch has not been started yet");
@@ -64,23 +59,18 @@ public class StopWatch {
         }
 
         /**
-         * getElapsedTime returns the duration between the last time the start and
-         * stop methods were run
+         * getElapsedTime returns the duration between the last time the start and stop methods were run.
          * @author Jonas_Hess
-         * @type getter
-         * @access public
-         * @return duration the duration between the last time the start and stop
-         * methods were run
+         * @return duration the duration between the last time the start and stop methods were run.
          */
         public Duration getElapsedTime() {
+
                 return this.duration;
         }
 
         /**
-         * reset stops the program if it is running and sets the duration to null
+         * reset stops the program if it is running and sets the duration to null.
          * @author Jonas_Hess
-         * @type function
-         * @access public
          */
         public void reset() {
                 if (this.isRunning) {
@@ -90,11 +80,9 @@ public class StopWatch {
         }
 
         /**
-         * getDate gets the date when the method is called
+         * getDate gets the date when the method is called.
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @return is a String which represents the date this function is called
+         * @return is a String which is the date this function is called.
          */
         public String getDate() {
 
@@ -104,11 +92,9 @@ public class StopWatch {
         }
 
         /**
-         * getHour gets the hour when the method is called
+         * getHour gets the hour when the method is called.
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @return is a String which represents the hour this function is called
+         * @return is a String which represents the hour this function is called.
          */
         public String getHour() {
 

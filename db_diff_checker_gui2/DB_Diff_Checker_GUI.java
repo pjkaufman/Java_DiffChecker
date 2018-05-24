@@ -1,10 +1,7 @@
 /**
- * DB_Diff_Checker_GUI is a JFrame that takes user input to decide which JFrame
- * to open
+ * DB_Diff_Checker_GUI is a JFrame that takes user input to decide which JFrame to open
  * @author Peter Kaufman
- * @class DB_Diff_Checker_GUI
- * @access public
- * @version 5-15-18
+ * @version 5-24-18
  * @since 9-20-17
  */
 package db_diff_checker_gui2;
@@ -29,10 +26,9 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
         private JPanel jPanel1 = new JPanel(), jPanel2 = new JPanel();
 
         /**
-         * Creates new form DB_Diff_Checker_GUI
+         * DB_Diff_Checker_GUI initializes a JFrame which will be used by the user to navigate through 
+         * the application.
          * @author Peter Kaufman
-         * @type constructor
-         * @access public
          */
         public DB_Diff_Checker_GUI() {
 
@@ -42,10 +38,7 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
         }
 
         /**
-         * InitComonents sets up the GUI Layout, sets up all action events,
-         * and initializes instance variables
-         * @author Peter Kaufman
-         * @type function
+         * InitComonents sets up the GUI Layout, sets up all action events, and initializes instance variables.
          * @access private
          */
         private void initComponents() {
@@ -92,11 +85,9 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
         }
 
         /**
-         * jContinueMouseClicked determines which JFrame to open based on user input
+         * jContinueMouseClicked determines which JFrame to open based on user input.
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @param evt is a MouseEvent which represents continue being clicked
+         * @param evt is a MouseEvent which is the continue button being clicked.
          */
         private void jContinueMouseClicked(MouseEvent evt) {
                 if ( input.getText().trim().equals( "1" )) {
@@ -146,13 +137,9 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
         }
 
         /**
-         * displayLog opens a JFrame with the result depending on what file name
-         * is passed to it
+         * displayLog opens a JFrame with log information depending on what file name is passed to it.
          * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param file is a String which represents the file to have its contents
-         * displayed
+         * @param file is a String which is the file to have its contents displayed.
          */
         private void displayLog( String file ) {
                 try{
@@ -178,6 +165,11 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
                 }
         }
 
+        /**
+         * main is the main method which sets up and prepares the GUI for the user and initializes the first JFrame. 
+         * @author Peter Kaufman
+         * @param args is an array Strings which is not used.
+         */
         public static void main(String args[]) {
                 try {
                         for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {

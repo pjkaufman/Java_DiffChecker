@@ -1,15 +1,13 @@
 /**
- * FileConversion can convert a Database object into a JSON file and vice versa
- * @author mkyong
- * @class FileConversion
- * @access public
- * @version 5-15-18
+ * FileConversion can convert a Database object into a JSON file and vice versa.
+ * @author mkyong and Peter Kaufman
+ * @version 5-24-18
  * @since 9-12-17
  * @see <a href="https://www.mkyong.com/java/jackson-2-convert-java-object-to-from-json/">https://www.mkyong.com/java/jackson-2-convert-java-object-to-from-json/</a>
  */
 package db_diff_checker_gui2;
 import java.io.File;
-import java.io.IOException;;
+import java.io.IOException;
 import com.fasterxml.jackson.databind.*;
 import java.io.PrintWriter;
 import java.io.FileWriter;
@@ -18,13 +16,10 @@ import java.util.ArrayList;
 public class FileConversion {
 
         /**
-         * writeTo writes to a Database object to a JSON file
+         * writeTo writes a Database object to a JSON file.
          * @author mkyong
-         * @type function
-         * @access public
-         * @param obj is a Database object which is to be converted to a JSON file
-         * @throws IOException which represents an error in converting the Database
-         * object to JSON file
+         * @param obj is a Database object which is to be converted to a JSON file.
+         * @throws IOException an error occurred while converting the Database object to a JSON file.
          */
         public static void writeTo( Database obj ) throws IOException {
 
@@ -34,31 +29,26 @@ public class FileConversion {
         }
 
         /**
-         * readFrom converts a JSON file to a Database object
+         * readFrom converts a JSON file into a Database object.
          * @author mkyong
-         * @type function
-         * @access public
-         * @throws IOException which represents an error in converting the JSON file
-         * to a Database object
-         * @return obj which is a Database object
+         * @return database which is the Database object read in from the JSON file.
+         * @throws IOException an error in converting the JSON file into a Database object.
          */
         public static Database readFrom() throws IOException {
 
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.configure( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false );
                 //JSON from file to Object
-                Database obj = mapper.readValue( new File( "logs\\dbsnapshot.json" ), Database.class );
+                Database database = mapper.readValue( new File( "logs\\dbsnapshot.json" ), Database.class );
 
-                return obj;
+                return database;
         }
 
         /**
-         * fileExists takes a file path and determines whether it exists or not
+         * fileExists takes a file path and determines whether the file exists or not.
          * @author Chris Dail
-         * @type function
-         * @access public
-         * @param file is a String which represents the file path
-         * @return true or false depending on whether the file exists or not
+         * @param file is a String which is the file path.
+         * @return is ethor true or false depending on whether the file exists or not.
          * @see <a href="https://stackoverflow.com/questions/1816673/how-do-i-check-if-a-file-exists-in-java">https://stackoverflow.com/questions/1816673/how-do-i-check-if-a-file-exists-in-java</a>
          */
         public static boolean fileExists( String file ) {
@@ -67,12 +57,10 @@ public class FileConversion {
         }
 
         /**
-         * writeTo takes an ArrayList of Strings and writes them to LastRun.txt
+         * writeTo takes an ArrayList of Strings and writes them to LastRun.txt.
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @param SQL is an ArrayList of SQL statement(s)
-         * @throws IOException represents an error while writing SQL statements to a file
+         * @param SQL is an ArrayList of SQL statement(s).
+         * @throws IOException an error occurred while writing the SQL statements to a LastRun.txt.
          */
         public static void writeTo( ArrayList<String> SQL ) throws IOException {
 
@@ -85,13 +73,11 @@ public class FileConversion {
         }
 
         /**
-         * writeTo takes a String and writes it to either Error.txt or Log.txt
+         * writeTo takes a String and writes it to the specified file.
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @param data is a String which is to be written to either Error.txt or Log.txt
-         * @param file is a String which represents the name of the file to be written to
-         * @throws IOException represents an error while writing SQL statements to a file
+         * @param data is a String which is to be written to the specified file.
+         * @param file is a String which is the name of the file to be written to.
+         * @throws IOException an error occurred while writing the SQL statements to the file.
          */
         public static void writeTo( String data, String file ) throws IOException {
 
@@ -101,13 +87,11 @@ public class FileConversion {
         }
 
         /**
-         * readFrom returns an ArrayList of Strings which were read from a file
+         * readFrom returns an ArrayList of Strings which were read from the specified file.
          * @author Peter Kaufman
-         * @type function
-         * @access public
          * @param file is a String which represents the name of the file to be written to
-         * @return SQL is an ArrayList of SQL statement(s)
-         * @throws IOException represents an error while taking in SQL statements from a file
+         * @return data is an ArrayList of data that was stored in the file that was read from.
+         * @throws IOException an error occurred while reading in the data from the specified file.
          */
         public static ArrayList<String> readFrom( String file ) throws IOException {
 

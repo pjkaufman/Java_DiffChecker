@@ -2,9 +2,7 @@
  * DBCompare1 is a JFrame that takes user input to make a comparison between 1
  * database and a database snapshot or to take a database snapshot
  * @author Peter Kaufman
- * @class DBCompare1
- * @access public
- * @version 5-15-18
+ * @version 5-24-18
  * @since 9-20-17
  */
 package db_diff_checker_gui2;
@@ -34,13 +32,10 @@ public class DBCompare1 extends JFrameV2 {
         private JPasswordField password = new JPasswordField( 10 );
 
         /**
-         * Creates new form DBCompare1
+         * DBCompare1 initializes a DBCompare1 object with a title and text for the its button.
          * @author Peter Kaufman
-         * @type constructor
-         * @access public
-         * @param title is a String which represents the title of this JFrame
-         * @param buttonTxt is a String which represents the text to be displayed
-         * on the DB1btn
+         * @param title is a String which is the title of this JFrame.
+         * @param buttonTxt is a String which is the text to be displayed on the button DB1btn.
          */
         public DBCompare1( String title, String buttonTxt ) {
                 // use parameters to set JFrame properties
@@ -51,11 +46,8 @@ public class DBCompare1 extends JFrameV2 {
         }
 
         /**
-         * InitComonents sets up the GUI Layout, sets up all action events,
-         * and initializes instance variables
-         * @author Peter Kaufman
-         * @type function
-         * @access private
+         * InitComonents sets up the GUI Layout, sets up all action events, and initializes instance variables.
+         * @author Peter Kaufmante
          */
         private void initComponents() {
                 // add components to the appropriate ArrayList
@@ -122,13 +114,10 @@ public class DBCompare1 extends JFrameV2 {
         }
 
         /**
-         * DB1btnActionPerformed determines if the user has put in the appropriate
-         * Information and either takes a db snapshot or compares a database to a database
-         * snapshot
+         * DB1btnActionPerformed determines if the user has put in the appropriate information and either 
+         * takes a database snapshot or compares a database to a database snapshot.
          * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param evt is an ActionEvent which represents clicking DB1btn
+         * @param evt is an ActionEvent which is clicking the button DB1btn.
          */
         private void DB1btnActionPerformed(ActionEvent evt) {
                 try {
@@ -139,7 +128,7 @@ public class DBCompare1 extends JFrameV2 {
                                 this.error = false;
                                 if ( this.getTitle().equals( "Compare Database to Snapshot" )) {
 
-                                        compare2();
+                                        compare();
                                 } else {
 
                                         takeSnapshot();
@@ -155,12 +144,10 @@ public class DBCompare1 extends JFrameV2 {
         }
 
         /**
-         * takeSnapshot takes a database snapshot based on user input
+         * takeSnapshot takes a database snapshot based on user input.
          * @author Peter Kaufman
-         * @type function
-         * @access private
          */
-        public void takeSnapshot() {
+        private void takeSnapshot() {
 
                 prepProgressBar( "Establishing Database Connection", true );
                 SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {
@@ -222,14 +209,11 @@ public class DBCompare1 extends JFrameV2 {
         }
 
         /**
-         * compare2 compares the database specified by the user to a database snapshot
+         * compare compares the database specified by the user to a database snapshot.
          * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @throws IOException which occurs when there is an error with the database
-         * snapshot file
+         * @throws IOException an error occurred while accessing the database snapshot file
          */
-        private void compare2() throws IOException {
+        private void compare() throws IOException {
 
                 prepProgressBar( "Reading in The DB Snapshot", true );
                 SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {

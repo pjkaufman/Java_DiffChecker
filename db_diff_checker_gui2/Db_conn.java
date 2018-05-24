@@ -2,9 +2,7 @@
  * Db_conn establishes a connection with a MySQL database based on the password,
  * username, port, host, and database provided.
  * @author Peter Kaufman
- * @class Db_conn
- * @access public
- * @version 5-22-18
+ * @version 5-24-18
  * @since 9-6-17
  */
 package db_diff_checker_gui2;
@@ -19,18 +17,16 @@ public class Db_conn {
         private ArrayList<String> firstSteps = new ArrayList<>();
 
         /**
-         * Db_conn initializes objects of type db_conn
+         * Db_conn initializes a DB_conn object by setting the instance variables and testing the database connection
+         * to make sure that the database can be reached. 
          * @author Peter Kaufman
-         * @type constructor
-         * @access public
-         * @param username is the username of the MySQL account
-         * @param password is the password of the MySQL account
-         * @param host is the host of the MySQL account
-         * @param port is the port MySQL is using
-         * @param database is the db in MySQL that the connection is to be established with
-         * @param type is a String which is to be either dev or live
-         * @throws SQLException which represents an error that occured in making a db
-         * connection
+         * @param username is a String which isthe username of the MySQL account.
+         * @param password is a String which is the password of the MySQL account.
+         * @param host is a String which is the host of the MySQL account.
+         * @param port is a String which is the port MySQL is running on.
+         * @param database is a String which is the database in MySQL that the connection is to be established with.
+         * @param type is a String which is to either dev or live.
+         * @throws SQLException the database could not be connected to using the provided information.
          */
         public Db_conn ( String username, String password, String host, String port, String database, String type ) throws SQLException {
 
@@ -45,11 +41,9 @@ public class Db_conn {
         }
 
         /**
-         * getDB returns the name of the db
+         * getDB returns the name of the database that this Db_conn object is to connect to.
          * @author Peter Kaufman
-         * @type getter
-         * @access public
-         * @return db is a String which is the name of the db
+         * @return db is a String which is the name of the database that this Db_conn object is to connect to.
          */
         public String getDB() {
 
@@ -57,12 +51,12 @@ public class Db_conn {
         }
 
         /**
-         * getFirstSteps returns the first steps to be taken in order to run the SQL statements
+         * getFirstSteps returns the first steps to be taken in order to run the SQL statements. These SQL 
+         * statements are used to drop Primary Keys and remove auto_increments on the database provided. <b>Note: this funntion
+         * will return an empty ArrayList if the function is called on the dev database.</b>
          * @author Peter Kaufman
-         * @type getter
-         * @access public
-         * @return firstSteps is an ArrayList of Strings which represents the
-         * first steps to be taken in order to run the SQL statements
+         * @return firstSteps is an ArrayList of Strings which is the first steps to be taken 
+         * in order to run the SQL statements
          */
         public ArrayList<String> getFirstSteps () {
 
@@ -70,13 +64,11 @@ public class Db_conn {
         }
 
         /**
-         * make_conn makes a connection with the desired db
+         * makeConn makes a connection with the database using the information from this object's constructor.
          * @author Juan Nadal
-         * @type function
-         * @access public
          * @see <a href="https://www.youtube.com/watch?v=e3gnhsGqNmI&t=158s">https://www.youtube.com/watch?v=e3gnhsGqNmI&t=158s</a>
          */
-        public void make_conn() {
+        public void makeConn() {
                 try {
 
                         this.con = DriverManager.getConnection( this.conn_string, this.username, this.password );
@@ -87,12 +79,10 @@ public class Db_conn {
         }
 
         /**
-         * kill_conn kills the db connection
+         * killConn closes the connection with the database.
          * @author Peter Kaufman
-         * @type function
-         * @access public
          */
-        public void kill_conn() {
+        public void killConn() {
                 try {
 
                         this.con.close();
@@ -103,14 +93,11 @@ public class Db_conn {
         }
 
         /**
-         * getTableCreateStatement gets and returns the create statement of the desired
-         * table
+         * getTableCreateStatement gets and returns the create statement of the specified table.
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @param table is a String which is the name of the table for which the
-         * create statement should be retrieved
-         * @return a String which is the table"s create statement
+         * @param table is a String which is the name of the table for which the create statement should be 
+         * retrieved.
+         * @return a String which is the table's create statement or an empty string if an error occurred.
          */
         public String getTableCreateStatement( String table ) {
                 try {
@@ -129,14 +116,11 @@ public class Db_conn {
         }
 
         /**
-         * getViewCreateStatement gets and returns the create statement of the desired
-         * table
+         * getViewCreateStatement gets and returns the create statement of the desired table.
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @param view is a String which is the name of the view for which the
-         * create statement should be retrieved
-         * @return a String which is the view"s create statement
+         * @param view is a String which is the name of the view for which the create statement should be 
+         * retrieved.
+         * @return a String which is the view's create statement or an empty string if an error occurred.
          */
         public String getViewCreateStatement( String view ) {
                 try {
@@ -155,15 +139,14 @@ public class Db_conn {
         }
 
         /**
-         * getTableList gets the tables, columns, and indices of the db
+         * getTableList gets the tables, columns, and indices of the database.
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @return tables is a HashMap of Strings which are the names of the tables
-         * and Tables which contain data about the table
+         * @return is a HashMap of String and Table object pairs which are the names of the tables
+         * and table data that exist in the database.
          */
         public HashMap<String, Table> getTableList() {
-                HashMap<String, Table> tables2 = new HashMap<>();
+
+                HashMap<String, Table> tablesList = new HashMap<>();
                 String sql = "SHOW FULL TABLES IN `" + this.db +"` WHERE TABLE_TYPE LIKE 'BASE TABLE';";
                 try {
                         String table = "", info = "", primary = "", create = "";
@@ -203,7 +186,7 @@ public class Db_conn {
                                                 }
                                         }
                                 }
-                                add = new Table( table, this, create );
+                                add = new Table( table, create );
                                 // query for and get the columns for the table
                                 columns = query2.executeQuery( "SHOW COLUMNS FROM `" + table + "`" );
                                 // for each column fill out the column information
@@ -217,63 +200,59 @@ public class Db_conn {
 
                                         firstSteps.add( firstStep + ";" );
                                 }
-                                tables2.put( table, add );
+                                tablesList.put( table, add );
                         }
 
-                        return tables2;
+                        return tablesList;
                 } catch( SQLException e ) {
                         e.printStackTrace();
                         error( "There was an error getting the " + this.db + " database's table, column, and index details." );
                 }
 
-                return null;
+                return tablesList;
         }
 
         /**
-         * getViews gets the views of the db
+         * getViews gets a list of views of that exist in the database.
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @return tables is an ArrayList of Views which contain the view"s properties
+         * @return views is an ArrayList of Views which are all of the views in the database.
          */
         public ArrayList<Views> getViews() {
 
-                ArrayList<Views> views1 = new ArrayList<>();
+                ArrayList<Views> views = new ArrayList<>();
                 try {
-                        // sql is from https://geeksww.com/tutorials/database_management_systems/mysql/tips_and_tricks/mysql_query_to_find_all_views_in_a_database.php
                         String sql = "SHOW FULL TABLES IN `" + this.db + "` WHERE TABLE_TYPE LIKE 'VIEW';";
                         Statement query = this.con.createStatement();
                         ResultSet set = query.executeQuery( sql );
                         while (set.next()) {
 
-                                views1.add( new Views( set.getString( "Tables_in_" + this.db ),
+                                views.add( new Views( set.getString( "Tables_in_" + this.db ),
                                                        getViewCreateStatement( set.getString( "Tables_in_" + this.db ))));
                         }
 
-                        return views1;
+                        return views;
                 } catch ( SQLException e ) {
                         e.printStackTrace();
                         error( "There was an error getting the " + this.db + " database's view details." );
                 }
 
-                return views1;
+                return views;
         }
 
         /**
-         * runSQL takes an SQL statement and runs it
+         * runSQL takes an SQL statement, runs it, and returns a boolean value which is whether or not an 
+         * error occurred while running the statement.
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @param sql is a String which represents an SQL statement
-         * @return either true or false depending on whether the SQL runs correctly
+         * @param sql is a String which is an SQL statement
+         * @return is either true or false depending on whether the SQL runs without error or not.
          */
         public boolean runSQL ( String sql ) {
                 try{
 
-                        this.make_conn();
+                        this.makeConn();
                         Statement query = this.con.createStatement();
                         query.executeUpdate( sql );
-                        this.kill_conn();
+                        this.killConn();
 
                         return true;
                 }catch( SQLException e ) {
@@ -286,11 +265,9 @@ public class Db_conn {
         }
 
         /**
-         * error opens a JFrame with an error message
+         * error opens a JFrame with an error message.
          * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param error is a String which represents the error message to display
+         * @param error is a String which is the error message to display in the JFrame.
          */
         private void error( String error ) {
 
@@ -302,10 +279,7 @@ public class Db_conn {
         /**
          * testConn determines if the connection to the db is correct or not
          * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @throws SQLException which represents an error that occurred in making a db
-         * connection
+         * @throws SQLException an error occurred while attempting to connect to the database.
          */
         private void testConn() throws SQLException {
 
@@ -314,13 +288,11 @@ public class Db_conn {
         }
 
         /**
-         * fillOutColumns creates a column, gets the column"s info, and adds it to the provided table object
+         * fillOutColumns creates a column, gets the column's info, and adds it to the provided Table object.
          * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param table is a table object which is where the new column will be added
-         * @param column is a ResultSet object which contains the data to make a column
-         * @throws SQLException which represents an error accessing a column property
+         * @param table is a Table object which is where the new column will be added.
+         * @param column is a ResultSet object which contains the data to make a column.
+         * @throws SQLException an error occurred while accessing a column property.
          */
         private void fillOutColumns( Table table, ResultSet column ) throws SQLException {
                 // get data from queried array
@@ -328,8 +300,7 @@ public class Db_conn {
                        extra = column.getString( "Extra" ), def = column.getString( "Default" ),
                        nullable = column.getString( "Null" ), info = type;
                 // set up desired variables
-                // if the type is a string of some sort then make the default a
-                // string by adding single quotes
+                // if the type is a string of some sort then make the default a string by adding single quotes
                 if ( def == null ) {
                         def = "NULL";
                 } else if ( type.contains( "char" )) {
@@ -363,14 +334,12 @@ public class Db_conn {
         }
 
         /**
-         * createIndexes takes in a ResultSet and a table object and adds all
-         * indexes found in the ResultSet to the table object
+         * createIndexes takes in a ResultSet and a table object and adds all indexes found in the ResultSet 
+         * to the table object.
          * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param table is a table object which is where the new indexes will be added
-         * @param index is a ResultSet object which contains the data to make a indexes for a specific table
-         * @throws SQLException which represents an error accessing an index property
+         * @param table is a table object which is where the new indexes will be added.
+         * @param index is a ResultSet object which contains the data to make a indexes for a specific table.
+         * @throws SQLException an error occurred while accessing an index property.
          */
         private void createIndexes( Table table, ResultSet index ) throws SQLException {
                 // set up a hashmap for fast index name checking
@@ -440,15 +409,13 @@ public class Db_conn {
         }
 
         /**
-         * getCreateIndex takes in three Strings and an integer which are used to
-         * determine the type of index and and create the index's create statement
+         * getCreateIndex takes in three Strings and an integer which are used to determine the type of index 
+         * and create the index's create statement.
          * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param columns is a String which represents the columns that the index is on
-         * @param name is a String which represents the name of the index
-         * @param type is a String which represents the type of indexing used on the index
-         * @param unique is an integer which represents whether or not an index has unique values or not
+         * @param columns is a String which is the columns that the index is on.
+         * @param name is a String which is the name of the index.
+         * @param type is a String which is the type of indexing used on the index.
+         * @param unique is an integer which is whether or not an index has unique values or not.
          */
         private String getCreateIndex( String columns, String name, String type, int unique ) {
 

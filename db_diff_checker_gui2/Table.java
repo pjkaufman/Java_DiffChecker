@@ -1,9 +1,7 @@
 /**
- * Table resembles a table in MySQL and contains info about the table's columns
+ * Table resembles a table in MySQL and contains info about the table's columns.
  * @author Peter Kaufman
- * @class Table
- * @access public
- * @version 5-17-18
+ * @version 5-24-18
  * @since 9-10-17
  */
 package db_diff_checker_gui2;
@@ -17,33 +15,28 @@ public class Table extends Schema {
         private HashMap<String, Index> indices = new HashMap<>();
 
         /**
-         * Table initializes a table object
+         * Table initializes a Table object with a name create statement.
          * @author Peter Kaufman
-         * @type constructor
-         * @access public
-         * @param table is a String that is the name of the table
-         * @param db is a Db_conn object that allows the table to get the necessary
-         * @param create is a String which represents the create statement of the table
-         * info to create its columns
+         * @param name is a String that is the name of the table.
+         * @param create is a String which is the create statement of the table info to create its columns.
          */
-        public Table( String table, Db_conn db, String create ) {
+        public Table( String name, String create ) {
 
                 String temp = create.substring( create.indexOf( "DEFAULT CHARSET=" ) + 16 ) + " ";
-                this.name = table;
+                this.name = name;
                 this.createStatement = create + ";";
                 this.charSet = temp.substring( 0, temp.indexOf( " " ));
         }
 
-        public Table() {
-                // defualt constructor - needed for file conversion
-        }
+        /**
+         * This is the default constructor for this class, which is needed for the file conversion to JSON. 
+         */
+        public Table() { }
 
         /**
-         * getCollation returns the collation of the table
+         * getCollation returns the collation of the table.
          * @author Peter Kaufman
-         * @type getter
-         * @access public
-         * @return collation is the collation of the table
+         * @return collation is the collation of the table.
          */
         public String getCollation() {
 
@@ -51,11 +44,9 @@ public class Table extends Schema {
         }
 
         /**
-         * getCharSet returns the character set of the table
+         * getCharSet returns the character set of the table.
          * @author Peter Kaufman
-         * @type getter
-         * @access public
-         * @return charSet is the character set of the table
+         * @return charSet is the character set of the table.
          */
         public String getCharSet() {
 
@@ -63,11 +54,9 @@ public class Table extends Schema {
         }
 
         /**
-         * getAI returns the auto_increment count of the table
+         * getAI returns the auto_increment count of the table.
          * @author Peter Kaufman
-         * @type getter
-         * @access public
-         * @return auto_increment is the auto_increment count of the table
+         * @return auto_increment is the auto_increment count of the table.
          */
         public String getAI() {
 
@@ -75,12 +64,9 @@ public class Table extends Schema {
         }
 
         /**
-         * getColumns returns a HashMap of Strings and  column objects
+         * getColumns returns a HashMap of Strings and Column objects.
          * @author Peter Kaufman
-         * @type getter
-         * @access public
-         * @return columns is a HashMap of Strings which are the colum names and
-         * column objects which represent the table's columns
+         * @return columns is a HashMap of String and Column object pairs which are the table's columns.
          */
         public HashMap<String, Column> getColumns() {
 
@@ -88,12 +74,9 @@ public class Table extends Schema {
         }
 
         /**
-         * getIndices returns a HashMap of Strings and Index objects
+         * getIndices returns a HashMap of Strings and Index objects.
          * @author Peter Kaufman
-         * @type getter
-         * @access public
-         * @return indices is a HashMap of Strings which represent the index names
-         * and Index objects which represent the table's indices
+         * @return indices is a HashMap of String and Index object pairs which are the index names and index data.
          */
         public HashMap<String, Index> getIndices() {
 
@@ -101,11 +84,9 @@ public class Table extends Schema {
         }
 
         /**
-         * setCollation sets the collation of the table
+         * setCollation sets the collation of the table.
          * @author Peter Kaufman
-         * @type setter
-         * @access public
-         * @param collation is a String which represents the collation of the table
+         * @param collation is a String which is the collation of the table.
          */
         public void setCollation( String collation ) {
 
@@ -113,11 +94,9 @@ public class Table extends Schema {
         }
 
         /**
-         * setCharSet sets the character set of the table
+         * setCharSet sets the character set of the table.
          * @author Peter Kaufman
-         * @type setter
-         * @access public
-         * @param charSet is a String which represents the character set of the table
+         * @param charSet is a String which is the character set of the table.
          */
         public void setCharSet( String charSet ) {
 
@@ -125,11 +104,9 @@ public class Table extends Schema {
         }
 
         /**
-         * setAutoIncrement sets the autoIncrement count of the table
+         * setAutoIncrement sets the autoIncrement count of the table.
          * @author Peter Kaufman
-         * @type setter
-         * @access public
-         * @param autoIncrement is a String which represents the autoIncrement count of the table
+         * @param autoIncrement is a String which is the autoIncrement count of the table.
          */
         public void setAutoIncrement( String autoIncrement ) {
 
@@ -137,11 +114,9 @@ public class Table extends Schema {
         }
 
         /**
-         * addColumn adds a column to the columns ArrayList
+         * addColumn adds a column to the columns HashMap.
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @param col is a Column object which is to be added to the column list
+         * @param col is a Column object which is to be added to the column list.
          */
         public void addColumn( Column col ) {
 
@@ -149,11 +124,9 @@ public class Table extends Schema {
         }
 
         /**
-         * addIndex adds an index to the indices ArrayList
+         * addIndex adds an index to the indices HashMap.
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @param index is an Index object which is to be added to the index list
+         * @param index is an Index object which is to be added to the index list.
          */
         public void addIndex( Index index ) {
 
@@ -161,14 +134,11 @@ public class Table extends Schema {
         }
 
         /**
-         * equals takes in a Table and compares it to the current one, the result is
-         * SQL to make them the same
-         * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @param t1 is a Table object
-         * @return sql is an ArrayList of String which represent the SQL needed to
-         * make the tables the same
+         * equals takes in a Table and compares it to the current one, the result is SQL statements 
+         * to make them the same.
+         * @author Peter Kaufman 
+         * @param t1 is a Table object which is being compared to this Table object.
+         * @return sql is an ArrayList of String which is the SQL needed to make the tables the same.
          */
         public ArrayList<String> equals( Table t1 ) {
 
@@ -194,17 +164,14 @@ public class Table extends Schema {
         }
 
         /**
-         * dropCols takes two HashMaps of String and Column objects and returns part of a SQL statement that makes
-         * the columns the same-- checks for columns to drop
+         * dropCols takes two HashMaps of String and Column objects and returns part of an SQL statement 
+         * that drops a column or several columns. 
          * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param cols1 is a HashMap of Strings which represent the column names
-         * and Column objects which represent the columns of the current table
-         * @param cols2 is a HashMap of Strings which represent the column names
-         * and Column objects which represent the columns of a different table
-         * @return sql is an String which represent part of a SQL statement that makes
-         * the columns the same
+         * @param cols1 is a HashMap of Strings and Column object pairs which are the column names and column 
+         * data of the current table.
+         * @param cols2 is a HashMap of Strings and Column object pairs which are the column names and column data 
+         * of a different table of the same name.
+         * @return sql is a String which is part of an SQL statement that drops a column or several columns.  
          */
         private String dropCols( HashMap<String, Column> cols1, HashMap<String, Column> cols2 ) {
 
@@ -231,17 +198,14 @@ public class Table extends Schema {
         }
 
         /**
-         * otherCols takes two HashMaps of String and Column objects and returns part of a SQL statement that makes
-         * the columns the same-- checks for columns to add and modify
+         * otherCols takes two HashMaps of String and Column objects and returns part of an SQL statement that 
+         * modifies and/or adds columns.
          * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param cols1 is a HashMap of Strings which represent the column names
-         * and Column objects which represent the columns of the current table
-         * @param cols2 is a HashMap of Strings which represent the column names
-         * and Column objects which represent the columns of a different table
-         * @return sql is an String which represent part of a SQL statement that makes
-         * the columns the same
+         * @param cols1 is a HashMap of Strings and Column object pairs which are the column names and column 
+         * data of the current table.
+         * @param cols2 is a HashMap of Strings and Column object pairs which are the column names and column data 
+         * of a different table of the same name.
+         * @return sql is a String which is part of an SQL statement that modifies and/or adds columns.
          */
         private String otherCols( HashMap<String, Column> cols1, HashMap<String, Column> cols2 ) {
 
@@ -289,17 +253,13 @@ public class Table extends Schema {
         }
 
         /**
-         * dropIndices takes in two HashMaps of Indices and returns part of a SQL statement
-         * to make them the same-- checks for indices to drop
+         * dropIndices takes in two HashMaps of Indices and returns part of an SQL statement that drop indexes.
          * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param dev is a HashMap of Strings which are the name of the indices
-         * and Index objects which represent that are in the dev db
-         * @param live  is a HashMap of Strings which are the name of the indices
-         * and Index objects which represent that are in the live db
-         * @return sql is a String which represents part of a SQL statement
-         * to make them the same
+         * @param dev is a HashMap of Strings and Index object pairs which are the index names and index 
+         * data of the current table.
+         * @param live is a HashMap of Strings and Index object pairs which are the index names and index data 
+         * of a different table of the same name.
+         * @return sql is a String which is part of an SQL statement that drops indexes.
          */
         private String dropIndices( HashMap<String, Index> dev, HashMap<String, Index> live ) {
 
@@ -324,17 +284,14 @@ public class Table extends Schema {
         }
 
         /**
-         * otherIndices takes in two lists of Indices and returns part of a SQL statement
-         * to make them the same-- checks for indices to drop and add or just add
+         * otherIndices takes in two lists of Indices and returns part of an SQL statement that 
+         * either adds or drops and adds indexes.
          * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param dev is a HashMap of Strings which are the name of the indices
-         * and Index objects which represent that are in the dev db
-         * @param live  is a HashMap of Strings which are the name of the indices
-         * and Index objects which represent that are in the live db
-         * @return sql is a String which represents part of a SQL statement
-         * to make them the same
+         * @param dev is a HashMap of Strings and Index object pairs which are the index names and index 
+         * data of the current table.
+         * @param live is a HashMap of Strings and Index object pairs which are the index names and index data 
+         * of a different table of the same name.
+         * @return sql is a String which is part of an SQL statement that either adds or drops and adds indexes.
          */
         private String otherIndices( HashMap<String, Index> dev, HashMap<String, Index> live ) {
 

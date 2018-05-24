@@ -1,9 +1,6 @@
 /**
- * JFrameV2 is a JFrame that has all of the common methods that any JFrame
- * in this package needs
+ * JFrameV2 is a JFrame that has all of the common methods that any JFrame in this package uses.
  * @author Peter Kaufman
- * @class JFrameV2
- * @access public
  * @version 5-15-18
  * @since 5-14-18
  */
@@ -29,10 +26,8 @@ public class JFrameV2 extends JFrame {
                                stdSnap = "dbsnapshot.json";
 
         /**
-         * Sets up several JFrame settings and defualt listeners
+         * JFrameV2 sets up several JFrame settings and defualt listeners.
          * @author Peter Kaufman
-         * @type constructor
-         * @access public
          */
         public JFrameV2() {
                 // set JFrame properties
@@ -86,12 +81,10 @@ public class JFrameV2 extends JFrame {
         }
 
         /**
-         * error opens a JFrame with an error message
+         * error opens a JFrame with an the error message provided as a paramater.
          * @author Peter Kaufman
-         * @type function
-         * @access protected
-         * @param error is a String which represents the error message to display
-         * @param e is an Exception that caused the error
+         * @param error is a String which is the error message to display to the user.
+         * @param e is the Exception which caused the error.
          */
         protected void error( String error, Exception e ) {
 
@@ -105,11 +98,9 @@ public class JFrameV2 extends JFrame {
         }
 
         /**
-         * displayResult opens a JFrame with the result of the comparison
+         * displayResult opens a JFrame with the result of the comparison.
          * @author Peter Kaufman
-         * @type function
-         * @access protected
-         * @param db is a Db_conn object which is the connection for the live database
+         * @param db is a Db_conn object which is the connection for the live database.
          */
         protected void displayResult( Db_conn db ) {
 
@@ -118,12 +109,10 @@ public class JFrameV2 extends JFrame {
         }
 
         /**
-         * formWindowClosing opens the start JFrame when the form is closing and the
-         * compare button has not been clicked
+         * formWindowClosing opens the start JFrame when the form is closing if an error has occurred 
+         * or the application is not to shutdown from this JFrame.
          * @author Peter Kaufman
-         * @type function
-         * @access protected
-         * @param evt is a WindowEvent which represents the JFrame closing
+         * @param evt is a WindowEvent which is the JFrame closing.
          */
         protected void formWindowClosing( WindowEvent evt ) {
                 if ( error ) {
@@ -135,11 +124,9 @@ public class JFrameV2 extends JFrame {
         }
 
         /**
-         * newBorder takes a String and sets the new title for the progressbar's border
+         * newBorder takes a String and sets the new title for the progressbar's border.
          * @author Peter Kaufman
-         * @type function
-         * @access protected
-         * @param title is a String which represents the new name of the titled borders
+         * @param title is a String which becomes the new name of the titled borders.
          */
         protected void newBorder( String title ) {
 
@@ -149,12 +136,10 @@ public class JFrameV2 extends JFrame {
         }
 
         /**
-         * log takes two Strings and writes the first to either log.txt or Error.txt
+         * log takes two Strings and writes the first to either stdLog stdErr.
          * @author Peter Kaufman
-         * @type function
-         * @access protected
-         * @param info is a String which represents the data to be logged
-         * @param file is the name of the file where the data is to be stored
+         * @param info is a String which is the data to be logged.
+         * @param file is the name of the file where the data is to be stored.
          */
         protected void log ( String info, String file ) {
                 try {
@@ -167,25 +152,20 @@ public class JFrameV2 extends JFrame {
         }
 
         /**
-         * close closes the current JFrame
+         * close closes the current JFrame object.
          * @author Peter Kaufman
-         * @type function
-         * @access protected
          */
         protected void close() {
                 // closes the window activating the formWindowClosing method
                 this.dispatchEvent( new WindowEvent( this, WindowEvent.WINDOW_CLOSING ));
         }
+
         /**
-         * prepProgressBar gets the progressBar ready by reseting the StopWatch
-         * and determines which settings to turn on
+         * prepProgressBar gets the progressBar ready by reseting the StopWatch object and determines which 
+         * settings to turn on.
          * @author Peter Kaufman
-         * @type function
-         * @access protected
-         * @param title is a String which represents the title for the border
-         * of the progressBar
-         * @param indeterminate is a boolean that tells whether or not the
-         * progressBar is to be indeterminate or not
+         * @param title is a String which becomes the title for the border of the progressBar.
+         * @param indeterminate is a boolean that tells whether or not the progressBar is to be indeterminate or not.
          */
         protected void prepProgressBar( String title, boolean indeterminate ) {
 
@@ -201,13 +181,9 @@ public class JFrameV2 extends JFrame {
         }
 
         /**
-         * endProgressBar stops the progressBar and sets the border to the given
-         * String and hides the progressBar
+         * endProgressBar stops the progressBar, sets the border to the given String, and then hides the progressBar.
          * @author Peter Kaufman
-         * @type function
-         * @access protected
-         * @param title is a String which represents the title for the border
-         * of the progressBarS
+         * @param title is a String which becomes the title for the border of the progressBar
          */
         protected void endProgressBar( String title ) {
 

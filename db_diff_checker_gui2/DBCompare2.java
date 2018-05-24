@@ -1,10 +1,7 @@
 /**
- * DBCompare2 is a JFrame that takes user input to make a comparison between 2
- * databases
+ * DBCompare2 is a JFrame that takes user input to make a comparison between two databases
  * @author Peter Kaufman
- * @class DBCompare2
- * @access public
- * @version 5-15-18
+ * @version 5-24-18
  * @since 9-20-17
  */
 package db_diff_checker_gui2;
@@ -41,10 +38,8 @@ public class DBCompare2 extends JFrameV2 {
         private JPasswordField password1 = new JPasswordField( 10 ), password2 = new JPasswordField( 10 );
 
         /**
-         * Creates new form DBCompare2
+         * DBCompare2 initializes a DBCompare2 object. 
          * @author Peter Kaufman
-         * @type constructor
-         * @access public
          */
         public DBCompare2() {
 
@@ -53,11 +48,8 @@ public class DBCompare2 extends JFrameV2 {
         }
 
         /**
-         * InitComonents sets up the GUI Layout, sets up all action events,
-         * and initializes instance variables
+         * InitComonents sets up the GUI Layout, sets up all action events, and initializes instance variables.
          * @author Peter Kaufman
-         * @type function
-         * @access private
          */
         private void initComponents() {
                 // add components to the appropriate ArrayList
@@ -209,13 +201,10 @@ public class DBCompare2 extends JFrameV2 {
         }
 
         /**
-         * executeActionPerformed determines whether the information supplied by the
-         * user is adequate, if so 2 databases are compared otherwise a message is
-         * displayed
+         * executeActionPerformed determines whether the information supplied by the user is appropriate, 
+         * if so two databases are compared otherwise a message is displayed to the user.
          * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param evt is an ActionEvent which results when the compare button is clicked
+         * @param evt is an ActionEvent which results when the compare button is clicked.
          */
         private void executeActionPerformed(ActionEvent evt) {
                 if ( !( port1.getText().equals( "" ) | port2.getText().equals( "" ) |
@@ -225,7 +214,7 @@ public class DBCompare2 extends JFrameV2 {
                         database1.getText().equals( "" ) | database2.getText().equals( "" ))) {
 
                         this.error = false;
-                        compare1();
+                        compare();
                 } else {
 
                         headT.setText( "Please do not leave any fields blank." );
@@ -233,12 +222,10 @@ public class DBCompare2 extends JFrameV2 {
         }
 
         /**
-         * compare1 compares two databases based on user input
+         * compare compares two databases based on user input.
          * @author Peter Kaufman
-         * @type function
-         * @access private
          */
-        private void compare1() {
+        private void compare() {
 
                 prepProgressBar( "Establishing Dev Database Connection", true );
                 SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {

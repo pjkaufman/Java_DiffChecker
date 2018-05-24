@@ -1,10 +1,7 @@
 /**
- * Result is a JFrame that shows the SQL statements to be run to make the
- * databases the same
+ * Result is a JFrame that shows the provided data to the user.
  * @author Peter Kaufman
- * @class Result
- * @access public
- * @version 5-14-18
+ * @version 5-24-18
  * @since 9-20-17
  */
 package db_diff_checker_gui2;
@@ -26,11 +23,10 @@ public class Result extends JFrameV2 {
         private JLabel instructLabel = new JLabel( "Run the following SQL to make the two databases the same:" );
 
         /**
-         * Creates new form Result
+         * Result initializes a Result object and determines how to display info based on whether or not the 
+         * Db_conn object is null.
          * @author Peter Kaufman
-         * @type constructor
-         * @access public
-         * @param db is a Db_conn object which is the connection for the live database
+         * @param db is a Db_conn object which allows for connectio to the live database.
          */
         public Result( Db_conn db ) {
 
@@ -44,11 +40,8 @@ public class Result extends JFrameV2 {
         }
 
         /**
-         * InitComonents sets up the GUI Layout, sets up all action events,
-         * and initializes instance variables
+         * InitComonents sets up the GUI Layout, sets up all action events, and initializes instance variables.
          * @author Peter Kaufman
-         * @type function
-         * @access private
          */
         private void initComponents() {
                 // add components to the appropriate ArrayList
@@ -79,11 +72,9 @@ public class Result extends JFrameV2 {
         }
 
         /**
-         * btnRunActionPerformed runs the SQL to update the live database
+         * btnRunActionPerformed runs the SQL to update the live database.
          * @author Peter Kaufman
-         * @type function
-         * @access private
-         * @param evt is a WindowEvent which represents the btnRun button being clicked
+         * @param evt is a WindowEvent which is the btnRun button being clicked.
          */
         private void btnRunActionPerformed(ActionEvent evt) {
 
@@ -144,12 +135,10 @@ public class Result extends JFrameV2 {
         }
 
         /**
-         * results takes in an ArrayList of Strings and adds them to a JTextArea
+         * results takes in an ArrayList of Strings and adds them to the JTextArea.
          * @author Peter Kaufman
-         * @type function
-         * @access public
-         * @param SQL is an ArrayList of Strings which represents the SQL statements
-         * @param title determines what the title JLabel's text will be
+         * @param SQL is an ArrayList of Strings which is the SQL statements.
+         * @param title determines what the title JLabel's text will be.
          */
         public void results( ArrayList<String> SQL, String title ) {
                 try{

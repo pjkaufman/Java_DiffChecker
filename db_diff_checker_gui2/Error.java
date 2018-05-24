@@ -1,9 +1,7 @@
 /**
- * Error is a JFrame that shows a message about an error that occurred
+ * Error is a JFrame that shows a message about an error that occurred.
  * @author Peter Kaufman
- * @class Error
- * @access public
- * @version 5-15-18
+ * @version 5-24-18
  * @since 9-21-17
  */
 package db_diff_checker_gui2;
@@ -18,11 +16,9 @@ public class Error extends JFrameV2 {
         private JLabel errorLabel = new JLabel(), titleLabel = new JLabel();
 
         /**
-         * Creates new form Error
+         * Error initializes an Error object with the provided error message which is displayed for the user to see.
          * @author Peter Kaufman
-         * @type constructor
-         * @access public
-         * @param error is a String that is the error to be displayed
+         * @param error is a String that is the error to be displayed to the user.
          */
         public Error( String error ) {
 
@@ -32,11 +28,8 @@ public class Error extends JFrameV2 {
         }
 
         /**
-         * InitComonents sets up the GUI Layout, sets up all action events,
-         * and initializes instance variables
+         * InitComonents sets up the GUI Layout, sets up all action events, and initializes instance variables
          * @author Peter Kaufman
-         * @type function
-         * @access private
          */
         private void initComponents() {
                 // set up JFrame properties
