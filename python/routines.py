@@ -7,6 +7,10 @@ from shutil import copy
 class Routines:
     #instance variables
     __OS = ''
+    __debugDir = 'test'
+    __distrDir = 'run'
+    __jarDir = 'jarLibrary'
+    __packageName = 'db_diff_checker_gui2'
 
     #__init__ is the constructor which initializes all instance variables
     def __init__( self ):
@@ -16,6 +20,25 @@ class Routines:
     #getOS gets the OS variable
     def getOS( self ):
         return self.__OS
+
+    # getDebugPath retruns a string, which is the path to the debug file destination 
+    # from a level above where this script is
+    def getDebugPath( self ):
+        return self.__debugDir
+
+    # getDistrubutionPath retruns a string, which is the path to the distribution file destination 
+    # from a level above where this script is
+    def getDistrubutionPath( self ):
+        return self.__distrDir
+
+    # getJarPath retruns a string, which is the path to the where the jar files to include in the project's 
+    # jar file from a level above where this script is
+    def getJarPath( self ):
+        return self.__jarDir
+
+    #getPackageName returns a string, which is the name of the package that will be acted upon by this script
+    def getPackageName( self ):
+        return self.__packageName
 
     #formatStr takes a string and converts all ','s to either '\\' or '/'
     #param: str is the string to have all commas replaced with either '\\' or '/'
@@ -44,7 +67,7 @@ class Routines:
 
         #compile the java files and make the jar file
         try:
-            check_output( self.formatStr( start + ' -cp ' + cp + ' ..,db_diff_checker_gui2,*.java') )
+            check_output( self.formatStr( start + ' -cp ' + cp + ' ..,' + self.getPackageName() + ',*.java') )
             print 'Compiled files'
         except:
             print 'An error occurred during compilation'
@@ -56,32 +79,32 @@ class Routines:
         self.updateManifest()
         p = ''
         #change directory to jar file location
-        self.chdir( '..,jarLibrary' )
+        self.chdir( '..,' + self.getJarPath() )
         #get current jar list and add it to the Class-Path
         filelist = [ fi for fi in os.listdir(os.getcwd()) if fi.endswith( '.jar' ) ]
         for fi in filelist:
-            p += self.formatStr( "\".;..,jarLibrary," + fi + "\";" )
+            p += self.formatStr( "\".;..," + self.getJarPath() + "," + fi + "\";" )
         p = p[:-1]
         #move back to the python directory
         self.chdir( '..,python' )
         #compile the java files and make the jar file
-        if( self.compile( self.formatStr( '..,db_diff_checker_gui2' ), p, False )):
-            call( self.formatStr( 'jar cvfm ..,run,Db_Diff_Checker.jar ..,manifest.mf ..,db_diff_checker_gui2, ..,Images ..,jarLibrary' ))
+        if( self.compile( self.formatStr( '..,' + self.getPackageName() ), p, False )):
+            call( self.formatStr( 'jar cvfm ..,run,Db_Diff_Checker.jar ..,manifest.mf ..,' + self.getPackageName() + ', ..,Images ..,' + self.getJarPath()))
             #remove unnecesssary .class files
-            self.chdir( '..,db_diff_checker_gui2' )
+            self.chdir( '..,' + self.getPackageName())
             filelist = [ f for f in os.listdir(os.getcwd()) if f.endswith( '.class' ) ]
             for f in filelist:
                 os.remove(os.path.join(os.getcwd(), f))
             #remove old jar file list
-            self.chdir( '..,run,lib,' )
+            self.chdir( '..,' + self.getDistrubutionPath() + ',lib,' )
             filelist = [ f for f in os.listdir(os.getcwd()) if f.endswith( '.jar' ) ]
             for f in filelist:
                 os.remove(os.path.join(os.getcwd(), f))
             self.chdir(  '..,..,' )
             #copy current jar list to the lib folder in the run directory
-            filelist = [ f for f in os.listdir(os.path.join(os.getcwd(), self.formatStr( 'jarLibrary,' ))) if f.endswith( '.jar' ) ]
+            filelist = [ f for f in os.listdir(os.path.join(os.getcwd(), self.formatStr( self.getJarPath() + ',' ))) if f.endswith( '.jar' ) ]
             for f in filelist:
-                copy( os.path.join(os.getcwd(), self.formatStr( 'jarLibrary,' ) + f), os.getcwd() + self.formatStr( ',run,lib,' ))
+                copy( os.path.join(os.getcwd(), self.formatStr( self.getJarPath() + ',' ) + f), os.getcwd() + self.formatStr( ',' + self.getDistrubutionPath() + ',lib,' ))
             
         #move back to the python directory
         self.chdir( 'python' )
@@ -91,11 +114,11 @@ class Routines:
     def debug( self ):
         p = ''
         #change directory to jar file location
-        self.chdir( '..,jarLibrary' )
+        self.chdir( '..,' + self.getJarPath())
         #get current jar list and add it to the Class-Path
         filelist = [ fi for fi in os.listdir(os.getcwd()) if fi.endswith( '.jar' ) ]
         for fi in filelist:
-            p += self.formatStr( "\".;..,jarLibrary," + fi + "\";" )
+            p += self.formatStr( "\".;..," + self.getJarPath() + "," + fi + "\";" )
         p = p[:-1]
         print 'Set up class path'
         #move back to the python directory
@@ -104,7 +127,7 @@ class Routines:
         if ( self.compile( self.formatStr( '..,test' ), p, True )):
             #move to run directory
             self.chdir( '..,test' )
-            call( "java -cp " + p + " db_diff_checker_gui2.DB_Diff_Checker_GUI" )
+            call( "java -cp " + p + " " + self.getPackageName() + ".DB_Diff_Checker_GUI" )
             #move back to the python directory
             self.chdir( '..,python' )
         return None
@@ -117,9 +140,9 @@ class Routines:
         f.write( "Manifest-Version: 1.0\n" )
         f.write( "Ant-Version: Apache Ant 1.9.7\n" )
         cP = 'Class-Path: '
-        mC = 'Main-Class: db_diff_checker_gui2.DB_Diff_Checker_GUI'
+        mC = 'Main-Class: ' + self.getPackageName() + '.DB_Diff_Checker_GUI'
         #change directory to jar file location
-        self.chdir( '..,jarLibrary' )
+        self.chdir( '..,' + self.getJarPath())
         #get current jar list and add it to the Class-Path
         filelist = [ fi for fi in os.listdir(os.getcwd()) if fi.endswith( '.jar' ) ]
         for fi in filelist:
@@ -136,7 +159,7 @@ class Routines:
     #clean cleans out the test folder of all unnecessary files
     def clean ( self ):
         #remove all class files
-        self.chdir( '..,test,db_diff_checker_gui2' )
+        self.chdir( '..,' + self.getDebugPath() + ',' + self.getPackageName())
         filelist = [ f for f in os.listdir(os.getcwd()) if f.endswith( '.class' ) ]
         for f in filelist:
             os.remove(os.path.join(os.getcwd(), f))
@@ -153,8 +176,8 @@ class Routines:
     def run( self ):
         self.makeJar()
         #move to run directory
-        self.chdir( '..,run' )
-        call( self.formatStr( 'java -jar ..,run,Db_Diff_Checker.jar' ))
+        self.chdir( '..,' + self.getDistrubutionPath())
+        call( self.formatStr( 'java -jar ..,' + self.getDistrubutionPath() +',Db_Diff_Checker.jar' ))
         #move back to the python directory
         self.chdir( '..,python' )
         return None
@@ -176,7 +199,7 @@ class Routines:
     #documnet documents the repo
     def document( self ):
        self.chdir( '..' )
-       call( 'javadoc -d "docs" "db_diff_checker_gui2"' )
+       call( 'javadoc -d "docs" "' + self.getPackageName() + '"' )
        self.chdir( 'python' )
        return None
 
