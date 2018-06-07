@@ -39,7 +39,6 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
 
         /**
          * InitComonents sets up the GUI Layout, sets up all action events, and initializes instance variables.
-         * @access private
          */
         private void initComponents() {
                 // add components to the appropriate ArrayList
