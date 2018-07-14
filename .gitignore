@@ -1,0 +1,17 @@
+# Compiled class file
+db_diff_checker_gui2/*.class
+
+# build data
+build/*
+!build/logs/.gitkeep
+!build/lib/.gitkeep
+
+# test data
+test/*
+!test/logs/.gitkeep
+!test/images
+!test/db_diff_checker_gui2/.gitkeep
+
+#logs
+logs/*
+!logs/.gitkeep

@@ -8,7 +8,7 @@ class Routines:
     #instance variables
     __OS = ''
     __debugDir = 'test'
-    __distrDir = 'run'
+    __distrDir = 'build'
     __jarDir = 'jarLibrary'
     __packageName = 'db_diff_checker_gui2'
 
