@@ -47,7 +47,8 @@ Enter 'debug' when prompted for a routine to run. This will compile all of the c
 
 ## Documentation
 
-How it works is located [here]() and [here](https://github.com/pjkaufman/Java_DiffChecker/tree/master/documentation/word).
+- [V1.0.0](https://github.com/pjkaufman/Java_DiffChecker/tree/master/documentation/word/DatabaseDifferenceCheckerReport)
+- [V2.0.0](https://github.com/pjkaufman/Java_DiffChecker/tree/master/documentation/wordDatabaseDifferenceCheckerReportV2.0.0/)
 
 ### Java Documentation 
 
