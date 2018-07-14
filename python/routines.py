@@ -199,7 +199,7 @@ class Routines:
     #documnet documents the repo
     def document( self ):
        self.chdir( '..' )
-       call( 'javadoc -d "docs" "' + self.getPackageName() + '"' )
+       call( 'javadoc -d "documentation/docs" "' + self.getPackageName() + '"' )
        self.chdir( 'python' )
        return None
 
