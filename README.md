@@ -18,6 +18,7 @@ Java_DiffChecker is a Java program compares MySQL databases and generates the SQ
 
 1. [Java](https://java.com/en/download/)
 2. [Python 2.7](https://www.python.org/downloads/)
+3. Some kind of hosting service hosting your MySQL databse such as [WAMP](http://wampserver.aviatechno.net/).
 
 _Note: the python scripts have only been tested in Python 2.7_
 
@@ -46,7 +47,6 @@ After modifying any of the Java files in the repository, you can go to the pytho
 Enter 'debug' when prompted for a routine to run. This will compile all of the current Java files into the test/db_diff_checker_gui2 folder where it will be run if no errors occur.
 
 ## Documentation
-
 
 ### How It Works
 

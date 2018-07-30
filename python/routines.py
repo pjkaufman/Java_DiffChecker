@@ -10,7 +10,7 @@ class Routines:
     __debugDir = 'test'
     __distrDir = 'build'
     __jarDir = 'jarLibrary'
-    __packageName = 'db_diff_checker_gui2'
+    __packageName = 'dbdiffchecker'
 
     #__init__ is the constructor which initializes all instance variables
     def __init__( self ):
