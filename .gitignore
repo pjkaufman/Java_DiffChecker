@@ -12,6 +12,6 @@ build/lib/*
 # test data
 test/dbdiffchecker
 test/logs/*
-test/Images/*
 !test/logs/.gitkeep
+test/Images/*
 !test/Images/.gitkeep
