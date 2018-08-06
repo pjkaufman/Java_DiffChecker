@@ -10,8 +10,4 @@ build/lib/*
 !build/lib/.gitkeep
 
 # test data
-test/dbdiffchecker
-test/logs/*
-!test/logs/.gitkeep
-test/Images/*
-!test/Images/.gitkeep
+test/
