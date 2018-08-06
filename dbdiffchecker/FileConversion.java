@@ -1,10 +1,13 @@
 package dbdiffchecker;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,30 +15,43 @@ import java.util.Scanner;
 
 /**
  * FileConversion can convert a Database object into a JSON file and vice versa.
- * @author mkyong and Peter Kaufman
+ * @author Peter Kaufman
  * @version 5-24-18
- * @since 9-12-17
- * @see <a href="https://www.mkyong.com/java/jackson-2-convert-java-object-to-from-json/">https://www.mkyong.com/java/jackson-2-convert-java-object-to-from-json/</a>
+ * @since 9-12-17S
  */
 public class FileConversion {
 
   // static variables
   static final String logFileName = "activity.log"; 
   static final String lastSequelStatementFileName = "lastRun.txt";
-  static final String databaseSnapshotFileName = "dbsnapshot.json";
+  static final String databaseSnapshotFileName = "dbsnapshot";
 
   /**
    * writeTo writes a Database object to a JSON file.
-   * @author mkyong
+   * @author Peter Kaufman
    * @param obj is a Database object which is to be converted to a JSON file.
-   * @throws IOException an error occurred while converting the Database object to a JSON file.
+   * @throws DatabaseDiffernceCheckerException an error occurred while converting the Database object to a JSON file.
    */
-  public static void writeToFile(Database obj) throws IOException {
+  public static void writeToFile(Database obj) throws DatabaseDiffernceCheckerException {
+    try {
+      FileOutputStream f = new FileOutputStream(new File("logs\\" + databaseSnapshotFileName));
+      ObjectOutputStream o = new ObjectOutputStream(f);
 
-    ObjectMapper mapper = new ObjectMapper();
-    //Object to JSON in file
-    mapper.writeValue(new File("logs\\" + databaseSnapshotFileName), obj);
+      // Write object to file
+      o.writeObject(obj);
+
+      o.close();
+      f.close();
+    } catch (Exception cause) {
+      if (cause instanceof IOException) {
+        throw new DatabaseDiffernceCheckerException("There was an error" 
+            + " when trying to take a snapshot of the database.", cause);
+      } else {
+        throw new DatabaseDiffernceCheckerException(cause.getMessage().substring(cause.getMessage().indexOf( ":" ) + 1 ), cause);
+      }
+    }
   }
+
 
   /**
    * writeTo takes an ArrayList of Strings and writes them to LastRun.txt.
@@ -73,12 +89,27 @@ public class FileConversion {
    * @return database which is the Database object read in from the JSON file.
    * @throws IOException an error in converting the JSON file into a Database object.
    */
-  public static Database readFrom() throws IOException {
+  public static Database readFrom() throws DatabaseDiffernceCheckerException {
 
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    //JSON from file to Object
-    Database database = mapper.readValue(new File("logs\\dbsnapshot.json"), Database.class);
+    Database database = null;
+    try {
+      FileInputStream fi = new FileInputStream(new File("logs\\" + databaseSnapshotFileName));
+      ObjectInputStream oi = new ObjectInputStream(fi);
+
+      // Read object
+      database = (Database) oi.readObject();
+
+      oi.close();
+      fi.close();
+
+    } catch(Exception cause) {
+      if (cause instanceof IOException) {
+        throw new DatabaseDiffernceCheckerException("There was an error" 
+            + " when trying to take a get the database snapshot.", cause);
+      } else {
+        throw new DatabaseDiffernceCheckerException(cause.getMessage().substring(cause.getMessage().indexOf( ":" ) + 1 ), cause);
+      }
+    } 
 
     return database;
   }

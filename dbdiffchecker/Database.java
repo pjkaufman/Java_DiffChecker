@@ -2,6 +2,7 @@ package dbdiffchecker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.io.Serializable;
 
 /**
  * Database models a MYSQL database schema.
@@ -9,12 +10,13 @@ import java.util.HashMap;
  * @version 5-24-18
  * @since 9-18-17
  */
-public class Database {
+public class Database implements Serializable {
   // Instance variables
   private HashMap<String, Table> tables = new HashMap<>();
   private HashMap<String, String> exclude = new HashMap<>();
   private ArrayList<Views> views = new ArrayList<>();
   private ArrayList<String> firstSteps = new ArrayList<>();
+  private static final long serialVersionUID = 1L;
 
   /**
    * Database initializes a Database object by using a database connection. 
@@ -26,7 +28,6 @@ public class Database {
    * @param db is a DbConn connection which is used to get db information
    */
   public Database(DbConn db) throws DatabaseDiffernceCheckerException {
-
     // get tables and views
     db.establishDatabaseConnection();
     this.views = db.getViews();
@@ -47,8 +48,7 @@ public class Database {
    * database provided. <b>Note: this function will return an empty ArrayList if the function
    * is called on the dev database.</b>
    * @author Peter Kaufman
-   * @return firstSteps is an ArrayList of Strings which is the first steps to be taken
-   *      in order to run the SQL statements
+   * @return firstSteps the first steps to be taken in order to run the SQL statements
    */
   public ArrayList<String> getFirstSteps() {
 
@@ -60,8 +60,7 @@ public class Database {
    * getTables returns an HashMap of tables that are in the database provided.
    * The key is the name of the table and the value is a Table object.
    * @author Peter Kaufman
-   * @return tables is an HashMap with a set of String and Table objects which is all of the tables
-   *      in the database provided.
+   * @return tables all of the tables in the provided database.
    */
   public HashMap<String, Table> getTables() {
 
@@ -71,8 +70,7 @@ public class Database {
   /**
    * getViews returns an ArrayList of Views objects which is the all of the views
    * in the database provided.
-   * @return views is an ArrayList of View objects which represent all of the views
-   *      in the database provided.
+   * @return views all of the views in the provided database.
    */
   public ArrayList<Views> getViews() {
 
@@ -84,8 +82,7 @@ public class Database {
    * to make the two databases have the exact same views. <b>Note: all views in
    * the live database will be dropped and all from the dev database will be created.</b>
    * @author Peter Kaufman
-   * @param liveViews is an ArrayList of Views objects which is all of the views
-   *      in the live database.
+   * @param liveViews all of the views in the live database.
    * @return sql is an ArrayList of Strings which is the SQL statements to run in 
    *      order to make the live database have the same views as the dev one.
    */
@@ -201,7 +198,8 @@ public class Database {
     String temp = null;
     for (String structure: devstructure.keySet()) {
       if (!livestructure.containsKey(structure)) {
-
+        System.out.println("199");
+        System.out.println(structure);
         temp = structure.replace("CREATE TABLE `", "")
                 .substring(0, structure.replace("CREATE TABLE `", "")
                             .indexOf("`"));

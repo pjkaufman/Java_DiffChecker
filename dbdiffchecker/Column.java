@@ -3,7 +3,7 @@ package dbdiffchecker;
 /**
  * Column resembles a column in MySQL and contains column info.
  * @author Peter Kaufman
- * @version 5-24-18
+ * @version 7-29-18
  * @since 9-10-17
  */
 public class Column extends Schema {
@@ -31,7 +31,7 @@ public class Column extends Schema {
   /**
    * getDetails returns the info about the column.
    * @author Peter Kaufman
-   * @return details is a String which is the info about the column
+   * @return details the info about the column
    */
   public String getDetails() {
 

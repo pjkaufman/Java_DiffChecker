@@ -96,14 +96,14 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
   private void continueBtnMouseClicked(MouseEvent evt) {
     switch(input.getText().trim()) {
       case "1":
-        DBCompare2 compare2Databases = new DBCompare2();
+        DBCompare1 compare2Databases = new DBCompare1(0);
         compare2Databases.setSize(575, 325);
         compare2Databases.setVisible(true);
         this.close();
         break; 
       case "2":
         if (FileConversion.fileExists(FileConversion.databaseSnapshotFileName)) {
-          DBCompare1 compare1Database = new DBCompare1("Compare Database to Snapshot", "Compare");
+          DBCompare1 compare1Database = new DBCompare1(1);
           compare1Database.setSize(350, 275);
           compare1Database.setVisible(true);
           this.close();
@@ -112,7 +112,7 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
         }
         break;
       case "3":
-        DBCompare1 databaseSnapshot = new DBCompare1("Take Database Snapshot", "Snapshot");
+        DBCompare1 databaseSnapshot = new DBCompare1(2);
         databaseSnapshot.setSize(350, 275);
         databaseSnapshot.setVisible(true);
         this.close();

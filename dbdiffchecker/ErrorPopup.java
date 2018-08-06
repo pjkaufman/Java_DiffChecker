@@ -39,6 +39,7 @@ public class ErrorPopup extends JFrameV2 {
     } catch(DatabaseDiffernceCheckerException err) {
       System.out.println("Could not log the error...");
     } 
+    error.printStackTrace();
     this.error = false;
     initComponents();
     this.errorLabel.setText(error.getMessage());

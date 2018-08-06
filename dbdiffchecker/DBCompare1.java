@@ -1,12 +1,15 @@
 package dbdiffchecker;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -22,43 +25,43 @@ import javax.swing.border.TitledBorder;
 
 /**
  * DBCompare1 is a JFrame that takes user input to make a comparison between 1
- * database and a database snapshot or to take a database snapshot.
+ * devDatabase and a devDatabase snapshot or to take a devDatabase snapshot.
  * @author Peter Kaufman
  * @version 5-24-18
  * @since 9-20-17
  */
 public class DBCompare1 extends JFrameV2 {
   // Instance variables
-  private DbConn databaseConnection1;
-  private DbConn databaseConnection2;
-  private Database database1; 
-  private Database database2;
+  private int type = 0;
+  private int times = 1;
+  private final String[] titleOptions = {"Compare Two Databases", 
+      "Compare Database to Snapshot", "Take Database Snapshot"};
+  private final String[] labelText = {"Enter MySQL Username:", 
+      "Enter MySQL Password:", "Enter MySQL Host:", "Enter MySQL Port:", "Enter MySQL Database:"};
+  private Database devDatabase; 
+  private Database liveDatabase;
+  private DbConn devDatabaseConnection; 
+  private DbConn liveDatabaseConnection;
   private HashMap<String, String> updateTables = new HashMap<>();
+  private JLabel headT = new JLabel("Enter Database Information Below", JLabel.CENTER);
   private JButton databaseConnection1btn = new JButton("Compare");
-  private JTextField database = new JTextField(10); 
-  private JTextField host = new JTextField(10);
-  private JTextField port = new JTextField(10);
-  private JTextField username = new JTextField(10);
-  private JLabel usernameLabel = new JLabel("Enter MySQL username:");
-  private JLabel passLabel = new JLabel("Enter MySQL Password:");
-  private JLabel hostLabel = new JLabel("Enter MySQL Host:");
-  private JLabel portLabel = new JLabel("Enter MySQL Port:");
-  private JLabel databaseLabel = new JLabel("Enter MySQL Database:");
-  private JLabel headT = new JLabel("Enter Database Information Below", TitledBorder.CENTER);
-  private JPasswordField password = new JPasswordField(10);
+  private JTextField liveDatabaseName = new JTextField(10); 
+  private JTextField liveHost = new JTextField(10);
+  private JTextField livePort = new JTextField(10);
+  private JTextField liveUsername = new JTextField(10);
+  private JTextField devDatabaseName = new JTextField(10); 
+  private JTextField devHost = new JTextField(10);
+  private JTextField devPort = new JTextField(10);
+  private JTextField devUsername = new JTextField(10);
+  private JPasswordField devPassword = new JPasswordField(10);
+  private JPasswordField livePassword = new JPasswordField(10);
+  private Component[] devDatabaseInputs = {devUsername, devPassword, devHost, devPort, 
+      devDatabaseName};
+  private Component[] livevDatabaseInputs = {liveUsername, livePassword, liveHost, livePort, 
+      liveDatabaseName};
   private JPanel header = new JPanel(new BorderLayout());
-  private JPanel content = new JPanel(new GridLayout(5, 2));
-  private JPanel footer = new JPanel(new BorderLayout());
-  private JPanel part1 = new JPanel(new FlowLayout());
-  private JPanel part2 = new JPanel(new FlowLayout()); 
-  private JPanel part3 = new JPanel(new FlowLayout());
-  private JPanel part4 = new JPanel(new FlowLayout()); 
-  private JPanel part5 = new JPanel(new FlowLayout());
-  private JPanel part6 = new JPanel(new FlowLayout()); 
-  private JPanel part7 = new JPanel(new FlowLayout());
-  private JPanel part8 = new JPanel(new FlowLayout()); 
-  private JPanel part9 = new JPanel(new FlowLayout());
-  private JPanel part10 = new JPanel(new FlowLayout()); 
+  private JPanel content;
+  private JPanel footer = new JPanel(new BorderLayout()); 
   private JPanel footc = new JPanel(new FlowLayout());
 
   /**
@@ -67,10 +70,8 @@ public class DBCompare1 extends JFrameV2 {
    * @param title the title of this JFrame.
    * @param buttonTxt the text to be displayed on the button databaseConnection1btn.
    */
-  public DBCompare1(String title, String buttonTxt) {
-    // use parameters to set JFrame properties
-    setTitle("Take Database Snapshot");
-    databaseConnection1btn.setText("Snapshot");
+  public DBCompare1(int type) {
+    this.type = type;  
     initComponents();
     clase = this.getClass().getName();
   }
@@ -81,21 +82,66 @@ public class DBCompare1 extends JFrameV2 {
    * @author Peter Kaufmante
    */
   private void initComponents() {
+    // use parameters to set JFrame properties
+    setTitle(titleOptions[this.type]);
+    if (this.type == 2) {
+      databaseConnection1btn.setText("Snapshot");
+    } 
+    // create content pane
+    if (this.type != 0) {
+      content = new JPanel(new GridLayout(1, 2));
+      setMinimumSize(new Dimension(120, 100));
+    } else {
+      content = new JPanel(new GridLayout(1, 2));
+      headT.setText(headT.getText() + "(Dev, Live)");
+      // add listeners
+      addComponentListener(new ComponentListener() {
+        public void componentResized(ComponentEvent e) {
+
+          double width = e.getComponent().getWidth();
+          Font title = new Font("Tahoma", Font.BOLD, 24);
+          Font reg = new Font("Tahoma", Font.PLAIN, 11);
+          Font button = new Font("Tahoma", Font.BOLD, 18);
+          if (width >= 660) {
+            title = new Font("Tahoma", Font.BOLD, (int)(width / 25));
+            reg = new Font("Tahoma", Font.PLAIN, (int)(width / 56));
+            button = new Font("Tahoma", Font.BOLD, (int)(width / 34));
+          }
+
+          for (Component cpn: cpnt) {
+            cpn.setFont(title);
+          }
+
+          for (Component cpn: cpnr) {
+            cpn.setFont(reg);
+          }
+          databaseConnection1btn.setFont(button);
+          myFont = reg;
+        }
+
+        public void componentHidden(ComponentEvent e) {}
+
+        public void componentShown(ComponentEvent e) {}
+
+        public void componentMoved(ComponentEvent e) {}
+      });
+      setMinimumSize(new Dimension(630, 325));
+    }
     // add components to the appropriate ArrayList
     cpnt.add(headT);
-    cpnr.add(host);
-    cpnr.add(port);
-    cpnr.add(database);
-    cpnr.add(password);
-    cpnr.add(usernameLabel);
     cpnr.add(databaseConnection1btn);
-    cpnr.add(passLabel);
-    cpnr.add(hostLabel);
-    cpnr.add(portLabel);
-    cpnr.add(databaseLabel);
-    cpnr.add(username);
-    // set up JFrame properties
-    setMinimumSize(new Dimension(100, 100));
+    switch(type) {
+      case 0:
+        addComponents(devDatabaseInputs);
+        addComponents(livevDatabaseInputs);
+        break;
+      case 1:
+        addComponents(livevDatabaseInputs);
+        break;
+      case 2:
+        addComponents(devDatabaseInputs);        
+        break;
+    }
     // set component properties
     headT.setFont(new Font("Tahoma", 1, 14));
     databaseConnection1btn.setFont(new Font("Tahoma", 0, 18));
@@ -108,68 +154,43 @@ public class DBCompare1 extends JFrameV2 {
     // add components
     getContentPane().setLayout(new BorderLayout());
     header.add(headT, BorderLayout.CENTER);
-    part1.add(usernameLabel);
-    part2.add(username);
-    part3.add(passLabel);
-    part4.add(password);
-    part5.add(hostLabel);
-    part6.add(host);
-    part7.add(portLabel);
-    part8.add(port);
-    part9.add(databaseLabel);
-    part10.add(database);
-    content.add(part1);
-    content.add(part2);
-    content.add(part3);
-    content.add(part4);
-    content.add(part5);
-    content.add(part6);
-    content.add(part7);
-    content.add(part8);
-    content.add(part9);
-    content.add(part10);
     footc.add(databaseConnection1btn);
     footer.add(footc, BorderLayout.CENTER);
     footer.add(pb, BorderLayout.SOUTH);
     add(header, BorderLayout.NORTH);
     add(content, BorderLayout.CENTER);
     add(footer, BorderLayout.SOUTH);
+    pack();
   }
 
   /**
    * databaseConnection1btnActionPerformed determines if the user has put in the
    * appropriate information and either 
-   * takes a database snapshot or compares a database to a database snapshot.
+   * takes a devDatabase snapshot or compares a devDatabase to a devDatabase snapshot.
    * @author Peter Kaufman
    * @param evt is an ActionEvent which is clicking the button databaseConnection1btn.
    */
   private void databaseConnection1btnActionPerformed(ActionEvent evt) {
-    try {
-      if (!(port.getText().equals("") | username.getText().equals("") 
-          | new String(password.getPassword()).equals("") | host.getText().equals("") 
-          | database.getText().equals(""))) {
+    if (allFieldsFilledOut()) {
 
-        this.error = false;
-        if (this.getTitle().equals("Compare Database to Snapshot")) {
-
-          compare();
-        } else {
-
+      this.error = false;
+      switch(type) {
+        case 0:
+        case 1:
+          getSequelStatementsInBackground();
+          break;
+        case 2:
           takeSnapshot();
-        }
-      } else {
-
-        headT.setText("Please do not leave any fields blank.");
+          break;
       }
-    } catch (IOException e) {
+    } else {
 
-      error(new DatabaseDiffernceCheckerException("There was an error" 
-          + " with the database snapshot file.", e));
+      headT.setText("Please do not leave any fields blank.");
     }
   }
 
   /**
-    * takeSnapshot takes a database snapshot based on user input.
+    * takeSnapshot takes a devDatabase snapshot based on user input.
     * @author Peter Kaufman
     */
   private void takeSnapshot() {
@@ -182,24 +203,19 @@ public class DBCompare1 extends JFrameV2 {
         try {
           publish("Establishing Database Connection");
           sw.start();
-          databaseConnection1 = new DbConn(username.getText(), new String(password.getPassword()),
-                              host.getText(), port.getText(), database.getText(), "dev");
-
+          devDatabaseConnection =  new DbConn(devUsername.getText(), new String(devPassword.getPassword()),
+              devHost.getText(), devPort.getText(), devDatabaseName.getText(), "dev");
           publish("Gathering Database Information");
-          database1 = new Database(databaseConnection1);
+          devDatabase = new Database(devDatabaseConnection);
           publish("Writing to JSON File");
-          FileConversion.writeToFile(database1);
+          FileConversion.writeToFile(devDatabase);
           sw.stop();
           log("Took a DB Snapshot on " + sw.getDate() + " at " + sw.getHour() + " in " 
               + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
-        } catch (IOException e) {
-          sw.stop();
-          throw new DatabaseDiffernceCheckerException("There was an error" 
-              + " when trying to take a database snapshot.", e);
         } catch (SQLException e) {
           sw.stop();
           throw new DatabaseDiffernceCheckerException("There was an error" 
-              + " with the database connection. Please try again.", e);
+              + " with the devDatabase connection. Please try again.", e);
         }
         
         return true;
@@ -232,73 +248,125 @@ public class DBCompare1 extends JFrameV2 {
   }
 
   /**
-  * compare compares the database specified by the user to a database snapshot.
+  * compare compares two databases based on user input.
   * @author Peter Kaufman
-  * @throws IOException an error occurred while accessing the database snapshot file
   */
-  private void compare() throws IOException {
+  private void getSequelStatementsInBackground() {
 
-    prepProgressBar("Reading in The DB Snapshot", true);
+    prepProgressBar("Establishing Database Connection(s) and Collecting Database Info", true);
     SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {
 
       @Override
       protected Boolean doInBackground() throws Exception {
-        try {
-          publish("Reading in The DB Snapshot");
-          sw.start();
-          database1 = FileConversion.readFrom();
-          publish("Establishing Live Database Connection");
-          databaseConnection2 = new DbConn(username.getText(), new String(password.getPassword()),
-                              host.getText(), port.getText(), database.getText(), "live");
-          publish("Gathering Live Database Info");
-          database2 = new Database(databaseConnection2);
-          publish("Checking Live First Steps");
-          sql.addAll(database2.getFirstSteps());
-          publish("Finding Missing Or Unneccessary Tables");
-          sql.addAll(database1.compareTables(database2.getTables()));
-          publish("Comparing Tables");
-          updateTables.putAll(database1.tablesDiffs(database2.getTables()));
-          sql.addAll(database1.updateTables(database2.getTables(), updateTables));
-          publish("Checking Dev First Steps");
-          sql.addAll(database1.getFirstSteps());
-          publish("Adding Dev's Views");
-          sql.addAll(database1.updateViews(database2.getViews()));
-          sw.stop();
-          log("DB Snapshot Comparison Complete on " + sw.getDate() + " at " + sw.getHour() 
-              + " in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
-        } catch (SQLException e) {
-          sw.stop();
-          throw new DatabaseDiffernceCheckerException("There was an error with" 
-              + " the database connection. Please try again.", e);
-        }
-
-        return true;
+        setupDatabases();
+        publish("Comparing Databases");
+        compareDatabases();
+        // TODO: determine what todo here if an error is thrown
+        return true; 
       }
 
       @Override
       protected void done() {
         try {
           get();
-          endProgressBar("Database Snapshot Comparison Complete");
-          displayResult(databaseConnection2);
+          endProgressBar("Database Comparison Complete");
+          displayResult(liveDatabaseConnection);
           close();
         } catch (Exception e) {
+          sw.stop();
           endProgressBar("An Error Occurred");
           if (e instanceof DatabaseDiffernceCheckerException) {
             error((DatabaseDiffernceCheckerException)e);
           } else {
-            error(new DatabaseDiffernceCheckerException(e.getMessage().substring(e.getMessage().indexOf(":") + 1), e));
+            error(new DatabaseDiffernceCheckerException(e.getMessage(), e));
           }
         }
       }
 
       @Override
       protected void process(List<String> chunks) {
-
         newBorder(chunks.get(chunks.size() - 1));
       }
     };
 
     swingW.execute();
+  }
+
+  public void addComponents(Component[] components) {
+    JLabel tempLabel = null;
+    JPanel tempPanel = new JPanel(new GridLayout(labelText.length, 2));
+    Component tempComponent = null;
+    for (int i = 0; i < labelText.length; i++) {
+      tempLabel = new JLabel(labelText[i]);
+      tempComponent = components[i];
+      cpnr.add(tempLabel);
+      cpnr.add(tempComponent);
+      tempPanel.add(new JPanel(new FlowLayout()).add(tempLabel));
+      tempPanel.add(new JPanel(new FlowLayout()).add(tempComponent));
+    }
+    content.add(tempPanel);
+  }
+
+  private void setupDatabases() throws DatabaseDiffernceCheckerException {
+    sw.start();
+    try {
+      if (this.type == 0 ) { 
+        devDatabaseConnection = new DbConn(devUsername.getText(),
+            new String(devPassword.getPassword()), devHost.getText(), devPort.getText(),
+            devDatabaseName.getText(), "dev");
+        devDatabase = new Database(devDatabaseConnection);
+      } else {
+        devDatabase = FileConversion.readFrom();
+      }
+      liveDatabaseConnection = new DbConn(liveUsername.getText(),
+            new String(livePassword.getPassword()), liveHost.getText(), livePort.getText(),
+            liveDatabaseName.getText(), "live");
+      liveDatabase = new Database(liveDatabaseConnection);
+    } catch(Exception cause) {
+      String errorMessage = "";
+      if (cause instanceof SQLException) {
+        errorMessage = "There was an error with the database connection. Please try again.";
+      } else {
+        errorMessage = "There was an error reading in the database snapshot. Please try again.";
+      }
+      throw new DatabaseDiffernceCheckerException(errorMessage, cause);
+    } 
+  }
+
+  private void compareDatabases() throws DatabaseDiffernceCheckerException {
+    sql.addAll(liveDatabase.getFirstSteps());
+    sql.addAll(devDatabase.compareTables(liveDatabase.getTables()));
+    updateTables.putAll(devDatabase.tablesDiffs(liveDatabase.getTables()));
+    sql.addAll(devDatabase.updateTables(liveDatabase.getTables(), updateTables));
+    sql.addAll(devDatabase.getFirstSteps());
+    sql.addAll(devDatabase.updateViews(liveDatabase.getViews()));
+    sw.stop();
+    log("DB Comparison Complete on " + sw.getDate() + " at " + sw.getHour() + " in " 
+        + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
+  }
+
+  private boolean allFieldsFilledOut() {
+    boolean allFilledOut = false;
+    switch(type) {
+     case 0:
+      allFilledOut= !(devPort.getText().equals("") || livePort.getText().equals("") 
+          || devUsername.getText().equals("") || liveUsername.getText().equals("") 
+          || new String(devPassword.getPassword()).equals("") || new String(livePassword.getPassword()).equals("") 
+          || devHost.getText().equals("") || liveHost.getText().equals("")
+          || devDatabaseName.getText().equals("") || liveDatabaseName.getText().equals(""));
+      break;
+    case 1:
+      allFilledOut = !(livePort.getText().equals("") || liveUsername.getText().equals("") 
+          || new String(livePassword.getPassword()).equals("") || liveHost.getText().equals("") 
+          || liveDatabaseName.getText().equals(""));
+      break;
+    case 2:
+      allFilledOut = !(devPort.getText().equals("") || devUsername.getText().equals("") 
+          || new String(devPassword.getPassword()).equals("") || devHost.getText().equals("") 
+          || devDatabaseName.getText().equals(""));
+      break;
+    }
+    
+    return allFilledOut;    
   }
 }

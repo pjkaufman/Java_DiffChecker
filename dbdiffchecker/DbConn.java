@@ -175,6 +175,7 @@ public class DbConn {
         // get the table name and its createStatement
         table = tables.getString("Tables_in_" + this.db);
         create = getTableCreateStatement(table);
+        System.out.println(create + " 178");
         this.firstStep = "ALTER TABLE `" + table + "`";
         this.count = 0;
         // if the database is the live database

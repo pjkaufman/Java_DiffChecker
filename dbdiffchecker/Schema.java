@@ -1,14 +1,17 @@
 package dbdiffchecker;
 
+import java.io.Serializable;
+
 /**
  * Schema holds common methods and instance variables for Schema subclasses.
  * @author Peter Kaufman
  * @version 5-24-18
  * @since 5-17-18
  */
-public class Schema {
+public class Schema implements Serializable {
   
   // Defuat instance variables
+  private static final long serialVersionUID = 1L;
   protected String name = "";
   protected String createStatement = "";
 
