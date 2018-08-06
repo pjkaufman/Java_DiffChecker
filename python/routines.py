@@ -11,6 +11,8 @@ class Routines:
     __distrDir = 'build'
     __jarDir = 'jarLibrary'
     __packageName = 'dbdiffchecker'
+    __distrJarDir = 'lib'
+    __logFileDir = 'logs'
 
     #__init__ is the constructor which initializes all instance variables
     def __init__( self ):
@@ -20,6 +22,14 @@ class Routines:
     #getOS gets the OS variable
     def getOS( self ):
         return self.__OS
+
+    #getLogFileDirectory gets the name of the log file directory
+    def getLogFileDirectory( self ):
+        return self.__logFileDir
+        
+    #getDistributionJarDirectory gets the distribution directory for the JAR files
+    def getDistributionJarDirectory( self ):
+        return self.__distrJarDir
 
     # getDebugPath retruns a string, which is the path to the debug file destination 
     # from a level above where this script is
@@ -48,11 +58,21 @@ class Routines:
         else:
             return str.replace( ',', '/') 
 
-    #chdir takes a string which is converted to the right format and then run
+    #chdir takes a string which is converted to the right format and then changes to the specified directory
     # param dirStr is a string which represents a directory change string (for example: "..,bin")
     def chdir( self, dirStr ):
         #format and run the change directory string
         os.chdir(  self.formatStr( dirStr ))
+        return None
+
+    #mkdir takes a string which is converted to the right format and then makes the specified directory
+    # param dirStr is a string which represents a directory change string (for example: "..,bin")
+    def mkdir( self, dirStr ):
+        #format and make the directory
+        try:
+            os.mkdir(  self.formatStr( dirStr ))
+        except OSError:
+            pass
         return None
 
     #compile compiles java files and determines where to send the output
@@ -89,14 +109,14 @@ class Routines:
         self.chdir( '..,python' )
         #compile the java files and make the jar file
         if( self.compile( self.formatStr( '..,' + self.getPackageName() ), p, False )):
-            call( self.formatStr( 'jar cvfm ..,run,Db_Diff_Checker.jar ..,manifest.mf ..,' + self.getPackageName() + ', ..,Images ..,' + self.getJarPath()))
+            call( self.formatStr( 'jar cvfm ..,' + self.getDistrubutionPath() + ',Db_Diff_Checker.jar ..,manifest.mf ..,' + self.getPackageName() + ', ..,Images ..,' + self.getJarPath()))
             #remove unnecesssary .class files
             self.chdir( '..,' + self.getPackageName())
             filelist = [ f for f in os.listdir(os.getcwd()) if f.endswith( '.class' ) ]
             for f in filelist:
                 os.remove(os.path.join(os.getcwd(), f))
             #remove old jar file list
-            self.chdir( '..,' + self.getDistrubutionPath() + ',lib,' )
+            self.chdir( '..,' + self.getDistrubutionPath() + ',' + self.getDistributionJarDirectory() + ',' )
             filelist = [ f for f in os.listdir(os.getcwd()) if f.endswith( '.jar' ) ]
             for f in filelist:
                 os.remove(os.path.join(os.getcwd(), f))
@@ -104,7 +124,7 @@ class Routines:
             #copy current jar list to the lib folder in the run directory
             filelist = [ f for f in os.listdir(os.path.join(os.getcwd(), self.formatStr( self.getJarPath() + ',' ))) if f.endswith( '.jar' ) ]
             for f in filelist:
-                copy( os.path.join(os.getcwd(), self.formatStr( self.getJarPath() + ',' ) + f), os.getcwd() + self.formatStr( ',' + self.getDistrubutionPath() + ',lib,' ))
+                copy( os.path.join(os.getcwd(), self.formatStr( self.getJarPath() + ',' ) + f), os.getcwd() + self.formatStr( ',' + self.getDistrubutionPath() + ',' +  self.getDistributionJarDirectory() + ',' ))
             
         #move back to the python directory
         self.chdir( 'python' )
@@ -112,6 +132,8 @@ class Routines:
 
     #debug sets up a debuggin environment for the current code base
     def debug( self ):
+        #create the test directory
+        self.createTest()
         p = ''
         #change directory to jar file location
         self.chdir( '..,' + self.getJarPath())
@@ -146,7 +168,7 @@ class Routines:
         #get current jar list and add it to the Class-Path
         filelist = [ fi for fi in os.listdir(os.getcwd()) if fi.endswith( '.jar' ) ]
         for fi in filelist:
-            cP += self.formatStr( 'lib,' + fi + ' ' )
+            cP += self.formatStr( self.getDistributionJarDirectory() + ',' + fi + ' ' )
         #move back to the python directory
         self.chdir( '..,python' )
         #Class-Path is added if a jar file was found
@@ -157,23 +179,21 @@ class Routines:
         return None
 
     #clean cleans out the test folder of all unnecessary files
-    def clean ( self ):
-        #remove all class files
-        self.chdir( '..,' + self.getDebugPath() + ',' + self.getPackageName())
-        filelist = [ f for f in os.listdir(os.getcwd()) if f.endswith( '.class' ) ]
-        for f in filelist:
-            os.remove(os.path.join(os.getcwd(), f))
-        self.chdir( '..,' )
+    def clean( self ):
+        #remove unnecessary directories if they exists
         try:
-            #remove unnecessary directory if it exists
-            shutil.rmtree( 'com' )
+            shutil.rmtree( self.formatStr( '..,test' ))
         except:
             pass
-        self.chdir( '..,python' )
+        try:
+            shutil.rmtree( self.formatStr( '..,build' ))
+        except:
+            pass
         return None
 
     #run makes and runs the JAR file
     def run( self ):
+        self.createBuild()
         self.makeJar()
         #move to run directory
         self.chdir( '..,' + self.getDistrubutionPath())
@@ -186,8 +206,6 @@ class Routines:
     def push( self ):
         #document the repo
         self.document()
-        #get rid of unnecessary files
-        self.clean()
         #get necessary information from the user
         message = raw_input( 'Commit Message: ' )
         #commit and push the repo
@@ -202,13 +220,31 @@ class Routines:
        call( 'javadoc -d "documentation/docs" "' + self.getPackageName() + '"' )
        self.chdir( 'python' )
        return None
+    
+    def createTest( self ):
+        self.mkdir('..,test')
+        self.mkdir('..,test,' + self.getLogFileDirectory())
+        self.mkdir('..,test,Images')
+        self.chdir('..')
+        #copy current image list to the Images folder in the test directory
+        filelist = [ f for f in os.listdir(os.path.join(os.getcwd(), self.formatStr( 'Images,' )))]
+        for f in filelist:
+            copy( os.path.join(os.getcwd(), self.formatStr( 'Images,' ) + f), os.getcwd() + self.formatStr( ',test,Images' ))
+        self.chdir('python')
+
+    def createBuild( self ):
+        self.mkdir('..,build')
+        self.mkdir('..,build,' + self.getLogFileDirectory())
+        self.mkdir('..,build,' + self.getDistributionJarDirectory())
+
 
 def main():
     routine = Routines()
     print 'Enter one of the following: '
     print 'run - makes and runs the JAR file'
-    print 'push - cleans and push the repo'
+    print 'push - commits the current repo pushes it'
     print 'debug - runs the current code base for testing'
+    print 'clean - deletes the test and build directories'
     rout = raw_input( 'Enter desired option: ' )
     if( rout == 'run' ):
         routine.run()
@@ -216,5 +252,7 @@ def main():
         routine.push()
     elif( rout == 'debug' ):
         routine.debug()
+    elif ( rout == 'clean'):
+        routine.clean()
 
 if  __name__ =='__main__':main()
