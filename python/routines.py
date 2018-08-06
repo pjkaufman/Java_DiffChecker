@@ -13,6 +13,8 @@ class Routines:
   __packageName = 'dbdiffchecker'
   __distrJarDir = 'lib'
   __logFileDir = 'logs'
+  __createTest = True
+  __createBuild = True
 
   #__init__ is the constructor which initializes all instance variables
   def __init__(self):
@@ -31,24 +33,32 @@ class Routines:
   def getDistributionJarDirectory(self):
     return self.__distrJarDir
 
-  # getDebugPath retruns a string, which is the path to the debug file destination 
-  # from a level above where this script is
+  #getDebugPath retruns a string, which is the path to the debug file destination 
+  #from a level above where this script is
   def getDebugPath(self):
     return self.__debugDir
 
-  # getDistrubutionPath retruns a string, which is the path to the distribution file destination 
-  # from a level above where this script is
+  #getDistrubutionPath retruns a string, which is the path to the distribution file destination 
+  #from a level above where this script is
   def getDistrubutionPath(self):
     return self.__distrDir
 
-  # getJarPath retruns a string, which is the path to the where the jar files to include in the project's 
-  # jar file from a level above where this script is
+  #getJarPath retruns a string, which is the path to the where the jar files to include in the project's 
+  #jar file from a level above where this script is
   def getJarPath(self):
     return self.__jarDir
 
   #getPackageName returns a string, which is the name of the package that will be acted upon by this script
   def getPackageName(self):
     return self.__packageName
+
+  #shouldCreateTest is whether or not to create the test directory
+  def shouldCreateTest(self):
+    return self.__createTest
+  
+  #shouldCreateBuild is whether or not to create the build directory
+  def shouldCreateBuild(self):
+    return self.__createBuild
 
   #formatStr takes a string and converts all ','s to either '\\' or '/'
   #param: str is the string to have all commas replaced with either '\\' or '/'
@@ -59,14 +69,14 @@ class Routines:
       return str.replace(',', '/') 
 
   #chdir takes a string which is converted to the right format and then changes to the specified directory
-  # param dirStr is a string which represents a directory change string (for example: "..,bin")
+  #param dirStr is a string which represents a directory change string (for example: "..,bin")
   def chdir(self, dirStr):
     #format and run the change directory string
     os.chdir( self.formatStr(dirStr))
     return None
 
   #mkdir takes a string which is converted to the right format and then makes the specified directory
-  # param dirStr is a string which represents a directory change string (for example: "..,bin")
+  #param dirStr is a string which represents a directory change string (for example: "..,bin")
   def mkdir(self, dirStr):
     #format and make the directory
     try:
@@ -133,7 +143,8 @@ class Routines:
   #debug sets up a debuggin environment for the current code base
   def debug(self):
     #create the test directory
-    self.createTest()
+    if (self.shouldCreateTest()):
+      self.createTest()
     p = ''
     #change directory to jar file location
     self.chdir('..,' + self.getJarPath())
@@ -178,22 +189,24 @@ class Routines:
     f.close()
     return None
 
-  #clean cleans out the test folder of all unnecessary files
+  #clean deletes the test and build directories
   def clean(self):
-    #remove unnecessary directories if they exists
+    self.__removeDirectory('..,build')
+    self.__removeDirectory('..,test')
+    
+  #__removeDirectory takes in a directory and removes it if it exists
+  #param: directory is the directory to remove
+  def __removeDirectory(self, directory):
     try:
-      shutil.rmtree(self.formatStr('..,test'))
-    except:
-      pass
-    try:
-      shutil.rmtree(self.formatStr('..,build'))
+      shutil.rmtree(self.formatStr(directory))
     except:
       pass
     return None
 
   #run makes and runs the JAR file
   def run(self):
-    self.createBuild()
+    if (self.shoudlCreateBuild()):
+      self.createBuild()
     self.makeJar()
     #move to run directory
     self.chdir('..,' + self.getDistrubutionPath())
@@ -221,6 +234,7 @@ class Routines:
     self.chdir('python')
     return None
   
+  #createTest creates the test directory and makes it ready for the user
   def createTest(self):
     self.mkdir('..,test')
     self.mkdir('..,test,' + self.getLogFileDirectory())
@@ -231,11 +245,14 @@ class Routines:
     for f in filelist:
       copy(os.path.join(os.getcwd(), self.formatStr('Images,') + f), os.getcwd() + self.formatStr(',test,Images'))
     self.chdir('python')
+    self.__createTest = True
 
+  #createBuild makes the build directory
   def createBuild(self):
     self.mkdir('..,build')
     self.mkdir('..,build,' + self.getLogFileDirectory())
     self.mkdir('..,build,' + self.getDistributionJarDirectory())
+    self.__createBuild = False
 
 
 def main():
