@@ -3,6 +3,7 @@ dbdiffchecker/*.class
 
 # build data
 build/*
+!build/.gitkeep
 build/logs/*
 build/lib/*
 !build/logs/.gitkeep
@@ -11,7 +12,7 @@ build/lib/*
 # test data
 test/*
 test/logs/*
-test/images/*
+test/Images/*
 !test/logs/.gitkeep
-!test/images/.gitkeep
+!test/Images/.gitkeep
 !test/dbdiffchecker/.gitkeep
