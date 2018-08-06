@@ -2,17 +2,16 @@
 dbdiffchecker/*.class
 
 # build data
-build/*
+build/*.jar
 !build/.gitkeep
 build/logs/*
-build/lib/*
 !build/logs/.gitkeep
+build/lib/*
 !build/lib/.gitkeep
 
 # test data
-test/*
+test/dbdiffchecker
 test/logs/*
 test/Images/*
 !test/logs/.gitkeep
 !test/Images/.gitkeep
-!test/dbdiffchecker/.gitkeep
