@@ -3,7 +3,7 @@ package dbdiffchecker;
 /**
  * Column resembles a column in MySQL and contains column info.
  * @author Peter Kaufman
- * @version 7-29-18
+ * @version 8-5-18
  * @since 9-10-17
  */
 public class Column extends Schema {
@@ -11,7 +11,7 @@ public class Column extends Schema {
   private String details = "";
 
   /**
-   * Column initializes a column object by setting its name and details.
+   * Initializes a column object by setting its name and details.
    * @author Peter Kaufman
    * @param name the name of the column
    * @param details the info of the column
@@ -23,15 +23,14 @@ public class Column extends Schema {
   }
 
   /**
-   * This is the default constructor for this class, which is needed for the file conversion to 
-   * JSON. 
+   * This is the default constructor for this class, <b> Needed for Serialization</b>.
    */
   public Column() {}
 
   /**
-   * getDetails returns the info about the column.
+   * returns the column detailts.
    * @author Peter Kaufman
-   * @return details the info about the column
+   * @return the info about the column
    */
   public String getDetails() {
 

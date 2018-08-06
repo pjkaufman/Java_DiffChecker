@@ -16,14 +16,14 @@ public class Schema implements Serializable {
   protected String createStatement = "";
 
   /**
-   * This is the default constructor Schema, it initializes the object. 
+   * The default constructor is needed for serialization.
    */
-  public Schema () {}
+  public Schema() {}
 
   /**
-   * getName returns the name of the Schema object.
+   * Returns the name of the Schema object.
    * @author Peter Kaufman
-   * @return name is a String which is the name of the Schema object.
+   * @return The name of the Schema object.
    */
   protected String getName() {
 
@@ -31,9 +31,9 @@ public class Schema implements Serializable {
   }
 
   /**
-   * getCreateStatement returns the create statement of the Schema object.
+   * Returns the create statement of the Schema object.
    * @author Peter Kaufman
-   * @return create is a String which is the create statement of the of the Schema object.
+   * @return The create statement of the of the Schema object.
    */
   protected String getCreateStatement() {
 

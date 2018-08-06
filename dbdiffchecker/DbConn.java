@@ -30,17 +30,16 @@ public class DbConn {
   private ArrayList<String> firstSteps = new ArrayList<>();
 
   /**
-   * DbConn initializes a DB_conn object by setting the instance variables and
+   * Initializes a DB_conn object by setting the instance variables and
    * testing the database connection to make sure that the database can be reached. 
    * @author Peter Kaufman
-   * @param username is a String which isthe username of the MySQL account.
-   * @param password is a String which is the password of the MySQL account.
-   * @param host is a String which is the host of the MySQL account.
-   * @param port is a String which is the port MySQL is running on.
-   * @param database is a String which is the database in MySQL that the connection
-   *     is to be established with.
-   * @param type is a String which is to either dev or live.
-   * @throws SQLException the database could not be connected to using the provided information.
+   * @param username The username of the MySQL account.
+   * @param password The password of the MySQL account.
+   * @param host The host of the MySQL account.
+   * @param port The port MySQL is running on.
+   * @param database The database in MySQL that the connection is to be established with.
+   * @param type Is to either dev or live.
+   * @throws SQLException The database could not be connected to using the provided information.
    */
   public DbConn(String username, String password, String host, String port, 
       String database, String type) throws SQLException {
@@ -57,10 +56,9 @@ public class DbConn {
   }
 
   /**
-   * getDatabaseName returns the name of the database that this Db_conn object is to connect to.
+   * Returns the name of the database to connect to.
    * @author Peter Kaufman
-   * @return db is a String which is the name of the database that this Db_conn object 
-   *     is to connect to.
+   * @return The name of the database to connect to.
    */
   public String getDatabaseName() {
 
@@ -68,13 +66,12 @@ public class DbConn {
   }
 
   /**
-   * getFirstSteps returns the first steps to be taken in order to run the SQL
+   * Returns the first steps to be taken in order to run the SQL
    * statements. These SQL statements are used to drop Primary Keys and remove 
    * auto_increments on the database provided. <b>Note: this funntion will return 
    * an empty ArrayList if the function is called on the dev database.</b>
    * @author Peter Kaufman
-   * @return firstSteps is an ArrayList of Strings which is the first steps to be taken 
-   *     in order to run the SQL statements
+   * @return The first steps to be taken in order to run the SQL statements
    */
   public ArrayList<String> getFirstSteps() {
 
@@ -82,23 +79,24 @@ public class DbConn {
   }
 
   /**
-   * establishDatabaseConnection makes a connection with the database using the information from 
-   * this object's constructor.
+   * Makes a connection with the database using the information from this object's constructor.
    * @author Juan Nadal
-   * @see <a href="https://www.youtube.com/watch?v=e3gnhsGqNmI&t=158s">https://www.youtube.com/watch?v=e3gnhsGqNmI&t=158s</a>
-   * @throws DatabaseDiffernceCheckerException a wrapper for the erro when connecting to the database
+   * @see <a href="https://www.youtube.com/watch?v=e3gnhsGqNmI">https://www.youtube.com/watch?v=e3gnhsGqNmI</a>
+   * @throws DatabaseDiffernceCheckerException Error when connecting to the database.
    */
   public void establishDatabaseConnection() throws DatabaseDiffernceCheckerException {
     try {
       this.con = DriverManager.getConnection(this.connString, this.username, this.password);
     } catch (SQLException e) {
-      throw new DatabaseDiffernceCheckerException("There was an error connecting to the " + this.db + " database.", e);
+      throw new DatabaseDiffernceCheckerException("There was an error connecting to the " 
+          + this.db + " database.", e);
     }
   }
 
   /**
-   * closeDatabaseConnection closes the connection with the database.
+   * Closes the connection with the database.
    * @author Peter Kaufman
+   * @throws DatabaseDiffernceCheckerException Error when closing the connection to the database.
    */
   public void closeDatabaseConnection() throws DatabaseDiffernceCheckerException {
     try {
@@ -110,11 +108,11 @@ public class DbConn {
   }
 
   /**
-   * getTableCreateStatement gets and returns the create statement of the specified table.
+   * Gets and returns the create statement of the specified table.
    * @author Peter Kaufman
-   * @param table is a String which is the name of the table for which the create statement
-   *     should be retrieved.
-   * @return a String which is the table's create statement or an empty string if an error occurred.
+   * @param table The name of the table for which the create statement should be retrieved.
+   * @return Table's create statement or an empty string if an error occurred.
+   * @throws DatabaseDiffernceCheckerException Error when getting a table's create statement.
    */
   public String getTableCreateStatement(String table) throws DatabaseDiffernceCheckerException {
     try {
@@ -130,11 +128,11 @@ public class DbConn {
   }
 
   /**
-   * getViewCreateStatement gets and returns the create statement of the desired table.
+   * Gets and returns the create statement of the desired table.
    * @author Peter Kaufman
-   * @param view is a String which is the name of the view for which the create statement should be 
-   *     retrieved.
-   * @return a String which is the view's create statement or an empty string if an error occurred.
+   * @param view The name of the view for which the create statement should be retrieved.
+   * @return The view's create statement.
+   * @throws DatabaseDiffernceCheckerException Error when getting a view's create statement.
    */
   public String getViewCreateStatement(String view) throws DatabaseDiffernceCheckerException {
     try {
@@ -150,10 +148,10 @@ public class DbConn {
   }
 
   /**
-   * getTableList gets the tables, columns, and indices of the database.
+   * Gets the tables, columns, and indices of the database.
    * @author Peter Kaufman
-   * @return is a HashMap of String and Table object pairs which are the names of the tables
-   *     and table data that exist in the database.
+   * @return The names of the tables and table data that exist in the database.
+   * @throws DatabaseDiffernceCheckerException Error when getting a table data.
    */
   public HashMap<String, Table> getTableList() throws DatabaseDiffernceCheckerException {
 
@@ -228,19 +226,20 @@ public class DbConn {
   }
 
   /**
-   * getViews gets a list of views of that exist in the database.
+   * Gets a list of views of that exist in the database.
    * @author Peter Kaufman
-   * @return views is an ArrayList of Views which are all of the views in the database.
+   * @return All of the views in the database.
+   * @throws DatabaseDiffernceCheckerException Error when getting a view's data.
    */
-  public ArrayList<Views> getViews() throws DatabaseDiffernceCheckerException {
+  public ArrayList<View> getViews() throws DatabaseDiffernceCheckerException {
 
-    ArrayList<Views> views = new ArrayList<>();
+    ArrayList<View> views = new ArrayList<>();
     try {
       String sql = "SHOW FULL TABLES IN `" + this.db + "` WHERE TABLE_TYPE LIKE 'VIEW';";
       Statement query = this.con.createStatement();
       ResultSet set = query.executeQuery(sql);
       while (set.next()) {
-        views.add(new Views(set.getString("Tables_in_" + this.db),
+        views.add(new View(set.getString("Tables_in_" + this.db),
               getViewCreateStatement(set.getString("Tables_in_" + this.db))));
       }
 
@@ -252,10 +251,10 @@ public class DbConn {
   }
 
   /**
-   * runSequelStatement takes an SQL statement, runs it, and returns a boolean
-   * value which is whether or not an error occurred while running the statement.
+   * Takes an SQL statement and attempts to run it.
    * @author Peter Kaufman
-   * @param sqlStatement is a String which is an SQL statement
+   * @param sqlStatement A SQL statement.
+   * @throws DatabaseDiffernceCheckerException An error when running the SQL statement.
    */
   public void runSequelStatement(String sqlStatement) throws DatabaseDiffernceCheckerException {
     try {
@@ -270,9 +269,9 @@ public class DbConn {
   }
 
   /**
-   * testConnection determines if the connection to the db is correct or not
+   * Determines if the connection to the db is correct or not.
    * @author Peter Kaufman
-   * @throws SQLException an error occurred while attempting to connect to the database.
+   * @throws SQLException An error occurred while attempting to connect to the database.
    */
   private void testConnection() throws SQLException {
 
@@ -283,12 +282,11 @@ public class DbConn {
   }
 
   /**
-   * fillOutColumns creates a column, gets the column's info, and adds it to the
-   * provided Table object.
+   * Creates a column, gets the column's info, and adds it to the provided Table object.
    * @author Peter Kaufman
-   * @param table is a Table object which is where the new column will be added.
-   * @param column is a ResultSet object which contains the data to make a column.
-   * @throws SQLException an error occurred while accessing a column property.
+   * @param table Where the new column will be added.
+   * @param column Contains the data to make a column.
+   * @throws SQLException An error occurred while accessing a column property.
    */
   private void fillOutColumns(Table table, ResultSet column) throws SQLException {
     // get data from queried array
@@ -333,13 +331,12 @@ public class DbConn {
   }
 
   /**
-   * createIndexes takes in a ResultSet and a table object and adds all indexes 
-   * found in the ResultSet to the table object.
+   * Takes in a ResultSet and a table object and adds all indexes found in the 
+   * ResultSet to the table object.
    * @author Peter Kaufman
-   * @param table is a table object which is where the new indexes will be added.
-   * @param index is a ResultSet object which contains the data to make a indexes 
-   *     for a specific table.
-   * @throws SQLException an error occurred while accessing an index property.
+   * @param table Where the new indexes will be added.
+   * @param index Contains the data to make a indexes for a specific table.
+   * @throws SQLException An error occurred while accessing an index property.
    */
   private void createIndexes(Table table, ResultSet index) throws SQLException {
     // set up a hashmap for fast index name checking
@@ -361,7 +358,7 @@ public class DbConn {
       // iterate over the ramaining indexes
       while (index.next()) {
         // if the index name is already in the hashmap, the
-        // index data not been completely collected yet
+        // index data has not been completely collected yet
         if (indices.containsKey(index.getString("Key_name"))) {
           // the only data needed is the column because the other data is the same
           columns += "`" + index.getString("Column_name") + "`,";
@@ -413,13 +410,13 @@ public class DbConn {
   }
 
   /**
-   * getCreateIndex takes in three Strings and an integer which are used to 
-   * determine the type of index and create the index's create statement.
+   * Takes in three Strings and an integer which are used to determine the type of 
+   * index and create the index's create statement.
    * @author Peter Kaufman
-   * @param columns is a String which is the columns that the index is on.
-   * @param name is a String which is the name of the index.
-   * @param type is a String which is the type of indexing used on the index.
-   * @param unique is an integer which is whether or not an index has unique values or not.
+   * @param columns The columns that the index is on.
+   * @param name The name of the index.
+   * @param type The type of indexing used on the index.
+   * @param unique Whether or not an index has unique values or not.
    */
   private String getCreateIndex(String columns, String name, String type, int unique) {
 

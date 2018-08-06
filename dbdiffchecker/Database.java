@@ -1,31 +1,32 @@
 package dbdiffchecker;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.io.Serializable;
 
 /**
  * Database models a MYSQL database schema.
  * @author Peter Kaufman
- * @version 5-24-18
+ * @version 8-5-18
  * @since 9-18-17
  */
 public class Database implements Serializable {
   // Instance variables
   private HashMap<String, Table> tables = new HashMap<>();
   private HashMap<String, String> exclude = new HashMap<>();
-  private ArrayList<Views> views = new ArrayList<>();
+  private ArrayList<View> views = new ArrayList<>();
   private ArrayList<String> firstSteps = new ArrayList<>();
   private static final long serialVersionUID = 1L;
 
   /**
-   * Database initializes a Database object by using a database connection. 
+   * Initializes a Database object by using a database connection. 
    * The database provided connection is used to initialize a HashMap of tables 
    * and views that exist in the database provided and get SQL statements to drop 
    * all Primary Keys and remove all auot_increments in the database provided which
    * will only be used on the live database.
    * @author Peter Kaufman
-   * @param db is a DbConn connection which is used to get db information
+   * @param db The database connection used to get the database information
+   * @throws DatabaseDiffernceCheckerException Error connecting or closing the database connection.
    */
   public Database(DbConn db) throws DatabaseDiffernceCheckerException {
     // get tables and views
@@ -38,17 +39,17 @@ public class Database implements Serializable {
   }
 
   /**
-   * This is the default constructor for this class which is needed for the file conversion to JSON.
+   * This is the default constructor for this class which is needed for Serialization.
    */
   public Database() {}
 
   /**
-   * getFirstSteps returns the first steps to be taken in order to run the SQL statements.
+   * Returns the first steps to be taken in order to run the SQL statements.
    * These SQL statements are used to drop Primary Keys and remove auto_increments on the 
    * database provided. <b>Note: this function will return an empty ArrayList if the function
    * is called on the dev database.</b>
    * @author Peter Kaufman
-   * @return firstSteps the first steps to be taken in order to run the SQL statements
+   * @return The first steps to be taken in order to run the SQL statements
    */
   public ArrayList<String> getFirstSteps() {
 
@@ -57,10 +58,10 @@ public class Database implements Serializable {
   }
 
   /**
-   * getTables returns an HashMap of tables that are in the database provided.
+   * Returns an HashMap of tables that are in the database provided.
    * The key is the name of the table and the value is a Table object.
    * @author Peter Kaufman
-   * @return tables all of the tables in the provided database.
+   * @return All of the tables in the provided database.
    */
   public HashMap<String, Table> getTables() {
 
@@ -68,34 +69,33 @@ public class Database implements Serializable {
   }
 
   /**
-   * getViews returns an ArrayList of Views objects which is the all of the views
-   * in the database provided.
-   * @return views all of the views in the provided database.
+   * Returns all of the views in the database.
+   * @return All of the views in the database..
    */
-  public ArrayList<Views> getViews() {
+  public ArrayList<View> getViews() {
 
     return this.views;
   }
 
   /**
-   * updateViews takes in a list of views and returns the SQL statements needed
+   * Takes in a list of views and returns the SQL statements needed
    * to make the two databases have the exact same views. <b>Note: all views in
    * the live database will be dropped and all from the dev database will be created.</b>
    * @author Peter Kaufman
-   * @param liveViews all of the views in the live database.
-   * @return sql is an ArrayList of Strings which is the SQL statements to run in 
+   * @param liveViews all of the View in the live database.
+   * @return An ArrayList of Strings which is the SQL statements to run in 
    *      order to make the live database have the same views as the dev one.
    */
-  public ArrayList<String> updateViews(ArrayList<Views> liveViews) {
+  public ArrayList<String> updateViews(ArrayList<View> liveViews) {
 
     ArrayList<String> sql = new ArrayList<>();
     // drop all views
-    for (Views liveView: liveViews) {
+    for (View liveView: liveViews) {
 
       sql.add(liveView.getDrop());
     }
     // add all views
-    for (Views devView: this.views) {
+    for (View devView: this.views) {
 
       sql.add(devView.getCreateStatement());
     }
@@ -104,11 +104,11 @@ public class Database implements Serializable {
   }
 
   /**
-   * compareTables determines which table(s) is/are to be created or dropped.
+   * Determines which table(s) is/are to be created or dropped.
    * @author Peter Kaufman
    * @param liveTables is a HashMap of String and Table object pairs which 
    *       represent all tables in the live database.
-   * @return sql is an ArrayList of Strings which is the SQL statements to run in order to
+   * @return An ArrayList of Strings which is the SQL statements to run in order to
    *      remove and/or create tables in the live database.
    */
   public ArrayList<String> compareTables(HashMap<String, Table> liveTables) {
@@ -135,7 +135,7 @@ public class Database implements Serializable {
   }
 
   /**
-   * updateTables takes in two table lists which are HashMaps, and returns 
+   * Takes in two table lists which are HashMaps, and returns 
    * the SQL statements to run in order to make the live database have the
    * same table definitions as the dev one.
    * @author Peter Kaufman
@@ -144,7 +144,7 @@ public class Database implements Serializable {
    * @param updateTables is a HashMap of String and String pairs where the key and
    *      the value are the same, which is all the tables which are not the same in 
    *      the live and dev databases.
-   * @return sql is an ArrayList of Strings which is the SQL statements to run in order to make
+   * @return An ArrayList of Strings which is the SQL statements to run in order to make
    *      the live database have the same table definitions as the dev one.
    */
   public ArrayList<String> updateTables(HashMap<String, Table> live, 
@@ -163,55 +163,32 @@ public class Database implements Serializable {
   }
 
   /**
-   * tablesDiffs compares the two HashMaps which represent the tables in the live
+   * Compares the two HashMaps which represent the tables in the live
    * and dev databases, and returns a HashMap of table names whose structure did 
    * not match between the dev and live databases.
    * @author Peter Kaufman
    * @param liveTables is a HashMap of String and Table object pairs which are the 
    *      table names and table data for all tables in the live database.
-   * @return update_tables is an HashMap which is the tables that are to be updated because 
+   * @return An HashMap which is the tables that are to be updated because 
    *      their structures did not match between the dev and live databases.
    */
   public HashMap<String, String> tablesDiffs(HashMap<String, Table> liveTables) {
 
-    HashMap<String, String> devstructure = new HashMap<>(), 
-          livestructure = new HashMap<>(),
-          updatetables = new HashMap<>();
-    // get dev db's table structure
-    String struct = null;
+    HashMap<String, String> updateTables = new HashMap<>();
+
     for (String tableName : this.tables.keySet()) {
-      if (!this.exclude.containsKey(tableName)) {
+      if (!this.exclude.containsKey(tableName) && !this.tables.get(tableName).getCreateStatement()
+          .equals(liveTables.get(tableName).getCreateStatement())) {
 
-        struct = this.tables.get(tableName).getCreateStatement() + ";";
-        devstructure.put(struct, struct);
-      }
-    }
-    // get live db's table structures
-    for (String tableName: liveTables.keySet()) {
-      if (!this.exclude.containsKey(tableName)) {
-
-        struct = liveTables.get(tableName).getCreateStatement() + ";";
-        livestructure.put(struct, struct);
-      }
-    }
-    // compare dev and live table structures
-    String temp = null;
-    for (String structure: devstructure.keySet()) {
-      if (!livestructure.containsKey(structure)) {
-        System.out.println("199");
-        System.out.println(structure);
-        temp = structure.replace("CREATE TABLE `", "")
-                .substring(0, structure.replace("CREATE TABLE `", "")
-                            .indexOf("`"));
-        updatetables.put(temp, temp);
+        updateTables.put(tableName, tableName);
       }
     }
 
-    return updatetables;
+    return updateTables;
   }
 
   /**
-   * checkFirstSteps checks to see if any of the SQL statements in the fistSteps
+   * Checks to see if any of the SQL statements in the fistSteps
    * ArrayList are also in the exclusion list. If it is, it is removed.
    * @author Peter Kaufman
    */

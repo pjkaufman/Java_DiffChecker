@@ -20,22 +20,22 @@ import javax.swing.SwingWorker;
 /**
  * Result is a JFrame that shows the provided data to the user.
  * @author Peter Kaufman
- * @version 5-24-18
+ * @version 8-6-18
  * @since 9-20-17
  */
 public class Result extends JFrameV2 {
         // Instance variables
-  private DbConn db;
+  private DbConn db = null;
   private JScrollPane SQL = new JScrollPane();
   private JTextArea SQLShow = new JTextArea(5, 20);
   private JButton btnRun = new JButton("Run");
   private JLabel instructLabel = new JLabel("Run the following SQL to make the two databases the same:");
 
   /**
-   * Result initializes a Result object and determines how to display info based on whether or not the 
+   * Initializes a Result object and determines how to display info based on whether or not the
    * DbConn object is null.
    * @author Peter Kaufman
-   * @param db is a DbConn object which allows for connectio to the live database.
+   * @param db Allows for connectio to the live database.
    */
   public Result(DbConn db) {
 
@@ -49,7 +49,7 @@ public class Result extends JFrameV2 {
   }
 
   /**
-   * InitComonents sets up the GUI Layout, sets up all action events, and initializes instance variables.
+   * Sets up the GUI Layout, sets up all action events, and initializes instance variables.
    * @author Peter Kaufman
    */
   private void initComponents() {
@@ -81,9 +81,9 @@ public class Result extends JFrameV2 {
   }
 
   /**
-   * btnRunActionPerformed runs the SQL to update the live database.
+   * Runs the SQL to update the live database.
    * @author Peter Kaufman
-   * @param evt is a WindowEvent which is the btnRun button being clicked.
+   * @param evt btnRun button being clicked.
    */
   private void btnRunActionPerformed(ActionEvent evt) {
 
@@ -140,10 +140,10 @@ public class Result extends JFrameV2 {
   }
 
   /**
-    * results takes in an ArrayList of Strings and adds them to the JTextArea.
+    * Takes in an ArrayList of Strings and adds them to the JTextArea.
     * @author Peter Kaufman
-    * @param SQL is an ArrayList of Strings which is the SQL statements.
-    * @param title determines what the title JLabel's text will be.
+    * @param SQL The SQL statements.
+    * @param title Determines what the title JLabel's text will be.
     */
   public void results(ArrayList<String> SQL, String title) {
     try{
@@ -164,7 +164,7 @@ public class Result extends JFrameV2 {
 
         if (title.equals("Run the following SQL to make the two databases the same:")) {
 
-          FileConversion.writeToFile(SQL);
+          FileHandler.writeToFile(SQL);
         }
         instructLabel.setText(title);
         this.setSize(600, 210);

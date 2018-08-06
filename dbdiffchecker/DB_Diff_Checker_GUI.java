@@ -1,15 +1,15 @@
 package dbdiffchecker;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Font;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.Component;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JButton;
@@ -38,7 +38,7 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
   private JPanel submitArea = new JPanel();
 
   /**
-   * DB_Diff_Checker_GUI initializes a JFrame which will be used by the user to navigate through 
+   * Initializes a JFrame which will be used by the user to navigate through 
    * the application.
    * @author Peter Kaufman
    */
@@ -89,21 +89,21 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
   }
 
   /**
-   * continueBtnMouseClicked determines which JFrame to open based on user input.
+   * Determines which JFrame to open based on user input.
    * @author Peter Kaufman
-   * @param evt is a MouseEvent which is the continue button being clicked.
+   * @param evt The continue button click event object.
    */
   private void continueBtnMouseClicked(MouseEvent evt) {
-    switch(input.getText().trim()) {
+    switch (input.getText().trim()) {
       case "1":
-        DBCompare1 compare2Databases = new DBCompare1(0);
+        DBCompare compare2Databases = new DBCompare(0);
         compare2Databases.setSize(575, 325);
         compare2Databases.setVisible(true);
         this.close();
         break; 
       case "2":
-        if (FileConversion.fileExists(FileConversion.databaseSnapshotFileName)) {
-          DBCompare1 compare1Database = new DBCompare1(1);
+        if (FileHandler.fileExists(FileHandler.databaseSnapshotFileName)) {
+          DBCompare compare1Database = new DBCompare(1);
           compare1Database.setSize(350, 275);
           compare1Database.setVisible(true);
           this.close();
@@ -112,50 +112,50 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
         }
         break;
       case "3":
-        DBCompare1 databaseSnapshot = new DBCompare1(2);
+        DBCompare databaseSnapshot = new DBCompare(2);
         databaseSnapshot.setSize(350, 275);
         databaseSnapshot.setVisible(true);
         this.close();
         break;
       case "4":
-        if (FileConversion.fileExists(FileConversion.lastSequelStatementFileName)) {
-          displayLog(FileConversion.lastSequelStatementFileName);
+        if (FileHandler.fileExists(FileHandler.lastSequelStatementFileName)) {
+          displayLog(FileHandler.lastSequelStatementFileName);
           this.close();
         } else {
           optionTitleLabel.setText("The DBC has not been run before.");
         }
         break;
       case "5":
-      if (FileConversion.fileExists(FileConversion.logFileName)) {
-        displayLog(FileConversion.logFileName);
-        this.close();
-      } else {
-        optionTitleLabel.setText("The DBC has not been run before.");
-      }
-      break;
+        if (FileHandler.fileExists(FileHandler.logFileName)) {
+          displayLog(FileHandler.logFileName);
+          this.close();
+        } else {
+          optionTitleLabel.setText("The DBC has not been run before.");
+        }
+        break;
       default:
         optionTitleLabel.setText("Please enter a number 1 to " + optionLabelText.length + ".");
     }
   }
 
   /**
-   * displayLog opens a JFrame with log information depending on what file name is passed to it.
+   * Opens a JFrame with log information depending on what file name is passed to it.
    * @author Peter Kaufman
-   * @param file is a String which is the file to have its contents displayed.
+   * @param file The file to have its contents displayed.
    */
   private void displayLog(String file) {
     try {
 
       String title;
       Result rs = new Result(null);
-      if (file.equals(FileConversion.logFileName)) {
+      if (file.equals(FileHandler.logFileName)) {
 
         title = "The Run Log:";
       } else {
 
         title = "Last Set of SQL Statements Run:";
       }
-      rs.results(FileConversion.readFrom(file), title);
+      rs.results(FileHandler.readFrom(file), title);
       rs.setTitle(title.substring(0, title.length() - 1));
     } catch (IOException e) {
       try {
@@ -169,32 +169,11 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
   }
 
   /**
-   * main is the main method which sets up and prepares the GUI for the user and
-   * initializes the first JFrame. 
+   * Sets up and prepares the GUI for the user and initializes the first JFrame. 
    * @author Peter Kaufman
    * @param args is not used.
    */
   public static void main(String[] args) {
-    try {
-      for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-        if ("Nimbus".equals(info.getName())) {
-          UIManager.setLookAndFeel(info.getClassName());
-          break;
-        }
-      }
-    } catch (ClassNotFoundException ex) {
-      java.util.logging.Logger.getLogger(DB_Diff_Checker_GUI.class.getName()).log(
-          java.util.logging.Level.SEVERE, null, ex);
-    } catch (InstantiationException ex) {
-      java.util.logging.Logger.getLogger(DB_Diff_Checker_GUI.class.getName()).log(
-            java.util.logging.Level.SEVERE, null, ex);
-    } catch (IllegalAccessException ex) {
-      java.util.logging.Logger.getLogger(DB_Diff_Checker_GUI.class.getName()).log(
-          java.util.logging.Level.SEVERE, null, ex);
-    } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-      java.util.logging.Logger.getLogger(DB_Diff_Checker_GUI.class.getName()).log(
-          java.util.logging.Level.SEVERE, null, ex);
-    }
 
     /* Create and display the form */
     EventQueue.invokeLater(new Runnable() {

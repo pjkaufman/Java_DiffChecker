@@ -3,8 +3,8 @@ package dbdiffchecker;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,14 +23,16 @@ import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 
+import dbdiffchecker.FileHandler;
+
 /**
- * DBCompare1 is a JFrame that takes user input to make a comparison between 1
+ * DBCompare is a JFrame that takes user input to make a comparison between 1
  * devDatabase and a devDatabase snapshot or to take a devDatabase snapshot.
  * @author Peter Kaufman
  * @version 5-24-18
  * @since 9-20-17
  */
-public class DBCompare1 extends JFrameV2 {
+public class DBCompare extends JFrameV2 {
   // Instance variables
   private int type = 0;
   private int times = 1;
@@ -65,12 +67,11 @@ public class DBCompare1 extends JFrameV2 {
   private JPanel footc = new JPanel(new FlowLayout());
 
   /**
-   * DBCompare1 initializes a DBCompare1 object with a title and text for the its button.
+   * Initializes a DBCompare object with a title and text for the its button.
    * @author Peter Kaufman
-   * @param title the title of this JFrame.
-   * @param buttonTxt the text to be displayed on the button databaseConnection1btn.
+   * @param type The type of JFrame to create.
    */
-  public DBCompare1(int type) {
+  public DBCompare(int type) {
     this.type = type;  
     initComponents();
     clase = this.getClass().getName();
@@ -130,7 +131,7 @@ public class DBCompare1 extends JFrameV2 {
     // add components to the appropriate ArrayList
     cpnt.add(headT);
     cpnr.add(databaseConnection1btn);
-    switch(type) {
+    switch (type) {
       case 0:
         addComponents(devDatabaseInputs);
         addComponents(livevDatabaseInputs);
@@ -164,17 +165,16 @@ public class DBCompare1 extends JFrameV2 {
   }
 
   /**
-   * databaseConnection1btnActionPerformed determines if the user has put in the
-   * appropriate information and either 
-   * takes a devDatabase snapshot or compares a devDatabase to a devDatabase snapshot.
+   * Determines if the user has put in the appropriate information and either 
+   * takes a database snapshot or compares a two databases (one can be a snapshot).
    * @author Peter Kaufman
-   * @param evt is an ActionEvent which is clicking the button databaseConnection1btn.
+   * @param evt The event button that occurs when databaseConnection1btn is clicked.
    */
   private void databaseConnection1btnActionPerformed(ActionEvent evt) {
     if (allFieldsFilledOut()) {
 
       this.error = false;
-      switch(type) {
+      switch (type) {
         case 0:
         case 1:
           getSequelStatementsInBackground();
@@ -190,7 +190,7 @@ public class DBCompare1 extends JFrameV2 {
   }
 
   /**
-    * takeSnapshot takes a devDatabase snapshot based on user input.
+    * Takes a devDatabase snapshot based on user input.
     * @author Peter Kaufman
     */
   private void takeSnapshot() {
@@ -203,12 +203,13 @@ public class DBCompare1 extends JFrameV2 {
         try {
           publish("Establishing Database Connection");
           sw.start();
-          devDatabaseConnection =  new DbConn(devUsername.getText(), new String(devPassword.getPassword()),
-              devHost.getText(), devPort.getText(), devDatabaseName.getText(), "dev");
+          devDatabaseConnection =  new DbConn(devUsername.getText(), 
+              new String(devPassword.getPassword()), devHost.getText(), 
+              devPort.getText(), devDatabaseName.getText(), "dev");
           publish("Gathering Database Information");
           devDatabase = new Database(devDatabaseConnection);
           publish("Writing to JSON File");
-          FileConversion.writeToFile(devDatabase);
+          FileHandler.serializeDatabase(devDatabase);
           sw.stop();
           log("Took a DB Snapshot on " + sw.getDate() + " at " + sw.getHour() + " in " 
               + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
@@ -233,7 +234,8 @@ public class DBCompare1 extends JFrameV2 {
           if (e instanceof DatabaseDiffernceCheckerException) {
             error((DatabaseDiffernceCheckerException)e);
           } else {
-            error(new DatabaseDiffernceCheckerException(e.getMessage().substring(e.getMessage().indexOf(":") + 1), e));
+            error(new DatabaseDiffernceCheckerException(e.getMessage().substring(
+                e.getMessage().indexOf(":") + 1), e));
           }
         }
       }
@@ -248,7 +250,7 @@ public class DBCompare1 extends JFrameV2 {
   }
 
   /**
-  * compare compares two databases based on user input.
+  * Compares two databases based on user input (one can be a snapshot).
   * @author Peter Kaufman
   */
   private void getSequelStatementsInBackground() {
@@ -261,7 +263,6 @@ public class DBCompare1 extends JFrameV2 {
         setupDatabases();
         publish("Comparing Databases");
         compareDatabases();
-        // TODO: determine what todo here if an error is thrown
         return true; 
       }
 
@@ -292,6 +293,11 @@ public class DBCompare1 extends JFrameV2 {
     swingW.execute();
   }
 
+  /**
+   * Takes in an array of components and adds them to a JFrame.
+   * @author Peter Kaufman
+   * @param components The array of components to add to the JFrame.
+   */
   public void addComponents(Component[] components) {
     JLabel tempLabel = null;
     JPanel tempPanel = new JPanel(new GridLayout(labelText.length, 2));
@@ -307,22 +313,26 @@ public class DBCompare1 extends JFrameV2 {
     content.add(tempPanel);
   }
 
+  /**
+   * Gets two databases setup based on the type of the JFrame.
+   * @author Peter Kaufman
+   */
   private void setupDatabases() throws DatabaseDiffernceCheckerException {
     sw.start();
     try {
-      if (this.type == 0 ) { 
+      if (this.type == 0) { 
         devDatabaseConnection = new DbConn(devUsername.getText(),
             new String(devPassword.getPassword()), devHost.getText(), devPort.getText(),
             devDatabaseName.getText(), "dev");
         devDatabase = new Database(devDatabaseConnection);
       } else {
-        devDatabase = FileConversion.readFrom();
+        devDatabase = FileHandler.deserailizDatabase();
       }
       liveDatabaseConnection = new DbConn(liveUsername.getText(),
             new String(livePassword.getPassword()), liveHost.getText(), livePort.getText(),
             liveDatabaseName.getText(), "live");
       liveDatabase = new Database(liveDatabaseConnection);
-    } catch(Exception cause) {
+    } catch (Exception cause) {
       String errorMessage = "";
       if (cause instanceof SQLException) {
         errorMessage = "There was an error with the database connection. Please try again.";
@@ -333,6 +343,10 @@ public class DBCompare1 extends JFrameV2 {
     } 
   }
 
+  /**
+   * Compares to databases and determines their differneces and how to make them the same.
+   * @author Peter Kaufman
+   */
   private void compareDatabases() throws DatabaseDiffernceCheckerException {
     sql.addAll(liveDatabase.getFirstSteps());
     sql.addAll(devDatabase.compareTables(liveDatabase.getTables()));
@@ -345,26 +359,31 @@ public class DBCompare1 extends JFrameV2 {
         + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
   }
 
+  /**
+   *  Whether or not the user has filled out all of the inputs that are needed to run the program.
+   *  @author Peter Kaufman
+   */
   private boolean allFieldsFilledOut() {
     boolean allFilledOut = false;
-    switch(type) {
-     case 0:
-      allFilledOut= !(devPort.getText().equals("") || livePort.getText().equals("") 
-          || devUsername.getText().equals("") || liveUsername.getText().equals("") 
-          || new String(devPassword.getPassword()).equals("") || new String(livePassword.getPassword()).equals("") 
-          || devHost.getText().equals("") || liveHost.getText().equals("")
-          || devDatabaseName.getText().equals("") || liveDatabaseName.getText().equals(""));
-      break;
-    case 1:
-      allFilledOut = !(livePort.getText().equals("") || liveUsername.getText().equals("") 
-          || new String(livePassword.getPassword()).equals("") || liveHost.getText().equals("") 
-          || liveDatabaseName.getText().equals(""));
-      break;
-    case 2:
-      allFilledOut = !(devPort.getText().equals("") || devUsername.getText().equals("") 
-          || new String(devPassword.getPassword()).equals("") || devHost.getText().equals("") 
-          || devDatabaseName.getText().equals(""));
-      break;
+    switch (type) {
+      case 0:
+        allFilledOut = !(devPort.getText().equals("") || livePort.getText().equals("") 
+            || devUsername.getText().equals("") || liveUsername.getText().equals("") 
+            || new String(devPassword.getPassword()).equals("") 
+            || new String(livePassword.getPassword()).equals("") || devHost.getText().equals("") 
+            || liveHost.getText().equals("") || devDatabaseName.getText().equals("") 
+            || liveDatabaseName.getText().equals(""));
+        break;
+      case 1:
+        allFilledOut = !(livePort.getText().equals("") || liveUsername.getText().equals("") 
+            || new String(livePassword.getPassword()).equals("") || liveHost.getText().equals("") 
+            || liveDatabaseName.getText().equals(""));
+        break;
+      case 2:
+        allFilledOut = !(devPort.getText().equals("") || devUsername.getText().equals("") 
+            || new String(devPassword.getPassword()).equals("") || devHost.getText().equals("") 
+            || devDatabaseName.getText().equals(""));
+        break;
     }
     
     return allFilledOut;    

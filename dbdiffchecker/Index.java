@@ -3,7 +3,7 @@ package dbdiffchecker;
 /**
  * Index resembles an index in MySQL and contains index info.
  * @author Peter Kaufman
- * @version 5-24-18
+ * @version 8-6-18
  * @since 9-12-17
  */
 public class Index extends Schema {
@@ -11,12 +11,11 @@ public class Index extends Schema {
   private String column = "";
 
   /**
-   * Index initializes an Index object by setting the name create statement, 
-   * and columns of the index.
+   * Initializes an Index object by setting the name create statement, and columns of the index.
    * @author Peter Kaufman
-   * @param name is a String which is the name of the index.
-   * @param create is a String which is the create statement of the index.
-   * @param column is a String which is the column of the index.
+   * @param name The name of the index.
+   * @param create The create statement of the index.
+   * @param column The column of the index.
    */
   public Index(String name, String create, String column) {
     this.name = name;
@@ -25,16 +24,15 @@ public class Index extends Schema {
   }
 
   /**
-   * This is the default constructor for this class, which is needed for the file 
-   * conversion to JSON. 
+   * The default constructor is needed for serialization.
    */
   public Index() {}
 
   /**
-   * getColumn returns the name of the column or columns of the index. <b>Note: the 
+   * Returns the name of the column or columns of the index. <b>Note: the 
    * column name(s) has/have already been formatted to work in SQL statements.</b>
    * @author Peter Kaufman
-   * @return col is a String which is/are the name(s) of the column of the index.
+   * @return The name(s) of columns that the index is on.
    */
   public String getColumn() {
 
@@ -42,20 +40,13 @@ public class Index extends Schema {
   }
 
   /**
-   * compareTo determines what if anything needs to be done to an index. The integer
-   * is either 0 or 1. Zero means that the index exists and is the same. One means 
-   * that the index does exist, but the definition is not the same. 
+   * Determines whether or not the indexes are the same. 
    * @author Peter Kaufman
-   * @param ind is an Index object which has the same name as the current Index object.
-   * @return is an integer which is either 0, or 1 depending on the action needed to be done.
+   * @param index An index with the same name as the current Index object.
+   * @return Whether or not the index needs to be changed.
    */
-  public int compareTo(Index ind) {
-    if (this.createStatement.equals(ind.createStatement) && this.column.equals(ind.column)) {
+  public boolean sameDetails(Index index) {
 
-      return 0; // the index is the exact same
-    } else {
-
-      return 1; // the index exists, but needs to be modified
-    }
+    return this.createStatement.equals(index.createStatement) && this.column.equals(index.column);
   }
 }

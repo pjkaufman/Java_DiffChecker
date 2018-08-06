@@ -19,11 +19,10 @@ public class Table extends Schema {
   private HashMap<String, Index> indices = new HashMap<>();
 
   /**
-   * Table initializes a Table object with a name create statement.
+   * Initializes a Table object with a name create statement.
    * @author Peter Kaufman
-   * @param name is a String that is the name of the table.
-   * @param create is a String which is the create statement of the
-   *     table info to create its columns.
+   * @param name The name of the table.
+   * @param create The create statement of the table info to create its columns.
    */
   public Table(String name, String create) {
     String temp = create.substring(create.indexOf("DEFAULT CHARSET=") + 16) + " ";
@@ -33,15 +32,14 @@ public class Table extends Schema {
   }
 
   /**
-   * This is the default constructor for this class, which is needed for the file 
-   * conversion to JSON. 
+   * The default constructor is needed for serialization.
    */
   public Table() {}
 
   /**
-   * getCollation returns the collation of the table.
+   * Returns the collation of the table.
    * @author Peter Kaufman
-   * @return collation is the collation of the table.
+   * @return The collation of the table.
    */
   public String getCollation() {
 
@@ -49,9 +47,9 @@ public class Table extends Schema {
   }
 
   /**
-   * getCharSet returns the character set of the table.
+   * Returns the character set of the table.
    * @author Peter Kaufman
-   * @return charSet is the character set of the table.
+   * @return The character set of the table.
    */
   public String getCharSet() {
 
@@ -59,9 +57,9 @@ public class Table extends Schema {
   }
 
   /**
-   * getAutoIncrement returns the autoIncrement count of the table.
+   * Returns the autoIncrement count of the table.
    * @author Peter Kaufman
-   * @return autoIncrement is the autoIncrement count of the table.
+   * @return The autoIncrement count of the table.
    */
   public String getAutoIncrement() {
 
@@ -69,9 +67,9 @@ public class Table extends Schema {
   }
 
   /**
-   * getColumns returns a HashMap of Strings and Column objects.
+   * Returns a HashMap of Strings and Column objects.
    * @author Peter Kaufman
-   * @return columns is a HashMap of String and Column object pairs which are the table's columns.
+   * @return The table's columns.
    */
   public HashMap<String, Column> getColumns() {
 
@@ -79,10 +77,9 @@ public class Table extends Schema {
   }
 
   /**
-   * getIndices returns a HashMap of Strings and Index objects.
+   * Returns a HashMap of Strings and Index objects.
    * @author Peter Kaufman
-   * @return indices is a HashMap of String and Index object pairs
-   *     which are the index names and index data.
+   * @return The index names and index data.
    */
   public HashMap<String, Index> getIndices() {
 
@@ -90,9 +87,9 @@ public class Table extends Schema {
   }
 
   /**
-   * setCollation sets the collation of the table.
+   * Sets the collation of the table.
    * @author Peter Kaufman
-   * @param collation is a String which is the collation of the table.
+   * @param collation The collation of the table.
    */
   public void setCollation(String collation) {
 
@@ -100,9 +97,9 @@ public class Table extends Schema {
   }
 
   /**
-   * setCharSet sets the character set of the table.
+   * Sets the character set of the table.
    * @author Peter Kaufman
-   * @param charSet is a String which is the character set of the table.
+   * @param charSet The character set of the table.
    */
   public void setCharSet(String charSet) {
 
@@ -110,9 +107,9 @@ public class Table extends Schema {
   }
 
   /**
-   * setAutoIncrement sets the autoIncrement count of the table.
+   * Sets the autoIncrement count of the table.
    * @author Peter Kaufman
-   * @param autoIncrement is a String which is the autoIncrement count of the table.
+   * @param autoIncrement The autoIncrement count of the table.
    */
   public void setAutoIncrement(String autoIncrement) {
 
@@ -120,9 +117,9 @@ public class Table extends Schema {
   }
 
   /**
-   * addColumn adds a column to the columns HashMap.
+   * Adds a column to the columns HashMap.
    * @author Peter Kaufman
-   * @param col is a Column object which is to be added to the column list.
+   * @param col A Column object which is to be added to the column list.
    */
   public void addColumn(Column col) {
 
@@ -130,9 +127,9 @@ public class Table extends Schema {
   }
 
   /**
-   * addIndex adds an index to the indices HashMap.
+   * Adds an index to the indices HashMap.
    * @author Peter Kaufman
-   * @param index is an Index object which is to be added to the index list.
+   * @param index An Index object which is to be added to the index list.
    */
   public void addIndex(Index index) {
 
@@ -140,11 +137,11 @@ public class Table extends Schema {
   }
 
   /**
-   * equals takes in a Table and compares it to the current one, the result is SQL statements 
+   * Takes in a Table and compares it to the current one, the result is SQL statements 
    * to make them the same.
    * @author Peter Kaufman 
-   * @param t1 is a Table object which is being compared to this Table object.
-   * @return sql is an ArrayList of String which is the SQL needed to make the tables the same.
+   * @param t1 A Table object which is being compared to this Table object.
+   * @return The SQL needed to make the tables the same.
    */
   public ArrayList<String> equals(Table t1) {
 
@@ -170,15 +167,12 @@ public class Table extends Schema {
   }
 
   /**
-   * dropCols takes two HashMaps of String and Column objects and returns part 
-   * of an SQL statement that drops a column or several columns. 
+   * Takes two HashMaps of String and Column objects and returns part of an SQL statement 
+   * that drops a column or several columns. 
    * @author Peter Kaufman
-   * @param cols1 is a HashMap of Strings and Column object pairs which are the
-   *     column names and column data of the current table.
-   * @param cols2 is a HashMap of Strings and Column object pairs which are the
-   *     column names and column data of a different table of the same name.
-   * @return sql is a String which is part of an SQL statement that drops a column
-   *     or several columns.  
+   * @param cols1 The column names and column data of the current table.
+   * @param cols2 The column names and column data of a different table of the same name.
+   * @return Part of an SQL statement that drops a column or several columns.  
    */
   private String dropCols(HashMap<String, Column> cols1, HashMap<String, Column> cols2) {
 
@@ -205,14 +199,12 @@ public class Table extends Schema {
   }
 
   /**
-   * otherCols takes two HashMaps of String and Column objects and returns part
-   * of an SQL statement that modifies and/or adds columns.
+   * Takes two HashMaps of String and Column objects and returns part of an SQL statement 
+   * that modifies and/or adds columns.
    * @author Peter Kaufman
-   * @param cols1 is a HashMap of Strings and Column object pairs which are the 
-   *     column names and column data of the current table.
-   * @param cols2 is a HashMap of Strings and Column object pairs which are the 
-   *     column names and column data of a different table of the same name.
-   * @return sql is a String which is part of an SQL statement that modifies and/or adds columns.
+   * @param cols1 The column names and column data of the current table.
+   * @param cols2 The column names and column data of a different table of the same name.
+   * @return Part of an SQL statement that modifies and/or adds columns.
    */
   private String otherCols(HashMap<String, Column> cols1, HashMap<String, Column> cols2) {
 
@@ -261,14 +253,11 @@ public class Table extends Schema {
   }
 
   /**
-   * dropIndices takes in two HashMaps of Indices and returns part of an SQL statement
-   * that drop indexes.
+   * Takes in two HashMaps of Indices and returns part of an SQL statement that drop indexes.
    * @author Peter Kaufman
-   * @param dev is a HashMap of Strings and Index object pairs which are the index names 
-   *     and index data of the current table.
-   * @param live is a HashMap of Strings and Index object pairs which are the index names
-   *     and index data of a different table of the same name.
-   * @return sql is a String which is part of an SQL statement that drops indexes.
+   * @param dev The index names and index data of the current table.
+   * @param live The index names and index data of a different table of the same name.
+   * @return Part of an SQL statement that drops indexes.
    */
   private String dropIndices(HashMap<String, Index> dev, HashMap<String, Index> live) {
 
@@ -293,15 +282,12 @@ public class Table extends Schema {
   }
 
   /**
-   * otherIndices takes in two lists of Indices and returns part of an SQL statement that 
+   * Takes in two lists of Indices and returns part of an SQL statement that 
    * either adds or drops and adds indexes.
    * @author Peter Kaufman
-   * @param dev is a HashMap of Strings and Index object pairs which are the index names and index 
-   *     data of the current table.
-   * @param live is a HashMap of Strings and Index object pairs which are the index 
-   *     names and index data of a different table of the same name.
-   * @return sql is a String which is part of an SQL statement that either adds or 
-   *     drops and adds indexes.
+   * @param dev The index names and index data of the current table.
+   * @param live The index names and index data of a different table of the same name.
+   * @return Part of an SQL statement that either adds or drops and adds indexes.
    */
   private String otherIndices(HashMap<String, Index> dev, HashMap<String, Index> live) {
 
@@ -312,7 +298,7 @@ public class Table extends Schema {
       // if the index exists in both databases or only in the dev database then add it
       indices1 = dev.get(indexName);
       if (live.containsKey(indexName)) {
-        if (indices1.compareTo(live.get(indexName)) == 1) {
+        if (!indices1.sameDetails(live.get(indexName))) {
           if (this.count == 0) {
 
             sql += "DROP INDEX `" + indices1.getName() + "`";

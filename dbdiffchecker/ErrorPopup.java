@@ -15,7 +15,7 @@ import javax.swing.SwingWorker;
 /**
  * ErrorPopup is a JFrame that shows a message about an error that occurred.
  * @author Peter Kaufman
- * @version 5-24-18
+ * @version 8-6-18
  * @since 9-21-17
  */
 public class ErrorPopup extends JFrameV2 {
@@ -24,10 +24,9 @@ public class ErrorPopup extends JFrameV2 {
   private JLabel titleLabel = new JLabel();
 
   /**
-   * ErrorPopup initializes an Error object with the provided error message which is displayed 
-   * for the user to see.
+   * Iinitializes s JFrame that displays an error to the user and logs the error.
    * @author Peter Kaufman
-   * @param error is error message to display to the user and to log.
+   * @param error Error message to display to the user and to log.
    */
   public ErrorPopup(DatabaseDiffernceCheckerException error) {
 
@@ -47,8 +46,7 @@ public class ErrorPopup extends JFrameV2 {
   }
 
   /**
-   * InitComonents sets up the GUI Layout, sets up all action events, and initializes 
-   * instance variables.
+   * Ssets up the GUI Layout, sets up all action events, and initializes instance variables.
    * @author Peter Kaufman
    */
   private void initComponents() {

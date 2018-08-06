@@ -35,7 +35,7 @@ public class JFrameV2 extends JFrame {
   protected TitledBorder nBorder = null;
 
   /**
-   * JFrameV2 sets up several JFrame settings and defualt listeners.
+   * Sets up several JFrame settings and defualt listeners.
    * @author Peter Kaufman
    */
   public JFrameV2() {
@@ -92,20 +92,20 @@ public class JFrameV2 extends JFrame {
   }
 
   /**
-   * error opens a JFrame with an the error message provided as a paramater.
+   * Opens a JFrame with an the error message provided as a paramater.
    * @author Peter Kaufman
-   * @param error is the Exception which contains a user friendly messand the error
+   * @param error The exception which contains a user friendly messand the error
    *     that is the cause. 
    */
   protected void error(DatabaseDiffernceCheckerException error) {
-    ErrorPopup err = new ErrorPopup(error);
+    new ErrorPopup(error);
     this.error = true;
   }
 
   /**
-   * displayResult opens a JFrame with the result of the comparison.
+   * Opens a JFrame with the result of the comparison.
    * @author Peter Kaufman
-   * @param db is a DbConn object which is the connection for the live database.
+   * @param db The connection for the live database.
    */
   protected void displayResult(DbConn db) {
     Result rs = new Result(db);
@@ -113,24 +113,23 @@ public class JFrameV2 extends JFrame {
   }
 
   /**
-   * formWindowClosing opens the start JFrame when the form is closing if an error has occurred 
+   * Opens the start JFrame when the form is closing if an error has occurred 
    * or the application is not to shutdown from this JFrame.
    * @author Peter Kaufman
-   * @param evt is a WindowEvent which is the JFrame closing.
+   * @param evt The JFrame closing.
    */
   protected void formWindowClosing(WindowEvent evt) {
     if (error) {
 
       DB_Diff_Checker_GUI start = new DB_Diff_Checker_GUI();
-      start.setSize(375, 225);
       start.setVisible(true);
     }
   }
 
   /**
-   * newBorder takes a String and sets the new title for the progressbar's border.
+   * Takes and sets the new title for the progressbar's border.
    * @author Peter Kaufman
-   * @param title is a String which becomes the new name of the titled borders.
+   * @param title The new name of the titled borders.
    */
   protected void newBorder(String title) {
 
@@ -142,18 +141,19 @@ public class JFrameV2 extends JFrame {
   /**
    * log takes two Strings and writes the first to either stdLog stdErr.
    * @author Peter Kaufman
-   * @param info is a String which is the data to be logged.
+   * @param info The data to be logged.
+   * @throws DatabaseDiffernceCheckerException Error logging data to a file.
    */
   protected void log(String info) throws DatabaseDiffernceCheckerException {
     try {
-      FileConversion.writeToFile(info);
+      FileHandler.writeToFile(info);
     } catch (IOException e) {
       throw new DatabaseDiffernceCheckerException("There was an error writing to the logs.", e);
     }
   }
 
   /**
-    * close closes the current JFrame object.
+    * Closes the current JFrame object.
     * @author Peter Kaufman
     */
   protected void close() {
@@ -162,12 +162,11 @@ public class JFrameV2 extends JFrame {
   }
 
   /**
-    * prepProgressBar gets the progressBar ready by reseting the StopWatch object 
-    * and determines which settings to turn on.
+    * Gets the progressBar ready by reseting the StopWatch object and determines 
+    * which settings to turn on.
     * @author Peter Kaufman
-    * @param title is a String which becomes the title for the border of the progressBar.
-    * @param indeterminate is a boolean that tells whether or not the progressBar
-    *      is to be indeterminate or not.
+    * @param title The title for the border of the progressBar.
+    * @param indeterminate Whether or not the progressBar is to be indeterminate.
     */
   protected void prepProgressBar(String title, boolean indeterminate) {
     newBorder(title);
@@ -181,10 +180,9 @@ public class JFrameV2 extends JFrame {
   }
 
   /**
-    * endProgressBar stops the progressBar, sets the border to the given String,
-    * and then hides the progressBar.
+    * Stops the progressBar, sets the border to the given String, and then hides the progressBar.
     * @author Peter Kaufman
-    * @param title is a String which becomes the title for the border of the progressBar
+    * @param title The title for the border of the progressBar
     */
   protected void endProgressBar(String title) {
     newBorder(title);
