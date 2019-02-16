@@ -14,8 +14,11 @@ import javax.swing.SwingWorker;
 
 /**
  * ErrorPopup is a JFrame that shows a message about an error that occurred.
+ * Program Name: Database Difference Checker
+ * CSCI Course: 325
+ * Grade Received: Pass
  * @author Peter Kaufman
- * @version 8-6-18
+ * @version 2-16-19
  * @since 9-21-17
  */
 public class ErrorPopup extends JFrameV2 {
@@ -24,7 +27,7 @@ public class ErrorPopup extends JFrameV2 {
   private JLabel titleLabel = new JLabel();
 
   /**
-   * Iinitializes s JFrame that displays an error to the user and logs the error.
+   * Initializes a JFrame that displays an error to the user and logs the error.
    * @author Peter Kaufman
    * @param error Error message to display to the user and to log.
    */
@@ -41,12 +44,12 @@ public class ErrorPopup extends JFrameV2 {
     error.printStackTrace();
     this.error = false;
     initComponents();
-    this.errorLabel.setText(error.getMessage());
+    this.errorLabel.setText(error.getMessage().substring(error.getMessage().indexOf(":") + 2));
     this.setVisible(true);
   }
 
   /**
-   * Ssets up the GUI Layout, sets up all action events, and initializes instance variables.
+   * Sets up the GUI Layout, sets up all action events, and initializes instance variables.
    * @author Peter Kaufman
    */
   private void initComponents() {

@@ -15,9 +15,12 @@ import java.util.Scanner;
 
 /**
  * FileHandler deals with all data coming from and going out to files.
+ * Program Name: Database Difference Checker
+ * CSCI Course: 325
+ * Grade Received: Pass
  * @author Peter Kaufman
- * @version 8-6-18
- * @since 9-12-17S
+ * @version 2-16-19
+ * @since 9-12-17
  */
 public class FileHandler {
 
@@ -75,7 +78,7 @@ public class FileHandler {
   /**
    * Takes a String and writes it to the specified file.
    * @author Peter Kaufman
-   * @param data To be written to the specified file.
+   * @param data The data to be written to the specified file.
    * @throws IOException Error writing the data to the specified file.
    */
   public static void writeToFile(String data) throws IOException {

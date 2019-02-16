@@ -205,7 +205,7 @@ class Routines:
 
   #run makes and runs the JAR file
   def run(self):
-    if (self.shoudlCreateBuild()):
+    if (self.shouldCreateBuild()):
       self.createBuild()
     self.makeJar()
     #move to run directory

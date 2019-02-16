@@ -19,8 +19,12 @@ import javax.swing.SwingWorker;
 
 /**
  * Result is a JFrame that shows the provided data to the user.
+ * Program Name: Database Difference Checker
+ * CSCI Course: 325
+ * Grade Received: Pass
  * @author Peter Kaufman
- * @version 8-6-18
+ * @version 2-16-19
+
  * @since 9-20-17
  */
 public class Result extends JFrameV2 {
@@ -173,7 +177,6 @@ public class Result extends JFrameV2 {
       this.setVisible(true);
     } catch(IOException e) {
 
-      // log("There was an error writing the SQL statement(s) to a file.", stdErr);
       error(new DatabaseDiffernceCheckerException("There was an error" 
           + " writing the SQL statement(s) to a file.", e));
     }

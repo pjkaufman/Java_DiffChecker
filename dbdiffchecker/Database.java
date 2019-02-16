@@ -6,8 +6,11 @@ import java.util.HashMap;
 
 /**
  * Database models a MYSQL database schema.
+ * Program Name: Database Difference Checker
+ * CSCI Course: 325
+ * Grade Received: Pass
  * @author Peter Kaufman
- * @version 8-5-18
+ * @version 2-16-19
  * @since 9-18-17
  */
 public class Database implements Serializable {
@@ -58,7 +61,7 @@ public class Database implements Serializable {
   }
 
   /**
-   * Returns an HashMap of tables that are in the database provided.
+   * Returns a HashMap of tables that are in the database provided.
    * The key is the name of the table and the value is a Table object.
    * @author Peter Kaufman
    * @return All of the tables in the provided database.

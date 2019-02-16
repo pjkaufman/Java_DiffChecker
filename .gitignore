@@ -6,3 +6,6 @@ build/
 
 # test data
 test/
+
+# vs code files
+.vscode

@@ -2,8 +2,11 @@ package dbdiffchecker;
 
 /**
  * Column resembles a column in MySQL and contains column info.
+ * Program Name: Database Difference Checker
+ * CSCI Course: 325
+ * Grade Received: Pass
  * @author Peter Kaufman
- * @version 8-5-18
+ * @version 2-16-19
  * @since 9-10-17
  */
 public class Column extends Schema {

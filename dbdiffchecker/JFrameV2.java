@@ -18,8 +18,11 @@ import javax.swing.border.TitledBorder;
 
 /**
  * JFrameV2 is a JFrame that has all of the common methods that any JFrame in this package uses.
+ * Program Name: Database Difference Checker
+ * CSCI Course: 325
+ * Grade Received: Pass
  * @author Peter Kaufman
- * @version 5-15-18
+ * @version 2-16-19
  * @since 5-14-18
  */
 public class JFrameV2 extends JFrame {
@@ -92,9 +95,9 @@ public class JFrameV2 extends JFrame {
   }
 
   /**
-   * Opens a JFrame with an the error message provided as a paramater.
+   * Opens a JFrame with the error message provided as a paramater.
    * @author Peter Kaufman
-   * @param error The exception which contains a user friendly messand the error
+   * @param error The exception which contains a user friendly message and the error
    *     that is the cause. 
    */
   protected void error(DatabaseDiffernceCheckerException error) {
