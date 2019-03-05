@@ -52,6 +52,7 @@ Enter 'debug' when prompted for a routine to run. This will compile all of the c
 
 - [V1.0.0](https://github.com/pjkaufman/Java_DiffChecker/tree/master/pdf/DatabaseDifferenceCheckerReport.pdf)
 - [V2.0.0](https://github.com/pjkaufman/Java_DiffChecker/tree/master/pdf/DatabaseDifferenceCheckerReportV2.0.0.pdf)
+- [V2.0.1](https://github.com/pjkaufman/Java_DiffChecker/tree/master/pdf/DatabaseDifferenceCheckerReportV2.0.1.pdf)
 
 ### Java Documentation 
 
