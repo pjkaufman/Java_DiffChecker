@@ -76,10 +76,10 @@ public class FileHandler {
   }
 
   /**
-   * Takes a String and writes it to the specified file.
+   * Takes a String and writes it to the log file.
    * @author Peter Kaufman
-   * @param data The data to be written to the specified file.
-   * @throws IOException Error writing the data to the specified file.
+   * @param data The data to be written to the log file.
+   * @throws IOException Error writing the data to the log file.
    */
   public static void writeToFile(String data) throws IOException {
 

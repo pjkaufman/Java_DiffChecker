@@ -345,7 +345,7 @@ public class DBCompare extends JFrameV2 {
   }
 
   /**
-   * Compares to databases and determines their differneces and how to make them
+   * Compares two databases and determines their differences and how to make them
    * the same.
    * @author Peter Kaufman
    */
