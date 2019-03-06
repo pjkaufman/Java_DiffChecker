@@ -56,9 +56,9 @@ Make sure that Python and the jre paths have been added to your PATH variable.
     Two Connection Database Comparison
     <p>This type of database comparison connects to two databases and compares them yeilding the SQL statements to make them the same.</p>
       <p>When this option is selected in the application it will take you to the following screen:
-        <center>
+        <div style="text-align:center">
           <img src="UserGuides\images\twoDBComparison.png" alt="Two Database Comparison Screen" height = "300"/>
-        </center>
+        </div>
         Fill out each of the needed fields and click Compare. <br>
         <i>Note: the default port for MYSQL is 3306 and that the development database information goes on the LEFT and the live database information goes on the RIGHT</i>
       </p>
@@ -67,9 +67,9 @@ Make sure that Python and the jre paths have been added to your PATH variable.
     One Connection Database Comparison
     <p>This type of database comparison connects to one database and uses a serialized file to compare them yeilding the SQL statements to make them the same.</p>
       <p>When this option is selected in the application it will take you to the following screen:
-        <center>
+        <div style="text-align:center">
           <img src="UserGuides\images\oneDBComparison.png" alt="One Database Comparison Screen" height = "300"/>
-        </center>
+        </div>
         Fill out each of the needed fields and click Compare. <br>
         <i>Note: the default port for MYSQL is 3306 and that the development database is the serialized database</i>
       </p>
@@ -78,9 +78,9 @@ Make sure that Python and the jre paths have been added to your PATH variable.
     Database Snapshot
     <p>A database snapshot is where a "copy" of the schema structure for the database is written to a serialized file for later use. It stores information such as tables, indexes, views, columns, and other pertinent data for database comparisons.</p>
     <p>When this option is selected in the application it will take you to the following screen:
-      <center>
+      <div style="text-align:center">
         <img src="UserGuides\images\takeDBSnapshot.png" alt="Database Snapshot Screen" height = "300"/>
-      </center>
+      </div>
       Fill out each of the needed fields and click Snapshot. <br>
       <i>Note: the default port for MYSQL is 3306, and this option is for the development database</i>
     </p>
@@ -89,18 +89,18 @@ Make sure that Python and the jre paths have been added to your PATH variable.
     Review Last Set of SQL Statements
     <p>This option allows the user to see the last set of SQL statements that were run.</p>
     <p>After selecting this option, you will see something similar to this:
-      <center>
+      <div style="text-align:center">
         <img src="UserGuides\images\lastSQLSet.png" alt="Last Set of SQL Statments Generated" height = "300"/>
-      </center>
+      </div>
     </p>
   </li>
   <li>
     Review Logs
     <p>The review logs contain information such as stack traces for errors that have occured or how long a database comparison or SQL run took.</p>
     <p>After selecting this option, you will see something similar to this:
-      <center>
+      <div style="text-align:center">
         <img src="UserGuides\images\runLog.png" alt="Run Logs" height = "300"/>
-      </center>
+      </div>
     </p>
   </li>
 </ol>
@@ -132,9 +132,9 @@ When prompted by the script for a routine to run, type 'run'.
 
 If there are no errors you will see the following GUI:
 
-<center>
+<div style="text-align:center">
   <img src="UserGuides\images\runResult.png" alt="Database Difference Checker Home" height = "300"/>
-</center>
+</div>
 
 ### Testing
 
