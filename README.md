@@ -1,24 +1,45 @@
-# Java_DiffChecker [![Repo Size](https://reposs.herokuapp.com/?path=pjkaufman/Java_DiffChecker)](https://github.com/pjkaufman/Java_DiffChecker)  [![Current Issues](https://img.shields.io/github/issues/pjkaufman/Java_DiffChecker.svg)](https://github.com/pjkaufman/Java_DiffChecker/issues)  [![License](https://img.shields.io/github/license/pjkaufman/Java_DiffChecker.svg)](https://github.com/pjkaufman/Java_DiffChecker/blob/master/LICENSE)
+# Database Difference Checker - Database Updater [![Current Issues](https://img.shields.io/github/issues/pjkaufman/Java_DiffChecker.svg)](https://github.com/pjkaufman/Java_DiffChecker/issues)  [![License](https://img.shields.io/github/license/pjkaufman/Java_DiffChecker.svg)](https://github.com/pjkaufman/Java_DiffChecker/blob/master/LICENSE)
 ###### By Peter Kaufman
 
 ## Description
 
-Java_DiffChecker is a Java program compares MySQL databases and generates the SQL statements that are needed to make the two databases the same. The SQL statements can then be run or just copied to review later.
+ Compares MySQL databases and generates the SQL statements that are needed to make the two databases the same. The SQL statements can then be run or just copied to review or run later.
 
-## Table of Contents
+<h2 id="table_of_contents">Table of Contents<h2>
 
-- [Installation](https://github.com/pjkaufman/Java_DiffChecker#installation)
-- [Usage](https://github.com/pjkaufman/Java_DiffChecker#usage)
-- [Documentation](https://github.com/pjkaufman/Java_DiffChecker#documentation)
-- [License](https://github.com/pjkaufman/Java_DiffChecker#license)
+<ul> 
+  <li>
+    <a href="#installation">Installation</a>
+  </li>
+  <li>
+    <a href="#features">Features</a>
+  </li>
+  <li>
+    <a href="#usage">Usage</a>
+  </li>
+  <li>
+    <a href="#documentation">Documentation</a>
+  </li>
+  <li>
+    <a href="#license">License</a>
+  </li>
+</ul>
 
-## Installation
+<h2 id="installation"> Installation </h2>
 
 ### Dependencies
 
-1. [Java](https://java.com/en/download/)
-2. [Python 2.7](https://www.python.org/downloads/)
-3. Some kind of hosting service hosting your MySQL databse such as [WAMP](http://wampserver.aviatechno.net/).
+<ol>
+  <li>
+    <a href="https://java.com/en/download/">Java</a>
+  </li>
+  <li>
+    <a href="https://www.python.org/downloads/">Python 2.7</a>
+  </li>
+  <li>
+    Some kind of hosting service for MySQL such as <a href="http://wampserver.aviatechno.net/">WAMP</a>
+  </li>
+</ol>
 
 _Note: the python scripts have only been tested in Python 2.7_
 
@@ -26,38 +47,131 @@ Clone this repo by running `git clone https://github.com/pjkaufman/Java_DiffChec
 
 Make sure that Python and the jre paths have been added to your PATH variable.
 
-## Usage
+<a href="#table_of_contents">Back to Table of Contents</a>
 
-Go to the python folder and run `python routines.py`. 
+<h2 id="features">Features</h2>
 
-There will be several options which include 'run' and 'debug'. 
+<ol> 
+  <li>
+    Two Connection Database Comparison
+    <p>This type of database comparison connects to two databases and compares them yeilding the SQL statements to make them the same.</p>
+      <p>When this option is selected in the application it will take you to the following screen:
+        <center>
+          <img src="UserGuides\images\twoDBComparison.png" alt="Two Database Comparison Screen" height = "300"/>
+        </center>
+        Fill out each of the needed fields and click Compare. <br>
+        <i>Note: the default port for MYSQL is 3306 and that the development database information goes on the LEFT and the live database information goes on the RIGHT</i>
+      </p>
+  </li>
+  <li>
+    One Connection Database Comparison
+    <p>This type of database comparison connects to one database and uses a serialized file to compare them yeilding the SQL statements to make them the same.</p>
+      <p>When this option is selected in the application it will take you to the following screen:
+        <center>
+          <img src="UserGuides\images\oneDBComparison.png" alt="One Database Comparison Screen" height = "300"/>
+        </center>
+        Fill out each of the needed fields and click Compare. <br>
+        <i>Note: the default port for MYSQL is 3306 and that the development database is the serialized database</i>
+      </p>
+  </li>
+  <li>
+    Database Snapshot
+    <p>A database snapshot is where a "copy" of the schema structure for the database is written to a serialized file for later use. It stores information such as tables, indexes, views, columns, and other pertinent data for database comparisons.</p>
+    <p>When this option is selected in the application it will take you to the following screen:
+      <center>
+        <img src="UserGuides\images\takeDBSnapshot.png" alt="Database Snapshot Screen" height = "300"/>
+      </center>
+      Fill out each of the needed fields and click Snapshot. <br>
+      <i>Note: the default port for MYSQL is 3306, and this option is for the development database</i>
+    </p>
+  </li>
+  <li>
+    Review Last Set of SQL Statements
+    <p>This option allows the user to see the last set of SQL statements that were run.</p>
+    <p>After selecting this option, you will see something similar to this:
+      <center>
+        <img src="UserGuides\images\lastSQLSet.png" alt="Last Set of SQL Statments Generated" height = "300"/>
+      </center>
+    </p>
+  </li>
+  <li>
+    Review Logs
+    <p>The review logs contain information such as stack traces for errors that have occured or how long a database comparison or SQL run took.</p>
+    <p>After selecting this option, you will see something similar to this:
+      <center>
+        <img src="UserGuides\images\runLog.png" alt="Run Logs" height = "300"/>
+      </center>
+    </p>
+  </li>
+</ol>
+
+<a href="#table_of_contents">Back to Table of Contents</a>
+
+<h2 id="usage">Usage</h2>
+
+Go to the python folder and run
+
+```
+python routines.py
+```
+
+You should see
+
+``` 
+Routine Options
+run - makes and runs the JAR file
+push - commits the current repo and pushes it
+debug - runs the current code base for testing
+clean - deletes the test and builds directories
+Enter desired option:
+```
 
 ### Running 
 
-You can go to the python folder and run `python routines.py`.
+When prompted by the script for a routine to run, type 'run'.
 
-When prompted by the script for a routine to run type 'run'.
+If there are no errors you will see the following GUI:
 
-Watch the output. If there is an error check to see what the error was. Otherwise the jar file that was created in the build folder will be executed.
+<center>
+  <img src="UserGuides\images\runResult.png" alt="Database Difference Checker Home" height = "300"/>
+</center>
 
 ### Testing
 
-After modifying any of the Java files in the repository, you can go to the python folder and run `python routines.py`.
+After modifying any of the Java files in the repository, you can go to the python folder and run 
 
-Enter 'debug' when prompted for a routine to run. This will compile all of the current Java files into the test/db_diff_checker_gui2 folder where it will be run if no errors occur.
+```
+python routines.py
+```
 
-## Documentation
+When prompted for the routine to run, enter 'debug'. This will compile all of the current Java files into the test/db_diff_checker_gui folder where it will be run if no errors occur (no JAR file will be created).
+
+<a href="#table_of_contents">Back to Table of Contents</a>
+
+<h2 id="documentation">Documentation</h2>
 
 ### How It Works
 
-- [V1.0.0](https://github.com/pjkaufman/Java_DiffChecker/tree/master/pdf/DatabaseDifferenceCheckerReport.pdf)
-- [V2.0.0](https://github.com/pjkaufman/Java_DiffChecker/tree/master/pdf/DatabaseDifferenceCheckerReportV2.0.0.pdf)
-- [V2.0.1](https://github.com/pjkaufman/Java_DiffChecker/tree/master/pdf/DatabaseDifferenceCheckerReportV2.0.1.pdf)
+<ol>
+  <li>
+    <a href="UserGuides/pdf/DatabaseDifferenceCheckerReport.pdf">V1.0.0</a>
+  </li>
+  <li>
+    <a href="UserGuides/pdf/DatabaseDifferenceCheckerReportV2.0.0.pdf">V2.0.0</a>
+  </li>
+  <li>
+    <a href="UserGuides/pdf/DatabaseDifferenceCheckerReportV2.0.1.pdf">V2.0.1</a>
+  </li>
+</ol>
 
-### Java Documentation 
+### Java Documentation/API
 
 Java documentation can be found [here](https://pjkaufman.github.io/Java_DiffChecker/).
 
-## License
+<a href="#table_of_contents">Back to Table of Contents</a>
 
-[MIT](https://github.com/pjkaufman/Java_DiffChecker/blob/master/LICENSE) 
+<h2 id="license">License</h2>
+
+<a href="LICENSE">MIT</a>
+
+<a href="#table_of_contents">Back to Table of Contents</a>
