@@ -5,7 +5,7 @@
 
  Compares MySQL databases and generates the SQL statements that are needed to make the two databases the same. The SQL statements can then be run or just copied to review or run later.
 
-<h2 id="table_of_contents">Table of Contents<h2>
+<h2 id="table_of_contents">Table of Contents</h2>
 
 <ul> 
   <li>
