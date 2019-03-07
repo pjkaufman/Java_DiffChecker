@@ -12,8 +12,6 @@ class Routines:
   __packageName = 'dbdiffchecker'
   __distrJarDir = 'lib'
   __logFileDir = 'logs'
-  __createTest = True
-  __createBuild = True
 
   #__init__ is the constructor which initializes all instance variables
   def __init__(self):
@@ -52,18 +50,10 @@ class Routines:
   def getPackageName(self):
     return self.__packageName
 
-  #shouldCreateTest is whether or not to create the test directory
-  def shouldCreateTest(self):
-    return self.__createTest
-
-  #shouldCreateBuild is whether or not to create the build directory
-  def shouldCreateBuild(self):
-    return self.__createBuild
-
   #getClassPath is the classpath for java compilation
   def getClassPath(self):
     return self.__javaCP
-   
+
   #compile compiles java files and determines where to send the output
   #param: path is the path to where to send the class files
   #param: type is either True or False to determine whether or not to compile
@@ -91,7 +81,7 @@ class Routines:
     packageName = self.getPackageName()
     #compile the java files and make the jar file
     if(self.compile(packageName, False)):
-      call('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') + ' manifest.mf ' + 
+      call('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') + ' manifest.mf ' +
           packageName + ' Images ' + self.getJarPath() + ' ' + os.path.join(buildDir, logDir), shell=True)
       #remove unnecesssary directory
       self.__removeDirectory(os.path.join(buildDir, logDir))
@@ -105,12 +95,11 @@ class Routines:
   #debug sets up a debugging environment for the current code base
   def debug(self):
     #create the test directory
-    if (self.shouldCreateTest()): # currently an obsolete line
-      self.createTest()
+    self.createTest()
     testDir = self.getDebugPath()
     #run compiled files with classPath
     if (self.compile(testDir, True)):
-      call('java -cp ;' + testDir + ' ' + self.getPackageName() + '.DB_Diff_Checker_GUI', shell=True)
+      call('java -cp ' + os.path.join(testDir, ' ') + self.getPackageName() + '.DB_Diff_Checker_GUI', shell=True) #needs an update...
 
     return None
 
@@ -150,8 +139,7 @@ class Routines:
 
   #run makes and runs the JAR file
   def run(self):
-    if (self.shouldCreateBuild()):
-      self.createBuild()
+    self.createBuild()
     self.makeJar()
     call('java -jar ' + os.path.join(self.getDistrubutionPath(), 'Db_Diff_Checker.jar'), shell=True)
     return None
@@ -186,7 +174,7 @@ class Routines:
        os.mkdir(os.path.join(debugFolder, 'Images'))
     except:
       pass
-  
+
     #copy current image list to the Images folder in the test directory
     filelist = [f for f in os.listdir(os.path.join(os.getcwd(),'Images'))]
     for f in filelist:
@@ -203,8 +191,6 @@ class Routines:
        os.mkdir(os.path.join(buildFolder,  self.getLogFileDirectory()))
     except:
       pass
-   
-    self.__createBuild = False
 
 def main():
   routine = Routines()
