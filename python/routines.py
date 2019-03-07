@@ -10,6 +10,7 @@ class Routines:
   __debugDir = 'test'
   __distrDir = 'build'
   __jarDir = 'jarLibrary'
+  __javaCP = ''
   __packageName = 'dbdiffchecker'
   __distrJarDir = 'lib'
   __logFileDir = 'logs'
@@ -19,6 +20,15 @@ class Routines:
   #__init__ is the constructor which initializes all instance variables
   def __init__(self):
     self.__OS = platform.system()
+    #change directory to jar file location
+    self.chdir('..,' + self.getJarPath())
+    #get current jar list and add it to the Class-Path
+    filelist = [fi for fi in os.listdir(os.getcwd()) if fi.endswith('.jar')]
+    for fi in filelist:
+      self.__javaCP += self.formatStr("\".;..," + self.getJarPath() + "," + fi + "\";")
+    self.__javaCP = self.__javaCP[:-1]
+    #move back to the python directory
+    self.chdir('..,python')
     return None
 
   #getOSName gets the OS variable
@@ -28,22 +38,22 @@ class Routines:
   #getLogFileDirectory gets the name of the log file directory
   def getLogFileDirectory(self):
     return self.__logFileDir
-      
+
   #getDistributionJarDirectory gets the distribution directory for the JAR files
   def getDistributionJarDirectory(self):
     return self.__distrJarDir
 
-  #getDebugPath retruns a string, which is the path to the debug file destination 
+  #getDebugPath retruns a string, which is the path to the debug file destination
   #from a level above where this script is
   def getDebugPath(self):
     return self.__debugDir
 
-  #getDistrubutionPath retruns a string, which is the path to the distribution file destination 
+  #getDistrubutionPath retruns a string, which is the path to the distribution file destination
   #from a level above where this script is
   def getDistrubutionPath(self):
     return self.__distrDir
 
-  #getJarPath retruns a string, which is the path to the where the jar files to include in the project's 
+  #getJarPath retruns a string, which is the path to the where the jar files to include in the project's
   #jar file from a level above where this script is
   def getJarPath(self):
     return self.__jarDir
@@ -55,18 +65,22 @@ class Routines:
   #shouldCreateTest is whether or not to create the test directory
   def shouldCreateTest(self):
     return self.__createTest
-  
+
   #shouldCreateBuild is whether or not to create the build directory
   def shouldCreateBuild(self):
     return self.__createBuild
+
+  #getClassPath is the classpath for java compilation
+  def getClassPath(self):
+    return self.__javaCP
 
   #formatStr takes a string and converts all ','s to either '\\' or '/'
   #param: str is the string to have all commas replaced with either '\\' or '/'
   def formatStr(self, str):
     if(self.getOSName() == 'Windows'):
-      return str.replace(',', "\\")    
+      return str.replace(',', "\\")
     else:
-      return str.replace(',', '/') 
+      return str.replace(',', '/')
 
   #chdir takes a string which is converted to the right format and then changes to the specified directory
   #param dirStr is a string which represents a directory change string (for example: "..,bin")
@@ -87,80 +101,51 @@ class Routines:
 
   #compile compiles java files and determines where to send the output
   #param: path is the path to where to send the class files
-  #param: cp is the classPath for where the JAR files are stored
   #param: type is either True or False to determine whether or not to compile
   #the class files to the provided path
-  def compile(self, path, cp, type):
+  def compile(self, path, type):
     start = 'javac -Xlint:unchecked '
     if(type == True):
       start += '-d ' + path
 
     #compile the java files and make the jar file
     try:
-      check_output(self.formatStr(start + ' -cp ' + cp + ' ..,' + self.getPackageName() + ',*.java'))
+      check_output(self.formatStr(start + ' -cp ' + self.getClassPath() + ' ..,' + self.getPackageName() + ',*.java'), shell=True)
       print 'Compiled files'
-    except:
+    except Exception as e:
+      print str(e)
       print 'An error occurred during compilation'
-      return False
+      os._exit(1) # stop the program so that the user can try to fix the issue
     return True
 
   #makeJar sets up the manifest and makes the JAR file
   def makeJar(self):
     self.updateManifest()
-    p = ''
-    #change directory to jar file location
-    self.chdir('..,' + self.getJarPath())
-    #get current jar list and add it to the Class-Path
-    filelist = [fi for fi in os.listdir(os.getcwd()) if fi.endswith('.jar')]
-    for fi in filelist:
-      p += self.formatStr("\".;..," + self.getJarPath() + "," + fi + "\";")
-    p = p[:-1]
-    #move back to the python directory
-    self.chdir('..,python')
     #compile the java files and make the jar file
-    if(self.compile(self.formatStr('..,' + self.getPackageName()), p, False)):
-      call(self.formatStr('jar cvfm ..,' + self.getDistrubutionPath() + ',Db_Diff_Checker.jar ..,manifest.mf ..,' + self.getPackageName() + ', ..,Images ..,' + self.getJarPath()))
+    if(self.compile(self.formatStr('..,' + self.getPackageName()), False)):
+      call(self.formatStr('jar cvfm ..,' + self.getDistrubutionPath() + ',Db_Diff_Checker.jar ..,manifest.mf ..,' + self.getPackageName() + ', ..,Images ..,' + self.getJarPath() + ' ..,' + self.getDistrubutionPath() + ',' + self.getLogFileDirectory() + ','), shell=True)
+      #remove unnecesssary directory
+      self.__removeDirectory('..,' + self.getDistrubutionPath() + ',' + self.getLogFileDirectory())
       #remove unnecesssary .class files
       self.chdir('..,' + self.getPackageName())
       filelist = [f for f in os.listdir(os.getcwd()) if f.endswith('.class')]
       for f in filelist:
         os.remove(os.path.join(os.getcwd(), f))
-      #remove old jar file list
-      self.chdir('..,' + self.getDistrubutionPath() + ',' + self.getDistributionJarDirectory() + ',')
-      filelist = [f for f in os.listdir(os.getcwd()) if f.endswith('.jar')]
-      for f in filelist:
-        os.remove(os.path.join(os.getcwd(), f))
-      self.chdir( '..,..,')
-      #copy current jar list to the lib folder in the run directory
-      filelist = [f for f in os.listdir(os.path.join(os.getcwd(), self.formatStr(self.getJarPath() + ','))) if f.endswith('.jar')]
-      for f in filelist:
-        copy(os.path.join(os.getcwd(), self.formatStr(self.getJarPath() + ',') + f), os.getcwd() + self.formatStr(',' + self.getDistrubutionPath() + ',' +  self.getDistributionJarDirectory() + ','))
-        
+
     #move back to the python directory
-    self.chdir('python')
+    self.chdir('..,python')
     return None
 
-  #debug sets up a debuggin environment for the current code base
+  #debug sets up a debugging environment for the current code base
   def debug(self):
     #create the test directory
     if (self.shouldCreateTest()):
       self.createTest()
-    p = ''
-    #change directory to jar file location
-    self.chdir('..,' + self.getJarPath())
-    #get current jar list and add it to the Class-Path
-    filelist = [fi for fi in os.listdir(os.getcwd()) if fi.endswith('.jar')]
-    for fi in filelist:
-      p += self.formatStr("\".;..," + self.getJarPath() + "," + fi + "\";")
-    p = p[:-1]
-    print 'Set up class path'
-    #move back to the python directory
-    self.chdir('..,python')
     #run compiled files with classPath
-    if (self.compile(self.formatStr('..,test'), p, True)):
+    if (self.compile(self.formatStr('..,test'), True)):
       #move to run directory
       self.chdir('..,test')
-      call("java -cp " + p + " " + self.getPackageName() + ".DB_Diff_Checker_GUI")
+      call('java ' + self.getPackageName() + '.DB_Diff_Checker_GUI', shell=True)
       #move back to the python directory
       self.chdir('..,python')
     return None
@@ -193,7 +178,7 @@ class Routines:
   def clean(self):
     self.__removeDirectory('..,build')
     self.__removeDirectory('..,test')
-    
+
   #__removeDirectory takes in a directory and removes it if it exists
   #param: directory is the directory to remove
   def __removeDirectory(self, directory):
@@ -210,7 +195,7 @@ class Routines:
     self.makeJar()
     #move to run directory
     self.chdir('..,' + self.getDistrubutionPath())
-    call(self.formatStr('java -jar ..,' + self.getDistrubutionPath() +',Db_Diff_Checker.jar'))
+    call(self.formatStr('java -jar ..,' + self.getDistrubutionPath() +',Db_Diff_Checker.jar'), shell=True)
     #move back to the python directory
     self.chdir('..,python')
     return None
@@ -222,18 +207,16 @@ class Routines:
     #get necessary information from the user
     message = raw_input('Commit Message: ')
     #commit and push the repo
-    call('git add -A')
-    call('git commit -a -m \"' + message + '\"')
-    call('git push ')
+    call("git add -A && git commit -a -m \"" + message + "\" && git push", shell=True)
     return None
 
   #documnet documents the repo
   def document(self):
     self.chdir('..')
-    call('javadoc -d "docs" "' + self.getPackageName() + '"')
+    call('javadoc -d "docs" "' + self.getPackageName() + '"', shell=True)
     self.chdir('python')
     return None
-  
+
   #createTest creates the test directory and makes it ready for the user
   def createTest(self):
     self.mkdir('..,test')
@@ -251,9 +234,7 @@ class Routines:
   def createBuild(self):
     self.mkdir('..,build')
     self.mkdir('..,build,' + self.getLogFileDirectory())
-    self.mkdir('..,build,' + self.getDistributionJarDirectory())
     self.__createBuild = False
-
 
 def main():
   routine = Routines()
