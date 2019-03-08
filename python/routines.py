@@ -228,7 +228,6 @@ class Routines:
     for f in filelist:
       copy(os.path.join(os.getcwd(), self.formatStr('Images,') + f), os.getcwd() + self.formatStr(',test,Images'))
     self.chdir('python')
-    self.__createTest = True
 
   #createBuild makes the build directory
   def createBuild(self):
