@@ -109,7 +109,7 @@ Make sure that Python and the jre paths have been added to your PATH variable.
 
 <h2 id="usage">Usage</h2>
 
-Go to the python folder and run
+Go to the base directory and run
 
 ```
 python routines.py
@@ -138,7 +138,7 @@ If there are no errors you will see the following GUI:
 
 ### Testing
 
-After modifying any of the Java files in the repository, you can go to the python folder and run 
+After modifying any of the Java files in the repository, you can go to the base directory and run 
 
 ```
 python routines.py
