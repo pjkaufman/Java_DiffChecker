@@ -7,7 +7,7 @@ class Routines:
   #instance variables
   __debugDir = 'test'
   __distrDir = 'build'
-  __jarDir = 'jarLibrary'
+  __jarDir = 'lib'
   __javaCP = ''
   __packageName = 'dbdiffchecker'
   __distrJarDir = 'lib'
@@ -82,7 +82,7 @@ class Routines:
     #compile the java files and make the jar file
     if(self.compile(packageName, False)):
       call('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') + ' manifest.mf ' +
-          packageName + ' Images ' + self.getJarPath() + ' ' + os.path.join(buildDir, logDir), shell=True)
+          packageName + ' Images ' + self.getJarPath(), shell=True)
       #remove unnecesssary directory
       self.__removeDirectory(os.path.join(buildDir, logDir))
       #remove unnecesssary .class files
@@ -123,10 +123,11 @@ class Routines:
     f.close()
     return None
 
-  #clean deletes the test and build directories
+  #clean deletes the test, log, and build directories
   def clean(self):
     self.__removeDirectory(self.getDebugPath())
     self.__removeDirectory(self.getDistrubutionPath())
+    self.__removeDirectory(self.getLogFileDirectory())
 
   #__removeDirectory takes in a directory and removes it if it exists
   #param: directory is the directory to remove
@@ -159,6 +160,13 @@ class Routines:
     call('javadoc -d "docs" "' + self.getPackageName() + '"', shell=True)
     return None
 
+  #createLogs makes the log directory
+  def createLogs(self):
+    try:
+      os.mkdir(self.getLogFileDirectory())
+    except:
+      pass
+
   #createTest creates the test directory and makes it ready for the user
   def createTest(self):
     debugFolder = self.getDebugPath()
@@ -166,10 +174,7 @@ class Routines:
        os.mkdir(debugFolder)
     except:
       pass
-    try:
-       os.mkdir(os.path.join(debugFolder, self.getLogFileDirectory()))
-    except:
-      pass
+    self.createLogs()
     try:
        os.mkdir(os.path.join(debugFolder, 'Images'))
     except:
@@ -187,10 +192,7 @@ class Routines:
       os.mkdir(buildFolder)
     except:
       pass
-    try:
-       os.mkdir(os.path.join(buildFolder,  self.getLogFileDirectory()))
-    except:
-      pass
+    self.createLogs()
 
 def main():
   routine = Routines()
