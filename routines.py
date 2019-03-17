@@ -198,7 +198,7 @@ def main():
   print 'run - makes and runs the JAR file'
   print 'push - commits the current repo and pushes it'
   print 'debug - runs the current code base for testing'
-  print 'clean - deletes the test and builds directories'
+  print 'clean - deletes the test and build directories'
   rout = raw_input('Enter desired option: ')
   if(rout == 'run'):
     routine.run()

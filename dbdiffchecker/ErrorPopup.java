@@ -11,12 +11,14 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import javax.swing.JLabel;
 import javax.swing.SwingWorker;
+import javax.swing.BorderFactory;
+import java.awt.Color;
 
 /**
  * ErrorPopup is a JFrame that shows a message about an error that occurred.
- * Program Name: Database Difference Checker
- * CSCI Course: 325
- * Grade Received: Pass
+ * Program Name: Database Difference Checker CSCI Course: 325 Grade Received:
+ * Pass
+ * 
  * @author Peter Kaufman
  * @version 2-16-19
  * @since 9-21-17
@@ -28,6 +30,7 @@ public class ErrorPopup extends JFrameV2 {
 
   /**
    * Initializes a JFrame that displays an error to the user and logs the error.
+   * 
    * @author Peter Kaufman
    * @param error Error message to display to the user and to log.
    */
@@ -38,9 +41,9 @@ public class ErrorPopup extends JFrameV2 {
     String exceptionAsString = sw.toString();
     try {
       log(exceptionAsString);
-    } catch(DatabaseDiffernceCheckerException err) {
+    } catch (DatabaseDiffernceCheckerException err) {
       System.out.println("Could not log the error...");
-    } 
+    }
     error.printStackTrace();
     this.error = false;
     initComponents();
@@ -49,13 +52,15 @@ public class ErrorPopup extends JFrameV2 {
   }
 
   /**
-   * Sets up the GUI Layout, sets up all action events, and initializes instance variables.
+   * Sets up the GUI Layout, sets up all action events, and initializes instance
+   * variables.
+   * 
    * @author Peter Kaufman
    */
   private void initComponents() {
     // set up JFrame properties
     setTitle("Error");
-    setType(Window.Type.POPUP);
+    setType(Window.Type.UTILITY);
     setMinimumSize(new Dimension(430, 100));
     setResizable(false);
     // set component properties
@@ -66,6 +71,7 @@ public class ErrorPopup extends JFrameV2 {
     getContentPane().setLayout(new BorderLayout());
     add(titleLabel, BorderLayout.NORTH);
     add(errorLabel, BorderLayout.CENTER);
+    this.getRootPane().setBorder(BorderFactory.createMatteBorder(0, 1, 1, 1, Color.white));
     pack();
   }
 }
