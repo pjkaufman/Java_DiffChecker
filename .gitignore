@@ -7,5 +7,8 @@ build/
 # test data
 test/
 
+# log data
+logs/
+
 # vs code files
 .vscode

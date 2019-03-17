@@ -25,7 +25,7 @@ import java.util.Scanner;
 public class FileHandler {
 
   // static variables
-  static final String logFileName = "activity.log"; 
+  static final String logFileName = "activity.log";
   static final String lastSequelStatementFileName = "lastRun.txt";
   static final String databaseSnapshotFileName = "dbsnapshot";
 
@@ -38,7 +38,7 @@ public class FileHandler {
   public static void serializeDatabase(Database database) throws DatabaseDiffernceCheckerException {
     try {
       FileOutputStream fileOutput = new FileOutputStream(
-          new File("logs\\" + databaseSnapshotFileName));
+          new File("logs" + File.separator + databaseSnapshotFileName));
       ObjectOutputStream outputStream = new ObjectOutputStream(fileOutput);
 
       // Write object to file
@@ -67,7 +67,7 @@ public class FileHandler {
   public static void writeToFile(ArrayList<String> sequelStatements) throws IOException {
 
     PrintWriter out = new PrintWriter(new FileWriter(
-        new File("logs\\" + lastSequelStatementFileName)));
+        new File("logs" + File.separator + lastSequelStatementFileName)));
     for (String statement: sequelStatements) {
 
       out.println(statement);
@@ -84,7 +84,7 @@ public class FileHandler {
   public static void writeToFile(String data) throws IOException {
 
     Date currentTime = new Date();
-    PrintWriter out = new PrintWriter(new FileWriter(new File("logs\\" + logFileName), true));
+    PrintWriter out = new PrintWriter(new FileWriter(new File("logs" + File.separator + logFileName), true));
     out.println(currentTime.toString() + " " + data);
     out.close();
   }
@@ -100,7 +100,7 @@ public class FileHandler {
     Database database = null;
     try {
       FileInputStream fileInput = new FileInputStream(
-          new File("logs\\" + databaseSnapshotFileName));
+          new File("logs" + File.separator + databaseSnapshotFileName));
       ObjectInputStream inputStream = new ObjectInputStream(fileInput);
 
       // Read object
@@ -118,7 +118,7 @@ public class FileHandler {
             .indexOf(":") + 1);
       }
       throw new DatabaseDiffernceCheckerException(errorMessage, cause);
-    } 
+    }
 
     return database;
   }
@@ -132,7 +132,7 @@ public class FileHandler {
    */
   public static ArrayList<String> readFrom(String file) throws IOException {
 
-    Scanner in = new Scanner(new File("logs\\" + file));
+    Scanner in = new Scanner(new File("logs" + File.separator + file));
     ArrayList<String> fileLines = new ArrayList<>();
     while (in.hasNextLine()) {
 
@@ -144,7 +144,7 @@ public class FileHandler {
   }
 
   /**
-   * Ttakes a file path and determines whether the file exists or not.
+   * Takes a file path and determines whether the file exists or not.
    * @author Chris Dail
    * @param file The file path to the file.
    * @return Whether the file exists or not.
@@ -152,6 +152,6 @@ public class FileHandler {
    */
   public static boolean fileExists(String file) {
 
-    return new File("logs\\" + file).isFile();
+    return new File("logs" + File.separator + file).isFile();
   }
 }
