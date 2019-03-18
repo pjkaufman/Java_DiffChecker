@@ -88,7 +88,7 @@ python routines.py
 
 When prompted for the routine to run, enter 'debug'. This will compile all of the current Java files into the test/db_diff_checker_gui folder where it will be run if no errors occur (no JAR file will be created).
 
-### JAR File
+### Manually Running The JAR File
 
 In order to use the JAR file with logs, make sure that where you run the jar file you have a logs folder.
 
