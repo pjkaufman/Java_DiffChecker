@@ -12,10 +12,10 @@
     <a href="#installation">Installation</a>
   </li>
   <li>
-    <a href="#features">Features</a>
+    <a href="#usage">Usage</a>
   </li>
   <li>
-    <a href="#usage">Usage</a>
+    <a href="#features">Features</a>
   </li>
   <li>
     <a href="#documentation">Documentation</a>
@@ -34,18 +34,69 @@
     <a href="https://java.com/en/download/">Java</a>
   </li>
   <li>
-    <a href="https://www.python.org/downloads/">Python 2.7</a>
+    <a href="https://www.python.org/downloads/">Python 2.7 or later</a>
   </li>
   <li>
     Some kind of hosting service for MySQL such as <a href="http://wampserver.aviatechno.net/">WAMP</a>
   </li>
 </ol>
 
-_Note: the python scripts have only been tested in Python 2.7_
+_Note: the python scripts have only been tested in Python 2.7 and 3.7_
 
 Clone this repo by running `git clone https://github.com/pjkaufman/Java_DiffChecker.git`.
 
 Make sure that Python and the jre paths have been added to your PATH variable.
+
+<a href="#table_of_contents">Back to Table of Contents</a>
+
+<h2 id="usage">Usage</h2>
+
+Go to the base directory and run
+
+```
+python routines.py
+```
+
+You should see
+
+``` 
+Routine Options
+run - makes and runs the JAR file
+push - commits the current repo and pushes it
+debug - runs the current code base for testing
+clean - deletes the test, logs, and build directories
+Enter desired option:
+```
+
+### Running 
+
+When prompted by the script for a routine to run, type 'run'.
+
+If there are no errors you will see the following GUI:
+
+<div align="center">
+  <img src="UserGuides\images\runResult.png" alt="Database Difference Checker Home" height = "300"/>
+</div>
+
+### Testing
+
+After modifying any of the Java files in the repository, you can go to the base directory of this repository and run 
+
+```
+python routines.py
+```
+
+When prompted for the routine to run, enter 'debug'. This will compile all of the current Java files into the test/db_diff_checker_gui folder where it will be run if no errors occur (no JAR file will be created).
+
+### JAR File
+
+In order to use the JAR file with logs, make sure that where you run the jar file you have a logs folder.
+
+To run the applciation through the JAR file run
+
+```
+java -jar path_to_jar_file
+```
 
 <a href="#table_of_contents">Back to Table of Contents</a>
 
@@ -104,47 +155,6 @@ Make sure that Python and the jre paths have been added to your PATH variable.
     </p>
   </li>
 </ol>
-
-<a href="#table_of_contents">Back to Table of Contents</a>
-
-<h2 id="usage">Usage</h2>
-
-Go to the base directory and run
-
-```
-python routines.py
-```
-
-You should see
-
-``` 
-Routine Options
-run - makes and runs the JAR file
-push - commits the current repo and pushes it
-debug - runs the current code base for testing
-clean - deletes the test and builds directories
-Enter desired option:
-```
-
-### Running 
-
-When prompted by the script for a routine to run, type 'run'.
-
-If there are no errors you will see the following GUI:
-
-<div align="center">
-  <img src="UserGuides\images\runResult.png" alt="Database Difference Checker Home" height = "300"/>
-</div>
-
-### Testing
-
-After modifying any of the Java files in the repository, you can go to the base directory and run 
-
-```
-python routines.py
-```
-
-When prompted for the routine to run, enter 'debug'. This will compile all of the current Java files into the test/db_diff_checker_gui folder where it will be run if no errors occur (no JAR file will be created).
 
 <a href="#table_of_contents">Back to Table of Contents</a>
 
