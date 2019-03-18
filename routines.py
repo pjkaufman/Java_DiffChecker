@@ -1,4 +1,6 @@
 import os
+from sys import stdin
+from sys import stdout
 from subprocess import call
 from subprocess import check_output
 from shutil import rmtree
@@ -7,7 +9,7 @@ class Routines:
   #instance variables
   __debugDir = 'test'
   __distrDir = 'build'
-  __jarDir = 'jarLibrary'
+  __jarDir = 'lib'
   __javaCP = ''
   __packageName = 'dbdiffchecker'
   __distrJarDir = 'lib'
@@ -66,10 +68,10 @@ class Routines:
     #compile the java files and make the jar file
     try:
       check_output(start + ' -cp ' + self.getClassPath() + ' ' + os.path.join(self.getPackageName(), '*.java'), shell=True)
-      print 'Compiled files'
+      print('Compiled files')
     except Exception as e:
-      print str(e)
-      print 'An error occurred during compilation'
+      print(str(e))
+      print('An error occurred during compilation')
       os._exit(1) # stop the program so that the user can try to fix the issue
     return True
 
@@ -82,7 +84,7 @@ class Routines:
     #compile the java files and make the jar file
     if(self.compile(packageName, False)):
       call('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') + ' manifest.mf ' +
-          packageName + ' Images ' + self.getJarPath() + ' ' + os.path.join(buildDir, logDir), shell=True)
+          packageName + ' Images ' + self.getJarPath(), shell=True)
       #remove unnecesssary directory
       self.__removeDirectory(os.path.join(buildDir, logDir))
       #remove unnecesssary .class files
@@ -123,10 +125,11 @@ class Routines:
     f.close()
     return None
 
-  #clean deletes the test and build directories
+  #clean deletes the test, log, and build directories
   def clean(self):
     self.__removeDirectory(self.getDebugPath())
     self.__removeDirectory(self.getDistrubutionPath())
+    self.__removeDirectory(self.getLogFileDirectory())
 
   #__removeDirectory takes in a directory and removes it if it exists
   #param: directory is the directory to remove
@@ -149,7 +152,9 @@ class Routines:
     #document the repo
     self.document()
     #get necessary information from the user
-    message = raw_input('Commit Message: ')
+    stdout.write('Commit Message: ')
+    stdout.flush()
+    message = stdin.readline().strip()
     #commit and push the repo
     call("git add -A && git commit -a -m \"" + message + "\" && git push", shell=True)
     return None
@@ -159,6 +164,13 @@ class Routines:
     call('javadoc -d "docs" "' + self.getPackageName() + '"', shell=True)
     return None
 
+  #createLogs makes the log directory
+  def createLogs(self):
+    try:
+      os.mkdir(self.getLogFileDirectory())
+    except:
+      pass
+
   #createTest creates the test directory and makes it ready for the user
   def createTest(self):
     debugFolder = self.getDebugPath()
@@ -166,10 +178,7 @@ class Routines:
        os.mkdir(debugFolder)
     except:
       pass
-    try:
-       os.mkdir(os.path.join(debugFolder, self.getLogFileDirectory()))
-    except:
-      pass
+    self.createLogs()
     try:
        os.mkdir(os.path.join(debugFolder, 'Images'))
     except:
@@ -187,19 +196,18 @@ class Routines:
       os.mkdir(buildFolder)
     except:
       pass
-    try:
-       os.mkdir(os.path.join(buildFolder,  self.getLogFileDirectory()))
-    except:
-      pass
+    self.createLogs()
 
 def main():
   routine = Routines()
-  print 'Routine Options'
-  print 'run - makes and runs the JAR file'
-  print 'push - commits the current repo and pushes it'
-  print 'debug - runs the current code base for testing'
-  print 'clean - deletes the test and builds directories'
-  rout = raw_input('Enter desired option: ')
+  print('Routine Options')
+  print('run - makes and runs the JAR file')
+  print('push - commits the current repo and pushes it')
+  print('debug - runs the current code base for testing')
+  print('clean - deletes the test, logs, and build directories')
+  stdout.write('Enter desired option: ')
+  stdout.flush()
+  rout = stdin.readline().strip()
   if(rout == 'run'):
     routine.run()
   elif(rout == 'push'):
@@ -209,6 +217,6 @@ def main():
   elif (rout == 'clean'):
     routine.clean()
   else:
-    print 'please try again'
+    print('please try again')
 
 if  __name__ =='__main__':main()

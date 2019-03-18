@@ -11,14 +11,15 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import javax.swing.JLabel;
 import javax.swing.SwingWorker;
+import javax.swing.BorderFactory;
+import java.awt.Color;
 
 /**
  * ErrorPopup is a JFrame that shows a message about an error that occurred.
- * Program Name: Database Difference Checker
- * CSCI Course: 325
- * Grade Received: Pass
+ * Program Name: Database Difference Checker CSCI Course: 325 Grade Received:
+ * Pass
  * @author Peter Kaufman
- * @version 2-16-19
+ * @version 3-17-19
  * @since 9-21-17
  */
 public class ErrorPopup extends JFrameV2 {
@@ -33,30 +34,32 @@ public class ErrorPopup extends JFrameV2 {
    */
   public ErrorPopup(DatabaseDiffernceCheckerException error) {
 
+    String errorMessage = "";
     StringWriter sw = new StringWriter();
     error.printStackTrace(new PrintWriter(sw));
     String exceptionAsString = sw.toString();
     try {
       log(exceptionAsString);
-    } catch(DatabaseDiffernceCheckerException err) {
+    } catch (DatabaseDiffernceCheckerException err) {
       System.out.println("Could not log the error...");
-    } 
-    error.printStackTrace();
+    }
     this.error = false;
-    initComponents();
-    this.errorLabel.setText(error.getMessage().substring(error.getMessage().indexOf(":") + 2));
+    errorMessage = error.getMessage().substring(error.getMessage().indexOf(":") + 2);
+    initComponents(errorMessage.length());
+    this.errorLabel.setText(errorMessage);
     this.setVisible(true);
   }
 
   /**
-   * Sets up the GUI Layout, sets up all action events, and initializes instance variables.
+   * Sets up the GUI Layout, sets up all action events, and initializes instance
+   * variables.
    * @author Peter Kaufman
    */
-  private void initComponents() {
+  private void initComponents(int sizeFactor) {
     // set up JFrame properties
     setTitle("Error");
-    setType(Window.Type.POPUP);
-    setMinimumSize(new Dimension(430, 100));
+    setType(Window.Type.UTILITY);
+    setMinimumSize(new Dimension(7 * sizeFactor, 100));
     setResizable(false);
     // set component properties
     titleLabel.setFont(new Font("Tahoma", 1, 18));
@@ -66,6 +69,7 @@ public class ErrorPopup extends JFrameV2 {
     getContentPane().setLayout(new BorderLayout());
     add(titleLabel, BorderLayout.NORTH);
     add(errorLabel, BorderLayout.CENTER);
+    this.getRootPane().setBorder(BorderFactory.createMatteBorder(0, 1, 1, 1, Color.white));
     pack();
   }
 }
