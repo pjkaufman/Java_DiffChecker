@@ -1,4 +1,6 @@
 import os
+from sys import stdin
+from sys import stdout
 from subprocess import call
 from subprocess import check_output
 from shutil import rmtree
@@ -66,10 +68,10 @@ class Routines:
     #compile the java files and make the jar file
     try:
       check_output(start + ' -cp ' + self.getClassPath() + ' ' + os.path.join(self.getPackageName(), '*.java'), shell=True)
-      print 'Compiled files'
+      print('Compiled files')
     except Exception as e:
-      print str(e)
-      print 'An error occurred during compilation'
+      print(str(e))
+      print('An error occurred during compilation')
       os._exit(1) # stop the program so that the user can try to fix the issue
     return True
 
@@ -150,7 +152,9 @@ class Routines:
     #document the repo
     self.document()
     #get necessary information from the user
-    message = raw_input('Commit Message: ')
+    stdout.write('Commit Message: ')
+    stdout.flush()
+    message = stdin.readline().strip()
     #commit and push the repo
     call("git add -A && git commit -a -m \"" + message + "\" && git push", shell=True)
     return None
@@ -196,12 +200,14 @@ class Routines:
 
 def main():
   routine = Routines()
-  print 'Routine Options'
-  print 'run - makes and runs the JAR file'
-  print 'push - commits the current repo and pushes it'
-  print 'debug - runs the current code base for testing'
-  print 'clean - deletes the test and build directories'
-  rout = raw_input('Enter desired option: ')
+  print('Routine Options')
+  print('run - makes and runs the JAR file')
+  print('push - commits the current repo and pushes it')
+  print('debug - runs the current code base for testing')
+  print('clean - deletes the test and build directories')
+  stdout.write('Enter desired option: ')
+  stdout.flush()
+  rout = stdin.readline().strip()
   if(rout == 'run'):
     routine.run()
   elif(rout == 'push'):
@@ -211,6 +217,6 @@ def main():
   elif (rout == 'clean'):
     routine.clean()
   else:
-    print 'please try again'
+    print('please try again')
 
 if  __name__ =='__main__':main()
