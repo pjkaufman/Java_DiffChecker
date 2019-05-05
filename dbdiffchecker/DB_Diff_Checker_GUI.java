@@ -13,36 +13,39 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 /**
- * DB_Diff_Checker_GUI is a JFrame that takes user input to decide which JFrame to open.
- * Program Name: Database Difference Checker
- * CSCI Course: 325
- * Grade Received: Pass
+ * DB_Diff_Checker_GUI is a JFrame that takes user input to decide which JFrame
+ * to open. Program Name: Database Difference Checker CSCI Course: 325 Grade
+ * Received: Pass
+ * 
  * @author Peter Kaufman
  * @version 2-16-19
  * @since 9-20-17
  */
 public class DB_Diff_Checker_GUI extends JFrameV2 {
   // Instance variables
-  private final String[] optionLabelText = {"1-Database compare using 2 database connections",
-      "2-Database compare using 1 database connection", "3-Take database snapshot using 1" 
-      + " database connection", "4-Review the SQL statement(s) from the last run ", 
-      "5-Review the logs"};
+  private final String[] optionLabelText = { "1-Database compare using 2 database connections",
+      "2-Database compare using 1 database connection", "3-Take database snapshot using 1" + " database connection",
+      "4-Review the SQL statement(s) from the last run ", "5-Review the logs" };
+  private final String[] databaseTypes = { "Select Database Type", "MySQL", "SQLite" };
   private JTextField input = new JTextField(1);
   private JButton continueBtn = new JButton("Continue");
+  private JComboBox databaseType = new JComboBox(databaseTypes);
   private JLabel optionTitleLabel = new JLabel("Database Options", JLabel.CENTER);
   private JLabel promptLabel = new JLabel("Enter method to use:");
   private JPanel userOptions = new JPanel();
   private JPanel submitArea = new JPanel();
 
   /**
-   * Initializes a JFrame which will be used by the user to navigate through 
-   * the application.
+   * Initializes a JFrame which will be used by the user to navigate through the
+   * application.
+   * 
    * @author Peter Kaufman
    */
   public DB_Diff_Checker_GUI() {
@@ -52,8 +55,8 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
   }
 
   /**
-   * InitComonents sets up the GUI Layout, sets up all action events, and initializes
-   * instance variables.
+   * InitComonents sets up the GUI Layout, sets up all action events, and
+   * initializes instance variables.
    */
   private void initComponents() {
     cpnr.add(promptLabel);
@@ -73,8 +76,12 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
       }
     });
     // add components and add the labels to the apropriate ArrayList
-    userOptions.setLayout(new GridLayout(optionLabelText.length,1));
-    JLabel tempLabel = null; 
+    userOptions.setLayout(new GridLayout(optionLabelText.length + 1, 1));
+    databaseType.setSize(new Dimension(10, 10));
+    cpnr.add(databaseType);
+    userOptions.add(databaseType);
+
+    JLabel tempLabel = null;
     for (int i = 0; i < optionLabelText.length; i++) {
       tempLabel = new JLabel(optionLabelText[i], JLabel.CENTER);
       cpnr.add(tempLabel);
@@ -93,56 +100,67 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
 
   /**
    * Determines which JFrame to open based on user input.
+   * 
    * @author Peter Kaufman
    * @param evt The continue button click event object.
    */
   private void continueBtnMouseClicked(MouseEvent evt) {
-    switch (input.getText().trim()) {
-      case "1":
-        DBCompare compare2Databases = new DBCompare(0);
-        compare2Databases.setSize(575, 325);
-        compare2Databases.setVisible(true);
-        this.close();
-        break; 
-      case "2":
-        if (FileHandler.fileExists(FileHandler.databaseSnapshotFileName)) {
-          DBCompare compare1Database = new DBCompare(1);
-          compare1Database.setSize(350, 275);
-          compare1Database.setVisible(true);
+    if (databaseType.getSelectedIndex() != 0) {
+      switch (input.getText().trim()) {
+        case "1":
+          SQLiteCompare compare2Databases = new SQLiteCompare(0);
+          compare2Databases.setSize(575, 325);
+          compare2Databases.setVisible(true);
           this.close();
-        } else {
-          optionTitleLabel.setText("Please create a database snapshot first.");
-        }
-        break;
-      case "3":
-        DBCompare databaseSnapshot = new DBCompare(2);
-        databaseSnapshot.setSize(350, 275);
-        databaseSnapshot.setVisible(true);
-        this.close();
-        break;
-      case "4":
-        if (FileHandler.fileExists(FileHandler.lastSequelStatementFileName)) {
-          displayLog(FileHandler.lastSequelStatementFileName);
+          // DBCompare compare2Databases = new DBCompare(0);
+          // compare2Databases.setSize(575, 325);
+          // compare2Databases.setVisible(true);
+          // this.close();
+          break;
+        case "2":
+          if (FileHandler.fileExists(FileHandler.databaseSnapshotFileName)) {
+            DBCompare compare1Database = new DBCompare(1);
+            compare1Database.setSize(350, 275);
+            compare1Database.setVisible(true);
+            this.close();
+          } else {
+            optionTitleLabel.setText("Please create a database snapshot first.");
+          }
+          break;
+        case "3":
+          DBCompare databaseSnapshot = new DBCompare(2);
+          databaseSnapshot.setSize(350, 275);
+          databaseSnapshot.setVisible(true);
           this.close();
-        } else {
-          optionTitleLabel.setText("The DBC has not been run before.");
+          break;
+        case "4":
+          if (FileHandler.fileExists(FileHandler.lastSequelStatementFileName)) {
+            displayLog(FileHandler.lastSequelStatementFileName);
+            this.close();
+          } else {
+            optionTitleLabel.setText("The DBC has not been run before.");
+          }
+          break;
+        case "5":
+          if (FileHandler.fileExists(FileHandler.logFileName)) {
+            displayLog(FileHandler.logFileName);
+            this.close();
+          } else {
+            optionTitleLabel.setText("The DBC has not been run before.");
+          }
+          break;
+        default:
+          optionTitleLabel.setText("Please enter a number 1 to " + optionLabelText.length + ".");
         }
-        break;
-      case "5":
-        if (FileHandler.fileExists(FileHandler.logFileName)) {
-          displayLog(FileHandler.logFileName);
-          this.close();
-        } else {
-          optionTitleLabel.setText("The DBC has not been run before.");
-        }
-        break;
-      default:
-        optionTitleLabel.setText("Please enter a number 1 to " + optionLabelText.length + ".");
+    } else {
+      optionTitleLabel.setText("Please select a database type.");
     }
   }
 
   /**
-   * Opens a JFrame with log information depending on what file name is passed to it.
+   * Opens a JFrame with log information depending on what file name is passed to
+   * it.
+   * 
    * @author Peter Kaufman
    * @param file The file to have its contents displayed.
    */
@@ -166,13 +184,14 @@ public class DB_Diff_Checker_GUI extends JFrameV2 {
       } catch (DatabaseDiffernceCheckerException logError) {
         System.out.println("unable to log error... " + logError.getMessage());
       }
-      error(new DatabaseDiffernceCheckerException("There was an error recovering the" 
-          + " last list of SQL statements.", e));
+      error(new DatabaseDiffernceCheckerException("There was an error recovering the" + " last list of SQL statements.",
+          e));
     }
   }
 
   /**
-   * Sets up and prepares the GUI for the user and initializes the first JFrame. 
+   * Sets up and prepares the GUI for the user and initializes the first JFrame.
+   * 
    * @author Peter Kaufman
    * @param args is not used.
    */
