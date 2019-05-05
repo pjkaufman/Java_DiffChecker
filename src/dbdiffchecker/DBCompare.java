@@ -34,7 +34,6 @@ import dbdiffchecker.FileHandler;
 public class DBCompare extends JFrameV2 {
   // Instance variables
   private int type = 0;
-  private int times = 1;
   private final String[] titleOptions = { "Compare Two Databases", "Compare Database to Snapshot",
       "Take Database Snapshot" };
   private final String[] labelText = { "Enter MySQL Username:", "Enter MySQL Password:", "Enter MySQL Host:",
