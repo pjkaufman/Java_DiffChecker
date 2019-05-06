@@ -15,11 +15,12 @@ class Routines:
   __sourceDir = 'src'
   __packageName = 'dbdiffchecker'
   __logFileDir = 'logs'
-  __mainClassFile = 'DB_Diff_Checker_GUI'
+  __mainClassFile = 'DBDiffCheckerGUI'
   __testsDir = 'tests'
   testsPath = ''
   resourcePath = ''
   packagePath = ''
+  __mainClassFile = 
 
   #__init__ is the constructor which initializes all instance variables
   def __init__(self):
