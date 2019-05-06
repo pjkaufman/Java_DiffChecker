@@ -14,7 +14,7 @@ class Routines:
   __packageName = 'dbdiffchecker'
   __distrJarDir = 'lib'
   __logFileDir = 'logs'
-  __mainClassFile = 'DB_Diff_Checker_GUI'
+  __mainClassFile = 'DBDiffCheckerGUI'
 
   #__init__ is the constructor which initializes all instance variables
   def __init__(self):
