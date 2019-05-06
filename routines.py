@@ -14,24 +14,21 @@ class Routines:
   __packageName = 'dbdiffchecker'
   __distrJarDir = 'lib'
   __logFileDir = 'logs'
+  __mainClassFile = 'DB_Diff_Checker_GUI'
 
   #__init__ is the constructor which initializes all instance variables
   def __init__(self):
-    #sets the class path for later use
-    #get current jar list and add it to the Class-Path
-    filelist = [fi for fi in os.listdir(os.path.join(os.getcwd(), self.getJarPath())) if fi.endswith('.jar')]
-    for fi in filelist:
-      self.__javaCP += "\".;" + os.path.join(self.getJarPath(), fi) + "\";"
-    self.__javaCP = self.__javaCP[:-1]
+    #set up the class path for later use
+    self.__javaCP = "\".;" + os.path.join(self.getJarPath(), '*') + "\""
     return None
+
+  #getMainClassFile gets the name of the file that has the main class
+  def getMainClassFile(self):
+    return self.__mainClassFile
 
   #getLogFileDirectory gets the name of the log file directory
   def getLogFileDirectory(self):
     return self.__logFileDir
-
-  #getDistributionJarDirectory gets the distribution directory for the JAR files
-  def getDistributionJarDirectory(self):
-    return self.__distrJarDir
 
   #getDebugPath retruns a string, which is the path to the debug file destination
   #from a level above where this script is
@@ -84,9 +81,7 @@ class Routines:
     #compile the java files and make the jar file
     if(self.compile(packageName, False)):
       call('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') + ' manifest.mf ' +
-          packageName + ' Images ' + self.getJarPath(), shell=True)
-      #remove unnecesssary directory
-      self.__removeDirectory(os.path.join(buildDir, logDir))
+          packageName + ' Images ', shell=True)
       #remove unnecesssary .class files
       filelist = [f for f in os.listdir(os.path.join(os.getcwd(), self.getPackageName())) if f.endswith('.class')]
       for f in filelist:
@@ -101,7 +96,7 @@ class Routines:
     testDir = self.getDebugPath()
     #run compiled files with classPath
     if (self.compile(testDir, True)):
-      call('java -cp ' + os.path.join(testDir, ' ') + self.getPackageName() + '.DB_Diff_Checker_GUI', shell=True) #needs an update...
+      call('java -cp ' + self.getClassPath() + ';' + os.path.join(testDir, ' ') + self.getPackageName() + '.' + self.getMainClassFile(), shell=True) #needs an update...
 
     return None
 
@@ -113,11 +108,12 @@ class Routines:
     f.write("Manifest-Version: 1.0\n")
     f.write("Ant-Version: Apache Ant 1.9.7\n")
     cP = 'Class-Path: '
-    mC = 'Main-Class: ' + self.getPackageName() + '.DB_Diff_Checker_GUI'
+    mC = 'Main-Class: ' + self.getPackageName() + '.' + self.getMainClassFile()
     #get current jar list and add it to the Class-Path
     filelist = [fi for fi in os.listdir(os.path.join(os.getcwd(), self.getJarPath())) if fi.endswith('.jar')]
     for fi in filelist:
-      cP += os.path.join(self.getDistributionJarDirectory(), fi) + ' '
+      copy(os.path.join(self.getJarPath(), fi), os.path.join(self.getDistrubutionPath(), os.path.join(self.getJarPath(), fi)))
+      cP += os.path.join(self.getJarPath(), fi) + ' '
     #Class-Path is added if a jar file was found
     if (cP != 'Class-Path: '):
       f.write(cP  + "\n")
@@ -194,6 +190,10 @@ class Routines:
     buildFolder = self.getDistrubutionPath()
     try:
       os.mkdir(buildFolder)
+    except:
+      pass
+    try:
+      os.mkdir(os.path.join(buildFolder, self.getJarPath()))
     except:
       pass
     self.createLogs()
