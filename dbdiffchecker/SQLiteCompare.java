@@ -196,23 +196,21 @@ public class SQLiteCompare extends JFrameV2 {
 
       @Override
       protected Boolean doInBackground() throws Exception {
-        //try {
-        //   publish("Establishing Database Connection");
-        //   sw.start();
-        //   devDatabaseConnection = new DbConn(devUsername.getText(), new String(devPassword.getText()),
-        //       devHost.getText(), devPort.getText(), devDatabaseName.getText(), "dev");
-        //   publish("Gathering Database Information");
-        //   devDatabase = new Database(devDatabaseConnection);
-        //   publish("Writing to JSON File");
-        //   FileHandler.serializeDatabase(devDatabase);
-        //   sw.stop();
-        //   log("Took a DB Snapshot on " /* + sw.getDate() + " at " + sw.getHour() */ + " in "
-        //       + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
-        // } catch (SQLException e) {
-        //   sw.stop();
-        //   throw new DatabaseDiffernceCheckerException(
-        //       "There was an error" + " with the devDatabase connection. Please try again.", e);
-        //}
+        try {
+          publish("Establishing Database Connection");
+          sw.start();
+          devDatabaseConnection = new SQLiteConn(new String(devPath.getText()), devDatabaseName.getText(), "dev");
+          publish("Gathering Database Information");
+          devDatabase = new Database(devDatabaseConnection);
+          publish("Writing to JSON File");
+          FileHandler.serializeDatabase(devDatabase);
+          sw.stop();
+          log("Took a DB Snapshot in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
+        } catch (SQLException e) {
+          sw.stop();
+          throw new DatabaseDiffernceCheckerException(
+              "There was an error" + " with the devDatabase connection. Please try again.", e);
+        }
 
         return true;
       }
@@ -265,7 +263,7 @@ public class SQLiteCompare extends JFrameV2 {
         try {
           get();
           endProgressBar("Database Comparison Complete");
-          //displayResult(liveDatabaseConnection);
+          displayResult(liveDatabaseConnection);
           close();
         } catch (Exception e) {
           sw.stop();
@@ -317,16 +315,18 @@ public class SQLiteCompare extends JFrameV2 {
       if (this.type == 0) {
         devDatabaseConnection = new SQLiteConn(new String(devPath.getText()),
            devDatabaseName.getText(), "dev");
-        //devDatabase = new Database(devDatabaseConnection);
+        devDatabase = new Database(devDatabaseConnection);
       } else {
         devDatabase = FileHandler.deserailizDatabase();
       }
       liveDatabaseConnection = new SQLiteConn(new String(livePath.getText()),
       liveDatabaseName.getText(), "live");
-      //liveDatabase = new Database(liveDatabaseConnection);
+      liveDatabase = new Database(liveDatabaseConnection);
     } catch (Exception cause) {
       String errorMessage = "";
-      if (cause instanceof SQLException) {
+      if (cause instanceof DatabaseDiffernceCheckerException) {
+        throw (DatabaseDiffernceCheckerException)cause;
+      } else if(cause instanceof SQLException) {
         errorMessage = "There was an error with the database connection. Please try again.";
       } else {
         errorMessage = "There was an error reading in the database snapshot. Please try again.";
@@ -341,12 +341,12 @@ public class SQLiteCompare extends JFrameV2 {
    * @author Peter Kaufman
    */
   private void compareDatabases() throws DatabaseDiffernceCheckerException {
-    // sql.addAll(liveDatabase.getFirstSteps());
-    // sql.addAll(devDatabase.compareTables(liveDatabase.getTables()));
-    // updateTables.putAll(devDatabase.tablesDiffs(liveDatabase.getTables()));
-    // sql.addAll(devDatabase.updateTables(liveDatabase.getTables(), updateTables));
-    // sql.addAll(devDatabase.getFirstSteps());
-    // sql.addAll(devDatabase.updateViews(liveDatabase.getViews()));
+    sql.addAll(liveDatabase.getFirstSteps());
+    sql.addAll(devDatabase.compareTables(liveDatabase.getTables()));
+    updateTables.putAll(devDatabase.tablesDiffs(liveDatabase.getTables()));
+    sql.addAll(devDatabase.updateTables(liveDatabase.getTables(), updateTables));
+    sql.addAll(devDatabase.getFirstSteps());
+    sql.addAll(devDatabase.updateViews(liveDatabase.getViews()));
     sw.stop();
     log("DB Comparison Complete on " /* + sw.getDate() + " at " + sw.getHour() */ + " in "
         + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
