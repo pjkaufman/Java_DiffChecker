@@ -12,7 +12,6 @@ class Routines:
   __jarDir = 'lib'
   __javaCP = ''
   __packageName = 'dbdiffchecker'
-  __distrJarDir = 'lib'
   __logFileDir = 'logs'
   __mainClassFile = 'DBDiffCheckerGUI'
 
