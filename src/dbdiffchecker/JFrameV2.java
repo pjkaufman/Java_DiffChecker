@@ -46,7 +46,7 @@ public class JFrameV2 extends JFrame {
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     setLocation(new Point(200, 200));
-    setIconImage(new ImageIcon(getClass().getResource("/Images/DBCompare.png")).getImage());
+    setIconImage(new ImageIcon(getClass().getResource("/resources/DBCompare.png")).getImage());
     // set component properties
     pb.setVisible(false);
     // add listeners

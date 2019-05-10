@@ -7,24 +7,37 @@ from shutil import rmtree
 from shutil import copy
 class Routines:
   #instance variables
-  __debugDir = 'test'
+  __debugDir = 'build'
   __distrDir = 'build'
   __jarDir = 'lib'
   __javaCP = ''
+  __resourceDir = 'resources'
+  __sourceDir = 'src'
   __packageName = 'dbdiffchecker'
-  __distrJarDir = 'lib'
   __logFileDir = 'logs'
   __mainClassFile = 'DB_Diff_Checker_GUI'
+  resourcePath = ''
+  packagePath = ''
 
   #__init__ is the constructor which initializes all instance variables
   def __init__(self):
     #set up the class path for later use
     self.__javaCP = "\".;" + os.path.join(self.getJarPath(), '*') + "\""
+    self.resourcePath = os.path.join(self.getSourceDir(), self.getResourceDir())
+    self.packagePath = os.path.join(self.getSourceDir(), self.getPackageName())
     return None
 
   #getMainClassFile gets the name of the file that has the main class
   def getMainClassFile(self):
     return self.__mainClassFile
+
+  #getSourceDir gets the path to the resources directory
+  def getSourceDir(self):
+    return self.__sourceDir
+
+  #getResousceDir gets the path to the resources directory
+  def getResourceDir(self):
+    return self.__resourceDir
 
   #getLogFileDirectory gets the name of the log file directory
   def getLogFileDirectory(self):
@@ -64,7 +77,7 @@ class Routines:
 
     #compile the java files and make the jar file
     try:
-      check_output(start + ' -cp ' + self.getClassPath() + ' ' + os.path.join(self.getPackageName(), '*.java'), shell=True)
+      check_output(start + ' -cp ' + self.getClassPath() + ' ' + os.path.join(self.packagePath, '*.java'), shell=True)
       print('Compiled files')
     except Exception as e:
       print(str(e))
@@ -75,17 +88,18 @@ class Routines:
   #makeJar sets up the manifest and makes the JAR file
   def makeJar(self):
     self.updateManifest()
-    logDir = self.getLogFileDirectory()
     buildDir = self.getDistrubutionPath()
-    packageName = self.getPackageName()
+    changeDirFlag = ' -C ' + self.getSourceDir() + ' '
     #compile the java files and make the jar file
-    if(self.compile(packageName, False)):
-      call('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') + ' manifest.mf ' +
-          packageName + ' Images ', shell=True)
+    if(self.compile(self.packagePath, False)):
+      print('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') + ' manifest.mf' + changeDirFlag
+           + self.getPackageName() + changeDirFlag + self.getResourceDir())
+      call('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') + ' manifest.mf' + changeDirFlag
+           + self.getPackageName() + changeDirFlag + self.getResourceDir(), shell=True)
       #remove unnecesssary .class files
-      filelist = [f for f in os.listdir(os.path.join(os.getcwd(), self.getPackageName())) if f.endswith('.class')]
+      filelist = [f for f in os.listdir(os.path.join(os.getcwd(), self.packagePath)) if f.endswith('.class')]
       for f in filelist:
-        os.remove(os.path.join(os.getcwd(), packageName, f))
+        os.remove(os.path.join(os.getcwd(), self.packagePath, f))
 
     return None
 
@@ -157,7 +171,7 @@ class Routines:
 
   #documnet documents the repo
   def document(self):
-    call('javadoc -d "docs" "' + self.getPackageName() + '"', shell=True)
+    call('javadoc -d "docs" -classpath ' + '".;' + self.getSourceDir() + '" ' + self.getPackageName() + '"', shell=True)
     return None
 
   #createLogs makes the log directory
@@ -176,14 +190,14 @@ class Routines:
       pass
     self.createLogs()
     try:
-       os.mkdir(os.path.join(debugFolder, 'Images'))
+       os.mkdir(os.path.join(debugFolder, self.getResourceDir()))
     except:
       pass
 
-    #copy current image list to the Images folder in the test directory
-    filelist = [f for f in os.listdir(os.path.join(os.getcwd(),'Images'))]
+    #copy current image list to the resources folder in the test directory
+    filelist = [f for f in os.listdir(os.path.join(os.getcwd(), self.resourcePath))]
     for f in filelist:
-      copy(os.path.join(os.getcwd(), 'Images', f), os.path.join(os.getcwd(), debugFolder, 'Images'))
+      copy(os.path.join(os.getcwd(), self.resourcePath, f), os.path.join(os.getcwd(), debugFolder, self.getResourceDir()))
 
   #createBuild makes the build directory
   def createBuild(self):

@@ -1,11 +1,9 @@
 # Compiled class file
-dbdiffchecker/*.class
+src/dbdiffchecker/*.class
+src/tests/*.class
 
 # build data
 build/
-
-# test data
-test/
 
 # log data
 logs/
