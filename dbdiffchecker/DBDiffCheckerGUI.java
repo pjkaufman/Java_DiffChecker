@@ -120,10 +120,7 @@ public class DBDiffCheckerGUI extends JFrameV2 {
         }
         break;
       case "3":
-        DBCompare databaseSnapshot = new DBCompare(2);
-        databaseSnapshot.setSize(350, 275);
-        databaseSnapshot.setVisible(true);
-        this.close();
+        chooseDBSnapshot(databaseSelected);
         break;
       case "4":
         if (FileHandler.fileExists(FileHandler.lastSequelStatementFileName)) {
@@ -202,12 +199,35 @@ public class DBDiffCheckerGUI extends JFrameV2 {
     JFrameV2 compare1Database;
     switch(databaseSelected) {
       case "SQLite":
-        optionTitleLabel.setText("Currently unimplimented.");
+        compare1Database = new SQLiteCompare(1);
+        compare1Database.setSize(350, 275);
+        compare1Database.setVisible(true);
+        this.close();
         break;
       case "MySQL":
         compare1Database = new DBCompare(1);
         compare1Database.setSize(350, 275);
         compare1Database.setVisible(true);
+        this.close();
+        break;
+      default:
+        optionTitleLabel.setText("Please select a database type.");
+    }
+  }
+
+  private void chooseDBSnapshot(String databaseSelected) {
+    JFrameV2 databaseSnapshot;
+    switch(databaseSelected) {
+      case "SQLite":
+        databaseSnapshot = new SQLiteCompare(2);
+        databaseSnapshot.setSize(350, 275);
+        databaseSnapshot.setVisible(true);
+        this.close();
+        break;
+      case "MySQL":
+        databaseSnapshot = new DBCompare(2);
+        databaseSnapshot.setSize(350, 275);
+        databaseSnapshot.setVisible(true);
         this.close();
         break;
       default:

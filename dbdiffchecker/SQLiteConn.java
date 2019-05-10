@@ -76,11 +76,16 @@ public class SQLiteConn extends DbConn {
    */
   public String getTableCreateStatement(String table) throws DatabaseDiffernceCheckerException {
     try {
+      String create = "";
       Statement query = this.con.createStatement();
-      ResultSet set = query.executeQuery("SELECT `sql` FROM `sqlite_master` WHERE name='" + table + "'' -- create table;");
-      set.next(); // move to the first result
+      ResultSet set = query.executeQuery("SELECT `sql` FROM `sqlite_master` WHERE tbl_name='" + table + "' AND `sql` NOT NULL; -- create table;");
+      // get all data needed to create the table
+      while (set.next()) {
+        create += set.getString("sql") + ";\n";
+      }
+      create = create.substring(0, create.length() - 1);
 
-      return set.getString("sql");
+      return create;
     } catch (SQLException e) {
       throw new DatabaseDiffernceCheckerException("There was an error getting the " 
           + table + " table's create statement.", e);
@@ -132,36 +137,9 @@ public class SQLiteConn extends DbConn {
       while (tables.next()) {
         // get the table name and its createStatement
         table = tables.getString("name");
-        create = tables.getString("sql");
+        create = getTableCreateStatement(table);
         System.out.println(create + " 178");
-        // this.firstStep = "ALTER TABLE `" + table + "`";
-        // this.count = 0;
-        // // if the database is the live database
-        // if (this.type.equals("live")) {
-        //   // remove auto_increment value statement
-        //   if (create.contains("AUTO_INCREMENT")) {
-        //     if (create.contains("AUTO_INCREMENT=")) {
-
-        //       create = create.substring(0, create.indexOf("AUTO_INCREMENT="))
-        //             + create.substring(create.indexOf("DEFAULT CHARSET"));
-        //     }
-        //     create = create.replace("AUTO_INCREMENT", ""); // remove auto-increment from column
-        //   }
-        //   if (create.contains("PRIMARY KEY")) {
-        //     // determine how many columns are in the PRIMARY KEY and replace 
-        //     // the PRIMARY KEY reference in the create statement
-        //     String temp = create.substring(create.indexOf("PRIMARY KEY"));
-        //     create = create.substring(0, create.indexOf("PRIMARY KEY"))
-        //           + create.substring(create.indexOf("PRIMARY KEY") +  temp.indexOf(")") + 2);
-
-        //     // check to see if the PRIMARY KEY was the last table line inside the create statement
-        //     if (!create.contains("KEY")) {
-        //       create = create.substring(0, create.lastIndexOf(",")) + "\n"
-        //             + create.substring(create.lastIndexOf(",") + 2);
-        //     }
-        //   }
-        //}
-        add = new Table(table, create);
+        add = new SQLiteTable(table, create);
         // query for and get the columns for the table
         columns = query2.executeQuery("PRAGMA TABLE_INFO(`" + table + "`);");
         // for each column fill out the column information
@@ -172,9 +150,6 @@ public class SQLiteConn extends DbConn {
         // query and get index dat for the table
         indexes = query3.executeQuery("PRAGMA index_list('" + table + "');");
         createIndexes(add, indexes);
-        if (this.count != 0) {
-          firstSteps.add(firstStep + ";");
-        }
         tablesList.put(table, add);
       }
 
@@ -220,39 +195,30 @@ public class SQLiteConn extends DbConn {
      String name = column.getString("name");
      String type = column.getString("type");
      boolean extra = column.getBoolean("pk"); 
-     String def = column.getString("dflt_value");
-     boolean nullable = column.getBoolean("notnull"); 
+     boolean notNull = column.getBoolean("notnull");
+     String def = column.getString("dflt_value"); 
      String info = type;
-     // set up desired variables
      // if the type is a string of some sort then make the default a string by adding single quotes
-     if (def == null) {
-       def = "NULL"; // TODO: determine the correct thing to add
-     } else if (type.contains("char")) {
-       def = "\'" + def + "\'"; // TODO: determine the correct thing to add
+     if (type.contains("char")) {
+       def = "\'" + def + "\'";
      }
-     // is the column nullable? if not, add the default value
-     if (!nullable) {
-       info += " NOT NULL"; // TODO: determine the correct thing to add
-     } else {
-       info += " DEFAULT " + def; // TODO: determine the correct thing to add
-     }
-     // if the the database is not the live database then add the AUTO_INCREMENT if it exists
-     // otherwise drop the AUTO_INCREMENT
+     // format the primary key value appropriately if it exists
      if (extra) {
-       if (this.type.equals("live")) {
-         if (this.count == 0) {
- 
-           this.firstStep += "\n MODIFY COLUMN `" + name + "`" + info; // TODO: determine the correct thing to add
-           this.count++;
-         } else {
- 
-           this.firstStep += ",\n MODIFY COLUMN `" + name + "`" + info; // TODO: determine the correct thing to add
-           this.count++;
-         }
-       } else {
-         info += " AUTO_INCREMENT"; // TODO: determine the correct thing to add
+       info += "\t PRIMARY KEY";
+       if (notNull) { // setup for notNull definition
+          info += "\n\t";
        }
+     } 
+     if (notNull) { 
+        info += "\t NOT NULL";
+        if (def != null) { // setup for default definition
+          info += "\n\t";
+        }
      }
+     if (def != null ) {
+      info += "\t DEFAULT(" + def + ")";
+     }
+
      table.addColumn(new Column(name, info));
   }
 
@@ -267,17 +233,20 @@ public class SQLiteConn extends DbConn {
   protected void createIndexes(Table table, ResultSet index) throws SQLException {
         // initalize variables for index data
         String name = "";
-        String origin = "";
         String create = "";
         String type = "";
         String columns = "";
+        boolean unique = false;
         Statement indexDataQuery;
         ResultSet indexData;
         // add each index to the table
         while (index.next()) {
+          columns = "";
           // get index name, what created the index, and whether it is unique or not
           name = index.getString("name");
-          origin = index.getString("origin");
+          type = index.getString("origin");
+          unique = index.getBoolean("unique");
+
           // get the index info using the index name
           indexDataQuery = this.con.createStatement(); 
           indexData = indexDataQuery.executeQuery("PRAGMA INDEX_INFO('" + name + "');");
@@ -287,8 +256,8 @@ public class SQLiteConn extends DbConn {
           }
           columns = columns.substring(0, columns.length() - 1);
           // get create statemet and add it to the table
-          create = getCreateIndex(columns, name, type);
-          table.addIndex(new Index(name, create, columns));
+          create = getCreateIndex(columns, name, type, table.getName(), unique);
+          table.addIndex(new Index(name, create, columns, type.equals("pk")));
         }
   }
 
@@ -299,21 +268,23 @@ public class SQLiteConn extends DbConn {
    * @param columns The columns that the index is on.
    * @param name The name of the index.
    * @param type The type of indexing used on the index.
+   * @param table The table name to add the index to.
+   * @param unique Whether or not the index is unique.
    */
-  private String getCreateIndex(String columns, String name, String type) {
+  private String getCreateIndex(String columns, String name, String type, String table, boolean unique) {
     String create = "";
     // initialize the add index statement
     if (type.equals("pk")) {
 
-      create = " ADD PRIMARY KEY(" + columns + ")";
-    } else if (type.equals("u")) {
+      create = ""; // cannot be added to a table after its creation in SQLite
+    } else if (type.equals("u") || unique) {
 
-      create = " ADD UNIQUE INDEX `" + name + "` (" + columns + ")";
+      create = "CREATE UNIQUE INDEX `" + name + "` ON `" + table + "` (" + columns + ")";
     } else {
 
-      create = " ADD INDEX `" + name + "` (" + columns + ")";
+      create = "CREATE INDEX `" + name + "` ON `" + table + "` (" + columns + ")";
     }
-
+   
     return create;
   }
 }

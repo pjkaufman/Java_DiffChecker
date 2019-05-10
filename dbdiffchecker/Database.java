@@ -157,7 +157,6 @@ public class Database implements Serializable {
     // find the info that is differnet between the tables
     for (String tableName : this.tables.keySet()) {
       if (!exclude.containsKey(tableName) && updateTables.containsKey(tableName)) {
-
         sql.addAll(this.tables.get(tableName).equals(live.get(tableName)));
       }
     }
@@ -176,7 +175,6 @@ public class Database implements Serializable {
    *      their structures did not match between the dev and live databases.
    */
   public HashMap<String, String> tablesDiffs(HashMap<String, Table> liveTables) {
-
     HashMap<String, String> updateTables = new HashMap<>();
 
     for (String tableName : this.tables.keySet()) {

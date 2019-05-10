@@ -132,7 +132,6 @@ public class MySQLConn extends DbConn {
         // get the table name and its createStatement
         table = tables.getString("Tables_in_" + this.db);
         create = getTableCreateStatement(table);
-        System.out.println(create + " 178");
         this.firstStep = "ALTER TABLE `" + table + "`";
         this.count = 0;
         // if the database is the live database
@@ -298,32 +297,19 @@ public class MySQLConn extends DbConn {
    * @throws SQLException An error occurred while accessing an index property.
    */
   protected void createIndexes(Table table, ResultSet index) throws SQLException {
-    // set up a hashmap for fast index name checking
-    HashMap<String, String> indices = new HashMap<>();
     // initalize variables for index data
     String name = "";
     String create = "";
     String type = "";
     String columns = "";
     int unique = 0;
-    // add first index name to the list and collect index data then collect data
-    if (index.next()) {
-      // get index data
-      name = index.getString("Key_name");
-      unique = index.getInt("Non_unique");
-      type = index.getString("Index_type");
-      columns += "`" + index.getString("Column_name") + "`,";
-      indices.put(name, name);
-      // iterate over the ramaining indexes
-      while (index.next()) {
-        // if the index name is already in the hashmap, the
-        // index data has not been completely collected yet
-        if (indices.containsKey(index.getString("Key_name"))) {
-          // the only data needed is the column because the other data is the same
-          columns += "`" + index.getString("Column_name") + "`,";
-        } else {
-          // the last index found has all of its data collected,
-          // so check to see if the index is a PRIMARY KEY and that the databse type is live
+    boolean notFirstLoop = false;
+    boolean hasNext = index.next();
+    while (hasNext) { // collect index data
+      if (!index.getString("Key_name").equals(name)) {
+        if (notFirstLoop) {
+          // the last index found has all of its data collected, so check to see if
+          // the index is a PRIMARY KEY and that the database type is live
           if (name.equals("PRIMARY") && this.type.equals("live")) {
             if (this.count == 0) {
 
@@ -336,35 +322,21 @@ public class MySQLConn extends DbConn {
             }
           } else {
             // the index is to be added
-            create = getCreateIndex(columns.substring(0, columns.length() - 1), 
-                  name, type, unique);
-            table.addIndex(new Index(name, create, columns.substring(0, columns.length() - 1)));
-          }
-          // collect the new index's data
-          name = index.getString("Key_name");
-          unique = index.getInt("Non_unique");
-          type = index.getString("Index_type");
-          columns = "`" + index.getString("Column_name") + "`,";
-          // add index to the list of indexes found
-          indices.put(name, name);
+            System.out.println("The index " + name + " has been found on " + columns);
+            create = getCreateIndex(columns, name, type, unique);
+            table.addIndex(new Index(name, create, columns, name.equals("PRIMARY")));
+          } 
         }
+        name = index.getString("Key_name");
+        unique = index.getInt("Non_unique");
+        type = index.getString("Index_type");
+        columns = "`" + index.getString("Column_name") + "`";
+      } else { // the same index is being modified so only the column name is needed
+        columns += ",`" + index.getString("Column_name") + "`";
       }
-      // add the last index found if it is not a PRIMARY KEY on the live database
-      if (name.equals("PRIMARY") && this.type.equals("live")) {
-        if (this.count == 0) {
 
-          this.firstStep += "\n DROP PRIMARY KEY";
-          this.count++;
-        } else {
-
-          this.firstStep += ",\n DROP PRIMARY KEY";
-          this.count++;
-        }
-      } else {
-        // the index is to be added
-        create = getCreateIndex(columns.substring(0, columns.length() - 1), name, type, unique);
-        table.addIndex(new Index(name, create, columns.substring(0, columns.length() - 1)));
-      }
+      hasNext = index.next();
+      notFirstLoop = true;
     }
   }
 

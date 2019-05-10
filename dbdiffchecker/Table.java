@@ -14,12 +14,12 @@ import java.util.HashMap;
  */
 public class Table extends Schema {
 
-  private String charSet = "";
-  private String collation = "";
-  private String autoIncrement = "";
-  private int count = 0;
-  private HashMap<String, Column> columns = new HashMap<>();
-  private HashMap<String, Index> indices = new HashMap<>();
+  protected String charSet = "";
+  protected String collation = "";
+  protected String autoIncrement = "";
+  protected int count = 0;
+  protected HashMap<String, Column> columns = new HashMap<>();
+  protected HashMap<String, Index> indices = new HashMap<>();
 
   /**
    * Initializes a Table object with a name create statement.
@@ -67,6 +67,16 @@ public class Table extends Schema {
   public String getAutoIncrement() {
 
     return this.autoIncrement;
+  }
+
+  /**
+   * Returns the name of the table.
+   * @author Peter Kaufman
+   * @return The name of the table.
+   */
+  public String getName() {
+    
+    return this.name;
   }
 
   /**
@@ -147,7 +157,6 @@ public class Table extends Schema {
    * @return The SQL needed to make the tables the same.
    */
   public ArrayList<String> equals(Table t1) {
-
     ArrayList<String> sql = new ArrayList<>();
     String sql2 = "ALTER TABLE `" + this.name + "`\n";
 
@@ -245,7 +254,7 @@ public class Table extends Schema {
             this.count++;
           }
 
-          break;
+          break; // TODO: make sure that breaking the loop is what is desired here
         }
       }
 
@@ -317,7 +326,7 @@ public class Table extends Schema {
       } else {
         if (this.count == 0) {
 
-          sql += "" + indices1.getCreateStatement();
+          sql += indices1.getCreateStatement();
         } else {
 
           sql += ", \n" + indices1.getCreateStatement();

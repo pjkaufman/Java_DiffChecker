@@ -341,6 +341,7 @@ public class SQLiteCompare extends JFrameV2 {
    * @author Peter Kaufman
    */
   private void compareDatabases() throws DatabaseDiffernceCheckerException {
+    System.out.println("Beginning of two db compare");
     sql.addAll(liveDatabase.getFirstSteps());
     sql.addAll(devDatabase.compareTables(liveDatabase.getTables()));
     updateTables.putAll(devDatabase.tablesDiffs(liveDatabase.getTables()));
@@ -348,8 +349,7 @@ public class SQLiteCompare extends JFrameV2 {
     sql.addAll(devDatabase.getFirstSteps());
     sql.addAll(devDatabase.updateViews(liveDatabase.getViews()));
     sw.stop();
-    log("DB Comparison Complete on " /* + sw.getDate() + " at " + sw.getHour() */ + " in "
-        + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
+    log("DB Comparison Complete in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
   }
 
   /**
