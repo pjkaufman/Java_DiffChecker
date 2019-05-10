@@ -28,7 +28,7 @@ public class Schema implements Serializable {
    * @author Peter Kaufman
    * @return The name of the Schema object.
    */
-  protected String getName() {
+  public String getName() {
 
     return this.name;
   }
@@ -38,7 +38,7 @@ public class Schema implements Serializable {
    * @author Peter Kaufman
    * @return The create statement of the of the Schema object.
    */
-  protected String getCreateStatement() {
+  public String getCreateStatement() {
 
     return this.createStatement;
   }
