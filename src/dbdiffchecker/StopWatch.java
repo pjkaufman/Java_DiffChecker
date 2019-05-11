@@ -6,11 +6,8 @@ import java.time.Instant;
 /**
  * StopWatch models a stopwatch and can determine how much time has elapsed since
  * the last start and end method calls.
- * Program Name: Database Difference Checker
- * CSCI Course: 325
- * Grade Received: Pass
  * @author Jonas_Hess and Peter Kaufman
- * @version 2-16-19
+ * @version 5-11-19
  * @since 10-26-17
  * @see <a href="https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java">https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java</a>
  */

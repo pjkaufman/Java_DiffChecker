@@ -11,11 +11,8 @@ import java.util.HashMap;
 /**
  * DbConn establishes a connection with a MySQL database based on the password,
  * username, port, host, and database provided.
- * Program Name: Database Difference Checker
- * CSCI Course: 325
- * Grade Received: Pass
  * @author Peter Kaufman
- * @version 2-16-19
+ * @version 5-11-19
  * @since 9-6-17
  */
 public class DbConn {

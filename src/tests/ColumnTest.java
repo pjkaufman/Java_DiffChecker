@@ -2,12 +2,22 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import dbdiffchecker.Column;
 
+/**
+ * ColumnTest is a unit test that makes sure that the Column object works as intended.
+ * @author Peter Kaufman
+ * @version 5-11-19
+ * @since 5-10-19
+ */
 public class ColumnTest {
 
   private Column test;
   private String name, details;
 
   @Test
+  /**
+   * Tests whether the get statements inside of the Column object work as intended.
+   * @author Peter Kaufman
+   */
   public void testGetStatements() {
     name = "shipmentID";
     details = "int(11) NOT NULL";

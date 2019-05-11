@@ -18,11 +18,8 @@ import javax.swing.border.TitledBorder;
 
 /**
  * JFrameV2 is a JFrame that has all of the common methods that any JFrame in this package uses.
- * Program Name: Database Difference Checker
- * CSCI Course: 325
- * Grade Received: Pass
  * @author Peter Kaufman
- * @version 2-16-19
+ * @version 5-11-19
  * @since 5-14-18
  */
 public class JFrameV2 extends JFrame {

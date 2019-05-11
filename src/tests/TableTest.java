@@ -5,6 +5,12 @@ import dbdiffchecker.Column;
 import dbdiffchecker.Index;
 import dbdiffchecker.Table;
 
+/**
+ * TableTest is a unit test that makes sure that the Table object works as intended.
+ * @author Peter Kaufman
+ * @version 5-11-19
+ * @since 5-10-19
+ */
 public class TableTest {
 
   private Table table1, table2;
@@ -13,6 +19,10 @@ public class TableTest {
   private Index index1, index2;
 
   @Test
+  /**
+   * Tests whether the get statements inside of the Table object work as intended.
+   * @author Peter Kaufman
+   */
   public void testGetStatements() {
     name = "`bloat`";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
@@ -47,6 +57,10 @@ public class TableTest {
   }
 
   @Test
+  /**
+   * Tests whether the addColumn function works as intended.
+   * @author Peter Kaufman
+   */
   public void testAddColumn() {
     name = "`bloat`";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
@@ -74,6 +88,10 @@ public class TableTest {
   }
 
   @Test
+  /**
+   * Tests whether the addIndex function works as intended.
+   * @author Peter Kaufman
+   */
   public void testAddIndex() {
     name = "bloat";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
@@ -103,6 +121,10 @@ public class TableTest {
   }
 
   @Test
+  /**
+   * Tests whether the equals function works as intended.
+   * @author Peter Kaufman
+   */
   public void testEquals() {
     ArrayList<String> sql;
     String expectedSQL = "ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, " + 

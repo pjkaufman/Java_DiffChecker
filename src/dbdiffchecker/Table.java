@@ -5,11 +5,8 @@ import java.util.HashMap;
 
 /**
  * Table resembles a table in MySQL and contains info about the table's columns.
- * Program Name: Database Difference Checker
- * CSCI Course: 325
- * Grade Received: Pass
  * @author Peter Kaufman
- * @version 2-16-19
+ * @version 5-11-19
  * @since 9-10-17
  */
 public class Table extends Schema {

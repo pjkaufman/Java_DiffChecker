@@ -20,11 +20,8 @@ import javax.swing.UIManager;
 
 /**
  * DB_Diff_Checker_GUI is a JFrame that takes user input to decide which JFrame to open.
- * Program Name: Database Difference Checker
- * CSCI Course: 325
- * Grade Received: Pass
  * @author Peter Kaufman
- * @version 2-16-19
+ * @version 5-11-19
  * @since 9-20-17
  */
 public class DB_Diff_Checker_GUI extends JFrameV2 {

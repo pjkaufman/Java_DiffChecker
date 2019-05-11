@@ -2,12 +2,22 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import dbdiffchecker.View;
 
+/**
+ * ViewTest is a unit test that makes sure that the View object works as intended.
+ * @author Peter Kaufman
+ * @version 5-11-19
+ * @since 5-10-19
+ */
 public class ViewTest {
 
   private View test;
   private String name, create;
 
   @Test
+  /**
+   * Tests whether the get statements inside of the View object work as intended.
+   * @author Peter Kaufman
+   */
   public void testGetStatements() {
     name = "viewShipment";
     create = "CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `userlist` AS select `users`.`userid` AS `userid`,`users`.`remove` AS `add` from `users`";

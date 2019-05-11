@@ -220,17 +220,17 @@ class Routines:
 
   #test runs all of the tests in the tests directory 
   def test(self):
-    print('Testing started')
+    #remove log folder to keep tests from failing erroneously
+    self.__removeDirectory(self.getLogFileDirectory())
+    #create log folder for testing purposes
+    self.createLogs()
     classPath = '-cp ' + self.getClassPath()[:-1] + ';' + self.getSourceDir()
-    filelist = [fi for fi in os.listdir(os.path.join(os.getcwd(), self.testsPath)) if fi.endswith('.java')]
-    for fi in filelist:
-      #run test
-      print(fi.strip('.java') + ':')
-      call('javac ' + classPath + '" ' + os.path.join(self.testsPath, fi))
-      call('java ' + classPath + ';' + self.testsPath + '" org.junit.runner.JUnitCore ' + fi.strip('.java'))
-    print('Testing complete')
+    #run test
+    call('javac ' + classPath + '" ' + os.path.join(self.testsPath, '*.java'))
+    call('java ' + classPath + ';' + self.testsPath + '" TestRunner ')
     self.__removeClassFiles(os.path.join(os.getcwd(), self.packagePath))
     self.__removeClassFiles(os.path.join(os.getcwd(), self.testsPath))
+    self.__removeDirectory(self.getLogFileDirectory())
 
 def main():
   routine = Routines()
