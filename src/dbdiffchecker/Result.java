@@ -19,12 +19,8 @@ import javax.swing.SwingWorker;
 
 /**
  * Result is a JFrame that shows the provided data to the user.
- * Program Name: Database Difference Checker
- * CSCI Course: 325
- * Grade Received: Pass
  * @author Peter Kaufman
- * @version 2-16-19
-
+ * @version 5-11-19
  * @since 9-20-17
  */
 public class Result extends JFrameV2 {

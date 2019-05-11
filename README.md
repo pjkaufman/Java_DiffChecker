@@ -64,6 +64,7 @@ Routine Options
 run - makes and runs the JAR file
 push - commits the current repo and pushes it
 debug - runs the current code base for testing
+test - runs the unit tests on the source code
 clean - deletes the test, logs, and build directories
 Enter desired option:
 ```
@@ -86,11 +87,11 @@ After modifying any of the Java files in the repository, you can go to the base 
 python routines.py
 ```
 
-When prompted for the routine to run, enter 'debug'. This will compile all of the current Java files into the test/db_diff_checker_gui folder where it will be run if no errors occur (no JAR file will be created).
+When prompted for the routine to run, enter 'debug'. This will compile all of the current Java files into the test/dbdiffchecker folder where it will be run if no errors occur (no JAR file will be created).
 
 ### Manually Running The JAR File
 
-In order to use the JAR file with logs, make sure that where you run the jar file you have a logs folder.
+In order to use the JAR file with logs, make sure that where you run the jar file you have a logs folder. Also make sure that the jar file is located in the same directory as the lib folder containing the jar files for the reopsitory.
 
 To run the applciation through the JAR file run
 

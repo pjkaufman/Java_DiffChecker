@@ -7,24 +7,40 @@ from shutil import rmtree
 from shutil import copy
 class Routines:
   #instance variables
-  __debugDir = 'test'
+  __debugDir = 'build'
   __distrDir = 'build'
   __jarDir = 'lib'
   __javaCP = ''
+  __resourceDir = 'resources'
+  __sourceDir = 'src'
   __packageName = 'dbdiffchecker'
-  __distrJarDir = 'lib'
   __logFileDir = 'logs'
   __mainClassFile = 'DB_Diff_Checker_GUI'
+  __testsDir = 'tests'
+  testsPath = ''
+  resourcePath = ''
+  packagePath = ''
 
   #__init__ is the constructor which initializes all instance variables
   def __init__(self):
     #set up the class path for later use
     self.__javaCP = "\".;" + os.path.join(self.getJarPath(), '*') + "\""
+    self.resourcePath = os.path.join(self.getSourceDir(), self.getResourceDir())
+    self.packagePath = os.path.join(self.getSourceDir(), self.getPackageName())
+    self.testsPath = os.path.join(self.getSourceDir(),  self.__testsDir)
     return None
 
   #getMainClassFile gets the name of the file that has the main class
   def getMainClassFile(self):
     return self.__mainClassFile
+
+  #getSourceDir gets the path to the resources directory
+  def getSourceDir(self):
+    return self.__sourceDir
+
+  #getResousceDir gets the path to the resources directory
+  def getResourceDir(self):
+    return self.__resourceDir
 
   #getLogFileDirectory gets the name of the log file directory
   def getLogFileDirectory(self):
@@ -64,7 +80,7 @@ class Routines:
 
     #compile the java files and make the jar file
     try:
-      check_output(start + ' -cp ' + self.getClassPath() + ' ' + os.path.join(self.getPackageName(), '*.java'), shell=True)
+      check_output(start + ' -cp ' + self.getClassPath() + ' ' + os.path.join(self.packagePath, '*.java'), shell=True)
       print('Compiled files')
     except Exception as e:
       print(str(e))
@@ -75,17 +91,13 @@ class Routines:
   #makeJar sets up the manifest and makes the JAR file
   def makeJar(self):
     self.updateManifest()
-    logDir = self.getLogFileDirectory()
     buildDir = self.getDistrubutionPath()
-    packageName = self.getPackageName()
+    changeDirFlag = ' -C ' + self.getSourceDir() + ' '
     #compile the java files and make the jar file
-    if(self.compile(packageName, False)):
-      call('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') + ' manifest.mf ' +
-          packageName + ' Images ', shell=True)
-      #remove unnecesssary .class files
-      filelist = [f for f in os.listdir(os.path.join(os.getcwd(), self.getPackageName())) if f.endswith('.class')]
-      for f in filelist:
-        os.remove(os.path.join(os.getcwd(), packageName, f))
+    if(self.compile(self.packagePath, False)):
+      call('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') + ' manifest.mf' + changeDirFlag
+           + self.getPackageName() + changeDirFlag + self.getResourceDir(), shell=True)
+      self.__removeClassFiles(os.path.join(os.getcwd(), self.packagePath))
 
     return None
 
@@ -136,6 +148,14 @@ class Routines:
       pass
     return None
 
+  #__removeClassFiles takes in a directory and removes all class files in that directory
+  #param: directory is the directory in which to remove all class files
+  def __removeClassFiles(self, directory):
+    #remove unnecesssary .class files
+    filelist = [f for f in os.listdir(directory) if f.endswith('.class')]
+    for f in filelist:
+      os.remove(os.path.join(directory, f))
+
   #run makes and runs the JAR file
   def run(self):
     self.createBuild()
@@ -155,9 +175,9 @@ class Routines:
     call("git add -A && git commit -a -m \"" + message + "\" && git push", shell=True)
     return None
 
-  #documnet documents the repo
+  #documnet java classes in the repo
   def document(self):
-    call('javadoc -d "docs" "' + self.getPackageName() + '"', shell=True)
+    call('javadoc -d "docs" -classpath ' + '".;' + self.getSourceDir() + '" ' + self.getPackageName() + '"', shell=True)
     return None
 
   #createLogs makes the log directory
@@ -176,14 +196,14 @@ class Routines:
       pass
     self.createLogs()
     try:
-       os.mkdir(os.path.join(debugFolder, 'Images'))
+       os.mkdir(os.path.join(debugFolder, self.getResourceDir()))
     except:
       pass
 
-    #copy current image list to the Images folder in the test directory
-    filelist = [f for f in os.listdir(os.path.join(os.getcwd(),'Images'))]
+    #copy current resources to the resources folder in the test directory
+    filelist = [f for f in os.listdir(os.path.join(os.getcwd(), self.resourcePath))]
     for f in filelist:
-      copy(os.path.join(os.getcwd(), 'Images', f), os.path.join(os.getcwd(), debugFolder, 'Images'))
+      copy(os.path.join(os.getcwd(), self.resourcePath, f), os.path.join(os.getcwd(), debugFolder, self.getResourceDir()))
 
   #createBuild makes the build directory
   def createBuild(self):
@@ -198,12 +218,24 @@ class Routines:
       pass
     self.createLogs()
 
+  #test runs all of the tests in the tests directory 
+  def test(self):
+    #remove log folder to keep tests from failing erroneously
+    self.__removeDirectory(self.getLogFileDirectory())
+    #create log folder for testing purposes
+    self.createLogs()
+    classPath = '-cp ' + self.getClassPath()[:-1] + ';' + self.getSourceDir()
+    #run test
+    call('javac ' + classPath + '" ' + os.path.join(self.testsPath, '*.java'))
+    call('java ' + classPath + ';' + self.testsPath + '" TestRunner ')
+    self.__removeClassFiles(os.path.join(os.getcwd(), self.packagePath))
+    self.__removeClassFiles(os.path.join(os.getcwd(), self.testsPath))
+    self.__removeDirectory(self.getLogFileDirectory())
+
 def main():
   routine = Routines()
-  print('Routine Options')
-  print('run - makes and runs the JAR file')
-  print('push - commits the current repo and pushes it')
-  print('debug - runs the current code base for testing')
+  print("Routine Options\nrun - makes and runs the JAR file\npush - commits the current repo and pushes it")
+  print("debug - runs the current code base for testing\ntest - runs the unit tests on the source code")
   print('clean - deletes the test, logs, and build directories')
   stdout.write('Enter desired option: ')
   stdout.flush()
@@ -216,6 +248,8 @@ def main():
     routine.debug()
   elif (rout == 'clean'):
     routine.clean()
+  elif (rout == 'test'):
+    routine.test()
   else:
     print('please try again')
 

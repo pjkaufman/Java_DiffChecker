@@ -15,19 +15,17 @@ import java.util.Scanner;
 
 /**
  * FileHandler deals with all data coming from and going out to files.
- * Program Name: Database Difference Checker
- * CSCI Course: 325
- * Grade Received: Pass
  * @author Peter Kaufman
- * @version 2-16-19
+ * @version 5-11-19
  * @since 9-12-17
  */
 public class FileHandler {
 
   // static variables
-  static final String logFileName = "activity.log";
-  static final String lastSequelStatementFileName = "lastRun.txt";
-  static final String databaseSnapshotFileName = "dbsnapshot";
+  public static final String logFileName = "activity.log";
+  public static final String lastSequelStatementFileName = "lastRun.txt";
+  public static final String databaseSnapshotFileName = "dbsnapshot";
+  public static final String logFolder = "logs";
 
   /**
    * Serializes a Database object
@@ -38,7 +36,7 @@ public class FileHandler {
   public static void serializeDatabase(Database database) throws DatabaseDiffernceCheckerException {
     try {
       FileOutputStream fileOutput = new FileOutputStream(
-          new File("logs" + File.separator + databaseSnapshotFileName));
+          new File(logFolder+ File.separator + databaseSnapshotFileName));
       ObjectOutputStream outputStream = new ObjectOutputStream(fileOutput);
 
       // Write object to file
@@ -67,7 +65,7 @@ public class FileHandler {
   public static void writeToFile(ArrayList<String> sequelStatements) throws IOException {
 
     PrintWriter out = new PrintWriter(new FileWriter(
-        new File("logs" + File.separator + lastSequelStatementFileName)));
+        new File(logFolder+ File.separator + lastSequelStatementFileName)));
     for (String statement: sequelStatements) {
 
       out.println(statement);
@@ -84,7 +82,7 @@ public class FileHandler {
   public static void writeToFile(String data) throws IOException {
 
     Date currentTime = new Date();
-    PrintWriter out = new PrintWriter(new FileWriter(new File("logs" + File.separator + logFileName), true));
+    PrintWriter out = new PrintWriter(new FileWriter(new File(logFolder+ File.separator + logFileName), true));
     out.println(currentTime.toString() + " " + data);
     out.close();
   }
@@ -100,7 +98,7 @@ public class FileHandler {
     Database database = null;
     try {
       FileInputStream fileInput = new FileInputStream(
-          new File("logs" + File.separator + databaseSnapshotFileName));
+          new File(logFolder+ File.separator + databaseSnapshotFileName));
       ObjectInputStream inputStream = new ObjectInputStream(fileInput);
 
       // Read object
@@ -132,7 +130,7 @@ public class FileHandler {
    */
   public static ArrayList<String> readFrom(String file) throws IOException {
 
-    Scanner in = new Scanner(new File("logs" + File.separator + file));
+    Scanner in = new Scanner(new File(logFolder+ File.separator + file));
     ArrayList<String> fileLines = new ArrayList<>();
     while (in.hasNextLine()) {
 
@@ -152,6 +150,6 @@ public class FileHandler {
    */
   public static boolean fileExists(String file) {
 
-    return new File("logs" + File.separator + file).isFile();
+    return new File(logFolder+ File.separator + file).isFile();
   }
 }

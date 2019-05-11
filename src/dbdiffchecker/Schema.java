@@ -4,11 +4,8 @@ import java.io.Serializable;
 
 /**
  * Schema holds common methods and instance variables for Schema subclasses.
- * Program Name: Database Difference Checker
- * CSCI Course: 325
- * Grade Received: Pass
  * @author Peter Kaufman
- * @version 2-16-19
+ * @version 5-11-19
  * @since 5-17-18
  */
 public class Schema implements Serializable {
@@ -28,7 +25,7 @@ public class Schema implements Serializable {
    * @author Peter Kaufman
    * @return The name of the Schema object.
    */
-  protected String getName() {
+  public String getName() {
 
     return this.name;
   }
@@ -38,7 +35,7 @@ public class Schema implements Serializable {
    * @author Peter Kaufman
    * @return The create statement of the of the Schema object.
    */
-  protected String getCreateStatement() {
+  public String getCreateStatement() {
 
     return this.createStatement;
   }

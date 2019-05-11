@@ -16,10 +16,8 @@ import java.awt.Color;
 
 /**
  * ErrorPopup is a JFrame that shows a message about an error that occurred.
- * Program Name: Database Difference Checker CSCI Course: 325 Grade Received:
- * Pass
  * @author Peter Kaufman
- * @version 3-17-19
+ * @version 5-11-19
  * @since 9-21-17
  */
 public class ErrorPopup extends JFrameV2 {
