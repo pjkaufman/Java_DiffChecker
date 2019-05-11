@@ -153,7 +153,10 @@ public class Table extends Schema {
 
     if (!this.charSet.equals(t1.charSet) | !this.collation.equals(t1.collation)) {
 
-      sql2 += "CHARACTER SET " + this.charSet + " COLLATE " + this.collation;
+      sql2 += "CHARACTER SET " + this.charSet;
+      if (!this.collation.equals("")) {
+        sql2 += " COLLATE " + this.collation;
+      }
       this.count++;
     }
 
@@ -244,8 +247,6 @@ public class Table extends Schema {
 
             this.count++;
           }
-
-          break;
         }
       }
 

@@ -16,6 +16,8 @@ class Routines:
   __packageName = 'dbdiffchecker'
   __logFileDir = 'logs'
   __mainClassFile = 'DB_Diff_Checker_GUI'
+  __testsDir = 'tests'
+  testsPath = ''
   resourcePath = ''
   packagePath = ''
 
@@ -25,6 +27,7 @@ class Routines:
     self.__javaCP = "\".;" + os.path.join(self.getJarPath(), '*') + "\""
     self.resourcePath = os.path.join(self.getSourceDir(), self.getResourceDir())
     self.packagePath = os.path.join(self.getSourceDir(), self.getPackageName())
+    self.testsPath = os.path.join(self.getSourceDir(),  self.__testsDir)
     return None
 
   #getMainClassFile gets the name of the file that has the main class
@@ -212,12 +215,32 @@ class Routines:
       pass
     self.createLogs()
 
+  #test runs all of the tests in the tests directory 
+  def test(self):
+    print('Testing started')
+    classPath = '-cp ' + self.getClassPath()[:-1] + ';' + self.getSourceDir()
+    filelist = [fi for fi in os.listdir(os.path.join(os.getcwd(), self.testsPath)) if fi.endswith('.java')]
+    for fi in filelist:
+      #run test
+      print(fi.strip('.java') + ':')
+      call('javac ' + classPath + '" ' + os.path.join(self.testsPath, fi))
+      call('java ' + classPath + ';' + self.testsPath + '" org.junit.runner.JUnitCore ' + fi.strip('.java'))
+    print('Testing complete')
+    #remove unnecesssary .class files
+    filelist = [f for f in os.listdir(os.path.join(os.getcwd(), self.packagePath)) if f.endswith('.class')]
+    for f in filelist:
+      os.remove(os.path.join(os.getcwd(), self.packagePath, f))
+    filelist = [f for f in os.listdir(os.path.join(os.getcwd(), self.testsPath)) if f.endswith('.class')]
+    for f in filelist:
+      os.remove(os.path.join(os.getcwd(),  self.testsPath, f))
+
 def main():
   routine = Routines()
   print('Routine Options')
   print('run - makes and runs the JAR file')
   print('push - commits the current repo and pushes it')
   print('debug - runs the current code base for testing')
+  print('test - runs the init tests on the source code')
   print('clean - deletes the test, logs, and build directories')
   stdout.write('Enter desired option: ')
   stdout.flush()
@@ -230,6 +253,8 @@ def main():
     routine.debug()
   elif (rout == 'clean'):
     routine.clean()
+  elif (rout == 'test'):
+    routine.test()
   else:
     print('please try again')
 

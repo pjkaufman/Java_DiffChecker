@@ -31,9 +31,9 @@ public class Column extends Schema {
   public Column() {}
 
   /**
-   * returns the column detailts.
+   * Returns the column detailts.
    * @author Peter Kaufman
-   * @return the info about the column
+   * @return Info about the column.
    */
   public String getDetails() {
 
