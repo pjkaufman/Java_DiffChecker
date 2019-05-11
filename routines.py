@@ -20,7 +20,6 @@ class Routines:
   testsPath = ''
   resourcePath = ''
   packagePath = ''
-  __mainClassFile = 
 
   #__init__ is the constructor which initializes all instance variables
   def __init__(self):
