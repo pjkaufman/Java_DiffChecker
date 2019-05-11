@@ -95,14 +95,9 @@ class Routines:
     changeDirFlag = ' -C ' + self.getSourceDir() + ' '
     #compile the java files and make the jar file
     if(self.compile(self.packagePath, False)):
-      print('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') + ' manifest.mf' + changeDirFlag
-           + self.getPackageName() + changeDirFlag + self.getResourceDir())
       call('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') + ' manifest.mf' + changeDirFlag
            + self.getPackageName() + changeDirFlag + self.getResourceDir(), shell=True)
-      #remove unnecesssary .class files
-      filelist = [f for f in os.listdir(os.path.join(os.getcwd(), self.packagePath)) if f.endswith('.class')]
-      for f in filelist:
-        os.remove(os.path.join(os.getcwd(), self.packagePath, f))
+      self.__removeClassFiles(os.path.join(os.getcwd(), self.packagePath))
 
     return None
 
@@ -153,6 +148,14 @@ class Routines:
       pass
     return None
 
+  #__removeClassFiles takes in a directory and removes all class files in that directory
+  #param: directory is the directory in which to remove all class files
+  def __removeClassFiles(self, directory):
+    #remove unnecesssary .class files
+    filelist = [f for f in os.listdir(directory) if f.endswith('.class')]
+    for f in filelist:
+      os.remove(os.path.join(directory, f))
+
   #run makes and runs the JAR file
   def run(self):
     self.createBuild()
@@ -172,7 +175,7 @@ class Routines:
     call("git add -A && git commit -a -m \"" + message + "\" && git push", shell=True)
     return None
 
-  #documnet documents the repo
+  #documnet java classes in the repo
   def document(self):
     call('javadoc -d "docs" -classpath ' + '".;' + self.getSourceDir() + '" ' + self.getPackageName() + '"', shell=True)
     return None
@@ -197,7 +200,7 @@ class Routines:
     except:
       pass
 
-    #copy current image list to the resources folder in the test directory
+    #copy current resources to the resources folder in the test directory
     filelist = [f for f in os.listdir(os.path.join(os.getcwd(), self.resourcePath))]
     for f in filelist:
       copy(os.path.join(os.getcwd(), self.resourcePath, f), os.path.join(os.getcwd(), debugFolder, self.getResourceDir()))
@@ -226,21 +229,13 @@ class Routines:
       call('javac ' + classPath + '" ' + os.path.join(self.testsPath, fi))
       call('java ' + classPath + ';' + self.testsPath + '" org.junit.runner.JUnitCore ' + fi.strip('.java'))
     print('Testing complete')
-    #remove unnecesssary .class files
-    filelist = [f for f in os.listdir(os.path.join(os.getcwd(), self.packagePath)) if f.endswith('.class')]
-    for f in filelist:
-      os.remove(os.path.join(os.getcwd(), self.packagePath, f))
-    filelist = [f for f in os.listdir(os.path.join(os.getcwd(), self.testsPath)) if f.endswith('.class')]
-    for f in filelist:
-      os.remove(os.path.join(os.getcwd(),  self.testsPath, f))
+    self.__removeClassFiles(os.path.join(os.getcwd(), self.packagePath))
+    self.__removeClassFiles(os.path.join(os.getcwd(), self.testsPath))
 
 def main():
   routine = Routines()
-  print('Routine Options')
-  print('run - makes and runs the JAR file')
-  print('push - commits the current repo and pushes it')
-  print('debug - runs the current code base for testing')
-  print('test - runs the init tests on the source code')
+  print("Routine Options\nrun - makes and runs the JAR file\npush - commits the current repo and pushes it")
+  print("debug - runs the current code base for testing\ntest - runs the unit tests on the source code")
   print('clean - deletes the test, logs, and build directories')
   stdout.write('Enter desired option: ')
   stdout.flush()
