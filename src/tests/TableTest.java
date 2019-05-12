@@ -99,11 +99,11 @@ public class TableTest {
     name = "shipment";
     columns = "`shippingID`,`vendor`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    index1 = new Index(name, create, columns);
+    index1 = new Index(name, create, columns, false);
     name = "shipped";
     columns = "`shippingID`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    index2 = new Index(name, create, columns);
+    index2 = new Index(name, create, columns, false);
     assertEquals("The size of the index list for the table should be 0 when empty",
     0, table1.getIndices().size());
   
@@ -153,15 +153,15 @@ public class TableTest {
     name = "add";
     columns = "`id`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns));
+    table1.addIndex(new Index(name, create, columns, false));
     name = "modify";
     columns = "`data`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns));
+    table1.addIndex(new Index(name, create, columns, false));
     name = "leave";
     columns = "`data`,`id`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns));
+    table1.addIndex(new Index(name, create, columns, false));
     // setup table2
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `ip_address` varchar(40) NOT NULL,\n  `timestamp` int(11) unsigned NOT NULL DEFAULT \'0\',\n  `data` blob NOT NULL,\n  `data2` blob NOT NULL,\n PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin2";
@@ -183,15 +183,15 @@ public class TableTest {
     name = "delete";
     columns = "`id`";
     create = "CREATE UNIQUE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns));
+    table2.addIndex(new Index(name, create, columns, false));
     name = "modify";
     columns = "`data`,`ip_address`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns));
+    table2.addIndex(new Index(name, create, columns, false));
     name = "leave";
     columns = "`data`,`id`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns));
+    table2.addIndex(new Index(name, create, columns, false));
     // do comparison with equals
     sql = table1.equals(table2);
     assertEquals("The sql generated should add a column, drop a column, modify two columns, drop two indexes," + 

@@ -40,8 +40,8 @@ public class DBCompare extends JFrameV2 {
       "Enter MySQL Port:", "Enter MySQL Database:" };
   private Database devDatabase;
   private Database liveDatabase;
-  private DbConn devDatabaseConnection;
-  private DbConn liveDatabaseConnection;
+  private MySQLConn devDatabaseConnection;
+  private MySQLConn liveDatabaseConnection;
   private HashMap<String, String> updateTables = new HashMap<>();
   private JLabel headT = new JLabel("Enter Database Information Below", JLabel.CENTER);
   private JButton databaseConnection1btn = new JButton("Compare");
@@ -204,7 +204,7 @@ public class DBCompare extends JFrameV2 {
         try {
           publish("Establishing Database Connection");
           sw.start();
-          devDatabaseConnection = new DbConn(devUsername.getText(), new String(devPassword.getPassword()),
+          devDatabaseConnection = new MySQLConn(devUsername.getText(), new String(devPassword.getPassword()),
               devHost.getText(), devPort.getText(), devDatabaseName.getText(), "dev");
           publish("Gathering Database Information");
           devDatabase = new Database(devDatabaseConnection);
@@ -320,13 +320,13 @@ public class DBCompare extends JFrameV2 {
     sw.start();
     try {
       if (this.type == 0) {
-        devDatabaseConnection = new DbConn(devUsername.getText(), new String(devPassword.getPassword()),
+        devDatabaseConnection = new MySQLConn(devUsername.getText(), new String(devPassword.getPassword()),
             devHost.getText(), devPort.getText(), devDatabaseName.getText(), "dev");
         devDatabase = new Database(devDatabaseConnection);
       } else {
         devDatabase = FileHandler.deserailizDatabase();
       }
-      liveDatabaseConnection = new DbConn(liveUsername.getText(), new String(livePassword.getPassword()),
+      liveDatabaseConnection = new MySQLConn(liveUsername.getText(), new String(livePassword.getPassword()),
           liveHost.getText(), livePort.getText(), liveDatabaseName.getText(), "live");
       liveDatabase = new Database(liveDatabaseConnection);
     } catch (Exception cause) {

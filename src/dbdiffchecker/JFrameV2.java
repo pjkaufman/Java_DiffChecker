@@ -59,7 +59,7 @@ public class JFrameV2 extends JFrame {
         Font title = new Font("Tahoma", Font.BOLD, 14);
         Font reg = new Font("Tahoma", Font.PLAIN, 12);
         if (width >= 419  && (clase.contains("DBCompare1")
-            || clase.contains("DB_Diff_Checker_GUI"))) {
+            || clase.contains("DBDiffCheckerGUI"))) {
 
           title = new Font("Tahoma", Font.BOLD, (int)(width / 25));
           reg = new Font("Tahoma", Font.PLAIN, (int)(width / 25) - 2);
@@ -121,7 +121,7 @@ public class JFrameV2 extends JFrame {
   protected void formWindowClosing(WindowEvent evt) {
     if (error) {
 
-      DB_Diff_Checker_GUI start = new DB_Diff_Checker_GUI();
+      DBDiffCheckerGUI start = new DBDiffCheckerGUI();
       start.setVisible(true);
     }
   }
