@@ -24,7 +24,7 @@ public class TableTest {
    * @author Peter Kaufman
    */
   public void testGetStatements() {
-    name = "`bloat`";
+    name = "bloat";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     charSet = "latin1";
     autoIncrement = "17";
@@ -62,13 +62,13 @@ public class TableTest {
    * @author Peter Kaufman
    */
   public void testAddColumn() {
-    name = "`bloat`";
+    name = "bloat";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table1 = new Table(name, create);
-    name = "`bloatware`";
+    name = "bloatware";
     details = name + " int(11) NOT NULL";
     column1 = new Column(name, details);
-    name = "`shipmentID`";
+    name = "shipmentID";
     details = name + " int(11) NOT NULL";
     column2 = new Column(name, details);
     assertEquals("The size of the column list for the table should be 0 when empty",

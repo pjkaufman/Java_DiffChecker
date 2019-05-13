@@ -152,8 +152,8 @@ public class Database implements Serializable {
 
     ArrayList<String> sql = new ArrayList<>();
     // find the info that is differnet between the tables
-    for (String tableName : this.tables.keySet()) {
-      if (!exclude.containsKey(tableName) && updateTables.containsKey(tableName)) {
+    for (String tableName : updateTables.keySet()) {
+      if (!exclude.containsKey(tableName)) {
         sql.addAll(this.tables.get(tableName).equals(live.get(tableName)));
       }
     }
