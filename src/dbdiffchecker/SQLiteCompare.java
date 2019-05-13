@@ -26,9 +26,6 @@ import dbdiffchecker.FileHandler;
 /**
  * DBCompare is a JFrame that takes user input to make a comparison between 1
  * devDatabase and a devDatabase snapshot or to take a devDatabase snapshot.
- * Program Name: Database Difference Checker
- * CSCI Course: 325
- * Grade Received: Pass
  * @author Peter Kaufman
  * @version 2-16-19
  * @since 9-20-17

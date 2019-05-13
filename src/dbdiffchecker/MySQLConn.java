@@ -11,9 +11,6 @@ import java.util.HashMap;
 /**
  * MySQLConn establishes a connection with a MySQL database based on the password,
  * username, port, host, and database provided.
- * Program Name: Database Difference Checker
- * CSCI Course: 325
- * Grade Received: Pass
  * @author Peter Kaufman
  * @version 2-16-19
  * @since 9-6-17
@@ -324,7 +321,7 @@ public class MySQLConn extends DbConn {
             // the index is to be added
             System.out.println("The index " + name + " has been found on " + columns);
             create = getCreateIndex(columns, name, type, unique);
-            table.addIndex(new Index(name, create, columns, name.equals("PRIMARY")));
+            table.addIndex(new Index(name, create, columns));
           } 
         }
         name = index.getString("Key_name");

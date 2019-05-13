@@ -5,16 +5,14 @@ import java.util.HashMap;
 
 /**
  * Table resembles a table in MySQL and contains info about the table's columns.
- * Program Name: Database Difference Checker
- * CSCI Course: 325
- * Grade Received: Pass
  * @author Peter Kaufman
- * @version 2-16-19
+ * @version 5-13-19
  * @since 9-10-17
  */
 public class SQLiteTable extends Table {
 
   private boolean stopCompare = false;
+  private static final long serialVersionUID = 1L;
 
   /**
    * Initializes a Table object with a name create statement.
@@ -40,17 +38,12 @@ public class SQLiteTable extends Table {
    */
   public ArrayList<String> equals(Table t1) {
     stopCompare = false;
+    this.count = 0;
     
     ArrayList<String> sql = new ArrayList<>();
     String sql2 = "";
 
     sql2 += dropIndices(this.indices, t1.getIndices());
-    // if a primary key needs to be deleted, recreate the table
-    if ( stopCompare ) {
-      sql.addAll(recreateTable(t1.getColumns()));
-
-      return sql;
-    }
     sql2 += otherCols(this.columns, t1.getColumns());
     // if a column needs to be modified, recreate the table
     if ( stopCompare ) {
@@ -65,13 +58,11 @@ public class SQLiteTable extends Table {
 
       return sql;
     }
-    sql2 += otherIndices(this.indices, t1.getIndices()) + ";";
-    if ( stopCompare ) {
-      sql.addAll(recreateTable(t1.getColumns()));
+    sql2 += otherIndices(this.indices, t1.getIndices());
 
-      return sql;
+    if (this.count != 0) {
+      sql.add(sql2);
     }
-    sql.add(sql2);
 
     return sql;
   }
@@ -119,14 +110,18 @@ public class SQLiteTable extends Table {
 
       col = cols1.get(columnName);
       if (!cols2.containsKey(columnName)) {
-
+        if (this.count != 0) {
+          sql +="\n";
+        }
         sql += "ALTER TABLE `" + this.name + "`\n\tADD COLUMN `" + col.getName() + "` " + col.getDetails() + ";";
+        this.count++;
       } else {
 
         col2 = cols2.get(columnName);
-        if (col.getName().equals(col2.getName())) {         // columns are the same
-          if (!col.getDetails().equals(col2.getDetails())) {         // column details are different
+        if (col.getName().equals(col2.getName())) { // columns have the same name
+          if (!col.getDetails().equals(col2.getDetails())) { // column details are different
            stopCompare = true;
+
            return sql;
           }
         }
@@ -150,13 +145,11 @@ public class SQLiteTable extends Table {
     for (String indexName: live.keySet()) {
       // if the index does not exist in the dev database then drop it
       if (!dev.containsKey(indexName)) {
-        // if the index is a primary key stop the comparison and just recreate the table
-        if (live.get(indexName).isPrimaryKey()) {
-          stopCompare = true;
-
-          return sql;
+        if (this.count != 0) {
+          sql +="\n";
         }
-        sql += "\nDROP INDEX `" + indexName + "`;";
+        sql += "DROP INDEX `" + indexName + "`;";
+        this.count++;
       }
     }
 
@@ -180,22 +173,18 @@ public class SQLiteTable extends Table {
       indices1 = dev.get(indexName);
       if (live.containsKey(indexName)) {
         if (!indices1.sameDetails(live.get(indexName))) {
-          if (live.get(indexName).isPrimaryKey()) {
-            stopCompare = true;
-  
-            return sql;
+          if (this.count != 0) {
+            sql +="\n";
           }
-         sql += "\nDROP INDEX `" + indices1.getName() + "`;\n" + indices1.getCreateStatement();
+          sql += "DROP INDEX `" + indices1.getName() + "`;\n" + indices1.getCreateStatement() + ";";
+          this.count++;
         }
       } else {
-        // if a primary key needs to be added to the live database, recreate the table
-        if (indices1.isPrimaryKey()) {
-          stopCompare = true;
-
-          return sql;
+        if (this.count != 0) {
+          sql +="\n";
         }
-  
-        sql += "\n" + indices1.getCreateStatement();
+        sql += indices1.getCreateStatement() + ";";
+        this.count++;
       }
     }
 

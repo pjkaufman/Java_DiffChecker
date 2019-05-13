@@ -220,15 +220,15 @@ public class DatabaseTest {
     name = "add";
     columns = "`id`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns, false));
+    table1.addIndex(new Index(name, create, columns));
     name = "modify";
     columns = "`data`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns, false));
+    table1.addIndex(new Index(name, create, columns));
     name = "leave";
     columns = "`data`,`id`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns, false));
+    table1.addIndex(new Index(name, create, columns));
     // setup table2
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `ip_address` varchar(40) NOT NULL,\n  `timestamp` int(11) unsigned NOT NULL DEFAULT \'0\',\n  `data` blob NOT NULL,\n  `data2` blob NOT NULL,\n PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin2";
@@ -250,15 +250,15 @@ public class DatabaseTest {
     name = "delete";
     columns = "`id`";
     create = "CREATE UNIQUE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns, false));
+    table2.addIndex(new Index(name, create, columns));
     name = "modify";
     columns = "`data`,`ip_address`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns, false));
+    table2.addIndex(new Index(name, create, columns));
     name = "leave";
     columns = "`data`,`id`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns, false));
+    table2.addIndex(new Index(name, create, columns));
     db.getTables().put(table1.getName(), table1);
     liveTables.put(table2.getName(), table2);
     tablesToUpdate.put(table2.getName(), table2.getName());
@@ -275,7 +275,7 @@ public class DatabaseTest {
     name = "PRIMARY";
     columns = "`bloatware`";
     create = "ADD PRIMARY KEY (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns, true));
+    table1.addIndex(new Index(name, create, columns));
     name = "bloat";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(10) NOT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table2 = new Table(name, create);

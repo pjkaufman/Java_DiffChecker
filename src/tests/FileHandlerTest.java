@@ -119,15 +119,15 @@ public class FileHandlerTest {
     name = "add";
     columns = "`id`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns, false));
+    table1.addIndex(new Index(name, create, columns));
     name = "modify";
     columns = "`data`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns, false));
+    table1.addIndex(new Index(name, create, columns));
     name = "leave";
     columns = "`data`,`id`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns, false));
+    table1.addIndex(new Index(name, create, columns));
     // setup table2
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `ip_address` varchar(40) NOT NULL,\n  `timestamp` int(11) unsigned NOT NULL DEFAULT \'0\',\n  `data` blob NOT NULL,\n  `data2` blob NOT NULL,\n PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin2";
@@ -149,15 +149,15 @@ public class FileHandlerTest {
     name = "delete";
     columns = "`id`";
     create = "CREATE UNIQUE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns, false));
+    table2.addIndex(new Index(name, create, columns));
     name = "modify";
     columns = "`data`,`ip_address`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns, false));
+    table2.addIndex(new Index(name, create, columns));
     name = "leave";
     columns = "`data`,`id`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns, false));
+    table2.addIndex(new Index(name, create, columns));
     db.getTables().put(table2.getName(), table2);
     try {
       // serialize table2

@@ -99,11 +99,11 @@ public class TableTest {
     name = "shipment";
     columns = "`shippingID`,`vendor`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    index1 = new Index(name, create, columns, false);
+    index1 = new Index(name, create, columns);
     name = "shipped";
     columns = "`shippingID`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    index2 = new Index(name, create, columns, false);
+    index2 = new Index(name, create, columns);
     assertEquals("The size of the index list for the table should be 0 when empty",
     0, table1.getIndices().size());
   
@@ -153,15 +153,15 @@ public class TableTest {
     name = "add";
     columns = "`id`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns, false));
+    table1.addIndex(new Index(name, create, columns));
     name = "modify";
     columns = "`data`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns, false));
+    table1.addIndex(new Index(name, create, columns));
     name = "leave";
     columns = "`data`,`id`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns, false));
+    table1.addIndex(new Index(name, create, columns));
     // setup table2
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `ip_address` varchar(40) NOT NULL,\n  `timestamp` int(11) unsigned NOT NULL DEFAULT \'0\',\n  `data` blob NOT NULL,\n  `data2` blob NOT NULL,\n PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin2";
@@ -183,18 +183,72 @@ public class TableTest {
     name = "delete";
     columns = "`id`";
     create = "CREATE UNIQUE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns, false));
+    table2.addIndex(new Index(name, create, columns));
     name = "modify";
     columns = "`data`,`ip_address`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns, false));
+    table2.addIndex(new Index(name, create, columns));
     name = "leave";
     columns = "`data`,`id`";
     create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns, false));
+    table2.addIndex(new Index(name, create, columns));
     // do comparison with equals
     sql = table1.equals(table2);
     assertEquals("The sql generated should add a column, drop a column, modify two columns, drop two indexes," + 
-      " add two indexes, add a charset", true, sql.contains(expectedSQL));   
+      " add two indexes, and add a charset", true, sql.contains(expectedSQL));   
+  }
+
+  @Test
+  /**
+   * Tests whether the equals function catches the adding of indices.
+   * @author Peter Kaufman
+   */
+  public void testIndexAddition() {
+    // TODO; impliment
+  }
+
+  @Test
+  /**
+   * Tests whether the equals function cathces the dropping of indices.
+   * @author Peter Kaufman
+   */
+  public void testIndexDropping() {
+    // TODO; impliment
+  }
+
+  @Test
+  /**
+   * Tests whether the equals function catches the modifiying of indices.
+   * @author Peter Kaufman
+   */
+  public void testIndexModification() {
+    // TODO; impliment
+  }
+
+  @Test
+  /**
+   * Tests whether the equals function catches the adding of columns.
+   * @author Peter Kaufman
+   */
+  public void testColumnAddition() {
+    // TODO; impliment
+  }
+
+  @Test
+  /**
+   * Tests whether the equals function cathces the dropping of columns.
+   * @author Peter Kaufman
+   */
+  public void testColumnDropping() {
+    // TODO; impliment
+  }
+
+  @Test
+  /**
+   * Tests whether the equals function catches the modifiying of columns.
+   * @author Peter Kaufman
+   */
+  public void testColumnModification() {
+    // TODO; impliment
   }
 }

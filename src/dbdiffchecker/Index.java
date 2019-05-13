@@ -9,7 +9,6 @@ package dbdiffchecker;
 public class Index extends Schema {
 
   private String column = "";
-  private boolean isPrimaryKey = false;
 
   /**
    * Initializes an Index object by setting the name create statement, and columns of the index.
@@ -17,13 +16,11 @@ public class Index extends Schema {
    * @param name The name of the index.
    * @param create The create statement of the index.
    * @param column The column of the index.
-   * @param isPrimaryKey Whether or not the index is a primary key.
    */
-  public Index(String name, String create, String column, boolean isPrimaryKey) {
+  public Index(String name, String create, String column) {
     this.name = name;
     this.createStatement = create;
     this.column = column;
-    this.isPrimaryKey = isPrimaryKey;
   }
 
   /**
@@ -40,16 +37,6 @@ public class Index extends Schema {
   public String getColumn() {
 
     return this.column;
-  }
-
-  /**
-   * Returns whether or not the index is a primary key.
-   * @author Peter Kaufman
-   * @return True if the index is a primary key.
-   */
-  public boolean isPrimaryKey() {
-
-    return this.isPrimaryKey;
   }
 
   /**
