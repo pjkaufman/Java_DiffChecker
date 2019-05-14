@@ -96,8 +96,7 @@ public class FileHandlerTest {
     String expectedSQL = "ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, " + 
       "\nADD COLUMN `id` varchar(40) NOT NULL AFTER `data`, \nMODIFY COLUMN `ip_address` varchar(45) NOT NULL, " + 
       "\nMODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\', \nDROP COLUMN `data2`, " +
-      "\nCREATE INDEX `add` ON `ci_sessions` (`id`), \nDROP INDEX `modify`, \nCREATE INDEX `modify` ON " +
-      "`ci_sessions` (`data`);";
+      "\nCREATE INDEX `add` (`id`), \nDROP INDEX `modify`, \nCREATE INDEX `modify` (`data`);";
     // setup table1
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  `ip_address` varchar(45) NOT NULL,\n  `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\',\n  `data` blob NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
@@ -118,15 +117,15 @@ public class FileHandlerTest {
     // add indexes
     name = "add";
     columns = "`id`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
+    create = "CREATE INDEX `" + name + "` (" + columns + ")";
     table1.addIndex(new Index(name, create, columns));
     name = "modify";
     columns = "`data`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
+    create = "CREATE INDEX `" + name + "` (" + columns + ")";
     table1.addIndex(new Index(name, create, columns));
     name = "leave";
     columns = "`data`,`id`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
+    create = "CREATE INDEX `" + name + "` (" + columns + ")";
     table1.addIndex(new Index(name, create, columns));
     // setup table2
     name = "ci_sessions";
@@ -148,15 +147,15 @@ public class FileHandlerTest {
     // add indexes
     name = "delete";
     columns = "`id`";
-    create = "CREATE UNIQUE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
+    create = "CREATE UNIQUE INDEX `" + name + "` (" + columns + ")";
     table2.addIndex(new Index(name, create, columns));
     name = "modify";
     columns = "`data`,`ip_address`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
+    create = "CREATE INDEX `" + name + "` (" + columns + ")";
     table2.addIndex(new Index(name, create, columns));
     name = "leave";
     columns = "`data`,`id`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
+    create = "CREATE INDEX `" + name + "` (" + columns + ")";
     table2.addIndex(new Index(name, create, columns));
     db.getTables().put(table2.getName(), table2);
     try {

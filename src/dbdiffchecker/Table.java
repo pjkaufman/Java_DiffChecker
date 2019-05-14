@@ -155,6 +155,7 @@ public class Table extends Schema {
    */
   public ArrayList<String> equals(Table t1) {
     ArrayList<String> sql = new ArrayList<>();
+    this.count = 0;
     String sql2 = "ALTER TABLE `" + this.name + "`\n";
 
     if (!this.charSet.equals(t1.charSet) | !this.collation.equals(t1.collation)) {

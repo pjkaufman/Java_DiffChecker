@@ -194,8 +194,7 @@ public class DatabaseTest {
     String expectedSQL = "ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, " + 
     "\nADD COLUMN `id` varchar(40) NOT NULL AFTER `data`, \nMODIFY COLUMN `ip_address` varchar(45) NOT NULL, " + 
     "\nMODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\', \nDROP COLUMN `data2`, " +
-    "\nCREATE INDEX `add` ON `ci_sessions` (`id`), \nDROP INDEX `modify`, \nCREATE INDEX `modify` ON " +
-    "`ci_sessions` (`data`);";
+    "\nCREATE INDEX `add` (`id`), \nDROP INDEX `modify`, \nCREATE INDEX `modify` (`data`);";
     String expectedSQL2 = "ALTER TABLE `bloat`\nMODIFY COLUMN `bloatware` int(11) NOT NULL, \n" +
       "ADD PRIMARY KEY (`bloatware`);";
     // test for two tables with many differences
@@ -219,15 +218,15 @@ public class DatabaseTest {
     // add indexes
     name = "add";
     columns = "`id`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
+    create = "CREATE INDEX `" + name + "` (" + columns + ")";
     table1.addIndex(new Index(name, create, columns));
     name = "modify";
     columns = "`data`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
+    create = "CREATE INDEX `" + name + "` (" + columns + ")";
     table1.addIndex(new Index(name, create, columns));
     name = "leave";
     columns = "`data`,`id`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
+    create = "CREATE INDEX `" + name + "` (" + columns + ")";
     table1.addIndex(new Index(name, create, columns));
     // setup table2
     name = "ci_sessions";
@@ -249,15 +248,15 @@ public class DatabaseTest {
     // add indexes
     name = "delete";
     columns = "`id`";
-    create = "CREATE UNIQUE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
+    create = "CREATE UNIQUE INDEX `" + name + "` (" + columns + ")";
     table2.addIndex(new Index(name, create, columns));
     name = "modify";
     columns = "`data`,`ip_address`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
+    create = "CREATE INDEX `" + name + "` (" + columns + ")";
     table2.addIndex(new Index(name, create, columns));
     name = "leave";
     columns = "`data`,`id`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
+    create = "CREATE INDEX `" + name + "` (" + columns + ")";
     table2.addIndex(new Index(name, create, columns));
     db.getTables().put(table1.getName(), table1);
     liveTables.put(table2.getName(), table2);
@@ -301,8 +300,8 @@ public class DatabaseTest {
   public void testFirstSteps() {
     db = new Database();
     HashMap<String, Table> liveTables = new HashMap<>();
-    String first1 = "ALTER TABLE `blob`\n ADD PRIMARY KEY ON (`pikapika`);";
-    String first2 = "ALTER TABLE `broach`\n ADD PRIMARY KEY ON (`mewtwo`);";
+    String first1 = "ALTER TABLE `blob`\n ADD PRIMARY KEY (`pikapika`);";
+    String first2 = "ALTER TABLE `broach`\n ADD PRIMARY KEY (`mewtwo`);";
     // initial addition of elements tests
     assertEquals("First steps should be empty upon initialization", 0, db.getFirstSteps().size());
     db.getFirstSteps().add(first1);
@@ -320,7 +319,7 @@ public class DatabaseTest {
     db.getTables().put(table1.getName(), table1);
     db.compareTables(liveTables);
     assertEquals("First steps should contain one sql statement after removal of exclusions", 1, db.getFirstSteps().size());
-    assertEquals("First steps should contain the second sql statment added", true, db.getFirstSteps().contains("ALTER TABLE `broach`\n ADD PRIMARY KEY ON (`mewtwo`);"));
+    assertEquals("First steps should contain the second sql statment added", true, db.getFirstSteps().contains(first2));
     liveTables.put(table2.getName(), table2);
     db.compareTables(liveTables);
     assertEquals("First steps should contain zero sql statement after removal of exclusions", 0, db.getFirstSteps().size());
