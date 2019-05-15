@@ -18,58 +18,49 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.JTextComponent;
 import dbdiffchecker.FileHandler;
 
 /**
  * DBCompare is a JFrame that takes user input to make a comparison between 1
  * devDatabase and a devDatabase snapshot or to take a devDatabase snapshot.
  * @author Peter Kaufman
- * @version 5-11-19
- * @since 9-20-17
+ * @version 5-14-19
+ * @since 5-14-19
  */
-public class DBCompare extends JFrameV2 {
+public abstract class DBCompare extends JFrameV2 {
   // Instance variables
-  private int type = 0;
-  private final String[] titleOptions = { "Compare Two Databases", "Compare Database to Snapshot",
+  protected static final String[] titleOptions = { "Compare Two Databases", "Compare Database to Snapshot",
       "Take Database Snapshot" };
-  private final String[] labelText = { "Enter MySQL Username:", "Enter MySQL Password:", "Enter MySQL Host:",
-      "Enter MySQL Port:", "Enter MySQL Database:" };
-  private Database devDatabase;
-  private Database liveDatabase;
-  private MySQLConn devDatabaseConnection;
-  private MySQLConn liveDatabaseConnection;
-  private HashMap<String, String> updateTables = new HashMap<>();
-  private JLabel headT = new JLabel("Enter Database Information Below", JLabel.CENTER);
+  protected int type = 0;
+  protected String salt = "";
+  protected String[] labelText;
+  protected Database devDatabase;
+  protected Database liveDatabase;
+  protected DbConn devDatabaseConnection;
+  protected DbConn liveDatabaseConnection;
+  protected HashMap<String, String> updateTables = new HashMap<>();
+  protected JTextField liveDatabaseName = new JTextField(10);
+  protected JTextField devDatabaseName = new JTextField(10);
+  protected JTextComponent[] devDatabaseInputs;
+  protected JTextComponent[] livevDatabaseInputs;
+  protected JLabel headT = new JLabel("Enter Database Information Below", JLabel.CENTER);
   private JButton databaseConnection1btn = new JButton("Compare");
-  private JTextField liveDatabaseName = new JTextField(10);
-  private JTextField liveHost = new JTextField(10);
-  private JTextField livePort = new JTextField(10);
-  private JTextField liveUsername = new JTextField(10);
-  private JTextField devDatabaseName = new JTextField(10);
-  private JTextField devHost = new JTextField(10);
-  private JTextField devPort = new JTextField(10);
-  private JTextField devUsername = new JTextField(10);
-  private JPasswordField devPassword = new JPasswordField(10);
-  private JPasswordField livePassword = new JPasswordField(10);
-  private Component[] devDatabaseInputs = { devUsername, devPassword, devHost, devPort, devDatabaseName };
-  private Component[] livevDatabaseInputs = { liveUsername, livePassword, liveHost, livePort, liveDatabaseName };
   private JPanel header = new JPanel(new BorderLayout());
   private JPanel content;
   private JPanel footer = new JPanel(new BorderLayout());
   private JPanel footc = new JPanel(new FlowLayout());
 
   /**
-   * Initializes a DBCompare object with a title and text for the its button.
+   * Initializes a DBCompe object with a title and text for the its button.
    * @author Peter Kaufman
    * @param type The type of JFrame to create.
    */
   public DBCompare(int type) {
     this.type = type;
-    initComponents();
     clase = this.getClass().getName();
   }
 
@@ -78,7 +69,7 @@ public class DBCompare extends JFrameV2 {
    * initializes instance variables.
    * @author Peter Kaufman
    */
-  private void initComponents() {
+  protected void initComponents() {
     // use parameters to set JFrame properties
     setTitle(titleOptions[this.type]);
     if (this.type == 2) {
@@ -91,45 +82,11 @@ public class DBCompare extends JFrameV2 {
     } else {
       content = new JPanel(new GridLayout(1, 2));
       headT.setText(headT.getText() + "(Dev, Live)");
-      // add listeners
-      addComponentListener(new ComponentListener() {
-        public void componentResized(ComponentEvent e) {
-
-          double width = e.getComponent().getWidth();
-          Font title = new Font("Tahoma", Font.BOLD, 24);
-          Font reg = new Font("Tahoma", Font.PLAIN, 11);
-          Font button = new Font("Tahoma", Font.BOLD, 18);
-          if (width >= 660) {
-            title = new Font("Tahoma", Font.BOLD, (int) (width / 25));
-            reg = new Font("Tahoma", Font.PLAIN, (int) (width / 56));
-            button = new Font("Tahoma", Font.BOLD, (int) (width / 34));
-          }
-
-          for (Component cpn : cpnt) {
-            cpn.setFont(title);
-          }
-
-          for (Component cpn : cpnr) {
-            cpn.setFont(reg);
-          }
-          databaseConnection1btn.setFont(button);
-          myFont = reg;
-        }
-
-        public void componentHidden(ComponentEvent e) {
-        }
-
-        public void componentShown(ComponentEvent e) {
-        }
-
-        public void componentMoved(ComponentEvent e) {
-        }
-      });
       setMinimumSize(new Dimension(630, 325));
     }
     // add components to the appropriate ArrayList
+    cpnbtn.add(databaseConnection1btn);
     cpnt.add(headT);
-    cpnr.add(databaseConnection1btn);
     switch (type) {
     case 0:
       addComponents(devDatabaseInputs);
@@ -147,6 +104,7 @@ public class DBCompare extends JFrameV2 {
     databaseConnection1btn.setFont(new Font("Tahoma", 0, 18));
     // add listeners
     databaseConnection1btn.addActionListener(new ActionListener() {
+      @Override
       public void actionPerformed(ActionEvent evt) {
         databaseConnection1btnActionPerformed(evt);
       }
@@ -171,30 +129,13 @@ public class DBCompare extends JFrameV2 {
    * @param evt The event button that occurs when databaseConnection1btn is
    *            clicked.
    */
-  private void databaseConnection1btnActionPerformed(ActionEvent evt) {
-    if (allFieldsFilledOut()) {
-
-      this.error = false;
-      switch (type) {
-      case 0:
-      case 1:
-        getSequelStatementsInBackground();
-        break;
-      case 2:
-        takeSnapshot();
-        break;
-      }
-    } else {
-
-      headT.setText("Please do not leave any fields blank.");
-    }
-  }
+  protected abstract void databaseConnection1btnActionPerformed(ActionEvent evt);
 
   /**
    * Takes a devDatabase snapshot based on user input.
    * @author Peter Kaufman
    */
-  private void takeSnapshot() {
+  protected void takeSnapshot() {
 
     prepProgressBar("Establishing Database Connection", true);
     SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {
@@ -204,8 +145,7 @@ public class DBCompare extends JFrameV2 {
         try {
           publish("Establishing Database Connection");
           sw.start();
-          devDatabaseConnection = new MySQLConn(devUsername.getText(), new String(devPassword.getPassword()),
-              devHost.getText(), devPort.getText(), devDatabaseName.getText(), "dev");
+          devDatabaseConnection = createDevDatabaseConnection();
           publish("Gathering Database Information");
           devDatabase = new Database(devDatabaseConnection);
           publish("Writing to JSON File");
@@ -216,7 +156,7 @@ public class DBCompare extends JFrameV2 {
         } catch (SQLException e) {
           sw.stop();
           throw new DatabaseDiffernceCheckerException(
-              "There was an error" + " with the devDatabase connection. Please try again.", e);
+              "There was an error" + " with the dev database connection. Please try again.", e);
         }
 
         return true;
@@ -252,7 +192,7 @@ public class DBCompare extends JFrameV2 {
    * Compares two databases based on user input (one can be a snapshot).
    * @author Peter Kaufman
    */
-  private void getSequelStatementsInBackground() {
+  protected void getSequelStatementsInBackground() {
 
     prepProgressBar("Establishing Database Connection(s) and Collecting Database Info", true);
     SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {
@@ -297,7 +237,7 @@ public class DBCompare extends JFrameV2 {
    * @author Peter Kaufman
    * @param components The array of components to add to the JFrame.
    */
-  public void addComponents(Component[] components) {
+  private void addComponents(Component[] components) {
     JLabel tempLabel = null;
     JPanel tempPanel = new JPanel(new GridLayout(labelText.length, 2));
     Component tempComponent = null;
@@ -320,14 +260,12 @@ public class DBCompare extends JFrameV2 {
     sw.start();
     try {
       if (this.type == 0) {
-        devDatabaseConnection = new MySQLConn(devUsername.getText(), new String(devPassword.getPassword()),
-            devHost.getText(), devPort.getText(), devDatabaseName.getText(), "dev");
+        devDatabaseConnection = createDevDatabaseConnection();
         devDatabase = new Database(devDatabaseConnection);
       } else {
         devDatabase = FileHandler.deserailizDatabase();
       }
-      liveDatabaseConnection = new MySQLConn(liveUsername.getText(), new String(livePassword.getPassword()),
-          liveHost.getText(), livePort.getText(), liveDatabaseName.getText(), "live");
+      liveDatabaseConnection = createLiveDatabaseConnection();
       liveDatabase = new Database(liveDatabaseConnection);
     } catch (Exception cause) {
       String errorMessage = "";
@@ -353,7 +291,7 @@ public class DBCompare extends JFrameV2 {
     sql.addAll(devDatabase.getFirstSteps());
     sql.addAll(devDatabase.updateViews(liveDatabase.getViews()));
     sw.stop();
-    log("DB Comparison Complete in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
+    log(salt + " DB Comparison Complete in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
   }
 
   /**
@@ -361,28 +299,33 @@ public class DBCompare extends JFrameV2 {
    * run the program.
    * @author Peter Kaufman
    */
-  private boolean allFieldsFilledOut() {
-    boolean allFilledOut = false;
+  protected boolean allFieldsFilledOut() {
+    boolean allFilledOut = true;
     switch (type) {
     case 0:
-      allFilledOut = !(devPort.getText().equals("") || livePort.getText().equals("") || devUsername.getText().equals("")
-          || liveUsername.getText().equals("") || new String(devPassword.getPassword()).equals("")
-          || new String(livePassword.getPassword()).equals("") || devHost.getText().equals("")
-          || liveHost.getText().equals("") || devDatabaseName.getText().equals("")
-          || liveDatabaseName.getText().equals(""));
+      for (JTextComponent cpn: devDatabaseInputs) {
+        allFilledOut = allFilledOut && !(new String(cpn.getText())).equals("");
+      }
+      for (JTextComponent cpn: livevDatabaseInputs) {
+        allFilledOut = allFilledOut && !(new String(cpn.getText())).equals("");
+      }
       break;
     case 1:
-      allFilledOut = !(livePort.getText().equals("") || liveUsername.getText().equals("")
-          || new String(livePassword.getPassword()).equals("") || liveHost.getText().equals("")
-          || liveDatabaseName.getText().equals(""));
+      for (JTextComponent cpn: livevDatabaseInputs) {
+        allFilledOut = allFilledOut && !(new String(cpn.getText())).equals("");
+      }
       break;
     case 2:
-      allFilledOut = !(devPort.getText().equals("") || devUsername.getText().equals("")
-          || new String(devPassword.getPassword()).equals("") || devHost.getText().equals("")
-          || devDatabaseName.getText().equals(""));
+      for (JTextComponent cpn: devDatabaseInputs) {
+        allFilledOut = allFilledOut && !(new String(cpn.getText())).equals("");
+      }
       break;
     }
 
     return allFilledOut;
   }
+
+  protected abstract DbConn createDevDatabaseConnection() throws SQLException;
+
+  protected abstract DbConn createLiveDatabaseConnection() throws SQLException;
 }

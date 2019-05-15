@@ -30,6 +30,7 @@ public class JFrameV2 extends JFrame {
   protected ArrayList<String> sql = new ArrayList<>();
   protected ArrayList<Component> cpnr = new ArrayList<>(); 
   protected ArrayList<Component> cpnt = new ArrayList<>();
+  protected ArrayList<Component> cpnbtn = new ArrayList<>();
   protected JProgressBar pb = new JProgressBar();
   protected String clase = "None";
   protected TitledBorder nBorder = null;
@@ -48,30 +49,40 @@ public class JFrameV2 extends JFrame {
     pb.setVisible(false);
     // add listeners
     addWindowListener(new WindowAdapter() {
+      @Override
       public void windowClosing(WindowEvent evt) {
         formWindowClosing(evt);
       }
     });
     addComponentListener(new ComponentListener() {
+      @Override
       public void componentResized(ComponentEvent e) {
 
         double width = e.getComponent().getWidth();
-        Font title = new Font("Tahoma", Font.BOLD, 14);
-        Font reg = new Font("Tahoma", Font.PLAIN, 12);
-        if (width >= 419  && (clase.contains("DBCompare1")
-            || clase.contains("DBDiffCheckerGUI"))) {
-
-          title = new Font("Tahoma", Font.BOLD, (int)(width / 25));
-          reg = new Font("Tahoma", Font.PLAIN, (int)(width / 25) - 2);
+        int titleSize= 14;
+        int regSize = 12;
+        int buttonSize = 18;
+        // determine font sizes based on the class and width of the GUI
+        if (width >= 419  && clase.contains("DBDiffCheckerGUI")) {
+          titleSize = (int)(width / 25);
+          regSize = (int)(width / 25) - 2;
         } else if (width >= 660 && clase.contains("Result")) {
-
-          title = new Font("Tahoma", Font.BOLD, (int)(width / 33));
-          reg = new Font("Tahoma", Font.PLAIN, (int)(width / 46));
-        } else if (width >= 660 && clase.contains("DBCompare2")) {
-
-          title = new Font("Tahoma", Font.BOLD, (int)(width / 25));
-          reg = new Font("Tahoma", Font.PLAIN, (int)(width / 56));
+          titleSize= (int)(width / 33);
+          regSize = (int)(width / 46);
+        } else if (clase.contains("Compare")) {
+          if (width >= 660) {
+            titleSize = (int)(width / 25);
+            regSize = (int)(width / 56);
+            buttonSize = (int)(width / 34);
+          } else {
+            titleSize =  24;
+            regSize = 11;
+            buttonSize = 18;
+          }
         }
+        Font title = new Font("Tahoma", Font.BOLD, titleSize);
+        Font reg = new Font("Tahoma", Font.PLAIN, regSize);
+        Font button = new Font("Tahoma", Font.BOLD, buttonSize);;
         for (Component cpn : cpnr) {
 
           cpn.setFont(reg);
@@ -80,13 +91,21 @@ public class JFrameV2 extends JFrame {
 
           cpn.setFont(title);
         }
+        for (Component cpn : cpnbtn) {
+
+          cpn.setFont(button);
+        }
+
         myFont = reg;
       }
-      
-      public void componentHidden(ComponentEvent e) {}
 
+      @Override
+      public void componentHidden(ComponentEvent e) {}
+      
+      @Override
       public void componentShown(ComponentEvent e) {}
 
+      @Override
       public void componentMoved(ComponentEvent e) {}
     });
   }

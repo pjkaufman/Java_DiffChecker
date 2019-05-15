@@ -208,12 +208,12 @@ public class DBDiffCheckerGUI extends JFrameV2 {
     switch(databaseSelected) {
       case "SQLite":
         compare2Databases = new SQLiteCompare(0);
-        compare2Databases.setSize(575, 325);
+        compare2Databases.setSize(575, 163);
         compare2Databases.setVisible(true);
         this.close();
         break;
       case "MySQL":
-        compare2Databases = new DBCompare(0);
+        compare2Databases = new MySQLCompare(0);
         compare2Databases.setSize(575, 325);
         compare2Databases.setVisible(true);
         this.close();
@@ -233,7 +233,7 @@ public class DBDiffCheckerGUI extends JFrameV2 {
         this.close();
         break;
       case "MySQL":
-        compare1Database = new DBCompare(1);
+        compare1Database = new MySQLCompare(1);
         compare1Database.setSize(350, 275);
         compare1Database.setVisible(true);
         this.close();
@@ -253,7 +253,7 @@ public class DBDiffCheckerGUI extends JFrameV2 {
         this.close();
         break;
       case "MySQL":
-        databaseSnapshot = new DBCompare(2);
+        databaseSnapshot = new MySQLCompare(2);
         databaseSnapshot.setSize(350, 275);
         databaseSnapshot.setVisible(true);
         this.close();
