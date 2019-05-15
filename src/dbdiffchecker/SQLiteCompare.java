@@ -30,6 +30,7 @@ public class SQLiteCompare extends DBCompare {
     devDatabaseInputs = new JTextComponent[] { devPath, devDatabaseName };
     livevDatabaseInputs = new JTextComponent[] { livePath, liveDatabaseName };
     initComponents(); 
+    salt = "SQLite";
   }
 
 

@@ -37,6 +37,7 @@ public class MySQLCompare extends DBCompare {
       devDatabaseInputs = new JTextComponent[] { devUsername, devPassword, devHost, devPort, devDatabaseName };
       livevDatabaseInputs = new JTextComponent[] { liveUsername, livePassword, liveHost, livePort, liveDatabaseName };
       initComponents();
+      salt = "MySQL";
   }
 
   

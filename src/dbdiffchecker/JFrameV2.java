@@ -70,14 +70,15 @@ public class JFrameV2 extends JFrame {
           titleSize= (int)(width / 33);
           regSize = (int)(width / 46);
         } else if (clase.contains("Compare")) {
+          titleSize = (int)(width / 25);
           if (width >= 660) {
-            titleSize = (int)(width / 25);
+            
             regSize = (int)(width / 56);
             buttonSize = (int)(width / 34);
           } else {
-            titleSize =  24;
-            regSize = 11;
-            buttonSize = 18;
+          //   titleSize =  24;
+             regSize = 11;
+             buttonSize = 18;
           }
         }
         Font title = new Font("Tahoma", Font.BOLD, titleSize);
