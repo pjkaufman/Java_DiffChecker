@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
+import java.io.File;
 import dbdiffchecker.FileHandler;
 
 /**
@@ -108,14 +109,11 @@ public class SQLiteCompare extends JFrameV2 {
           myFont = reg;
         }
 
-        public void componentHidden(ComponentEvent e) {
-        }
+        public void componentHidden(ComponentEvent e) {}
 
-        public void componentShown(ComponentEvent e) {
-        }
+        public void componentShown(ComponentEvent e) {}
 
-        public void componentMoved(ComponentEvent e) {
-        }
+        public void componentMoved(ComponentEvent e) {}
       });
       setMinimumSize(new Dimension(630, 325));
     }
@@ -165,7 +163,7 @@ public class SQLiteCompare extends JFrameV2 {
    */
   private void databaseConnection1btnActionPerformed(ActionEvent evt) {
     if (allFieldsFilledOut()) {
-
+      fixDatabasePaths();
       this.error = false;
       switch (type) {
       case 0:
@@ -338,7 +336,6 @@ public class SQLiteCompare extends JFrameV2 {
    * @author Peter Kaufman
    */
   private void compareDatabases() throws DatabaseDiffernceCheckerException {
-    System.out.println("Beginning of two db compare");
     sql.addAll(liveDatabase.getFirstSteps());
     sql.addAll(devDatabase.compareTables(liveDatabase.getTables()));
     updateTables.putAll(devDatabase.tablesDiffs(liveDatabase.getTables()));
@@ -346,7 +343,7 @@ public class SQLiteCompare extends JFrameV2 {
     sql.addAll(devDatabase.getFirstSteps());
     sql.addAll(devDatabase.updateViews(liveDatabase.getViews()));
     sw.stop();
-    log("DB Comparison Complete in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
+    log("SQLite DB Comparison Complete in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
   }
 
   /**
@@ -358,17 +355,28 @@ public class SQLiteCompare extends JFrameV2 {
     boolean allFilledOut = false;
     switch (type) {
     case 0:
-      allFilledOut = !(new String(devPath.getText()).equals("") || new String(livePath.getText()).equals("")
+      allFilledOut = !(devPath.getText().equals("") || livePath.getText().equals("")
          || devDatabaseName.getText().equals("") || liveDatabaseName.getText().equals(""));
       break;
     case 1:
-      allFilledOut = !(new String(livePath.getText()).equals("") || liveDatabaseName.getText().equals(""));
+      allFilledOut = !(livePath.getText().equals("") || liveDatabaseName.getText().equals(""));
       break;
     case 2:
-      allFilledOut = !(new String(devPath.getText()).equals("") || devDatabaseName.getText().equals(""));
+      allFilledOut = !(devPath.getText().equals("") || devDatabaseName.getText().equals(""));
       break;
     }
 
     return allFilledOut;
+  }
+
+  private void fixDatabasePaths() {
+    String devPathText = devPath.getText();
+    String livePathText = livePath.getText();
+    if (!devPathText.endsWith(File.separator)) {
+      devPath.setText(devPathText + File.separator);
+    }
+    if (!livePathText.endsWith(File.separator)) {
+      livePath.setText(livePathText + File.separator);
+    }
   }
 }

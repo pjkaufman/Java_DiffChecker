@@ -34,7 +34,6 @@ public class SQLiteConn extends DbConn {
     this.db = database;
     this.path = path;
     this.connString = "jdbc:sqlite:" + this.path + this.db + ".db";
-    System.out.println(connString);
     this.testConnection();
   }
 
@@ -80,7 +79,7 @@ public class SQLiteConn extends DbConn {
       while (set.next()) {
         create += set.getString("sql") + ";\n";
       }
-      create = create.substring(0, create.length() - 1);
+      create = create.substring(0, create.length() - 2);
 
       return create;
     } catch (SQLException e) {
@@ -135,7 +134,6 @@ public class SQLiteConn extends DbConn {
         // get the table name and its createStatement
         table = tables.getString("name");
         create = getTableCreateStatement(table);
-        System.out.println(create + " 178");
         add = new SQLiteTable(table, create);
         // query for and get the columns for the table
         columns = query2.executeQuery("PRAGMA TABLE_INFO(`" + table + "`);");
