@@ -9,9 +9,7 @@ import java.io.Serializable;
  * @since 5-17-18
  */
 public class Schema implements Serializable {
-  
   // Defuat instance variables
-  private static final long serialVersionUID = 1L;
   protected String name = "";
   protected String createStatement = "";
 

@@ -33,7 +33,6 @@ public class SQLiteCompare extends DBCompare {
     salt = "SQLite";
   }
 
-
   @Override
   protected void databaseConnection1btnActionPerformed(ActionEvent evt) {
     if (allFieldsFilledOut()) {
@@ -64,7 +63,11 @@ public class SQLiteCompare extends DBCompare {
      return new SQLiteConn(livePath.getText(), liveDatabaseName.getText(), "dev");
   }
 
-   private void fixDatabasePaths() {
+  /**
+   * Takes the values of both of the user input paths and makes sure that they 
+   * end with a file separator if they do not already.
+   */
+  private void fixDatabasePaths() {
     String devPathText = devPath.getText();
     String livePathText = livePath.getText();
     if (!devPathText.endsWith(File.separator)) {

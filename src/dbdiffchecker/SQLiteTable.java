@@ -12,7 +12,6 @@ import java.util.HashMap;
 public class SQLiteTable extends Table {
 
   private boolean stopCompare = false;
-  private static final long serialVersionUID = 1L;
 
   /**
    * Initializes a Table object with a name create statement.
@@ -29,13 +28,7 @@ public class SQLiteTable extends Table {
    */
   public SQLiteTable() {}
   
-  /**
-   * Takes in a Table and compares it to the current one, the result is SQL statements 
-   * to make them the same.
-   * @author Peter Kaufman 
-   * @param t1 A Table object which is being compared to this Table object.
-   * @return The SQL needed to make the tables the same.
-   */
+  @Override
   public ArrayList<String> equals(Table t1) {
     stopCompare = false;
     this.count = 0;
@@ -113,7 +106,7 @@ public class SQLiteTable extends Table {
         if (this.count != 0) {
           sql +="\n";
         }
-        sql += "ALTER TABLE `" + this.name + "`\n\tADD COLUMN `" + col.getName() + "` " + col.getDetails() + ";";
+        sql += "ALTER TABLE " + this.name + "\n\tADD COLUMN " + col.getName() + " " + col.getDetails() + ";";
         this.count++;
       } else {
 
@@ -148,7 +141,7 @@ public class SQLiteTable extends Table {
         if (this.count != 0) {
           sql +="\n";
         }
-        sql += "DROP INDEX `" + indexName + "`;";
+        sql += "DROP INDEX " + indexName + ";";
         this.count++;
       }
     }
@@ -176,7 +169,7 @@ public class SQLiteTable extends Table {
           if (this.count != 0) {
             sql +="\n";
           }
-          sql += "DROP INDEX `" + indices1.getName() + "`;\n" + indices1.getCreateStatement() + ";";
+          sql += "DROP INDEX " + indices1.getName() + ";\n" + indices1.getCreateStatement() + ";";
           this.count++;
         }
       } else {
@@ -197,7 +190,7 @@ public class SQLiteTable extends Table {
     ArrayList<String> sql = new ArrayList<>();
     for (String columnName : live.keySet()) { 
       if (this.columns.containsKey(columnName)) {
-        commonColumns += "`" + columnName + "`,";
+        commonColumns += "" + columnName + ",";
       }
     }
     if (commonColumns.length() != 0) { 
@@ -206,24 +199,99 @@ public class SQLiteTable extends Table {
       commonColumns = commonColumns.substring(0, commonColumns.length() -1);
       // add the appropriate sql
       sql.add("PRAGMA foreign_keys=off;");
-      sql.add("ALTER TABLE `" + this.name + "` RENAME TO `temp_table`;");
+      sql.add("ALTER TABLE " + this.name + " RENAME TO temp_table;");
       
       if (!doExtraWork) {
         sql.add(this.createStatement);
       } else {
         sql.add(this.createStatement.substring(0, this.createStatement.indexOf("CREATE", 6) - 1));
       }      
-      sql.add("INSERT INTO `" + this.name +  "` (" + commonColumns + ")\n\tSELECT " + commonColumns + "\n\tFROM `temp_table`;");
-      sql.add("DROP TABLE `temp_table`;");
+      sql.add("INSERT INTO " + this.name +  " (" + commonColumns + ")\n\tSELECT " + commonColumns + "\n\tFROM temp_table;");
+      sql.add("DROP TABLE temp_table;");
       if (doExtraWork) {
         sql.add(this.createStatement.substring(this.createStatement.indexOf("CREATE", 6)));
       }
       sql.add("PRAGMA foreign_keys=on;");
     } else {
-      sql.add("DROP TABLE `" + this.name + "`;");
+      sql.add("DROP TABLE " + this.name + ";");
       sql.add(this.createStatement);       
     }
 
     return sql;
+  }
+
+  @Override
+  protected void parseCreateStatement() {
+    String[] parts, columns;
+    ArrayList<String> bodySections = new ArrayList<>();
+    String indexIndicator = "KEY (";
+    String name = "";
+    String details = "";
+    String create = "";
+    String body;
+    String indexColumns;
+    int nameEnd = 0;
+    create = createStatement.replace("CREATE TABLE " + this.name + " ", "");
+    // separate the main create statement from pther add ons
+    parts = create.split("\n");
+    body = parts[0];
+    // remove unneeded characters
+    body = body.trim();
+    if (body.startsWith("(")) {
+      body = body.substring(1);
+    }
+    if (body.endsWith(");")) {
+      body = body.substring(0, body.length() - 2);
+    } else if (body.endsWith(")")) {
+      body = body.substring(0, body.length() - 1);
+    }
+    // split the body into parts
+    int comma, startParen, endParen;
+    while (body.contains(",")) {
+      comma = body.indexOf(",");
+      startParen = body.indexOf("(");
+      while (startParen != -1 && startParen < comma) {
+        endParen = body.indexOf(")", startParen);
+        // determine whether the comma is affected by the parentheses 
+        // and correct it if it is
+        if (comma < endParen) {
+          comma = body.indexOf(",", endParen);
+        }
+        startParen = body.indexOf("(", endParen);
+      }
+      bodySections.add(body.substring(0, comma));
+      body = body.substring(comma + 1);
+    }
+    bodySections.add(body);
+    // parse the columns, PRIMARY KEYs, FOREIGN KEYs, and constraints
+    for (String part : bodySections) {
+      part = part.trim();
+      if (!part.contains(indexIndicator)) {
+        nameEnd = part.indexOf(" ");
+        name = part.substring(0, nameEnd);
+        details = part.substring(nameEnd + 1);
+        addColumn(new Column(name, details));
+      } else {
+        if (part.contains("PRIMARY KEY")) { // dealing with PRIMARY KEY
+          String temp = part.substring(part.indexOf("(") + 1, part.indexOf(")"));
+          columns = temp.split(",");
+          // add PRIMARY KEY label to each column affected by the PRIMARY KEY
+          for (String column : columns) {
+            // recreate columns
+            column = column.trim();
+            addColumn(new Column(column,  this.columns.get(column.trim()).getDetails().concat(" PRIMARY KEY")));
+          }
+        } else {
+          System.out.println("Unknown key: " + part);
+        }
+      }
+    }
+    // parse the remaining indices ...
+    for (int i = 1; i < parts.length; i++ ) {
+      String part = parts[i];
+      name = part.substring(part.indexOf("INDEX ") + 6, part.indexOf(" ON"));
+      indexColumns = part.substring(part.indexOf("(") + 1, part.indexOf(")"));
+      addIndex(new Index(name, part.replace(";", "").trim(), indexColumns));
+    }
   }
 }

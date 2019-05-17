@@ -1,21 +1,91 @@
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import java.util.ArrayList;
-import dbdiffchecker.Column;
-import dbdiffchecker.Index;
 import dbdiffchecker.Table;
 import dbdiffchecker.SQLiteTable;
 
 /**
  * TableTest is a unit test that makes sure that the Table object works as intended.
  * @author Peter Kaufman
- * @version 5-11-19
+ * @version 5-16-19
  * @since 5-10-19
  */
 public class SQLiteTableTest {
 
   private Table table1, table2;
-  private String name, create, details, columns;
+  private String name, create;
+
+  @Test
+  /**
+   * Tests whether the get statements inside of the Table object work as intended.
+   * @author Peter Kaufman
+   */
+  public void testGetStatements() {
+    name = "helper";
+    create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12))";
+    table1 = new SQLiteTable(name, create);
+
+    // start assertions
+    assertEquals("The name of the table should be the one passed into the constructor",
+      name, table1.getName());
+    assertEquals("The create statement of the table should be the one passed into the constructor",
+      create + ";", table1.getCreateStatement());
+  }
+
+  @Test
+  /**
+   * Tests whether the add column portion of column parsing works as intended.
+   * @author Peter Kaufman
+   */
+  public void testAddColumn() {
+    String column1 = "bloatware", column2 = "shipmentID";
+    name = "bloat";
+    create = "CREATE TABLE bloat (bloatware INTEGER (11) NOT NULL)";
+    table1 = new SQLiteTable();
+    assertEquals("The size of the column list for the table should be 0 when empty",
+      0, table1.getColumns().size());
+    // make sure first column is added when the create statement has it 
+    table1 = new SQLiteTable(name, create);
+    assertEquals("The size of the column list for the table should be 1 when one column has been added",
+      1, table1.getColumns().size());
+    assertEquals("The column passed to addColumn should be in the tables column list",
+      true, table1.getColumns().containsKey(column1));
+    // make sure second column is added when the create statement has both 
+    create = "CREATE TABLE bloat (bloatware INTEGER (11) NOT NULL, shipmentID INTEGER (11) NOT NULL)";
+    table1 = new SQLiteTable(name, create);
+    assertEquals("The size of the column list for the table should be 2 when two colmns have been added to the column list",
+      2, table1.getColumns().size());
+    assertEquals("The column passed to addColumn should be in the tables column list",
+      true, table1.getColumns().containsKey(column2));
+  }
+
+  @Test
+  /**
+   * Tests whether the addIndex function works as intended.
+   * @author Peter Kaufman
+   */
+  public void testAddIndex() {
+    String index1 = "shipment", index2 = "shipped";
+    table1 = new SQLiteTable();
+    name = "bloat";
+    create = "CREATE TABLE " + name + " (bloatware INTEGER (11) NOT NULL, shipmentID INTEGER (11) NOT NULL);" +
+      "\n CREATE INDEX shipment ON " + name + " (shippingID, bloatware)";
+    assertEquals("The size of the index list for the table should be 0 when empty",
+    0, table1.getIndices().size());
+    // make sure the one index is exists
+    table1 = new SQLiteTable(name, create); 
+    assertEquals("The size of the column list for the table should be 1 when one index has been added",
+      1, table1.getIndices().size());
+    assertEquals("The index passed to addIndex should be in the tables index list",
+      true, table1.getIndices().containsKey(index1));
+    // make sure the second index is created
+    create = create + ";\n  CREATE INDEX shipped ON " + name + " (shippingID)";
+    table1 = new SQLiteTable(name, create); 
+    assertEquals("The size of the index list for the table should be 2 when two indices have been added to the column list",
+      2, table1.getIndices().size());
+    assertEquals("The index passed to addIndex should be in the tables index list",
+      true, table1.getIndices().containsKey(index2)); 
+  }
 
   @Test
   /**
@@ -24,39 +94,26 @@ public class SQLiteTableTest {
    */
   public void testAddColumns() {
     ArrayList<String> sql;
-    String expectedSQL = "ALTER TABLE `helper`\n\tADD COLUMN `Thor` INTEGER (67) DEFAULT (12);";
-    // setup table1
-    name = "helper";
-    create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12))";
-    table1 = new SQLiteTable(name, create);
-    // add columns
-    name = "hulk";
-    details = "STRING (12)";
-    table1.addColumn(new Column(name, details));
-    // setup table2
+    String expectedSQL = "ALTER TABLE helper\n\tADD COLUMN Thor INTEGER (67) DEFAULT (12);";
+    // setup tables
     name = "helper";
     create = "CREATE TABLE helper (hulk STRING (12))";
+    table1 = new SQLiteTable(name, create);
     table2 = new SQLiteTable(name, create);
-    // add columns
-    name = "hulk";
-    details = "STRING (12)";
-    table2.addColumn(new Column(name, details));
-   // no column is needed to be added
+    // no column is needed to be added
     sql = table1.equals(table2);
     assertEquals("There should be no sql generated for two tables with the exact same columns",
       0, sql.size()); 
     // add a column
-    name = "Thor";
-    details = "INTEGER (67) DEFAULT (12)";
-    table1.addColumn(new Column(name, details));
+    create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12))";
+    table1 = new SQLiteTable(name, create);
     sql = table1.equals(table2);
     assertEquals("The sql generated should add a column", expectedSQL, sql.get(0)); 
     // add two columns to a table
-    name = "truthtable";
-    details = "STRING (12)";
-    table1.addColumn(new Column(name, details));
-    expectedSQL = "ALTER TABLE `helper`\n\tADD COLUMN `Thor` INTEGER (67) DEFAULT (12);\n" + 
-      "ALTER TABLE `helper`\n\tADD COLUMN `truthtable` STRING (12);";  
+    create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12), truthtable STRING (12))";
+    table1 = new SQLiteTable(name, create);
+    expectedSQL = "ALTER TABLE helper\n\tADD COLUMN Thor INTEGER (67) DEFAULT (12);\n" + 
+      "ALTER TABLE helper\n\tADD COLUMN truthtable STRING (12);";  
     sql = table1.equals(table2);
     assertEquals("The sql generated should add two columns", expectedSQL, sql.get(0)); 
   }
@@ -68,39 +125,21 @@ public class SQLiteTableTest {
    */
   public void testAddIndicesRegular() {
     ArrayList<String> sql;
-    String expectedSQL = "CREATE UNIQUE INDEX `add2` ON `helper` (`Thor`);\n" + 
-      "CREATE INDEX `add1` ON `helper` (`hulk`,`Thor`);";
-    // setup table1
+    String expectedSQL = "CREATE UNIQUE INDEX add2 ON helper (Thor);\n" + 
+      "CREATE INDEX add1 ON helper (hulk, Thor);";
+    // setup tables
     name = "helper";
-    create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12))";
+    create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12));\n" +
+      " CREATE INDEX addition ON helper (hulk)";
     table1 = new SQLiteTable(name, create);
-    // add indices
-    name = "addition";
-    columns = "`hulk`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns));
-    // setup table2
-    name = "helper";
-    create = "CREATE TABLE helper (hulk STRING (12))";
     table2 = new SQLiteTable(name, create);
-    // add indices
-    name = "addition";
-    columns = "`hulk`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns));
     // no index is needed to be added
     sql = table1.equals(table2);
     assertEquals("There should be no sql generated for two tables with the exact same indices",
       0, sql.size()); 
     // one index different of type Unique and of a regular type is needed to be added
-    name = "add1";
-    columns = "`hulk`,`Thor`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns));
-    name = "add2";
-    columns = "`Thor`";
-    create = "CREATE UNIQUE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns));
+    create += ";\nCREATE INDEX add1 ON helper (hulk, Thor);\nCREATE UNIQUE INDEX add2 ON helper (Thor);  ";
+    table1 = new SQLiteTable(name, create);
     sql = table1.equals(table2);
     assertEquals("The sql generated should add two indices", expectedSQL, sql.get(0));
   }
@@ -112,40 +151,22 @@ public class SQLiteTableTest {
    */
   public void testDropIndicesRegular() {
     ArrayList<String> sql;
-    String expectedSQL = "DROP INDEX `add2`;\nDROP INDEX `add1`;";
-    // setup table1
+    String expectedSQL = "DROP INDEX add2;\nDROP INDEX add1;";
+    // setup tables
     name = "helper";
-    create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12))";
+    create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12));\n" +
+      " CREATE INDEX addition ON helper (hulk)";
     table1 = new SQLiteTable(name, create);
-    // add indices
-    name = "addition";
-    columns = "`hulk`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns));
-    // setup table2
-    name = "helper";
-    create = "CREATE TABLE helper (hulk STRING (12))";
     table2 = new SQLiteTable(name, create);
-    // add indices
-    name = "addition";
-    columns = "`hulk`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns));
-    // no index is needed to be dropped
+    // no index is needed to be added
     sql = table1.equals(table2);
     assertEquals("There should be no sql generated for two tables with the exact same indices",
       0, sql.size()); 
-    // one index different of type Unique and of a regular type is needed to be dropped
-    name = "add1";
-    columns = "`hulk`,`Thor`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns));
-    name = "add2";
-    columns = "`Thor`";
-    create = "CREATE UNIQUE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns));
-    sql = table1.equals(table2);
-    assertEquals("The sql generated should drop two indices", expectedSQL, sql.get(0));
+    // one index different of type Unique and of a regular type is needed to be added
+    create += ";\nCREATE INDEX add1 ON helper (hulk, Thor);\nCREATE INDEX add2 ON helper (Thor)";
+    table1 = new SQLiteTable(name, create);
+    sql = table2.equals(table1);
+    assertEquals("The sql generated should add drop indices", expectedSQL, sql.get(0));
   }
 
   @Test
@@ -155,50 +176,33 @@ public class SQLiteTableTest {
    */
   public void testModifyIndicesRegular() { 
     ArrayList<String> sql;
-    String expectedSQL = "DROP INDEX `add1`;\nCREATE INDEX `add1` ON `helper` (`hulk`,`Thor`);";
+    String create1, create2;
+    String expectedSQL = "DROP INDEX add1;\nCREATE INDEX add1 ON helper (hulk, Thor);";
     // setup table1
     name = "helper";
-    create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12))";
+    create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12));\n" +
+      "CREATE INDEX addition ON helper (hulk)";
     table1 = new SQLiteTable(name, create);
-    // add indices
-    name = "addition";
-    columns = "`hulk`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns));
-    // setup table2
-    name = "helper";
-    create = "CREATE TABLE helper (hulk STRING (12))";
     table2 = new SQLiteTable(name, create);
-    // add indices
-    name = "addition";
-    columns = "`hulk`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns));
-    // no index is needed to be dropped
+    // no index is needed to be modified
     sql = table1.equals(table2);
     assertEquals("There should be no sql generated for two tables with the exact same indices",
       0, sql.size()); 
     // one index is needed to be modified
-    name = "add1";
-    columns = "`hulk`,`Thor`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns));
-    columns = "`Thor`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns));
+    create1 = create + ";\nCREATE INDEX add1 ON helper (hulk, Thor)";
+    table1 = new SQLiteTable(name, create1);
+    create2 = create + ";\nCREATE INDEX add1 ON helper (hulk)";
+    table2 = new SQLiteTable(name, create2);
     sql = table1.equals(table2);
     assertEquals("The sql generated should modify one index", expectedSQL, sql.get(0));
     // two indices are needed to be modified
-    name = "add2";
-    columns = "`Thor`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns));
-    columns = "`Thor`";
-    create = "CREATE UNIQUE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns));
+    create1 += ";\nCREATE INDEX add2 ON helper (Thor)";
+    table1 = new SQLiteTable(name, create1);
+    create2 += ";\nCREATE UNIQUE INDEX add2 ON helper (Thor)";
+    table2 = new SQLiteTable(name, create2);
     sql = table1.equals(table2);
-    expectedSQL = "DROP INDEX `add2`;\nCREATE INDEX `add2` ON `helper` (`Thor`);\n" + 
-      "DROP INDEX `add1`;\nCREATE INDEX `add1` ON `helper` (`hulk`,`Thor`);";
+    expectedSQL = "DROP INDEX add2;\nCREATE INDEX add2 ON helper (Thor);\n" + 
+      "DROP INDEX add1;\nCREATE INDEX add1 ON helper (hulk, Thor);";
     assertEquals("The sql generated should modify two indices", expectedSQL, sql.get(0));
   }
 
@@ -209,113 +213,82 @@ public class SQLiteTableTest {
    */
   public void testRecreateTable() { 
     ArrayList<String> sql, expectedSQL = new ArrayList<>();
+    String insert1 = "INSERT INTO helper (hulk)\n\tSELECT hulk\n\tFROM temp_table;";
+    String insert2 = "INSERT INTO helper (truthtable,hulk)\n\tSELECT truthtable,hulk\n\tFROM temp_table;";
     expectedSQL.add("PRAGMA foreign_keys=off;");
-    expectedSQL.add("ALTER TABLE `helper` RENAME TO `temp_table`;");
+    expectedSQL.add("ALTER TABLE helper RENAME TO temp_table;");
     expectedSQL.add("CREATE TABLE helper (hulk STRING (12));");
-    expectedSQL.add("INSERT INTO `helper` (`hulk`)\n\tSELECT `hulk`\n\tFROM `temp_table`;");
-    expectedSQL.add("DROP TABLE `temp_table`;");
+    expectedSQL.add(insert1);
+    expectedSQL.add("DROP TABLE temp_table;");
     expectedSQL.add("PRAGMA foreign_keys=on;");
-    // setup table1
+    // setup tables
     name = "helper";
     create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12))";
     table1 = new SQLiteTable(name, create);
-    // add columns
-    name = "hulk";
-    details = "STRING (12)";
-    table1.addColumn(new Column(name, details));
-    name = "Thor";
-    details = "INTEGER (67) DEFAULT (12)";
-    table1.addColumn(new Column(name, details));
-    // setup table2
-    name = "helper";
     create = "CREATE TABLE helper (hulk STRING (12))";
     table2 = new SQLiteTable(name, create);
-    // add columns
-    name = "hulk";
-    details = "STRING (12)";
-    table2.addColumn(new Column(name, details));
     // dropping a column
     sql = table2.equals(table1);
     assertEquals("The sql generated should recreate the table to be like the dev one when dropping a column",
-      true, expectedSQL.equals(sql));
+      expectedSQL, sql);
     // dropping two columns
-    name = "truthtable";
-    details = "STRING (12)";
-    table1.addColumn(new Column(name, details));
+    create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12), truthtable STRING (12))";
+    table1 = new SQLiteTable(name, create);
     sql = table2.equals(table1);
     assertEquals("The sql generated should recreate the table to be like the dev one when dropping several columns",
-      true, expectedSQL.equals(sql));
+      expectedSQL, sql);
     // modifying a column
-    name = "helper";
-    create = "CREATE TABLE helper (hulk STRING (11), truthtable INT (67) DEFAULT (12))";
+    create = "CREATE TABLE helper (hulk STRING (11))";
     table1 = new SQLiteTable(name, create);
-    // add columns
-    name = "hulk";
-    details = "STRING (11)";
-    table1.addColumn(new Column(name, details));
     sql = table2.equals(table1);
     assertEquals("The sql generated should recreate the table to be like the dev one when modifying a column",
-      true, expectedSQL.equals(sql));
+      expectedSQL, sql);
     // modifying two columns
-    name = "truthtable";
-    details = "INT (67) DEFAULT (12)";
-    table1.addColumn(new Column(name, details));
+    create = "CREATE TABLE helper (hulk STRING (11), truthtable STRING (12))";
+    table1 = new SQLiteTable(name, create);
+    create = "CREATE TABLE helper (hulk STRING (12), truthtable INTEGER (67) DEFAULT (12))";
+    table2 = new SQLiteTable(name, create);
+    expectedSQL.set(2, create + ";");
+    expectedSQL.set(3, insert2);
+    sql = table2.equals(table1);
     assertEquals("The sql generated should recreate the table to be like the dev one when modifying several columns",
-      true, expectedSQL.equals(sql));
+      expectedSQL, sql);
     // add a primary key
-    // table1 setup
+    // setup tables
     name = "blooper";
     create = "CREATE TABLE blooper (Thor INTEGER (67) DEFAULT (12), ache BLOB (66) PRIMARY KEY)"; 
     table1 = new SQLiteTable(name, create);
-    // add columns
-    name = "Thor";
-    details = "INTEGER (67) DEFAULT (12)";
-    table1.addColumn(new Column(name, details));
-    name = "ache";
-    details = "BLOB (66) PRIMARY KEY";
-    table1.addColumn(new Column(name, details));
-    // table2 setup
-    name = "blooper";
     create = "CREATE TABLE blooper (Thor INTEGER (67) DEFAULT (12), ache BLOB (66))"; 
     table2 = new SQLiteTable(name, create);
-    // add columns
-    name = "Thor";
-    details = "INTEGER (67) DEFAULT (12)";
-    table2.addColumn(new Column(name, details));
-    name = "ache";
-    details = "BLOB (66)";
-    table2.addColumn(new Column(name, details));
     sql = table1.equals(table2);
     expectedSQL = new ArrayList<>();
     expectedSQL.add("PRAGMA foreign_keys=off;");
-    expectedSQL.add("ALTER TABLE `blooper` RENAME TO `temp_table`;");
+    expectedSQL.add("ALTER TABLE blooper RENAME TO temp_table;");
     expectedSQL.add("CREATE TABLE blooper (Thor INTEGER (67) DEFAULT (12), ache BLOB (66) PRIMARY KEY);");
-    expectedSQL.add("INSERT INTO `blooper` (`Thor`,`ache`)\n\tSELECT `Thor`,`ache`\n\tFROM `temp_table`;");
-    expectedSQL.add("DROP TABLE `temp_table`;");
+    expectedSQL.add("INSERT INTO blooper (Thor,ache)\n\tSELECT Thor,ache\n\tFROM temp_table;");
+    expectedSQL.add("DROP TABLE temp_table;");
     expectedSQL.add("PRAGMA foreign_keys=on;");
     assertEquals("The sql generated should recreate the table to be like the dev one when adding a primary key",
-      true, expectedSQL.equals(sql));
+      expectedSQL, sql);
     // modify a primary key
-    name = "ache";
-    details = "BLOB (6) PRIMARY KEY";
-    table2.addColumn(new Column(name, details));
+    create = "CREATE TABLE blooper (Thor INTEGER (67) DEFAULT (12), ache BLOB (6) PRIMARY KEY)"; 
+    table2 = new SQLiteTable(name, create);
     sql = table1.equals(table2);
     assertEquals("The sql generated should recreate the table to be like the dev one when modifying a primary key",
-      true, expectedSQL.equals(sql));
+      expectedSQL, sql);
     // drop a primary key
+    create = "CREATE TABLE blooper (Thor INTEGER (67) DEFAULT (12), ache BLOB (66))"; 
+    table2 = new SQLiteTable(name, create);
     expectedSQL = new ArrayList<>();
     expectedSQL.add("PRAGMA foreign_keys=off;");
-    expectedSQL.add("ALTER TABLE `blooper` RENAME TO `temp_table`;");
+    expectedSQL.add("ALTER TABLE blooper RENAME TO temp_table;");
     expectedSQL.add("CREATE TABLE blooper (Thor INTEGER (67) DEFAULT (12), ache BLOB (66));");
-    expectedSQL.add("INSERT INTO `blooper` (`Thor`,`ache`)\n\tSELECT `Thor`,`ache`\n\tFROM `temp_table`;");
-    expectedSQL.add("DROP TABLE `temp_table`;");
+    expectedSQL.add("INSERT INTO blooper (Thor,ache)\n\tSELECT Thor,ache\n\tFROM temp_table;");
+    expectedSQL.add("DROP TABLE temp_table;");
     expectedSQL.add("PRAGMA foreign_keys=on;");
-    name = "ache";
-    details = "BLOB (66)";
-    table2.addColumn(new Column(name, details));
     sql = table2.equals(table1);
     assertEquals("The sql generated should recreate the table to be like the dev one when dropping a primary key",
-      true, expectedSQL.equals(sql));
+      expectedSQL, sql);
   }
 
   @Test
@@ -325,32 +298,20 @@ public class SQLiteTableTest {
    */
   public void testRecreateTableSpecial() {
     ArrayList<String> sql, expectedSQL = new ArrayList<>();
-    String extraCreate = "CREATE INDEX addition ON helper (`Thor`)";
+    String extraCreate = "CREATE INDEX addition ON helper (Thor)";
     expectedSQL.add("PRAGMA foreign_keys=off;");
-    expectedSQL.add("ALTER TABLE `helper` RENAME TO `temp_table`;");
+    expectedSQL.add("ALTER TABLE helper RENAME TO temp_table;");
     expectedSQL.add("CREATE TABLE helper (hulk STRING (12));");
-    expectedSQL.add("INSERT INTO `helper` (`hulk`)\n\tSELECT `hulk`\n\tFROM `temp_table`;");
-    expectedSQL.add("DROP TABLE `temp_table`;");
+    expectedSQL.add("INSERT INTO helper (hulk)\n\tSELECT hulk\n\tFROM temp_table;");
+    expectedSQL.add("DROP TABLE temp_table;");
     expectedSQL.add(extraCreate + ";");
     expectedSQL.add("PRAGMA foreign_keys=on;");
+    // setup tables
     name = "helper";
     create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12))";
     table1 = new SQLiteTable(name, create);
-    // add columns
-    name = "hulk";
-    details = "STRING (12)";
-    table1.addColumn(new Column(name, details));
-    name = "Thor";
-    details = "INTEGER (67) DEFAULT (12)";
-    table1.addColumn(new Column(name, details));
-    // setup table2
-    name = "helper";
     create = "CREATE TABLE helper (hulk STRING (12));\n" + extraCreate;
     table2 = new SQLiteTable(name, create);
-    // add columns
-    name = "hulk";
-    details = "STRING (12)";
-    table2.addColumn(new Column(name, details));
     // extra create statements are present in the create statement of the table
     sql = table2.equals(table1);
     assertEquals("The sql generated should recreate the table to be like the dev" + 
@@ -358,34 +319,24 @@ public class SQLiteTableTest {
       true, expectedSQL.equals(sql));
     // the two tables have no columns in common
     // setup table2
-    name = "helper";
     create = "CREATE TABLE helper (hawkeye STRING (12))";
     table2 = new SQLiteTable(name, create);
-    // add columns
-    name = "hawkeye";
-    details = "STRING (12)";
-    table2.addColumn(new Column(name, details));
     sql = table2.equals(table1);
     expectedSQL = new ArrayList<>();
-    expectedSQL.add("DROP TABLE `helper`;");
+    expectedSQL.add("DROP TABLE helper;");
     expectedSQL.add(create + ";");
     assertEquals("The sql generated should recreate the table to be like the dev" + 
       " one when no columns are common between the two", true, expectedSQL.equals(sql));
     // the two tables have no columns in common and there are extra create statements
     // in the table create statement
-     // setup table2
-     name = "helper";
-     create = "CREATE TABLE helper (hawkeye STRING (12));\n" + extraCreate;
-     table2 = new SQLiteTable(name, create);
-     // add columns
-     name = "hawkeye";
-     details = "STRING (12)";
-     table2.addColumn(new Column(name, details));
-     sql = table2.equals(table1);
-     expectedSQL = new ArrayList<>();
-     expectedSQL.add("DROP TABLE `helper`;");
-     expectedSQL.add(create + ";");
-     assertEquals("The sql generated should recreate the table to be like the dev" + 
+    // setup table2
+    create = "CREATE TABLE helper (hawkeye STRING (12));\n" + extraCreate;
+    table2 = new SQLiteTable(name, create);
+    sql = table2.equals(table1);
+    expectedSQL = new ArrayList<>();
+    expectedSQL.add("DROP TABLE helper;");
+    expectedSQL.add(create + ";");
+    assertEquals("The sql generated should recreate the table to be like the dev" + 
       " one when no columns are common between the two and there are extra create" +
       "statements in the table create statement", true, expectedSQL.equals(sql));
   }
@@ -397,46 +348,17 @@ public class SQLiteTableTest {
    */
   public void testEquals() {
     ArrayList<String> sql;
-    String expectedSQL = "DROP INDEX `drop1`;\nDROP INDEX `drop2`;\n" + 
-      "ALTER TABLE `helper`\n\tADD COLUMN `Thor` INTEGER (67) DEFAULT (12);\n" +
-      "CREATE UNIQUE INDEX `add2` ON `helper` (`Thor`);\nCREATE INDEX `add1` ON `helper` (`hulk`,`Thor`);";
-    // setup table1
+    String expectedSQL = "DROP INDEX drop1;\nDROP INDEX drop2;\n" + 
+      "ALTER TABLE helper\n\tADD COLUMN Thor INTEGER (67) DEFAULT (12);\n" +
+      "CREATE UNIQUE INDEX add2 ON helper (Thor);\nCREATE INDEX add1 ON helper (hulk, Thor);";
+    // setup tables
     name = "helper";
-    create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12))";
+    create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12));\n" +
+      "CREATE INDEX add1 ON helper (hulk, Thor);\n CREATE UNIQUE INDEX add2 ON helper (Thor)";
     table1 = new SQLiteTable(name, create);
-    // add columns
-    name = "hulk";
-    details = "STRING (12)";
-    table1.addColumn(new Column(name, details));
-    name = "Thor";
-    details = "INTEGER (67) DEFAULT (12)";
-    table1.addColumn(new Column(name, details));
-    // add indices
-    name = "add1";
-    columns = "`hulk`,`Thor`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns));
-    name = "add2";
-    columns = "`Thor`";
-    create = "CREATE UNIQUE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns));
-    // setup table2
-    name = "helper";
-    create = "CREATE TABLE helper (hulk STRING (12))";
+    create = "CREATE TABLE helper (hulk STRING (12));\n" +
+      "CREATE INDEX drop1 ON helper (hulk, Thor);\n CREATE UNIQUE INDEX drop2 ON helper (Thor)";
     table2 = new SQLiteTable(name, create);
-    // add columns
-    name = "hulk";
-    details = "STRING (12)";
-    table2.addColumn(new Column(name, details));
-    // add indices
-    name = "drop1";
-    columns = "`hulk`,`Thor`";
-    create = "CREATE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns));
-    name = "drop2";
-    columns = "`Thor`";
-    create = "CREATE UNIQUE INDEX `" + name + "` ON `" + table1.getName() + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns));
     // do comparison
     sql = table1.equals(table2);
     assertEquals("The sql generated should add a column, drop two indexes, and add two indexes", 

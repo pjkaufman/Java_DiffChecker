@@ -298,6 +298,7 @@ public abstract class DBCompare extends JFrameV2 {
    * Whether or not the user has filled out all of the inputs that are needed to
    * run the program.
    * @author Peter Kaufman
+   * @return Whether or not all fields have had something written to them.
    */
   protected boolean allFieldsFilledOut() {
     boolean allFilledOut = true;
@@ -325,7 +326,15 @@ public abstract class DBCompare extends JFrameV2 {
     return allFilledOut;
   }
 
+  /**
+   * Creates a DbConn object for the development database based on user input.
+   * @return DbConn A connector to the development database.
+   */
   protected abstract DbConn createDevDatabaseConnection() throws SQLException;
 
+  /**
+   * Creates a DbConn object for the live database based on user input.
+   * @return DbConn A connector to the live database.
+   */
   protected abstract DbConn createLiveDatabaseConnection() throws SQLException;
 }

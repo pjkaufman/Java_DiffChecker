@@ -24,7 +24,7 @@ import javax.swing.SwingWorker;
  * @since 9-20-17
  */
 public class Result extends JFrameV2 {
-        // Instance variables
+  // Instance variables
   private DbConn db = null;
   private JScrollPane SQL = new JScrollPane();
   private JTextArea SQLShow = new JTextArea(5, 20);
@@ -67,6 +67,7 @@ public class Result extends JFrameV2 {
     SQL.setViewportView(SQLShow);
     // add listeners
     btnRun.addActionListener(new ActionListener() {
+      @Override
       public void actionPerformed(ActionEvent evt) {
         btnRunActionPerformed(evt);
       }

@@ -26,7 +26,7 @@ import javax.swing.SwingUtilities;
  * DBDiffCheckerGUI is a JFrame that takes user input to decide which JFrame
  * to open. 
  * @author Peter Kaufman
- * @version 2-16-19
+ * @version 5-16-19
  * @since 9-20-17
  */
 public class DBDiffCheckerGUI extends JFrameV2 {
@@ -58,6 +58,7 @@ public class DBDiffCheckerGUI extends JFrameV2 {
   /**
    * InitComonents sets up the GUI Layout, sets up all action events, and
    * initializes instance variables.
+   * @author Peter Kaufman
    */
   private void initComponents() {
     cpnr.add(promptLabel);
@@ -203,6 +204,11 @@ public class DBDiffCheckerGUI extends JFrameV2 {
     }
   }
 
+  /**
+   * Determines whether to run a two database comparisons and if so it determiens
+   * which one to run.
+   * @param databaseSelected The text from the JComboBox which the user selected.
+   */
   private void chooseTwoDBCompare(String databaseSelected) {
     JFrameV2 compare2Databases;
     switch(databaseSelected) {
@@ -223,6 +229,11 @@ public class DBDiffCheckerGUI extends JFrameV2 {
     }
   }
 
+  /**
+   * Determines whether to run a one database comparisons and if so it determiens
+   * which one to run.
+   * @param databaseSelected The text from the JComboBox which the user selected.
+   */
   private void chooseOneDBCompare(String databaseSelected) {
     JFrameV2 compare1Database;
     switch(databaseSelected) {
@@ -243,6 +254,11 @@ public class DBDiffCheckerGUI extends JFrameV2 {
     }
   }
 
+  /**
+   * Determines whether to run a database snapshot and if so it determiens
+   * which one to run.
+   * @param databaseSelected The text from the JComboBox which the user selected.
+   */
   private void chooseDBSnapshot(String databaseSelected) {
     JFrameV2 databaseSnapshot;
     switch(databaseSelected) {
@@ -272,6 +288,7 @@ public class DBDiffCheckerGUI extends JFrameV2 {
 
     /* Create and display the form */
     EventQueue.invokeLater(new Runnable() {
+      @Override
       public void run() {
         DBDiffCheckerGUI gui = new DBDiffCheckerGUI();
         gui.setVisible(true);

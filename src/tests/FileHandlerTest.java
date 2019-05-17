@@ -8,6 +8,7 @@ import dbdiffchecker.Database;
 import dbdiffchecker.FileHandler;
 import dbdiffchecker.Index;
 import dbdiffchecker.Table;
+import dbdiffchecker.MySQLTable;
 
 /**
  * FileHandlerTest is a unit test that makes sure that the FileHandler object works as intended.
@@ -100,7 +101,7 @@ public class FileHandlerTest {
     // setup table1
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  `ip_address` varchar(45) NOT NULL,\n  `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\',\n  `data` blob NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
-    table1 = new Table(name, create);
+    table1 = new MySQLTable(name, create);
     // add columns
     name = "id";
     details = "varchar(40) NOT NULL";
@@ -130,7 +131,7 @@ public class FileHandlerTest {
     // setup table2
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `ip_address` varchar(40) NOT NULL,\n  `timestamp` int(11) unsigned NOT NULL DEFAULT \'0\',\n  `data` blob NOT NULL,\n  `data2` blob NOT NULL,\n PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin2";
-    table2 = new Table(name, create);
+    table2 = new MySQLTable(name, create);
     // add columns
     name = "ip_address";
     details = "varchar(40) NOT NULL";

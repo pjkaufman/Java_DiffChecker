@@ -40,7 +40,6 @@ public class MySQLCompare extends DBCompare {
       salt = "MySQL";
   }
 
-  
   @Override
   protected void databaseConnection1btnActionPerformed(ActionEvent evt) {
     if (allFieldsFilledOut()) {

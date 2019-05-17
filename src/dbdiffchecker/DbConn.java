@@ -80,15 +80,6 @@ abstract class DbConn {
   abstract public String getTableCreateStatement(String table) throws DatabaseDiffernceCheckerException;
 
   /**
-   * Gets and returns the create statement of the desired table.
-   * @author Peter Kaufman
-   * @param view The name of the view for which the create statement should be retrieved.
-   * @return The view's create statement.
-   * @throws DatabaseDiffernceCheckerException Error when getting a view's create statement.
-   */
-  abstract public String getViewCreateStatement(String view) throws DatabaseDiffernceCheckerException;
-
-  /**
    * Gets the tables, columns, and indices of the database.
    * @author Peter Kaufman
    * @return The names of the tables and table data that exist in the database.
@@ -128,24 +119,4 @@ abstract class DbConn {
    * @throws SQLException An error occurred while attempting to connect to the database.
    */
   abstract protected void testConnection() throws SQLException;
-
-  /**
-   * Creates a column, gets the column's info, and adds it to the provided Table object.
-   * @author Peter Kaufman
-   * @param table Where the new column will be added.
-   * @param column Contains the data to make a column.
-   * @throws SQLException An error occurred while accessing a column property.
-   */
-  abstract protected void fillOutColumns(Table table, ResultSet column) throws SQLException;
-
-  /**
-   * Takes in a ResultSet and a table object and adds all indexes found in the 
-   * ResultSet to the table object.
-   * @author Peter Kaufman
-   * @param table Where the new indexes will be added.
-   * @param index Contains the data to make a indexes for a specific table.
-   * @throws SQLException An error occurred while accessing an index property.
-   */
-  abstract protected void createIndexes(Table table, ResultSet index) throws SQLException;
-
 }
