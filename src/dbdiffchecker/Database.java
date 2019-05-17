@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Database models a MYSQL database schema.
+ * Database models an SQL database schema.
  * @author Peter Kaufman
  * @version 5-11-19
  * @since 9-18-17
@@ -16,7 +16,6 @@ public class Database implements Serializable {
   private HashMap<String, String> exclude = new HashMap<>();
   private ArrayList<View> views = new ArrayList<>();
   private ArrayList<String> firstSteps = new ArrayList<>();
-  private static final long serialVersionUID = 1L;
 
   /**
    * Initializes a Database object by using a database connection. 
@@ -39,7 +38,7 @@ public class Database implements Serializable {
   }
 
   /**
-   * This is the default constructor for this class which is needed for Serialization.
+   * This is the default constructor for this class, <b> Needed for Serialization</b>.
    */
   public Database() {}
 
@@ -84,7 +83,7 @@ public class Database implements Serializable {
    * @author Peter Kaufman
    * @param liveViews all of the View in the live database.
    * @return An ArrayList of Strings which is the SQL statements to run in 
-   *      order to make the live database have the same views as the dev one.
+   * order to make the live database have the same views as the dev one.
    */
   public ArrayList<String> updateViews(ArrayList<View> liveViews) {
 
@@ -107,9 +106,9 @@ public class Database implements Serializable {
    * Determines which table(s) is/are to be created or dropped.
    * @author Peter Kaufman
    * @param liveTables is a HashMap of String and Table object pairs which 
-   *       represent all tables in the live database.
+   * represent all tables in the live database.
    * @return An ArrayList of Strings which is the SQL statements to run in order to
-   *      remove and/or create tables in the live database.
+   * remove and/or create tables in the live database.
    */
   public ArrayList<String> compareTables(HashMap<String, Table> liveTables) {
 
@@ -140,12 +139,12 @@ public class Database implements Serializable {
    * same table definitions as the dev one.
    * @author Peter Kaufman
    * @param live is a HashMap of String and Table object pairs which are the names 
-   *      of the tables and table data for each table in the live database.
+   * of the tables and table data for each table in the live database.
    * @param updateTables is a HashMap of String and String pairs where the key and
-   *      the value are the same, which is all the tables which are not the same in 
-   *      the live and dev databases.
+   * the value are the same, which is all the tables which are not the same in 
+   * the live and dev databases.
    * @return An ArrayList of Strings which is the SQL statements to run in order to make
-   *      the live database have the same table definitions as the dev one.
+   * the live database have the same table definitions as the dev one.
    */
   public ArrayList<String> updateTables(HashMap<String, Table> live, 
           HashMap<String, String> updateTables) {
@@ -167,9 +166,9 @@ public class Database implements Serializable {
    * not match between the dev and live databases.
    * @author Peter Kaufman
    * @param liveTables is a HashMap of String and Table object pairs which are the 
-   *      table names and table data for all tables in the live database.
+   * table names and table data for all tables in the live database.
    * @return An HashMap which is the tables that are to be updated because 
-   *      their structures did not match between the dev and live databases.
+   * their structures did not match between the dev and live databases.
    */
   public HashMap<String, String> tablesDiffs(HashMap<String, Table> liveTables) {
     HashMap<String, String> updateTables = new HashMap<>();

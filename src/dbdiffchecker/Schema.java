@@ -14,7 +14,7 @@ public class Schema implements Serializable {
   protected String createStatement = "";
 
   /**
-   * The default constructor is needed for serialization.
+   * This is the default constructor for this class, <b> Needed for Serialization</b>.
    */
   public Schema() {}
 

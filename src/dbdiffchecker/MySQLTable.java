@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * MySQLTable resembles a MySQLTable in MySQL and contains info about the MySQLTable's columns.
+ * MySQLTable resembles a Table in MySQL and contains info about the Table's 
+ * columns and indices.
  * @author Peter Kaufman
- * @version 5-15-19
+ * @version 5-16-19
  * @since 5-15-19
  */
 public class MySQLTable extends Table {
@@ -24,7 +25,7 @@ public class MySQLTable extends Table {
   }
 
   /**
-   * The default constructor is needed for serialization.
+   * This is the default constructor for this class, <b> Needed for Serialization</b>.
    */
   public MySQLTable() {}
 
@@ -53,6 +54,41 @@ public class MySQLTable extends Table {
     }
 
     return sql;
+  }
+
+  @Override
+  protected void parseCreateStatement(){
+    String[] parts;
+    String columnIndicator = "`";
+    String indexIndicator = "KEY";
+    String name = "";
+    String details = "";
+    String columns = "";
+    String create = "";
+    parts = this.createStatement.split("\n");
+    for (String part : parts) {
+      part = part.trim();
+      if (part.endsWith(",")) {
+        part = part.substring(0, part.length() - 1);
+      }
+      if (part.startsWith(columnIndicator)) {
+        name = part.substring(part.indexOf("`") + 1, part.lastIndexOf("`"));
+        details = part.substring(part.lastIndexOf("`") + 2);
+        // add the column
+        addColumn(new Column(name, details));
+      } else if (part.contains(indexIndicator)) {
+        create = "ADD " + part;
+        if (part.contains("PRIMARY KEY")) { // dealing with PRIMARY KEY
+          name = "PRIMARY";
+        } else {
+          name = part.substring(part.indexOf("`") + 1, part.indexOf("`", part.indexOf("`") + 1));
+          create = create.replace("KEY", "INDEX");
+        }
+        columns = part.substring(part.indexOf("(") + 1, part.lastIndexOf(")"));
+        // add the index
+        addIndex(new Index(name, create, columns));
+      }
+    }
   }
 
   /**
@@ -212,40 +248,5 @@ public class MySQLTable extends Table {
     }
 
     return sql;
-  }
-
-  @Override
-  protected void parseCreateStatement(){
-    String[] parts;
-    String columnIndicator = "`";
-    String indexIndicator = "KEY";
-    String name = "";
-    String details = "";
-    String columns = "";
-    String create = "";
-    parts = this.createStatement.split("\n");
-    for (String part : parts) {
-      part = part.trim();
-      if (part.endsWith(",")) {
-        part = part.substring(0, part.length() - 1);
-      }
-      if (part.startsWith(columnIndicator)) {
-        name = part.substring(part.indexOf("`") + 1, part.lastIndexOf("`"));
-        details = part.substring(part.lastIndexOf("`") + 2);
-        // add the column
-        addColumn(new Column(name, details));
-      } else if (part.contains(indexIndicator)) {
-        create = "ADD " + part;
-        if (part.contains("PRIMARY KEY")) { // dealing with PRIMARY KEY
-          name = "PRIMARY";
-        } else {
-          name = part.substring(part.indexOf("`") + 1, part.indexOf("`", part.indexOf("`") + 1));
-          create = create.replace("KEY", "INDEX");
-        }
-        columns = part.substring(part.indexOf("(") + 1, part.lastIndexOf(")"));
-        // add the index
-        addIndex(new Index(name, create, columns));
-      }
-    }
   }
 }

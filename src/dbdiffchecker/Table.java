@@ -32,7 +32,7 @@ public abstract class Table extends Schema {
   }
 
   /**
-   * The default constructor is needed for serialization.
+   * This is the default constructor for this class, <b> Needed for Serialization</b>.
    */
   public Table() {}
 

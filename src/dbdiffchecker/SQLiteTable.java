@@ -24,7 +24,7 @@ public class SQLiteTable extends Table {
   }
 
   /**
-   * The default constructor is needed for serialization.
+   * This is the default constructor for this class, <b> Needed for Serialization</b>.
    */
   public SQLiteTable() {}
   
@@ -58,6 +58,81 @@ public class SQLiteTable extends Table {
     }
 
     return sql;
+  }
+
+  @Override
+  protected void parseCreateStatement() {
+    String[] parts, columns;
+    ArrayList<String> bodySections = new ArrayList<>();
+    String indexIndicator = "KEY (";
+    String name = "";
+    String details = "";
+    String create = "";
+    String body;
+    String indexColumns;
+    int nameEnd = 0;
+    create = createStatement.replace("CREATE TABLE " + this.name + " ", "");
+    // separate the main create statement from pther add ons
+    parts = create.split("\n");
+    body = parts[0];
+    // remove unneeded characters
+    body = body.trim();
+    if (body.startsWith("(")) {
+      body = body.substring(1);
+    }
+    if (body.endsWith(");")) {
+      body = body.substring(0, body.length() - 2);
+    } else if (body.endsWith(")")) {
+      body = body.substring(0, body.length() - 1);
+    }
+    // split the body into parts
+    int comma, startParen, endParen;
+    while (body.contains(",")) {
+      comma = body.indexOf(",");
+      startParen = body.indexOf("(");
+      while (startParen != -1 && startParen < comma) {
+        endParen = body.indexOf(")", startParen);
+        // determine whether the comma is affected by the parentheses 
+        // and correct it if it is
+        if (comma < endParen) {
+          comma = body.indexOf(",", endParen);
+        }
+        startParen = body.indexOf("(", endParen);
+      }
+      bodySections.add(body.substring(0, comma));
+      body = body.substring(comma + 1);
+    }
+    bodySections.add(body);
+    // parse the columns, PRIMARY KEYs, FOREIGN KEYs, and constraints
+    for (String part : bodySections) {
+      part = part.trim();
+      if (!part.contains(indexIndicator)) {
+        nameEnd = part.indexOf(" ");
+        name = part.substring(0, nameEnd);
+        details = part.substring(nameEnd + 1);
+        addColumn(new Column(name, details));
+      } else {
+        if (part.contains("PRIMARY KEY")) { // dealing with PRIMARY KEY
+          String temp = part.substring(part.indexOf("(") + 1, part.indexOf(")"));
+          columns = temp.split(",");
+          // add PRIMARY KEY label to each column affected by the PRIMARY KEY
+          for (String column : columns) {
+            // recreate columns
+            column = column.trim();
+            addColumn(new Column(column,  this.columns.get(column.trim()).getDetails().concat(" PRIMARY KEY")));
+          }
+        } else {
+          System.out.println("Unknown key: " + part);
+        }
+      }
+    }
+    // parse the remaining indices ...
+    for (int i = 1; i < parts.length; i++ ) {
+      String part = parts[i];
+      name = part.substring(part.indexOf("INDEX ") + 6, part.indexOf(" ON"));
+      indexColumns = part.substring(part.indexOf("(") + 1, part.indexOf(")"));
+      addIndex(new Index(name, part.replace(";", "").trim(), indexColumns));
+    }
   }
 
   /**
@@ -184,6 +259,14 @@ public class SQLiteTable extends Table {
     return sql;
   }
 
+  /**
+   * Recreates the structure of the table using the columns provided to copy over
+   * old data into the new table based on common columns between the dev and live
+   * tables.
+   * @param live is a list of columns and their definitions which helps the transfer
+   * of data for common collumns.
+   * @return The SQL needed to recreate the development table.
+   */
   private ArrayList<String> recreateTable(HashMap<String, Column> live) {
     String commonColumns = "";
     boolean doExtraWork = this.createStatement.lastIndexOf("CREATE") > 6 ;
@@ -218,80 +301,5 @@ public class SQLiteTable extends Table {
     }
 
     return sql;
-  }
-
-  @Override
-  protected void parseCreateStatement() {
-    String[] parts, columns;
-    ArrayList<String> bodySections = new ArrayList<>();
-    String indexIndicator = "KEY (";
-    String name = "";
-    String details = "";
-    String create = "";
-    String body;
-    String indexColumns;
-    int nameEnd = 0;
-    create = createStatement.replace("CREATE TABLE " + this.name + " ", "");
-    // separate the main create statement from pther add ons
-    parts = create.split("\n");
-    body = parts[0];
-    // remove unneeded characters
-    body = body.trim();
-    if (body.startsWith("(")) {
-      body = body.substring(1);
-    }
-    if (body.endsWith(");")) {
-      body = body.substring(0, body.length() - 2);
-    } else if (body.endsWith(")")) {
-      body = body.substring(0, body.length() - 1);
-    }
-    // split the body into parts
-    int comma, startParen, endParen;
-    while (body.contains(",")) {
-      comma = body.indexOf(",");
-      startParen = body.indexOf("(");
-      while (startParen != -1 && startParen < comma) {
-        endParen = body.indexOf(")", startParen);
-        // determine whether the comma is affected by the parentheses 
-        // and correct it if it is
-        if (comma < endParen) {
-          comma = body.indexOf(",", endParen);
-        }
-        startParen = body.indexOf("(", endParen);
-      }
-      bodySections.add(body.substring(0, comma));
-      body = body.substring(comma + 1);
-    }
-    bodySections.add(body);
-    // parse the columns, PRIMARY KEYs, FOREIGN KEYs, and constraints
-    for (String part : bodySections) {
-      part = part.trim();
-      if (!part.contains(indexIndicator)) {
-        nameEnd = part.indexOf(" ");
-        name = part.substring(0, nameEnd);
-        details = part.substring(nameEnd + 1);
-        addColumn(new Column(name, details));
-      } else {
-        if (part.contains("PRIMARY KEY")) { // dealing with PRIMARY KEY
-          String temp = part.substring(part.indexOf("(") + 1, part.indexOf(")"));
-          columns = temp.split(",");
-          // add PRIMARY KEY label to each column affected by the PRIMARY KEY
-          for (String column : columns) {
-            // recreate columns
-            column = column.trim();
-            addColumn(new Column(column,  this.columns.get(column.trim()).getDetails().concat(" PRIMARY KEY")));
-          }
-        } else {
-          System.out.println("Unknown key: " + part);
-        }
-      }
-    }
-    // parse the remaining indices ...
-    for (int i = 1; i < parts.length; i++ ) {
-      String part = parts[i];
-      name = part.substring(part.indexOf("INDEX ") + 6, part.indexOf(" ON"));
-      indexColumns = part.substring(part.indexOf("(") + 1, part.indexOf(")"));
-      addIndex(new Index(name, part.replace(";", "").trim(), indexColumns));
-    }
   }
 }

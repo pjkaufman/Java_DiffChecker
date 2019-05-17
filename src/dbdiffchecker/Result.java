@@ -49,6 +49,45 @@ public class Result extends JFrameV2 {
   }
 
   /**
+   * Takes in an ArrayList of Strings and adds them to the JTextArea.
+   * @author Peter Kaufman
+   * @param SQL The SQL statements.
+   * @param title Determines what the title JLabel's text will be.
+   */
+  public void results(ArrayList<String> SQL, String title) {
+    try{
+      if (SQL.isEmpty()) {
+
+        this.setSize(300, 75);
+        if (this.db != null) {
+
+          instructLabel.setText("The databases are in sync.");
+        }
+      } else {
+
+        this.sql = SQL;
+        for (String statement: SQL) {
+
+          SQLShow.append(statement + "\n");
+        }
+
+        if (title.equals("Run the following SQL to make the two databases the same:")) {
+
+          FileHandler.writeToFile(SQL);
+        }
+        instructLabel.setText(title);
+        this.setSize(600, 210);
+      }
+
+      this.setVisible(true);
+    } catch(IOException e) {
+
+      error(new DatabaseDiffernceCheckerException("There was an error" 
+          + " writing the SQL statement(s) to a file.", e));
+    }
+  }
+    
+  /**
    * Sets up the GUI Layout, sets up all action events, and initializes instance variables.
    * @author Peter Kaufman
    */
@@ -138,44 +177,5 @@ public class Result extends JFrameV2 {
     };
 
     swingW.execute();
-  }
-
-  /**
-    * Takes in an ArrayList of Strings and adds them to the JTextArea.
-    * @author Peter Kaufman
-    * @param SQL The SQL statements.
-    * @param title Determines what the title JLabel's text will be.
-    */
-  public void results(ArrayList<String> SQL, String title) {
-    try{
-      if (SQL.isEmpty()) {
-
-        this.setSize(300, 75);
-        if (this.db != null) {
-
-          instructLabel.setText("The databases are in sync.");
-        }
-      } else {
-
-        this.sql = SQL;
-        for (String statement: SQL) {
-
-          SQLShow.append(statement + "\n");
-        }
-
-        if (title.equals("Run the following SQL to make the two databases the same:")) {
-
-          FileHandler.writeToFile(SQL);
-        }
-        instructLabel.setText(title);
-        this.setSize(600, 210);
-      }
-
-      this.setVisible(true);
-    } catch(IOException e) {
-
-      error(new DatabaseDiffernceCheckerException("There was an error" 
-          + " writing the SQL statement(s) to a file.", e));
-    }
   }
 }

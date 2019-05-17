@@ -56,6 +56,23 @@ public class DBDiffCheckerGUI extends JFrameV2 {
   }
 
   /**
+   * Sets up and prepares the GUI for the user and initializes the first JFrame
+   * @author Peter Kaufman
+   * @param args is not used.
+   */
+  public static void main(String[] args) {
+
+    /* Create and display the form */
+    EventQueue.invokeLater(new Runnable() {
+      @Override
+      public void run() {
+        DBDiffCheckerGUI gui = new DBDiffCheckerGUI();
+        gui.setVisible(true);
+      }
+    });
+  }
+
+  /**
    * InitComonents sets up the GUI Layout, sets up all action events, and
    * initializes instance variables.
    * @author Peter Kaufman
@@ -277,22 +294,5 @@ public class DBDiffCheckerGUI extends JFrameV2 {
       default:
         optionTitleLabel.setText("Please select a database type.");
     }
-  }
-
-  /**
-   * Sets up and prepares the GUI for the user and initializes the first JFrame
-   * @author Peter Kaufman
-   * @param args is not used.
-   */
-  public static void main(String[] args) {
-
-    /* Create and display the form */
-    EventQueue.invokeLater(new Runnable() {
-      @Override
-      public void run() {
-        DBDiffCheckerGUI gui = new DBDiffCheckerGUI();
-        gui.setVisible(true);
-      }
-    });
   }
 }

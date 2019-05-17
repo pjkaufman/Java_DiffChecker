@@ -1,9 +1,9 @@
 package dbdiffchecker;
 
 /**
- * Index resembles an index in MySQL and contains index info.
+ * Index resembles an index in a SQL database and contains index info.
  * @author Peter Kaufman
- * @version 5-11-19
+ * @version 5-16-19
  * @since 9-12-17
  */
 public class Index extends Schema {
@@ -24,7 +24,7 @@ public class Index extends Schema {
   }
 
   /**
-   * The default constructor is needed for serialization.
+   * This is the default constructor for this class, <b> Needed for Serialization</b>.
    */
   public Index() {}
 

@@ -1,9 +1,9 @@
 package dbdiffchecker;
 
 /**
- * Column resembles a column in MySQL and contains column info.
+ * Column resembles a column an SQL database and contains column info.
  * @author Peter Kaufman
- * @version 5-11-19
+ * @version 5-16-19
  * @since 9-10-17
  */
 public class Column extends Schema {
@@ -17,7 +17,6 @@ public class Column extends Schema {
    * @param details the info of the column
    */
   public Column(String name, String details) {
-
     this.name = name;
     this.details = details;
   }
