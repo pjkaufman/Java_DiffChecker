@@ -14,12 +14,13 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JProgressBar;
+import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 /**
  * JFrameV2 is a JFrame that has all of the common methods that any JFrame in this package uses.
  * @author Peter Kaufman
- * @version 5-11-19
+ * @version 5-21-19
  * @since 5-14-18
  */
 public class JFrameV2 extends JFrame {
@@ -72,11 +73,9 @@ public class JFrameV2 extends JFrame {
         } else if (clase.contains("Compare")) {
           titleSize = (int)(width / 25);
           if (width >= 660) {
-            
             regSize = (int)(width / 56);
             buttonSize = (int)(width / 34);
           } else {
-          //   titleSize =  24;
              regSize = 11;
              buttonSize = 18;
           }
@@ -115,7 +114,7 @@ public class JFrameV2 extends JFrame {
    * Opens a JFrame with the error message provided as a paramater.
    * @author Peter Kaufman
    * @param error The exception which contains a user friendly message and the error
-   *     that is the cause. 
+   * that is the cause. 
    */
   protected void error(DatabaseDiffernceCheckerException error) {
     new ErrorPopup(error);

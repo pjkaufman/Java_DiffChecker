@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Table resembles a table in MySQL and contains info about the table's columns.
+ * Table resembles a table in SQLite and contains info about the table's columns 
+ * and indices.
  * @author Peter Kaufman
- * @version 5-13-19
+ * @version 5-16-19
  * @since 9-10-17
  */
 public class SQLiteTable extends Table {

@@ -120,6 +120,20 @@ public class MySQLConn extends DbConn {
               create = create.substring(0, create.indexOf("AUTO_INCREMENT="))
                     + create.substring(create.indexOf("DEFAULT CHARSET"));
             }
+            // find the auto-increment column and remove it
+            int endColumn = create.indexOf("AUTO_INCREMENT");
+            int startColumn = create.indexOf("\n");
+            int temp = -1;
+            while(startColumn != -1) {
+              temp = create.indexOf("\n", startColumn + 1);
+              if (temp < endColumn) {
+                startColumn = temp;
+              } else {
+                this.firstStep += "\n MODIFY COLUMN " + create.substring(startColumn+1, endColumn).trim();
+                count++;
+                break;
+              }
+            }
             create = create.replace("AUTO_INCREMENT", ""); // remove auto-increment from column
           }
           if (create.contains("PRIMARY KEY")) {
@@ -134,6 +148,13 @@ public class MySQLConn extends DbConn {
               create = create.substring(0, create.lastIndexOf(",")) + "\n"
                     + create.substring(create.lastIndexOf(",") + 2);
             }
+            if (count != 0) {
+              this.firstStep += ",\n ";
+            } else {
+              this.firstStep += "\n ";
+            }
+            this.firstStep += "DROP PRIMARY KEY";
+            count++;
           }
         }
         add = new MySQLTable(table, create);

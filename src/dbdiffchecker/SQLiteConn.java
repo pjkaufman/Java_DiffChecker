@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * DbConn establishes a connection with a MySQL database based on the password,
- * username, port, host, and database provided.
+ * SQLiteConn establishes a connection with an SQL database based on the path 
+ * to the database and database name
  * @author Peter Kaufman
- * @version 2-16-19
+ * @version 5-16-19
  * @since 9-6-17
  */
 public class SQLiteConn extends DbConn {

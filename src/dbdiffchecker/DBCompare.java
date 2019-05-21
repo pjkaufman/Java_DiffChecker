@@ -3,7 +3,6 @@ package dbdiffchecker;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -28,7 +27,7 @@ import dbdiffchecker.FileHandler;
  * DBCompare is a JFrame that takes user input to make a comparison between two
  * databases or a take a database snapshot.
  * @author Peter Kaufman
- * @version 5-16-19
+ * @version 5-18-19
  * @since 5-14-19
  */
 public abstract class DBCompare extends JFrameV2 {
@@ -52,7 +51,7 @@ public abstract class DBCompare extends JFrameV2 {
   private JPanel header = new JPanel(new BorderLayout());
   private JPanel content;
   private JPanel footer = new JPanel(new BorderLayout());
-  private JPanel footc = new JPanel(new FlowLayout());
+  private JPanel footc = new JPanel();
 
   /**
    * Initializes a DBCompe object with a title and text for the its button.
@@ -140,7 +139,7 @@ public abstract class DBCompare extends JFrameV2 {
     } else {
       content = new JPanel(new GridLayout(1, 2));
       headT.setText(headT.getText() + "(Dev, Live)");
-      setMinimumSize(new Dimension(630, 325));
+      setMinimumSize(new Dimension(630, 200));
     }
     // add components to the appropriate ArrayList
     cpnbtn.add(databaseConnection1btn);
@@ -177,6 +176,12 @@ public abstract class DBCompare extends JFrameV2 {
     add(content, BorderLayout.CENTER);
     add(footer, BorderLayout.SOUTH);
     pack();
+    if (this.type != 0) {
+      setSize(350, 100 + 35 * labelText.length);
+    } else {
+      setSize(630, 100 + 45 * labelText.length);
+    }
+    setVisible(true);
   }
 
   /**
@@ -294,8 +299,8 @@ public abstract class DBCompare extends JFrameV2 {
       tempComponent = components[i];
       cpnr.add(tempLabel);
       cpnr.add(tempComponent);
-      tempPanel.add(new JPanel(new FlowLayout()).add(tempLabel));
-      tempPanel.add(new JPanel(new FlowLayout()).add(tempComponent));
+      tempPanel.add(new JPanel().add(tempLabel));
+      tempPanel.add(new JPanel().add(tempComponent));
     }
     content.add(tempPanel);
   }
@@ -332,7 +337,7 @@ public abstract class DBCompare extends JFrameV2 {
    * Compares two databases and determines their differences and how to make them
    * the same.
    * @author Peter Kaufman
-   *  @throws DatabaseDiffernceCheckerException if there was an getting the database
+   * @throws DatabaseDiffernceCheckerException if there was an getting the database
    * or comparing the database info.
    */
   private void compareDatabases() throws DatabaseDiffernceCheckerException {

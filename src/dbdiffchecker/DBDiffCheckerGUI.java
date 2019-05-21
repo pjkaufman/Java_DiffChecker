@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Window;
@@ -26,7 +25,7 @@ import javax.swing.SwingUtilities;
  * DBDiffCheckerGUI is a JFrame that takes user input to decide which JFrame
  * to open. 
  * @author Peter Kaufman
- * @version 5-16-19
+ * @version 5-18-19
  * @since 9-20-17
  */
 public class DBDiffCheckerGUI extends JFrameV2 {
@@ -36,6 +35,7 @@ public class DBDiffCheckerGUI extends JFrameV2 {
       "2-Database compare using 1 database connection", "3-Take database snapshot using 1" + " database connection",
       "4-Review the SQL statement(s) from the last run ", "5-Review the logs" };
   private final String[] databaseTypes = { "Select Database Type", "MySQL", "SQLite" };
+  private DBCompare compareGUI;
   private JTextField input = new JTextField(1);
   private JButton continueBtn = new JButton("Continue");
   private JComboBox<String> databaseType = new JComboBox<>(databaseTypes);
@@ -136,7 +136,6 @@ public class DBDiffCheckerGUI extends JFrameV2 {
       cpnr.add(tempLabel);
       userOptions.add(tempLabel);
     }
-    submitArea.setLayout(new FlowLayout());
     submitArea.add(promptLabel);
     submitArea.add(input);
     submitArea.add(continueBtn);
@@ -227,18 +226,13 @@ public class DBDiffCheckerGUI extends JFrameV2 {
    * @param databaseSelected The text from the JComboBox which the user selected.
    */
   private void chooseTwoDBCompare(String databaseSelected) {
-    JFrameV2 compare2Databases;
     switch(databaseSelected) {
       case "SQLite":
-        compare2Databases = new SQLiteCompare(0);
-        compare2Databases.setSize(575, 163);
-        compare2Databases.setVisible(true);
+        compareGUI = new SQLiteCompare(0);
         this.close();
         break;
       case "MySQL":
-        compare2Databases = new MySQLCompare(0);
-        compare2Databases.setSize(575, 325);
-        compare2Databases.setVisible(true);
+        compareGUI = new MySQLCompare(0);
         this.close();
         break;
       default:
@@ -252,18 +246,13 @@ public class DBDiffCheckerGUI extends JFrameV2 {
    * @param databaseSelected The text from the JComboBox which the user selected.
    */
   private void chooseOneDBCompare(String databaseSelected) {
-    JFrameV2 compare1Database;
     switch(databaseSelected) {
       case "SQLite":
-        compare1Database = new SQLiteCompare(1);
-        compare1Database.setSize(350, 275);
-        compare1Database.setVisible(true);
+        compareGUI = new SQLiteCompare(1);
         this.close();
         break;
       case "MySQL":
-        compare1Database = new MySQLCompare(1);
-        compare1Database.setSize(350, 275);
-        compare1Database.setVisible(true);
+        compareGUI = new MySQLCompare(1);
         this.close();
         break;
       default:
@@ -277,18 +266,13 @@ public class DBDiffCheckerGUI extends JFrameV2 {
    * @param databaseSelected The text from the JComboBox which the user selected.
    */
   private void chooseDBSnapshot(String databaseSelected) {
-    JFrameV2 databaseSnapshot;
     switch(databaseSelected) {
       case "SQLite":
-        databaseSnapshot = new SQLiteCompare(2);
-        databaseSnapshot.setSize(350, 275);
-        databaseSnapshot.setVisible(true);
+        compareGUI = new SQLiteCompare(2);
         this.close();
         break;
       case "MySQL":
-        databaseSnapshot = new MySQLCompare(2);
-        databaseSnapshot.setSize(350, 275);
-        databaseSnapshot.setVisible(true);
+        compareGUI = new MySQLCompare(2);
         this.close();
         break;
       default:
