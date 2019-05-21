@@ -11,7 +11,7 @@ import javax.swing.text.JTextComponent;
  * SQLiteCompare is a JFrame that takes user input to make a comparison between
  * 1 devDatabase and a devDatabase snapshot or to take a devDatabase snapshot.
  * @author Peter Kaufman
- * @version 2-16-19
+ * @version 5-21-19
  * @since 9-20-17
  */
 public class SQLiteCompare extends DBCompare {

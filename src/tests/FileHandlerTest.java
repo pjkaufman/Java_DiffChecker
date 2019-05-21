@@ -19,9 +19,7 @@ import dbdiffchecker.MySQLTable;
 public class FileHandlerTest {
 
   private Table table1, table2;
-  private String name, create, collation, charSet, autoIncrement, details, columns;
-  private Column column1, column2;
-  private Index index1, index2;
+  private String name, create;
 
   @Test
   /**
@@ -97,80 +95,33 @@ public class FileHandlerTest {
     String expectedSQL = "ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, " + 
       "\nADD COLUMN `id` varchar(40) NOT NULL AFTER `data`, \nMODIFY COLUMN `ip_address` varchar(45) NOT NULL, " + 
       "\nMODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\', \nDROP COLUMN `data2`, " +
-      "\nCREATE INDEX `add` (`id`), \nDROP INDEX `modify`, \nCREATE INDEX `modify` (`data`);";
-    // setup table1
+      "\nADD INDEX `add` (`id`), \nDROP INDEX `modify`, \nADD INDEX `modify` (`data`);";
+    // setup tables
     name = "ci_sessions";
-    create = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  `ip_address` varchar(45) NOT NULL,\n  `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\',\n  `data` blob NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
+    create = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  " + 
+      "`ip_address` varchar(45) NOT NULL,\n  `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\',\n  " +
+      "`data` blob NOT NULL,\n  KEY `add` (`id`)\n  KEY `modify` (`data`)\n  " +
+      "KEY `leave` (`data`, `id`)\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table1 = new MySQLTable(name, create);
-    // add columns
-    name = "id";
-    details = "varchar(40) NOT NULL";
-    table1.addColumn(new Column(name, details));
-    name = "ip_address";
-    details = "varchar(45) NOT NULL";
-    table1.addColumn(new Column(name, details));
-    name = "timestamp";
-    details = "int(10) unsigned NOT NULL DEFAULT \'0\'";
-    table1.addColumn(new Column(name, details));
-    name = "data";
-    details = "blob NOT NULL";
-    table1.addColumn(new Column(name, details));
-    // add indexes
-    name = "add";
-    columns = "`id`";
-    create = "CREATE INDEX `" + name + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns));
-    name = "modify";
-    columns = "`data`";
-    create = "CREATE INDEX `" + name + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns));
-    name = "leave";
-    columns = "`data`,`id`";
-    create = "CREATE INDEX `" + name + "` (" + columns + ")";
-    table1.addIndex(new Index(name, create, columns));
-    // setup table2
-    name = "ci_sessions";
-    create = "CREATE TABLE `ci_sessions` (\n  `ip_address` varchar(40) NOT NULL,\n  `timestamp` int(11) unsigned NOT NULL DEFAULT \'0\',\n  `data` blob NOT NULL,\n  `data2` blob NOT NULL,\n PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin2";
+    create = "CREATE TABLE `ci_sessions` (\n  `ip_address` varchar(40) NOT NULL,\n  " + 
+      "`timestamp` int(11) unsigned NOT NULL DEFAULT \'0\',\n  `data` blob NOT NULL,\n  " + 
+      "`data2` blob NOT NULL,\n  UNIQUE KEY `delete` (`id`)\n  KEY `modify` (`data`,`ip_address`)\n  " +
+      "KEY `leave` (`data`, `id`)  \n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin2";
     table2 = new MySQLTable(name, create);
-    // add columns
-    name = "ip_address";
-    details = "varchar(40) NOT NULL";
-    table2.addColumn(new Column(name, details));
-    name = "timestamp";
-    details = "int(11) unsigned NOT NULL DEFAULT \'0\'";
-    table2.addColumn(new Column(name, details));
-    name = "data";
-    details = "blob NOT NULL";
-    table2.addColumn(new Column(name, details));
-    name = "data2";
-    details = "blob NOT NULL";
-    table2.addColumn(new Column(name, details));
-    // add indexes
-    name = "delete";
-    columns = "`id`";
-    create = "CREATE UNIQUE INDEX `" + name + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns));
-    name = "modify";
-    columns = "`data`,`ip_address`";
-    create = "CREATE INDEX `" + name + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns));
-    name = "leave";
-    columns = "`data`,`id`";
-    create = "CREATE INDEX `" + name + "` (" + columns + ")";
-    table2.addIndex(new Index(name, create, columns));
     db.getTables().put(table2.getName(), table2);
     try {
       // serialize table2
-      FileHandler.serializeDatabase(db);
+      FileHandler.serializeDatabase(db, "");
       // deserialize table2
-      db = FileHandler.deserailizDatabase();
+      db = FileHandler.deserailizDatabase("");
       table2 = db.getTables().get(table2.getName());
     } catch (Exception e) {
       fail("There was an error with serializing or deserializing the database");
     }
     // do comparison with equals
     sql = table1.equals(table2);
+    
     assertEquals("The sql generated should add a column, drop a column, modify two columns, drop two indexes," + 
-      " add two indexes, add a charset", true, sql.contains(expectedSQL));   
+      " add two indexes, add a charset", expectedSQL, sql.get(0));   
   }
 }

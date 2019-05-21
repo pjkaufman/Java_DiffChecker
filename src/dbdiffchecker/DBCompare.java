@@ -202,7 +202,7 @@ public abstract class DBCompare extends JFrameV2 {
           publish("Gathering Database Information");
           devDatabase = new Database(devDatabaseConnection);
           publish("Writing to JSON File");
-          FileHandler.serializeDatabase(devDatabase);
+          FileHandler.serializeDatabase(devDatabase, salt);
           sw.stop();
           log("Took a DB Snapshot on " /* + sw.getDate() + " at " + sw.getHour() */ + " in "
               + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
@@ -318,7 +318,7 @@ public abstract class DBCompare extends JFrameV2 {
         devDatabaseConnection = createDevDatabaseConnection();
         devDatabase = new Database(devDatabaseConnection);
       } else {
-        devDatabase = FileHandler.deserailizDatabase();
+        devDatabase = FileHandler.deserailizDatabase(salt);
       }
       liveDatabaseConnection = createLiveDatabaseConnection();
       liveDatabase = new Database(liveDatabaseConnection);

@@ -16,7 +16,7 @@ import java.util.Scanner;
 /**
  * FileHandler deals with all data coming from and going out to files.
  * @author Peter Kaufman
- * @version 5-11-19
+ * @version 5-21-19
  * @since 9-12-17
  */
 public class FileHandler {
@@ -31,12 +31,14 @@ public class FileHandler {
    * Serializes a Database object
    * @author Peter Kaufman
    * @param database The database to serialize.
+   * @param prefix The prefix of the database snapshot to deserailize <b>It is the name of the 
+   * database being compared</b>.
    * @throws DatabaseDiffernceCheckerException Error serializing the database.
    */
-  public static void serializeDatabase(Database database) throws DatabaseDiffernceCheckerException {
+  public static void serializeDatabase(Database database, String prefix) throws DatabaseDiffernceCheckerException {
     try {
       FileOutputStream fileOutput = new FileOutputStream(
-          new File(logFolder+ File.separator + databaseSnapshotFileName));
+          new File(logFolder+ File.separator + prefix + "_" + databaseSnapshotFileName));
       ObjectOutputStream outputStream = new ObjectOutputStream(fileOutput);
 
       // Write object to file
@@ -90,15 +92,17 @@ public class FileHandler {
   /**
    * Deserializes the database file.
    * @author Peter Kaufman
+   * @param prefix The prefix of the database snapshot to deserailize <b>It is the name of the 
+   * database being compared</b>.
    * @return The Database object created throug deserialization.
    * @throws DatabaseDiffernceCheckerException Error deserializing the database file.
    */
-  public static Database deserailizDatabase() throws DatabaseDiffernceCheckerException {
+  public static Database deserailizDatabase(String prefix) throws DatabaseDiffernceCheckerException {
 
     Database database = null;
     try {
       FileInputStream fileInput = new FileInputStream(
-          new File(logFolder+ File.separator + databaseSnapshotFileName));
+          new File(logFolder + File.separator + prefix + "_" + databaseSnapshotFileName));
       ObjectInputStream inputStream = new ObjectInputStream(fileInput);
 
       // Read object

@@ -159,7 +159,7 @@ public class DBDiffCheckerGUI extends JFrameV2 {
         chooseTwoDBCompare(databaseSelected);
         break;
       case "2":
-        if (FileHandler.fileExists(FileHandler.databaseSnapshotFileName)) {
+        if (FileHandler.fileExists(databaseSelected + "_" + FileHandler.databaseSnapshotFileName)) {
           chooseOneDBCompare(databaseSelected);
         } else {
           optionTitleLabel.setText("Please create a database snapshot first.");
