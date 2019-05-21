@@ -9,14 +9,12 @@ import java.io.Serializable;
  * @since 5-17-18
  */
 public class Schema implements Serializable {
-  
   // Defuat instance variables
-  private static final long serialVersionUID = 1L;
   protected String name = "";
   protected String createStatement = "";
 
   /**
-   * The default constructor is needed for serialization.
+   * This is the default constructor for this class, <b> Needed for Serialization</b>.
    */
   public Schema() {}
 

@@ -1,9 +1,9 @@
 package dbdiffchecker;
 
 /**
- * View resembles a view in MySQL and contains view info.
+ * View resembles a view in an SQL database and contains view info.
  * @author Peter Kaufman
- * @version 5-11-19
+ * @version 5-16-19
  * @since 9-15-17
  */
 public class View extends Schema {

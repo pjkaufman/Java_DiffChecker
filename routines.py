@@ -15,7 +15,7 @@ class Routines:
   __sourceDir = 'src'
   __packageName = 'dbdiffchecker'
   __logFileDir = 'logs'
-  __mainClassFile = 'DB_Diff_Checker_GUI'
+  __mainClassFile = 'DBDiffCheckerGUI'
   __testsDir = 'tests'
   testsPath = ''
   resourcePath = ''

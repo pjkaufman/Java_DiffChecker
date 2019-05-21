@@ -4,19 +4,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Table resembles a table in MySQL and contains info about the table's columns.
+ * Table resembles a table in an SQL database and contains info about the table's 
+ * columns and indices.
  * @author Peter Kaufman
- * @version 5-11-19
+ * @version 5-21-19
  * @since 9-10-17
  */
-public class Table extends Schema {
+public abstract class Table extends Schema {
 
-  private String charSet = "";
-  private String collation = "";
-  private String autoIncrement = "";
-  private int count = 0;
-  private HashMap<String, Column> columns = new HashMap<>();
-  private HashMap<String, Index> indices = new HashMap<>();
+  protected String charSet = "";
+  protected String collation = "";
+  protected String autoIncrement = "";
+  protected int count = 0;
+  protected HashMap<String, Column> columns = new HashMap<>();
+  protected HashMap<String, Index> indices = new HashMap<>();
+  protected static final long serialVersionUID = 1L;
 
   /**
    * Initializes a Table object with a name create statement.
@@ -25,14 +27,13 @@ public class Table extends Schema {
    * @param create The create statement of the table info to create its columns.
    */
   public Table(String name, String create) {
-    String temp = create.substring(create.indexOf("DEFAULT CHARSET=") + 16) + " ";
     this.name = name;
     this.createStatement = create + ";";
-    this.charSet = temp.substring(0, temp.indexOf(" "));
+    parseCreateStatement();
   }
 
   /**
-   * The default constructor is needed for serialization.
+   * This is the default constructor for this class, <b> Needed for Serialization</b>.
    */
   public Table() {}
 
@@ -143,188 +144,12 @@ public class Table extends Schema {
    * @param t1 A Table object which is being compared to this Table object.
    * @return The SQL needed to make the tables the same.
    */
-  public ArrayList<String> equals(Table t1) {
-
-    ArrayList<String> sql = new ArrayList<>();
-    String sql2 = "ALTER TABLE `" + this.name + "`\n";
-
-    if (!this.charSet.equals(t1.charSet) | !this.collation.equals(t1.collation)) {
-
-      sql2 += "CHARACTER SET " + this.charSet;
-      if (!this.collation.equals("")) {
-        sql2 += " COLLATE " + this.collation;
-      }
-      this.count++;
-    }
-
-    sql2 += dropIndices(this.indices, t1.getIndices());
-    sql2 += otherCols(this.columns, t1.getColumns());
-    sql2 += dropCols(this.columns, t1.getColumns());
-    sql2 += otherIndices(this.indices, t1.getIndices()) + ";";
-    if (this.count != 0) {
-
-      sql.add(sql2);
-    }
-
-    return sql;
-  }
+  public abstract ArrayList<String> equals(Table t1);
 
   /**
-   * Takes two HashMaps of String and Column objects and returns part of an SQL statement 
-   * that drops a column or several columns. 
+   * Parses the create statment of the table picking up columns and indices 
+   * that need to be added.
    * @author Peter Kaufman
-   * @param cols1 The column names and column data of the current table.
-   * @param cols2 The column names and column data of a different table of the same name.
-   * @return Part of an SQL statement that drops a column or several columns.  
    */
-  private String dropCols(HashMap<String, Column> cols1, HashMap<String, Column> cols2) {
-
-    String sql = "";
-    Column col = null;
-    // check for columns to drop
-    for (String columnName : cols2.keySet()) {
-
-      col = cols2.get(columnName);
-      if (!cols1.containsKey(columnName)) {
-        if (this.count == 0) {
-
-          sql += "DROP COLUMN `" + col.getName() + "`";
-        } else {
-
-          sql += ", \nDROP COLUMN `" + col.getName() + "`";
-        }
-
-        this.count++;
-      }
-    }
-
-    return sql;
-  }
-
-  /**
-   * Takes two HashMaps of String and Column objects and returns part of an SQL statement 
-   * that modifies and/or adds columns.
-   * @author Peter Kaufman
-   * @param cols1 The column names and column data of the current table.
-   * @param cols2 The column names and column data of a different table of the same name.
-   * @return Part of an SQL statement that modifies and/or adds columns.
-   */
-  private String otherCols(HashMap<String, Column> cols1, HashMap<String, Column> cols2) {
-
-    String sql = "";
-    String last = "";
-    Column col = null;
-    Column col2 = null;
-
-    for (String columnName : cols1.keySet()) {
-
-      col = cols1.get(columnName);
-      if (!cols2.containsKey(columnName)) {
-        if (this.count == 0) {
-
-          sql += "ADD COLUMN `" + col.getName() + "` " + col.getDetails() + last;
-        } else {
-
-          sql += ", \nADD COLUMN `" + col.getName() + "` " + col.getDetails() + last;
-        }
-
-        this.count++;
-      } else {
-
-        col2 = cols2.get(columnName);
-        if (col.getName().equals(col2.getName())) {         // columns are the same
-          if (!col.getDetails().equals(col2.getDetails())) {         // column details are different
-            if (this.count == 0) {
-
-              sql += "MODIFY COLUMN `" + col.getName() + "` " + col.getDetails();
-            } else {
-
-              sql += ", \nMODIFY COLUMN `" + col.getName() + "` " + col.getDetails();
-            }
-
-            this.count++;
-          }
-        }
-      }
-
-      last = " AFTER `" + col.getName() + "`";
-    }
-
-    return sql;
-  }
-
-  /**
-   * Takes in two HashMaps of Indices and returns part of an SQL statement that drop indexes.
-   * @author Peter Kaufman
-   * @param dev The index names and index data of the current table.
-   * @param live The index names and index data of a different table of the same name.
-   * @return Part of an SQL statement that drops indexes.
-   */
-  private String dropIndices(HashMap<String, Index> dev, HashMap<String, Index> live) {
-
-    String sql = "";
-    // check for indices to remove
-    for (String indexName: live.keySet()) {
-      // if the index does not exist in the dev database then drop it
-      if (!dev.containsKey(indexName)) {
-        if (this.count == 0) {
-
-          sql += "DROP INDEX `" + indexName + "`";
-        } else {
-
-          sql += ", \nDROP INDEX `" + indexName + "`";
-        }
-
-        this.count++;
-      }
-    }
-
-    return sql;
-  }
-
-  /**
-   * Takes in two lists of Indices and returns part of an SQL statement that 
-   * either adds or drops and adds indexes.
-   * @author Peter Kaufman
-   * @param dev The index names and index data of the current table.
-   * @param live The index names and index data of a different table of the same name.
-   * @return Part of an SQL statement that either adds or drops and adds indexes.
-   */
-  private String otherIndices(HashMap<String, Index> dev, HashMap<String, Index> live) {
-
-    String sql = "";
-    Index indices1 = null;
-    // check for missing indices
-    for (String indexName : dev.keySet()) {
-      // if the index exists in both databases or only in the dev database then add it
-      indices1 = dev.get(indexName);
-      if (live.containsKey(indexName)) {
-        if (!indices1.sameDetails(live.get(indexName))) {
-          if (this.count == 0) {
-
-            sql += "DROP INDEX `" + indices1.getName() + "`";
-            sql += ", \n" + indices1.getCreateStatement();
-          } else {
-
-            sql += ", \nDROP INDEX `" + indices1.getName() + "`";
-            sql += ", \n" + indices1.getCreateStatement();
-          }
-
-          this.count++;
-        }
-      } else {
-        if (this.count == 0) {
-
-          sql += "" + indices1.getCreateStatement();
-        } else {
-
-          sql += ", \n" + indices1.getCreateStatement();
-        }
-
-        this.count++;
-      }
-    }
-
-    return sql;
-  }
+  protected abstract void parseCreateStatement();
 }
