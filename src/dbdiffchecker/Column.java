@@ -1,9 +1,9 @@
 package dbdiffchecker;
 
 /**
- * Column resembles a column an SQL database and contains column info.
+ * Column resembles an SQL column and contains column info.
  * @author Peter Kaufman
- * @version 5-16-19
+ * @version 5-21-19
  * @since 9-10-17
  */
 public class Column extends Schema {

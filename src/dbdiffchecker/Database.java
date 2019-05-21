@@ -7,7 +7,7 @@ import java.util.HashMap;
 /**
  * Database models an SQL database schema.
  * @author Peter Kaufman
- * @version 5-11-19
+ * @version 5-21-19
  * @since 9-18-17
  */
 public class Database implements Serializable {
@@ -167,7 +167,7 @@ public class Database implements Serializable {
    * @author Peter Kaufman
    * @param liveTables is a HashMap of String and Table object pairs which are the 
    * table names and table data for all tables in the live database.
-   * @return An HashMap which is the tables that are to be updated because 
+   * @return A HashMap which is the tables that are to be updated because 
    * their structures did not match between the dev and live databases.
    */
   public HashMap<String, String> tablesDiffs(HashMap<String, Table> liveTables) {

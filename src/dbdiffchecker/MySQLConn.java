@@ -12,7 +12,7 @@ import java.util.HashMap;
  * MySQLConn establishes a connection with a MySQL database based on the password,
  * username, port, host, and database provided.
  * @author Peter Kaufman
- * @version 5-16-19
+ * @version 5-21-19
  * @since 9-6-17
  */
 public class MySQLConn extends DbConn {
