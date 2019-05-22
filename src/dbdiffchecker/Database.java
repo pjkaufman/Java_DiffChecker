@@ -167,18 +167,23 @@ public class Database implements Serializable {
    * @author Peter Kaufman
    * @param liveTables is a HashMap of String and Table object pairs which are the 
    * table names and table data for all tables in the live database.
+   * @param liveDatabase is the live database that is being connected to. It has 
+   * its exclusions updated here to remove unnecessary Primary Key dropping.
    * @return A HashMap which is the tables that are to be updated because 
    * their structures did not match between the dev and live databases.
    */
-  public HashMap<String, String> tablesDiffs(HashMap<String, Table> liveTables) {
+  public HashMap<String, String> tablesDiffs(HashMap<String, Table> liveTables, Database liveDatabase) {
     HashMap<String, String> updateTables = new HashMap<>();
 
     for (String tableName : this.tables.keySet()) {
       if (!this.exclude.containsKey(tableName) && !this.tables.get(tableName).getCreateStatement()
           .equals(liveTables.get(tableName).getCreateStatement())) {
-
+        System.out.println("dev: " + this.tables.get(tableName).getCreateStatement());
+        System.out.println("live: " + liveTables.get(tableName).getCreateStatement());
         updateTables.put(tableName, tableName);
-      }
+       } else { // all tables that do not need to be updated are to be removed from firstSteps
+          liveDatabase.exclude.put(tableName, tableName);
+       }
     }
 
     return updateTables;

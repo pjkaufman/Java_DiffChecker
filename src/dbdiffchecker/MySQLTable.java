@@ -217,6 +217,8 @@ public class MySQLTable extends Table {
     String sql = "";
     Index indices1 = null;
     // check for missing indices
+    System.out.println(dev.keySet());
+    System.out.println(live.keySet());
     for (String indexName : dev.keySet()) {
       // if the index exists in both databases or only in the dev database then add it
       indices1 = dev.get(indexName);

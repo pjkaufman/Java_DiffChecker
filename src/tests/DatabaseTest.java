@@ -20,8 +20,6 @@ public class DatabaseTest {
   private Table table1, table2, table3;
   private View view1, view2;
   private String name, create, collation, charSet, autoIncrement, details, columns;
-  private Column column1, column2;
-  private Index index1, index2;
   private Database db;
 
   @Test

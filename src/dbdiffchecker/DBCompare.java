@@ -21,6 +21,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.JTextComponent;
+
+import dbdiffchecker.DatabaseDiffernceCheckerException;
 import dbdiffchecker.FileHandler;
 
 /**
@@ -323,13 +325,19 @@ public abstract class DBCompare extends JFrameV2 {
       liveDatabaseConnection = createLiveDatabaseConnection();
       liveDatabase = new Database(liveDatabaseConnection);
     } catch (Exception cause) {
+      DatabaseDiffernceCheckerException error;
       String errorMessage = "";
-      if (cause instanceof SQLException) {
-        errorMessage = "There was an error with the database connection. Please try again.";
+      if (cause instanceof DatabaseDiffernceCheckerException) {
+        error = (DatabaseDiffernceCheckerException)cause;
       } else {
-        errorMessage = "There was an error reading in the database snapshot. Please try again.";
+        if (cause instanceof SQLException) {
+        errorMessage = "There was an error with the database connection. Please try again.";
+        } else {
+          errorMessage = "There was an error reading in the database snapshot. Please try again.";
+        }
+        error = new DatabaseDiffernceCheckerException(errorMessage, cause);
       }
-      throw new DatabaseDiffernceCheckerException(errorMessage, cause);
+      throw error;
     }
   }
 
@@ -341,9 +349,9 @@ public abstract class DBCompare extends JFrameV2 {
    * or comparing the database info.
    */
   private void compareDatabases() throws DatabaseDiffernceCheckerException {
-    sql.addAll(liveDatabase.getFirstSteps());
     sql.addAll(devDatabase.compareTables(liveDatabase.getTables()));
-    updateTables.putAll(devDatabase.tablesDiffs(liveDatabase.getTables()));
+    updateTables.putAll(devDatabase.tablesDiffs(liveDatabase.getTables(), liveDatabase));
+    sql.addAll(0, liveDatabase.getFirstSteps());
     sql.addAll(devDatabase.updateTables(liveDatabase.getTables(), updateTables));
     sql.addAll(devDatabase.getFirstSteps());
     sql.addAll(devDatabase.updateViews(liveDatabase.getViews()));

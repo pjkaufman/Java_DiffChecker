@@ -111,15 +111,11 @@ public class MySQLConn extends DbConn {
         create = getTableCreateStatement(table);
         this.firstStep = "ALTER TABLE `" + table + "`";
         this.count = 0;
+        add = new MySQLTable(table, create);
         // if the database is the live database
         if (this.type.equals("live")) {
           // remove auto_increment value statement
           if (create.contains("AUTO_INCREMENT")) {
-            if (create.contains("AUTO_INCREMENT=")) {
-
-              create = create.substring(0, create.indexOf("AUTO_INCREMENT="))
-                    + create.substring(create.indexOf("DEFAULT CHARSET"));
-            }
             // find the auto-increment column and remove it
             int endColumn = create.indexOf("AUTO_INCREMENT");
             int startColumn = create.indexOf("\n");
@@ -129,35 +125,29 @@ public class MySQLConn extends DbConn {
               if (temp < endColumn) {
                 startColumn = temp;
               } else {
-                this.firstStep += "\n MODIFY COLUMN " + create.substring(startColumn+1, endColumn).trim();
+                String columnDetails = create.substring(startColumn + 1, endColumn).trim();
+                int startColumnName = columnDetails.indexOf("`");
+                String columnName = columnDetails.substring(startColumnName + 1, columnDetails.indexOf("`", startColumnName + 1));
+                this.firstStep += "\n MODIFY COLUMN " + columnDetails;
+                // modify the column definition in order properly generate SQL if there is a difference found
+                add.getColumns().put(columnName, new Column(columnName, columnDetails));
                 count++;
                 break;
               }
             }
-            create = create.replace("AUTO_INCREMENT", ""); // remove auto-increment from column
           }
           if (create.contains("PRIMARY KEY")) {
-            // determine how many columns are in the PRIMARY KEY and replace 
-            // the PRIMARY KEY reference in the create statement
-            String temp = create.substring(create.indexOf("PRIMARY KEY"));
-            create = create.substring(0, create.indexOf("PRIMARY KEY"))
-                  + create.substring(create.indexOf("PRIMARY KEY") +  temp.indexOf(")") + 2);
-
-            // check to see if the PRIMARY KEY was the last table line inside the create statement
-            if (!create.contains("KEY")) {
-              create = create.substring(0, create.lastIndexOf(",")) + "\n"
-                    + create.substring(create.lastIndexOf(",") + 2);
-            }
             if (count != 0) {
               this.firstStep += ",\n ";
             } else {
               this.firstStep += "\n ";
             }
             this.firstStep += "DROP PRIMARY KEY";
+            // remove the PRIMARY KEY to make sure the appropriate SQL will be generated if there is a difference
+            add.getIndices().remove("PRIMARY");
             count++;
           }
         }
-        add = new MySQLTable(table, create);
         if (this.count != 0) {
           firstSteps.add(firstStep + ";");
         }
