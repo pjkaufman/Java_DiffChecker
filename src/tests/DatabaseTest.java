@@ -118,7 +118,7 @@ public class DatabaseTest {
     db.getTables().put(table2.getName(), table2);
     liveTables.put(table3.getName(), table3);
     db.compareTables(liveTables);
-    tablesToUpdate = db.tablesDiffs(liveTables);
+    tablesToUpdate = db.tablesDiffs(liveTables, new Database());
     assertEquals("The expected tables to update should be 1 because only one table they have in common is different",
       1, tablesToUpdate.size());
     assertEquals("The tables to update should be one which is the name of the only common table in this case",
@@ -127,13 +127,13 @@ public class DatabaseTest {
     db = new Database();
     db.getTables().put(table1.getName(),table1);
     db.compareTables(liveTables);
-    tablesToUpdate = db.tablesDiffs(liveTables);
+    tablesToUpdate = db.tablesDiffs(liveTables, new Database());
     assertEquals("The expected tables to update should be 0 because there are no tables in common",
       0, tablesToUpdate.size());
     // test to see if it will yield nothing if all common tables are the same
     db.getTables().put(table3.getName(), table3);
     liveTables.put(table1.getName(), table1);
-    tablesToUpdate = db.tablesDiffs(liveTables);
+    tablesToUpdate = db.tablesDiffs(liveTables, new Database());
     assertEquals("The expected tables to update should be 0 because all common tables are the same",
       0, tablesToUpdate.size());
    }

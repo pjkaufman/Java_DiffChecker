@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Database models an SQL database schema.
+ * Models an SQL database schema.
  * @author Peter Kaufman
- * @version 5-21-19
+ * @version 5-22-19
  * @since 9-18-17
  */
 public class Database implements Serializable {
@@ -18,11 +18,10 @@ public class Database implements Serializable {
   private ArrayList<String> firstSteps = new ArrayList<>();
 
   /**
-   * Initializes a Database object by using a database connection. 
-   * The database provided connection is used to initialize a HashMap of tables 
-   * and views that exist in the database provided and get SQL statements to drop 
-   * all Primary Keys and remove all auot_increments in the database provided which
-   * will only be used on the live database.
+   * Uses a database connection to initialize a HashMap of tables 
+   * and views that exist in the database provided. <b>Note: It will also 
+   * SQL statements to drop all Primary Keys and remove all auot_increments 
+   * in the database provided which will only be used on the live database</b>
    * @author Peter Kaufman
    * @param db The database connection used to get the database information
    * @throws DatabaseDiffernceCheckerException Error connecting or closing the database connection.
@@ -38,7 +37,7 @@ public class Database implements Serializable {
   }
 
   /**
-   * This is the default constructor for this class, <b> Needed for Serialization</b>.
+   * This is the default constructor for this class, <b>Needed for Serialization</b>.
    */
   public Database() {}
 
@@ -46,7 +45,7 @@ public class Database implements Serializable {
    * Returns the first steps to be taken in order to run the SQL statements.
    * These SQL statements are used to drop Primary Keys and remove auto_increments on the 
    * database provided. <b>Note: this function will return an empty ArrayList if the function
-   * is called on the dev database.</b>
+   * is called for the development database</b>
    * @author Peter Kaufman
    * @return The first steps to be taken in order to run the SQL statements
    */
@@ -57,10 +56,10 @@ public class Database implements Serializable {
   }
 
   /**
-   * Returns a HashMap of tables that are in the database provided.
-   * The key is the name of the table and the value is a Table object.
+   * Returns the list of tables in the database provided. The key is the name 
+   * of the table.
    * @author Peter Kaufman
-   * @return All of the tables in the provided database.
+   * @return A list of all the tables in the provided database.
    */
   public HashMap<String, Table> getTables() {
 
@@ -78,24 +77,23 @@ public class Database implements Serializable {
 
   /**
    * Takes in a list of views and returns the SQL statements needed
-   * to make the two databases have the exact same views. <b>Note: all views in
-   * the live database will be dropped and all from the dev database will be created.</b>
+   * to make the two databases have the exact same views. <b>Note: all 
+   * views in the live database will be dropped and all from the dev database
+   * will be created</b>
    * @author Peter Kaufman
-   * @param liveViews all of the View in the live database.
-   * @return An ArrayList of Strings which is the SQL statements to run in 
-   * order to make the live database have the same views as the dev one.
+   * @param liveViews All of the views in the live database.
+   * @return The SQL statements to run in order to make the live database have
+   * the same views as the dev one.
    */
   public ArrayList<String> updateViews(ArrayList<View> liveViews) {
 
     ArrayList<String> sql = new ArrayList<>();
     // drop all views
     for (View liveView: liveViews) {
-
       sql.add(liveView.getDrop());
     }
     // add all views
     for (View devView: this.views) {
-
       sql.add(devView.getCreateStatement());
     }
 
@@ -103,12 +101,12 @@ public class Database implements Serializable {
   }
 
   /**
-   * Determines which table(s) is/are to be created or dropped.
+   * Determines which tables are to be created or dropped.
    * @author Peter Kaufman
-   * @param liveTables is a HashMap of String and Table object pairs which 
-   * represent all tables in the live database.
-   * @return An ArrayList of Strings which is the SQL statements to run in order to
-   * remove and/or create tables in the live database.
+   * @param liveTables All tables in the live database where the key is the 
+   * name of the table.
+   * @return The SQL statements to run in order to remove and,or create tables
+   * in the live database.
    */
   public ArrayList<String> compareTables(HashMap<String, Table> liveTables) {
 
@@ -178,8 +176,6 @@ public class Database implements Serializable {
     for (String tableName : this.tables.keySet()) {
       if (!this.exclude.containsKey(tableName) && !this.tables.get(tableName).getCreateStatement()
           .equals(liveTables.get(tableName).getCreateStatement())) {
-        System.out.println("dev: " + this.tables.get(tableName).getCreateStatement());
-        System.out.println("live: " + liveTables.get(tableName).getCreateStatement());
         updateTables.put(tableName, tableName);
        } else { // all tables that do not need to be updated are to be removed from firstSteps
           liveDatabase.exclude.put(tableName, tableName);

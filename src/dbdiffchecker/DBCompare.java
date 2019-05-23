@@ -22,15 +22,12 @@ import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.JTextComponent;
 
-import dbdiffchecker.DatabaseDiffernceCheckerException;
-import dbdiffchecker.FileHandler;
-
 /**
  * DBCompare is a JFrame that takes user input to make a comparison between two
  * databases or a take a database snapshot.
  * @author Peter Kaufman
- * @version 5-18-19
- * @since 5-14-19
+ * @version 5-22-19
+ * @since 5-11-19
  */
 public abstract class DBCompare extends JFrameV2 {
   // Instance variables
