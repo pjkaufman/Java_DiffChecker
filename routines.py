@@ -1,4 +1,5 @@
 import os
+import signal
 from sys import stdin
 from sys import stdout
 from subprocess import call
@@ -231,6 +232,10 @@ class Routines:
     self.__removeClassFiles(os.path.join(os.getcwd(), self.packagePath))
     self.__removeClassFiles(os.path.join(os.getcwd(), self.testsPath))
     self.__removeDirectory(self.getLogFileDirectory())
+  
+def sigint_handler(signum, frame):
+  print ('Exiting program')
+  os._exit(1)
 
 def main():
   routine = Routines()
@@ -253,4 +258,6 @@ def main():
   else:
     print('please try again')
 
-if  __name__ =='__main__':main()
+if  __name__ =='__main__':
+  signal.signal(signal.SIGINT, sigint_handler)
+  main()

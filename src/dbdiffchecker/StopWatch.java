@@ -4,12 +4,13 @@ import java.time.Duration;
 import java.time.Instant;
 
 /**
- * StopWatch models a stopwatch and can determine how much time has elapsed since
- * the last start and end method calls.
+ * Models a stopwatch and can determine how much time has elapsed since the last
+ * start and end method calls.
  * @author Jonas_Hess and Peter Kaufman
- * @version 5-11-19
+ * @version 5-23-19
  * @since 10-26-17
- * @see <a href="https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java">https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java</a>
+ * @see <a href=
+ *      "https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java">https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java</a>
  */
 public class StopWatch {
   // Instance Variables
@@ -19,10 +20,11 @@ public class StopWatch {
   private boolean isRunning = false;
 
   /**
-   * start checks to see if the program is running. If it is not running, then start time is set. 
-   * Otherwise a RuntimeException error is thrown.
+   * Checks to see if the program is running. If it is not running, then start
+   * time is set. Otherwise a RuntimeException error is thrown.
    * @author Jonas_Hess
-   * @throws RuntimeException The stopwatch was running when this function was called.
+   * @throws RuntimeException The stopwatch was running when this function was
+   *         called.
    */
   public void start() throws RuntimeException {
     if (isRunning) {
@@ -33,9 +35,9 @@ public class StopWatch {
   }
 
   /**
-   * Checks to see if the program is running. If it is running, then stop time is set, 
-   * and the duration that the program has run is set and returned. Otherwise a RuntimeException
-   * error is thrown.
+   * Checks to see if the program is running. If it is running, then stop time is
+   * set, and the duration that the program has run is set and returned. Otherwise
+   * a RuntimeException error is thrown.
    * @author Jonas_Hess
    * @return The amount of time elapsed since the last start method was called.
    * @throws RuntimeException The stopwatch has not been started.
@@ -52,17 +54,17 @@ public class StopWatch {
     } else {
       this.duration = duration.plus(result);
     }
-
     return this.getElapsedTime();
   }
 
   /**
-   * Returns the duration between the last time the start and stop methods were run.
+   * Returns the duration between the last time the start and stop methods were
+   * run.
    * @author Jonas_Hess
-   * @return The duration between the last time the start and stop methods were run.
+   * @return The duration between the last time the start and stop methods were
+   *         run.
    */
   public Duration getElapsedTime() {
-
     return this.duration;
   }
 

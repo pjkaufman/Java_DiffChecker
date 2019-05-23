@@ -3,9 +3,9 @@ package dbdiffchecker;
 import java.io.Serializable;
 
 /**
- * Schema holds common methods and instance variables for Schema subclasses.
+ * Holds common methods and instance variables for Schema subclasses.
  * @author Peter Kaufman
- * @version 5-11-19
+ * @version 5-23-19
  * @since 5-17-18
  */
 public class Schema implements Serializable {
@@ -14,7 +14,8 @@ public class Schema implements Serializable {
   protected String createStatement = "";
 
   /**
-   * This is the default constructor for this class, <b> Needed for Serialization</b>.
+   * This is the default constructor for this class, <b> Needed for
+   * Serialization</b>.
    */
   public Schema() {}
 
@@ -24,7 +25,6 @@ public class Schema implements Serializable {
    * @return The name of the Schema object.
    */
   public String getName() {
-
     return this.name;
   }
 
@@ -34,7 +34,6 @@ public class Schema implements Serializable {
    * @return The create statement of the of the Schema object.
    */
   public String getCreateStatement() {
-
     return this.createStatement;
   }
 }

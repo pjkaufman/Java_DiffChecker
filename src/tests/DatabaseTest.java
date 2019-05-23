@@ -10,18 +10,15 @@ import dbdiffchecker.MySQLTable;
 import dbdiffchecker.View;
 
 /**
- * DatabaseTest is a unit test that makes sure that the Database object works as intended.
+ * A unit test that makes sure that the Database object works as intended.
  * @author Peter Kaufman
- * @version 5-11-19
+ * @version 5-23-19
  * @since 5-11-19
  */
 public class DatabaseTest {
-
   private Table table1, table2, table3;
   private View view1, view2;
   private String name, create, collation, charSet, autoIncrement, details, columns;
-  private Column column1, column2;
-  private Index index1, index2;
   private Database db;
 
   @Test
@@ -29,7 +26,7 @@ public class DatabaseTest {
    * Tests whether the getTables function works as intended.
    * @author Peter Kaufman
    */
-  public void testGetTables(){
+  public void testGetTables() {
     name = "bloat";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table1 = new MySQLTable(name, create);
@@ -39,14 +36,17 @@ public class DatabaseTest {
     assertEquals("The table list should be empty for a newly created database", 0, db.getTables().size());
     db.getTables().put(table1.getName(), table1);
     assertEquals("The table list should have the 1 table after the first addition", 1, db.getTables().size());
-    assertEquals("The table list should have the exact table added to it", true, db.getTables().get(table1.getName()).getCreateStatement().equals(table1.getCreateStatement()));
+    assertEquals("The table list should have the exact table added to it", true,
+        db.getTables().get(table1.getName()).getCreateStatement().equals(table1.getCreateStatement()));
     db.getTables().put(table2.getName(), table2);
-    assertEquals("The table list size should not change when a table of the same name is added", 1, db.getTables().size());
-    assertEquals("The table list should have the exact table as the one just added", true, db.getTables().get(table2.getName()).getCreateStatement().equals(table2.getCreateStatement()));
+    assertEquals("The table list size should not change when a table of the same name is added", 1,
+        db.getTables().size());
+    assertEquals("The table list should have the exact table as the one just added", true,
+        db.getTables().get(table2.getName()).getCreateStatement().equals(table2.getCreateStatement()));
   }
 
-  @Test 
-   /**
+  @Test
+  /**
    * Tests whether the getViews function works as intended.
    * @author Peter Kaufman
    */
@@ -61,14 +61,16 @@ public class DatabaseTest {
     assertEquals("The view list should be empty for a newly created database", 0, db.getViews().size());
     db.getViews().add(view1);
     assertEquals("The view list should contain 1 view after the first addition", 1, db.getViews().size());
-    assertEquals("The view list should have the view that was added by the first addition", true, db.getViews().contains(view1));
+    assertEquals("The view list should have the view that was added by the first addition", true,
+        db.getViews().contains(view1));
     db.getViews().add(view2);
     assertEquals("The view list should contain 2 views after the second addition", 2, db.getViews().size());
-    assertEquals("The view list should have both added views", true, db.getViews().contains(view1) && db.getViews().contains(view2));
+    assertEquals("The view list should have both added views", true,
+        db.getViews().contains(view1) && db.getViews().contains(view2));
   }
 
-  @Test 
-   /**
+  @Test
+  /**
    * Tests whether the updateViews function works as intended.
    * @author Peter Kaufman
    */
@@ -87,20 +89,20 @@ public class DatabaseTest {
     liveViews.add(view1);
     sql = db.updateViews(liveViews);
     assertEquals("The expected sql statments are two create statements and a drop statement", 3, sql.size());
-    assertEquals("The sql generated should contain a create for both view1 and view2 as well as a drop for view1",
-      true, sql.contains(view1.getCreateStatement()) && sql.contains(view2.getCreateStatement())
-      && sql.contains("DROP VIEW `" + view1.getName() + "`;"));
+    assertEquals("The sql generated should contain a create for both view1 and view2 as well as a drop for view1", true,
+        sql.contains(view1.getCreateStatement()) && sql.contains(view2.getCreateStatement())
+            && sql.contains("DROP VIEW `" + view1.getName() + "`;"));
     // test to see if it will drop and add the view back
     db = new Database();
     db.getViews().add(view1);
     sql = db.updateViews(liveViews);
     assertEquals("The expected sql statments are a create statement and a drop statement", 2, sql.size());
-    assertEquals("The sql generated should contain a create for view1 and a drop for view1",
-      true, sql.contains(view1.getCreateStatement()) && sql.contains("DROP VIEW `" + view1.getName() + "`;"));
+    assertEquals("The sql generated should contain a create for view1 and a drop for view1", true,
+        sql.contains(view1.getCreateStatement()) && sql.contains("DROP VIEW `" + view1.getName() + "`;"));
   }
 
   @Test
-   /**
+  /**
    * Tests whether the tablesDiffs function works as intended.
    * @author Peter Kaufman
    */
@@ -116,29 +118,29 @@ public class DatabaseTest {
     table2 = new MySQLTable(name, create);
     create = "CREATE TABLE `broke` (\n `bloated` int(11) NOT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table3 = new MySQLTable(name, create);
-    db.getTables().put(table1.getName(),table1);
+    db.getTables().put(table1.getName(), table1);
     db.getTables().put(table2.getName(), table2);
     liveTables.put(table3.getName(), table3);
     db.compareTables(liveTables);
-    tablesToUpdate = db.tablesDiffs(liveTables);
-    assertEquals("The expected tables to update should be 1 because only one table they have in common is different",
-      1, tablesToUpdate.size());
-    assertEquals("The tables to update should be one which is the name of the only common table in this case",
-      true, tablesToUpdate.containsKey(table3.getName()));
+    tablesToUpdate = db.tablesDiffs(liveTables, new Database());
+    assertEquals("The expected tables to update should be 1 because only one table they have in common is different", 1,
+        tablesToUpdate.size());
+    assertEquals("The tables to update should be one which is the name of the only common table in this case", true,
+        tablesToUpdate.containsKey(table3.getName()));
     // test to see if it will yield nothing if there are no tables in common
     db = new Database();
-    db.getTables().put(table1.getName(),table1);
+    db.getTables().put(table1.getName(), table1);
     db.compareTables(liveTables);
-    tablesToUpdate = db.tablesDiffs(liveTables);
-    assertEquals("The expected tables to update should be 0 because there are no tables in common",
-      0, tablesToUpdate.size());
+    tablesToUpdate = db.tablesDiffs(liveTables, new Database());
+    assertEquals("The expected tables to update should be 0 because there are no tables in common", 0,
+        tablesToUpdate.size());
     // test to see if it will yield nothing if all common tables are the same
     db.getTables().put(table3.getName(), table3);
     liveTables.put(table1.getName(), table1);
-    tablesToUpdate = db.tablesDiffs(liveTables);
-    assertEquals("The expected tables to update should be 0 because all common tables are the same",
-      0, tablesToUpdate.size());
-   }
+    tablesToUpdate = db.tablesDiffs(liveTables, new Database());
+    assertEquals("The expected tables to update should be 0 because all common tables are the same", 0,
+        tablesToUpdate.size());
+  }
 
   @Test
   /**
@@ -160,30 +162,31 @@ public class DatabaseTest {
     liveTables.put(table2.getName(), table2);
     sql = db.compareTables(liveTables);
     assertEquals("The expected sql statments are two drop statements", 2, sql.size());
-    assertEquals("The sql generated should contain a drop for table1 and table2",
-      true, sql.contains("DROP TABLE `" + table2.getName() + "`;") && sql.contains("DROP TABLE `" + table1.getName() + "`;"));
+    assertEquals("The sql generated should contain a drop for table1 and table2", true,
+        sql.contains("DROP TABLE `" + table2.getName() + "`;")
+            && sql.contains("DROP TABLE `" + table1.getName() + "`;"));
     // test to see if a drop will be added
     db.getTables().put(table1.getName(), table1);
     sql = db.compareTables(liveTables);
     assertEquals("The expected sql statment is a drop statement", 1, sql.size());
-    assertEquals("The sql generated should contain a drop for table2",
-      true, sql.contains("DROP TABLE `" + table2.getName() + "`;"));
+    assertEquals("The sql generated should contain a drop for table2", true,
+        sql.contains("DROP TABLE `" + table2.getName() + "`;"));
     // test to see if a table will be added
     liveTables = new HashMap<>();
     sql = db.compareTables(liveTables);
     assertEquals("The expected sql statment is a create statement", 1, sql.size());
-    assertEquals("The sql generated should contain a create statement for table1",
-      true, sql.contains(table1.getCreateStatement()));
-    // test to see if all tables will be added 
+    assertEquals("The sql generated should contain a create statement for table1", true,
+        sql.contains(table1.getCreateStatement()));
+    // test to see if all tables will be added
     db.getTables().put(table2.getName(), table2);
     sql = db.compareTables(liveTables);
     assertEquals("The expected sql statment are 2 create statements", 2, sql.size());
-    assertEquals("The sql generated should contain a create statement for both table1 and table2",
-      true, sql.contains(table1.getCreateStatement()) && sql.contains(table2.getCreateStatement()));
-    }
+    assertEquals("The sql generated should contain a create statement for both table1 and table2", true,
+        sql.contains(table1.getCreateStatement()) && sql.contains(table2.getCreateStatement()));
+  }
 
   @Test
-   /**
+  /**
    * Tests whether the updateTables function works as intended.
    * @author Peter Kaufman
    */
@@ -192,25 +195,25 @@ public class DatabaseTest {
     HashMap<String, Table> liveTables = new HashMap<>();
     HashMap<String, String> tablesToUpdate = new HashMap<>();
     ArrayList<String> sql;
-    String expectedSQL = "ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, " + 
-      "\nADD COLUMN `id` varchar(40) NOT NULL AFTER `data`, \nMODIFY COLUMN `ip_address` varchar(45) NOT NULL, " + 
-      "\nMODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\', \nDROP COLUMN `data2`, " +
-      "\nADD INDEX `add` (`id`), \nDROP INDEX `modify`, \nADD INDEX `modify` (`data`);";
-    String expectedSQL2 = "ALTER TABLE `bloat`\nMODIFY COLUMN `bloatware` int(11) NOT NULL, \n" +
-      "ADD PRIMARY KEY (`bloatware`);";
+    String expectedSQL = "ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, "
+        + "\nADD COLUMN `id` varchar(40) NOT NULL AFTER `data`, \nMODIFY COLUMN `ip_address` varchar(45) NOT NULL, "
+        + "\nMODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\', \nDROP COLUMN `data2`, "
+        + "\nADD INDEX `add` (`id`), \nDROP INDEX `modify`, \nADD INDEX `modify` (`data`);";
+    String expectedSQL2 = "ALTER TABLE `bloat`\nMODIFY COLUMN `bloatware` int(11) NOT NULL, \n"
+        + "ADD PRIMARY KEY (`bloatware`);";
     // test for two tables with many differences
     // setup table1
     name = "ci_sessions";
-    create = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  " + 
-      "`ip_address` varchar(45) NOT NULL,\n  `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\',\n  " + 
-      "`data` blob NOT NULL,\n  KEY `add` (`id`),\n  KEY `modify` (`data`),\n  " + 
-      "KEY `leave` (`data`,`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
+    create = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  "
+        + "`ip_address` varchar(45) NOT NULL,\n  `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\',\n  "
+        + "`data` blob NOT NULL,\n  KEY `add` (`id`),\n  KEY `modify` (`data`),\n  "
+        + "KEY `leave` (`data`,`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table1 = new MySQLTable(name, create);
     // setup table2
-    create = "CREATE TABLE `ci_sessions` (\n  `ip_address` varchar(40) NOT NULL,\n  " + 
-      "`timestamp` int(11) unsigned NOT NULL DEFAULT \'0\',\n  `data` blob NOT NULL,\n  " + 
-      "`data2` blob NOT NULL,\n  UNIQUE KEY `delete` (`id`)\n,  KEY `modify` (`data`,`ip_address`),\n  " + 
-      "KEY `leave` (`data`,`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin2";
+    create = "CREATE TABLE `ci_sessions` (\n  `ip_address` varchar(40) NOT NULL,\n  "
+        + "`timestamp` int(11) unsigned NOT NULL DEFAULT \'0\',\n  `data` blob NOT NULL,\n  "
+        + "`data2` blob NOT NULL,\n  UNIQUE KEY `delete` (`id`)\n,  KEY `modify` (`data`,`ip_address`),\n  "
+        + "KEY `leave` (`data`,`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin2";
     table2 = new MySQLTable(name, create);
     // do comparison
     db.getTables().put(table1.getName(), table1);
@@ -221,8 +224,8 @@ public class DatabaseTest {
     liveTables.put(table2.getName(), table2);
     tablesToUpdate.put(table2.getName(), table2.getName());
     sql = db.updateTables(liveTables, tablesToUpdate);
-    assertEquals("The sql generated should add a column, drop a column, modify two columns, drop two indexes," + 
-      " add two indexes, and add a charset", expectedSQL, sql.get(0));   
+    assertEquals("The sql generated should add a column, drop a column, modify two columns, drop two indexes,"
+        + " add two indexes, and add a charset", expectedSQL, sql.get(0));
     // test two table comparison
     name = "bloat";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
@@ -233,15 +236,16 @@ public class DatabaseTest {
     liveTables.put(table2.getName(), table2);
     tablesToUpdate.put(table2.getName(), table2.getName());
     sql = db.updateTables(liveTables, tablesToUpdate);
-    assertEquals("There should be two sql statements generated (one for each table that is to be modified)",
-      2, sql.size());
-    assertEquals("The sql generated should add a column, drop a column, modify two columns, drop two indexes," + 
-    " add two indexes, add a charset", expectedSQL, sql.get(0));
-    assertEquals("The sql generated should also modify a column and add a primary key", true, sql.contains(expectedSQL2));
+    assertEquals("There should be two sql statements generated (one for each table that is to be modified)", 2,
+        sql.size());
+    assertEquals("The sql generated should add a column, drop a column, modify two columns, drop two indexes,"
+        + " add two indexes, add a charset", expectedSQL, sql.get(0));
+    assertEquals("The sql generated should also modify a column and add a primary key", true,
+        sql.contains(expectedSQL2));
   }
 
   @Test
-   /**
+  /**
    * Tests whether the first steps internal logic works as intended.
    * @author Peter Kaufman
    */
@@ -266,10 +270,12 @@ public class DatabaseTest {
     // test to remove first steps associated with table1
     db.getTables().put(table1.getName(), table1);
     db.compareTables(liveTables);
-    assertEquals("First steps should contain one sql statement after removal of exclusions", 1, db.getFirstSteps().size());
+    assertEquals("First steps should contain one sql statement after removal of exclusions", 1,
+        db.getFirstSteps().size());
     assertEquals("First steps should contain the second sql statment added", true, db.getFirstSteps().contains(first2));
     liveTables.put(table2.getName(), table2);
     db.compareTables(liveTables);
-    assertEquals("First steps should contain zero sql statement after removal of exclusions", 0, db.getFirstSteps().size());
+    assertEquals("First steps should contain zero sql statement after removal of exclusions", 0,
+        db.getFirstSteps().size());
   }
 }

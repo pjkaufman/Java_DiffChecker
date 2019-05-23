@@ -2,7 +2,6 @@ package dbdiffchecker;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,13 +13,12 @@ import java.util.Date;
 import java.util.Scanner;
 
 /**
- * FileHandler deals with all data coming from and going out to files.
+ * Deals with all data coming from and going out to files.
  * @author Peter Kaufman
- * @version 5-21-19
+ * @version 5-23-19
  * @since 9-12-17
  */
 public class FileHandler {
-
   // static variables
   public static final String logFileName = "activity.log";
   public static final String lastSequelStatementFileName = "lastRun.txt";
@@ -28,22 +26,20 @@ public class FileHandler {
   public static final String logFolder = "logs";
 
   /**
-   * Serializes a Database object
+   * Serializes a database with all of its table and view data.
    * @author Peter Kaufman
    * @param database The database to serialize.
-   * @param prefix The prefix of the database snapshot to deserailize <b>It is the name of the 
-   * database being compared</b>.
+   * @param prefix The prefix of the database snapshot to deserailize. <b>Note: it
+   *        is the name of the database implimentation of the database</b>
    * @throws DatabaseDiffernceCheckerException Error serializing the database.
    */
   public static void serializeDatabase(Database database, String prefix) throws DatabaseDiffernceCheckerException {
     try {
       FileOutputStream fileOutput = new FileOutputStream(
-          new File(logFolder+ File.separator + prefix + "_" + databaseSnapshotFileName));
+          new File(logFolder + File.separator + prefix + "_" + databaseSnapshotFileName));
       ObjectOutputStream outputStream = new ObjectOutputStream(fileOutput);
-
       // Write object to file
       outputStream.writeObject(database);
-
       outputStream.close();
       fileOutput.close();
     } catch (Exception cause) {
@@ -57,7 +53,6 @@ public class FileHandler {
     }
   }
 
-
   /**
    * Takes SQL statements and writes them to the last run file.
    * @author Peter Kaufman
@@ -65,11 +60,9 @@ public class FileHandler {
    * @throws IOException Error writing the SQL statements to the last run file.
    */
   public static void writeToFile(ArrayList<String> sequelStatements) throws IOException {
-
-    PrintWriter out = new PrintWriter(new FileWriter(
-        new File(logFolder+ File.separator + lastSequelStatementFileName)));
-    for (String statement: sequelStatements) {
-
+    PrintWriter out = new PrintWriter(
+        new FileWriter(new File(logFolder + File.separator + lastSequelStatementFileName)));
+    for (String statement : sequelStatements) {
       out.println(statement);
     }
     out.close();
@@ -82,46 +75,41 @@ public class FileHandler {
    * @throws IOException Error writing the data to the log file.
    */
   public static void writeToFile(String data) throws IOException {
-
     Date currentTime = new Date();
-    PrintWriter out = new PrintWriter(new FileWriter(new File(logFolder+ File.separator + logFileName), true));
+    PrintWriter out = new PrintWriter(new FileWriter(new File(logFolder + File.separator + logFileName), true));
     out.println(currentTime.toString() + " " + data);
     out.close();
   }
 
   /**
-   * Deserializes the database file.
+   * Deserializes a database file.
    * @author Peter Kaufman
-   * @param prefix The prefix of the database snapshot to deserailize <b>It is the name of the 
-   * database being compared</b>.
-   * @return The Database object created throug deserialization.
-   * @throws DatabaseDiffernceCheckerException Error deserializing the database file.
+   * @param prefix The prefix of the database snapshot to deserailize. <b>Note: it
+   *        is the name of the database implimentation of the database</b>
+   * @return The database created through deserialization with table and view
+   *         data.
+   * @throws DatabaseDiffernceCheckerException Error deserializing the database
+   *         file.
    */
   public static Database deserailizDatabase(String prefix) throws DatabaseDiffernceCheckerException {
-
     Database database = null;
     try {
       FileInputStream fileInput = new FileInputStream(
           new File(logFolder + File.separator + prefix + "_" + databaseSnapshotFileName));
       ObjectInputStream inputStream = new ObjectInputStream(fileInput);
-
       // Read object
       database = (Database) inputStream.readObject();
-
       inputStream.close();
       fileInput.close();
-
     } catch (Exception cause) {
       String errorMessage = null;
       if (cause instanceof IOException) {
         errorMessage = "There was an error when trying to take a get the database snapshot.";
       } else {
-        errorMessage = cause.getMessage().substring(cause.getMessage()
-            .indexOf(":") + 1);
+        errorMessage = cause.getMessage().substring(cause.getMessage().indexOf(":") + 1);
       }
       throw new DatabaseDiffernceCheckerException(errorMessage, cause);
     }
-
     return database;
   }
 
@@ -133,15 +121,12 @@ public class FileHandler {
    * @throws IOException Error reading in the data from the specified file.
    */
   public static ArrayList<String> readFrom(String file) throws IOException {
-
-    Scanner in = new Scanner(new File(logFolder+ File.separator + file));
+    Scanner in = new Scanner(new File(logFolder + File.separator + file));
     ArrayList<String> fileLines = new ArrayList<>();
     while (in.hasNextLine()) {
-
       fileLines.add(in.nextLine());
     }
     in.close();
-
     return fileLines;
   }
 
@@ -150,10 +135,10 @@ public class FileHandler {
    * @author Chris Dail
    * @param file The file path to the file.
    * @return Whether the file exists or not.
-   * @see <a href="https://stackoverflow.com/questions/1816673/how-do-i-check-if-a-file-exists-in-java">https://stackoverflow.com/questions/1816673/how-do-i-check-if-a-file-exists-in-java</a>
+   * @see <a href=
+   *      "https://stackoverflow.com/questions/1816673/how-do-i-check-if-a-file-exists-in-java">https://stackoverflow.com/questions/1816673/how-do-i-check-if-a-file-exists-in-java</a>
    */
   public static boolean fileExists(String file) {
-
-    return new File(logFolder+ File.separator + file).isFile();
+    return new File(logFolder + File.separator + file).isFile();
   }
 }
