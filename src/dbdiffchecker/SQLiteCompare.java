@@ -6,12 +6,11 @@ import java.sql.SQLException;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
-
 /**
- * SQLiteCompare is a JFrame that takes user input to make a comparison between
- * 1 devDatabase and a devDatabase snapshot or to take a devDatabase snapshot.
+ * A JFrame that takes user input to make a comparison between two databases or
+ * to take a database snapshot.
  * @author Peter Kaufman
- * @version 5-21-19
+ * @version 5-23-19
  * @since 9-20-17
  */
 public class SQLiteCompare extends DBCompare {
@@ -20,16 +19,17 @@ public class SQLiteCompare extends DBCompare {
   private JTextField livePath = new JTextField(10);
 
   /**
-   * Initializes a MySQLCompare object with a title and text for the its button.
+   * Sets the title and text for its components based on the type of comparison
+   * occurring.
    * @author Peter Kaufman
-   * @param type The type of JFrame to create.
+   * @param type The type of comparrison to perform.
    */
   public SQLiteCompare(int type) {
     super(type);
     labelText = new String[] { "Enter SQLite Database Path:", "Enter SQLite Database:" };
     devDatabaseInputs = new JTextComponent[] { devPath, devDatabaseName };
     livevDatabaseInputs = new JTextComponent[] { livePath, liveDatabaseName };
-    initComponents(); 
+    initComponents();
     salt = "SQLite";
   }
 
@@ -48,7 +48,6 @@ public class SQLiteCompare extends DBCompare {
         break;
       }
     } else {
-
       headT.setText("Please do not leave any fields blank.");
     }
   }
@@ -60,12 +59,12 @@ public class SQLiteCompare extends DBCompare {
 
   @Override
   protected DbConn createLiveDatabaseConnection() throws SQLException {
-     return new SQLiteConn(livePath.getText(), liveDatabaseName.getText(), "dev");
+    return new SQLiteConn(livePath.getText(), liveDatabaseName.getText(), "dev");
   }
 
   /**
-   * Takes the values of both of the user input paths and makes sure that they 
-   * end with a file separator if they do not already.
+   * Takes the values of both of the user input paths and makes sure that they end
+   * with a file separator if they do not already.
    */
   private void fixDatabasePaths() {
     String devPathText = devPath.getText();

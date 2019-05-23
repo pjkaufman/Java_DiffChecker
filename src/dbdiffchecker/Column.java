@@ -3,11 +3,10 @@ package dbdiffchecker;
 /**
  * Resembles an SQL column and contains column info.
  * @author Peter Kaufman
- * @version 5-22-19
+ * @version 5-23-19
  * @since 9-10-17
  */
 public class Column extends Schema {
-
   private String details = "";
 
   /**
@@ -22,7 +21,8 @@ public class Column extends Schema {
   }
 
   /**
-   * This is the default constructor for this class, <b>Needed for Serialization</b>.
+   * This is the default constructor for this class, <b>Needed for
+   * Serialization</b>.
    */
   public Column() {}
 
@@ -32,7 +32,6 @@ public class Column extends Schema {
    * @return Details about the column.
    */
   public String getDetails() {
-
     return this.details;
   }
 }

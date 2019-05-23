@@ -4,34 +4,30 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import javax.swing.JLabel;
-import javax.swing.SwingWorker;
 import javax.swing.BorderFactory;
 import java.awt.Color;
 
 /**
- * ErrorPopup is a JFrame that shows a message about an error that occurred.
+ * A JFrame that displays an error that occurred.
  * @author Peter Kaufman
- * @version 5-11-19
+ * @version 5-23-19
  * @since 9-21-17
  */
 public class ErrorPopup extends JFrameV2 {
   // Instance variables
   private JLabel errorLabel = new JLabel();
   private JLabel titleLabel = new JLabel();
+  private int sizeFactor = 1;
 
   /**
    * Initializes a JFrame that displays an error to the user and logs the error.
    * @author Peter Kaufman
-   * @param error Error message to display to the user and to log.
+   * @param error The error message to display to the user and to log.
    */
   public ErrorPopup(DatabaseDiffernceCheckerException error) {
-
     String errorMessage = "";
     StringWriter sw = new StringWriter();
     error.printStackTrace(new PrintWriter(sw));
@@ -43,17 +39,14 @@ public class ErrorPopup extends JFrameV2 {
     }
     this.error = false;
     errorMessage = error.getMessage().substring(error.getMessage().indexOf(":") + 2);
-    initComponents(errorMessage.length());
+    sizeFactor = errorMessage.length();
+    initComponents();
     this.errorLabel.setText(errorMessage);
     this.setVisible(true);
   }
 
-  /**
-   * Sets up the GUI Layout, sets up all action events, and initializes instance
-   * variables.
-   * @author Peter Kaufman
-   */
-  private void initComponents(int sizeFactor) {
+  @Override
+  protected void initComponents() {
     // set up JFrame properties
     setTitle("Error");
     setType(Window.Type.UTILITY);

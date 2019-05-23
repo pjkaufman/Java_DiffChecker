@@ -7,9 +7,6 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,14 +16,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
-import javax.swing.border.TitledBorder;
 import javax.swing.text.JTextComponent;
 
 /**
- * DBCompare is a JFrame that takes user input to make a comparison between two
- * databases or a take a database snapshot.
+ * A JFrame that takes user input to make a comparison between two databases or
+ * take a database snapshot.
  * @author Peter Kaufman
- * @version 5-22-19
+ * @version 5-23-19
  * @since 5-11-19
  */
 public abstract class DBCompare extends JFrameV2 {
@@ -53,44 +49,42 @@ public abstract class DBCompare extends JFrameV2 {
   private JPanel footc = new JPanel();
 
   /**
-   * Initializes a DBCompe object with a title and text for the its button.
+   * Sets the type of the compare and sets the class name (for sizeing purposes).
    * @author Peter Kaufman
-   * @param type The type of JFrame to create.
+   * @param type The type of compare that is occuring.
    */
   public DBCompare(int type) {
     this.type = type;
     clase = this.getClass().getName();
   }
 
-   /**
+  /**
    * Determines if the user has put in the appropriate information and either
-   * takes a database snapshot or compares a two databases (one can be a
-   * snapshot).
+   * takes a database snapshot or compares two databases (one can be a snapshot).
    * @author Peter Kaufman
    * @param evt The event button that occurs when databaseConnection1btn is
-   * clicked.
+   *        clicked.
    */
   protected abstract void databaseConnection1btnActionPerformed(ActionEvent evt);
 
   /**
-   * Creates a DbConn object for the development database based on user input.
-   * @return DbConn A connector to the development database.
-   * @throws SQLException if there is an issue connecting to the development
-   * database.
+   * Creates a database connection for the development database based on user
+   * input.
+   * @return A database connection for the development database.
+   * @throws SQLException Error connecting to the development database.
    */
   protected abstract DbConn createDevDatabaseConnection() throws SQLException;
 
   /**
-   * Creates a DbConn object for the live database based on user input.
-   * @return DbConn A connector to the live database.
-   * @throws SQLException if there is an issue connecting to the live
-   * database.
+   * Creates a database connection for the live database based on user input.
+   * @return A database connection for the live database.
+   * @throws SQLException Error connecting to the live database.
    */
   protected abstract DbConn createLiveDatabaseConnection() throws SQLException;
 
   /**
    * Whether or not the user has filled out all of the inputs that are needed to
-   * run the program.
+   * run the desired operation (compare or snapshot).
    * @author Peter Kaufman
    * @return Whether or not all fields have had something written to them.
    */
@@ -98,33 +92,28 @@ public abstract class DBCompare extends JFrameV2 {
     boolean allFilledOut = true;
     switch (type) {
     case 0:
-      for (JTextComponent cpn: devDatabaseInputs) {
+      for (JTextComponent cpn : devDatabaseInputs) {
         allFilledOut = allFilledOut && !(new String(cpn.getText())).equals("");
       }
-      for (JTextComponent cpn: livevDatabaseInputs) {
+      for (JTextComponent cpn : livevDatabaseInputs) {
         allFilledOut = allFilledOut && !(new String(cpn.getText())).equals("");
       }
       break;
     case 1:
-      for (JTextComponent cpn: livevDatabaseInputs) {
+      for (JTextComponent cpn : livevDatabaseInputs) {
         allFilledOut = allFilledOut && !(new String(cpn.getText())).equals("");
       }
       break;
     case 2:
-      for (JTextComponent cpn: devDatabaseInputs) {
+      for (JTextComponent cpn : devDatabaseInputs) {
         allFilledOut = allFilledOut && !(new String(cpn.getText())).equals("");
       }
       break;
     }
-
     return allFilledOut;
   }
 
-  /**
-   * InitComonents sets up the GUI Layout, sets up all action events, and
-   * initializes instance variables.
-   * @author Peter Kaufman
-   */
+  @Override
   protected void initComponents() {
     // use parameters to set JFrame properties
     setTitle(titleOptions[this.type]);
@@ -188,10 +177,8 @@ public abstract class DBCompare extends JFrameV2 {
    * @author Peter Kaufman
    */
   protected void takeSnapshot() {
-
     prepProgressBar("Establishing Database Connection", true);
     SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {
-
       @Override
       protected Boolean doInBackground() throws Exception {
         try {
@@ -210,7 +197,6 @@ public abstract class DBCompare extends JFrameV2 {
           throw new DatabaseDiffernceCheckerException(
               "There was an error" + " with the dev database connection. Please try again.", e);
         }
-
         return true;
       }
 
@@ -236,7 +222,6 @@ public abstract class DBCompare extends JFrameV2 {
         newBorder(chunks.get(chunks.size() - 1));
       }
     };
-
     swingW.execute();
   }
 
@@ -245,10 +230,8 @@ public abstract class DBCompare extends JFrameV2 {
    * @author Peter Kaufman
    */
   protected void getSequelStatementsInBackground() {
-
     prepProgressBar("Establishing Database Connection(s) and Collecting Database Info", true);
     SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {
-
       @Override
       protected Boolean doInBackground() throws Exception {
         setupDatabases();
@@ -280,7 +263,6 @@ public abstract class DBCompare extends JFrameV2 {
         newBorder(chunks.get(chunks.size() - 1));
       }
     };
-
     swingW.execute();
   }
 
@@ -308,7 +290,7 @@ public abstract class DBCompare extends JFrameV2 {
    * Gets two databases setup based on the type of the JFrame.
    * @author Peter Kaufman
    * @throws DatabaseDiffernceCheckerException if there was an error connnecting
-   * to a database.
+   *         to a database.
    */
   private void setupDatabases() throws DatabaseDiffernceCheckerException {
     sw.start();
@@ -325,10 +307,10 @@ public abstract class DBCompare extends JFrameV2 {
       DatabaseDiffernceCheckerException error;
       String errorMessage = "";
       if (cause instanceof DatabaseDiffernceCheckerException) {
-        error = (DatabaseDiffernceCheckerException)cause;
+        error = (DatabaseDiffernceCheckerException) cause;
       } else {
         if (cause instanceof SQLException) {
-        errorMessage = "There was an error with the database connection. Please try again.";
+          errorMessage = "There was an error with the database connection. Please try again.";
         } else {
           errorMessage = "There was an error reading in the database snapshot. Please try again.";
         }
@@ -342,8 +324,8 @@ public abstract class DBCompare extends JFrameV2 {
    * Compares two databases and determines their differences and how to make them
    * the same.
    * @author Peter Kaufman
-   * @throws DatabaseDiffernceCheckerException if there was an getting the database
-   * or comparing the database info.
+   * @throws DatabaseDiffernceCheckerException if there was an getting the
+   *         database or comparing the database info.
    */
   private void compareDatabases() throws DatabaseDiffernceCheckerException {
     sql.addAll(devDatabase.compareTables(liveDatabase.getTables()));

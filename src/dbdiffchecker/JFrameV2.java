@@ -14,22 +14,22 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JProgressBar;
-import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 /**
- * JFrameV2 is a JFrame that has all of the common methods that any JFrame in this package uses.
+ * A JFrame that has all of the common methods that any JFrame in this package
+ * uses.
  * @author Peter Kaufman
- * @version 5-21-19
+ * @version 5-23-19
  * @since 5-14-18
  */
-public class JFrameV2 extends JFrame {
+public abstract class JFrameV2 extends JFrame {
   // Defualt instance variables
   protected StopWatch sw = new StopWatch();
   protected Font myFont;
   protected boolean error = true;
   protected ArrayList<String> sql = new ArrayList<>();
-  protected ArrayList<Component> cpnr = new ArrayList<>(); 
+  protected ArrayList<Component> cpnr = new ArrayList<>();
   protected ArrayList<Component> cpnt = new ArrayList<>();
   protected ArrayList<Component> cpnbtn = new ArrayList<>();
   protected JProgressBar pb = new JProgressBar();
@@ -58,50 +58,45 @@ public class JFrameV2 extends JFrame {
     addComponentListener(new ComponentListener() {
       @Override
       public void componentResized(ComponentEvent e) {
-
         double width = e.getComponent().getWidth();
-        int titleSize= 14;
+        int titleSize = 14;
         int regSize = 12;
         int buttonSize = 18;
         // determine font sizes based on the class and width of the GUI
-        if (width >= 419  && clase.contains("DBDiffCheckerGUI")) {
-          titleSize = (int)(width / 25);
-          regSize = (int)(width / 25) - 2;
+        if (width >= 419 && clase.contains("DBDiffCheckerGUI")) {
+          titleSize = (int) (width / 25);
+          regSize = (int) (width / 25) - 2;
         } else if (width >= 660 && clase.contains("Result")) {
-          titleSize= (int)(width / 33);
-          regSize = (int)(width / 46);
+          titleSize = (int) (width / 33);
+          regSize = (int) (width / 46);
         } else if (clase.contains("Compare")) {
-          titleSize = (int)(width / 25);
+          titleSize = (int) (width / 25);
           if (width >= 660) {
-            regSize = (int)(width / 56);
-            buttonSize = (int)(width / 34);
+            regSize = (int) (width / 56);
+            buttonSize = (int) (width / 34);
           } else {
-             regSize = 11;
-             buttonSize = 18;
+            regSize = 11;
+            buttonSize = 18;
           }
         }
         Font title = new Font("Tahoma", Font.BOLD, titleSize);
         Font reg = new Font("Tahoma", Font.PLAIN, regSize);
         Font button = new Font("Tahoma", Font.BOLD, buttonSize);;
         for (Component cpn : cpnr) {
-
           cpn.setFont(reg);
         }
         for (Component cpn : cpnt) {
-
           cpn.setFont(title);
         }
         for (Component cpn : cpnbtn) {
-
           cpn.setFont(button);
         }
-
         myFont = reg;
       }
 
       @Override
       public void componentHidden(ComponentEvent e) {}
-      
+
       @Override
       public void componentShown(ComponentEvent e) {}
 
@@ -113,8 +108,8 @@ public class JFrameV2 extends JFrame {
   /**
    * Opens a JFrame with the error message provided as a paramater.
    * @author Peter Kaufman
-   * @param error The exception which contains a user friendly message and the error
-   * that is the cause. 
+   * @param error The exception which contains a user friendly message and the
+   *        error that is the cause.
    */
   protected void error(DatabaseDiffernceCheckerException error) {
     new ErrorPopup(error);
@@ -132,16 +127,14 @@ public class JFrameV2 extends JFrame {
   }
 
   /**
-   * Opens the start JFrame when the form is closing if an error has occurred 
-   * or the application is not to shutdown from this JFrame.
+   * Opens the start JFrame when the form is closing if an error has occurred or
+   * the application is not to shutdown from this JFrame.
    * @author Peter Kaufman
    * @param evt The JFrame closing.
    */
   protected void formWindowClosing(WindowEvent evt) {
     if (error) {
-
-      DBDiffCheckerGUI start = new DBDiffCheckerGUI();
-      start.setVisible(true);
+      new DBDiffCheckerGUI();
     }
   }
 
@@ -151,17 +144,16 @@ public class JFrameV2 extends JFrame {
    * @param title The new name of the titled borders.
    */
   protected void newBorder(String title) {
-
     nBorder = BorderFactory.createTitledBorder(title);
     nBorder.setTitleFont(myFont);
     pb.setBorder(nBorder);
   }
 
   /**
-   * log takes two Strings and writes the first to either stdLog stdErr.
+   * Takes in data and writes it to a log file.
    * @author Peter Kaufman
    * @param info The data to be logged.
-   * @throws DatabaseDiffernceCheckerException Error logging data to a file.
+   * @throws DatabaseDiffernceCheckerException Error logging data.
    */
   protected void log(String info) throws DatabaseDiffernceCheckerException {
     try {
@@ -172,21 +164,21 @@ public class JFrameV2 extends JFrame {
   }
 
   /**
-    * Closes the current JFrame object.
-    * @author Peter Kaufman
-    */
+   * Closes the current JFrame object.
+   * @author Peter Kaufman
+   */
   protected void close() {
     // closes the window activating the formWindowClosing method
     this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
   }
 
   /**
-    * Gets the progressBar ready by reseting the StopWatch object and determines 
-    * which settings to turn on.
-    * @author Peter Kaufman
-    * @param title The title for the border of the progressBar.
-    * @param indeterminate Whether or not the progressBar is to be indeterminate.
-    */
+   * Gets the progressBar ready by reseting the StopWatch object and determines
+   * which settings to turn on.
+   * @author Peter Kaufman
+   * @param title The title for the border of the progressBar.
+   * @param indeterminate Whether or not the progressBar is to be indeterminate.
+   */
   protected void prepProgressBar(String title, boolean indeterminate) {
     newBorder(title);
     pb.setIndeterminate(indeterminate);
@@ -199,10 +191,11 @@ public class JFrameV2 extends JFrame {
   }
 
   /**
-    * Stops the progressBar, sets the border to the given String, and then hides the progressBar.
-    * @author Peter Kaufman
-    * @param title The title for the border of the progressBar
-    */
+   * Stops the progressBar, sets the border to the given String, and then hides
+   * the progressBar.
+   * @author Peter Kaufman
+   * @param title The title for the border of the progressBar
+   */
   protected void endProgressBar(String title) {
     newBorder(title);
     if (pb.isIndeterminate()) {
@@ -212,4 +205,10 @@ public class JFrameV2 extends JFrame {
     }
     pb.setVisible(false);
   }
+
+  /**
+   * Sets up the GUI layout, all action events, and instance variables.
+   * @author Peter Kaufman
+   */
+  abstract protected void initComponents();
 }
