@@ -13,7 +13,7 @@ import java.util.HashMap;
  * database and database name.
  * @author Peter Kaufman
  * @version 5-23-19
- * @since 9-6-17
+ * @since 5-5-19
  */
 public class SQLiteConn extends DbConn {
   // Instance variables

@@ -11,7 +11,7 @@ import javax.swing.text.JTextComponent;
  * to take a database snapshot.
  * @author Peter Kaufman
  * @version 5-23-19
- * @since 9-20-17
+ * @since 5-21-19
  */
 public class MySQLCompare extends DBCompare {
   // Instance variables

@@ -13,7 +13,7 @@ import java.util.HashMap;
  * username, port, host, and database provided.
  * @author Peter Kaufman
  * @version 5-23-19
- * @since 9-6-17
+ * @since 5-21-19
  */
 public class MySQLConn extends DbConn {
   // Instance variables

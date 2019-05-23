@@ -3,7 +3,7 @@
 
 ## Description
 
- Compares MySQL databases and generates the SQL statements that are needed to make the two databases the same. The SQL statements can then be run or just copied to review or run later.
+ Compares MySQL or SQLite databases and generates the SQL statements that are needed to make the two databases the same. The SQL statements can then be run or just copied to review or run later.
 
 <h2 id="table_of_contents">Table of Contents</h2>
 
@@ -107,9 +107,12 @@ java -jar path_to_jar_file
   <li>
     Two Connection Database Comparison
     <p>This type of database comparison connects to two databases and compares them yeilding the SQL statements to make them the same.</p>
-      <p>When this option is selected in the application it will take you to the following screen:
+      <p>When this option is selected in the application it will take you to one of the following screens:
         <div align="center">
-          <img src="UserGuides\images\twoDBComparison.png" alt="Two Database Comparison Screen" height = "300"/>
+          <p>MySQL:</p>
+          <img src="UserGuides\images\twoDBComparison.png" alt="Two Database Comparison MySQL Screen" height = "300"/>
+          <p>SQLite:</p>
+          <img src="UserGuides\images\twoDBComparisonSQLite.png" alt="Two Database Comparison SQLite Screen" height = "300"/>
         </div>
         Fill out each of the needed fields and click Compare. <br>
         <i>Note: the default port for MYSQL is 3306 and that the development database information goes on the LEFT and the live database information goes on the RIGHT</i>
@@ -120,7 +123,10 @@ java -jar path_to_jar_file
     <p>This type of database comparison connects to one database and uses a serialized file to compare them yeilding the SQL statements to make them the same.</p>
       <p>When this option is selected in the application it will take you to the following screen:
         <div align="center">
-          <img src="UserGuides\images\oneDBComparison.png" alt="One Database Comparison Screen" height = "300"/>
+          <p>MySQL:</p>
+          <img src="UserGuides\images\oneDBComparison.png" alt="One Database Comparison MySQL Screen" height = "300"/>
+          <p>SQLite:</p>
+          <img src="UserGuides\images\oneDBComparisonSQLite.png" alt="One Database Comparison SQLite Screen" height = "300"/>
         </div>
         Fill out each of the needed fields and click Compare. <br>
         <i>Note: the default port for MYSQL is 3306 and that the development database is the serialized database</i>
@@ -131,7 +137,10 @@ java -jar path_to_jar_file
     <p>A database snapshot is where a "copy" of the schema structure for the database is written to a serialized file for later use. It stores information such as tables, indexes, views, columns, and other pertinent data for database comparisons.</p>
     <p>When this option is selected in the application it will take you to the following screen:
       <div align="center">
-        <img src="UserGuides\images\takeDBSnapshot.png" alt="Database Snapshot Screen" height = "300"/>
+        <p>MySQL:</p>
+          <img src="UserGuides\images\takeDBSnapshot.png" alt="Database Snapshot MySQL Screen" height = "300"/>
+          <p>SQLite:</p>
+          <img src="UserGuides\images\takeDBSnapshotSQLite.png" alt="One Database Comparison SQLite Screen" height = "300"/>        
       </div>
       Fill out each of the needed fields and click Snapshot. <br>
       <i>Note: the default port for MYSQL is 3306, and this option is for the development database</i>

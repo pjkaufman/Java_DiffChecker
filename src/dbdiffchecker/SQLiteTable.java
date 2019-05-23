@@ -8,7 +8,7 @@ import java.util.HashMap;
  * indices.
  * @author Peter Kaufman
  * @version 5-23-19
- * @since 9-10-17
+ * @since 5-11-19
  */
 public class SQLiteTable extends Table {
   // Instance variables
