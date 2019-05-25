@@ -7,6 +7,7 @@ package dbdiffchecker;
  * @since 9-12-17
  */
 public class Index extends Schema {
+  // Instance variables
   private String column = "";
 
   /**
