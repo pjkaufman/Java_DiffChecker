@@ -98,7 +98,7 @@ class Routines:
     if(self.compile(self.packagePath, False)):
       call('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') + ' manifest.mf' + changeDirFlag
            + self.getPackageName() + changeDirFlag + self.getResourceDir(), shell=True)
-      self.__removeClassFiles(os.path.join(os.getcwd(), self.packagePath))
+      self.__removeAllPackageClassFiles()
 
     return None
 
@@ -148,6 +148,11 @@ class Routines:
     except:
       pass
     return None
+
+  # __removeAllPackageClassFiles removes all class files that exist in the source package
+  def __removeAllPackageClassFiles(self):
+    for packageDir in os.walk(self.packagePath):
+      self.__removeClassFiles(os.path.join(os.getcwd(), packageDir[0]))
 
   #__removeClassFiles takes in a directory and removes all class files in that directory
   #param: directory is the directory in which to remove all class files
@@ -229,7 +234,8 @@ class Routines:
     #run test
     call('javac ' + classPath + '" ' + os.path.join(self.testsPath, '*.java'))
     call('java ' + classPath + ';' + self.testsPath + '" TestRunner ')
-    self.__removeClassFiles(os.path.join(os.getcwd(), self.packagePath))
+    # remove all class files from the package directories
+    self.__removeAllPackageClassFiles()
     self.__removeClassFiles(os.path.join(os.getcwd(), self.testsPath))
     self.__removeDirectory(self.getLogFileDirectory())
 

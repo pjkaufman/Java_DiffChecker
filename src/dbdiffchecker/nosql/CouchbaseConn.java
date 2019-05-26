@@ -9,6 +9,8 @@ import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.dsl.element.IndexElement;
 import com.couchbase.client.java.query.util.IndexInfo;
+import dbdiffchecker.DatabaseDiffernceCheckerException;
+import dbdiffchecker.DbConn;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.document.JsonDocument;
 import java.util.HashMap;
@@ -18,7 +20,7 @@ import java.util.ArrayList;
  * @version 5-23-19
  * @since 5-23-19
  */
-public class CouchbaseConn {
+public class CouchbaseConn extends DbConn {
   // Instance variables
   private static final String bucketPlaceHolder = "dbDiffBucket";
   private static final String primaryKeyName = "dbDiffKey";
@@ -47,11 +49,8 @@ public class CouchbaseConn {
     return primaryAdded;
   }
 
-  /**
-   * Gets and returns the name of the bucket it can connect to.
-   * @return The name of the bucket it can connect to.
-   */
-  public String getName() {
+  @Override
+  public String getDatabaseName() {
     return bucketName;
   }
 
@@ -74,21 +73,27 @@ public class CouchbaseConn {
     return primaryKeyName;
   }
 
-  /**
-   * Establishes a connection with a Couchbase bucket and makes sure a primary
-   * index is on the bucket.
-   */
-  public void establishDatabaseConnection() {
-    Cluster cluster = CouchbaseCluster.create(host);
-    cluster.authenticate(username, password);
-    bucket = cluster.openBucket(bucketName);
-    // check to see if a primary index already exists
-    testQueriablity();
+  @Override
+  public void establishDatabaseConnection() throws DatabaseDiffernceCheckerException {
+    try {
+      Cluster cluster = CouchbaseCluster.create(host);
+      cluster.authenticate(username, password);
+      bucket = cluster.openBucket(bucketName);
+      // check to see if a primary index already exists
+      testConnection();
+    } catch (Exception cause) {
+      DatabaseDiffernceCheckerException error;
+      if (cause instanceof DatabaseDiffernceCheckerException) {
+        error = (DatabaseDiffernceCheckerException)cause;
+      } else {
+        error = new DatabaseDiffernceCheckerException("There was an error connecting to the bucket named " + bucketName,
+            cause);
+      }
+      throw error;
+    }
   }
 
-  /**
-   * Closes the connection to the Couchbase bucket.
-   */
+  @Override
   public void closeDatabaseConnection() {
     bucket.close();
   }
@@ -169,19 +174,26 @@ public class CouchbaseConn {
   /**
    * Tests to see if the bucket can be queried immediately or if a primary key
    * needs to be added first. It will add a primary key if it is needed.
+   * @throws DatabaseDiffernceCheckerException Error trying to connect to the
+   *         bucket.
    */
-  private void testQueriablity() {
+  @Override
+  public void testConnection() throws DatabaseDiffernceCheckerException{
     try {
       query = N1qlQuery.simple("SELECT META().id AS document FROM `" + bucketName + "`", params);
       // Perform a N1QL Query
       result = bucket.query(query);
     } catch (Exception error) {
+      
       String errorMsg = error.getCause().toString();
       if (errorMsg.contains("4000") && errorMsg.contains("CREATE INDEX")) {
         // create a primary key with the
         query = N1qlQuery.simple("CREATE PRIMARY INDEX " + primaryKeyName + " ON `" + bucketName + "`", params);
         bucket.query(query);
         primaryAdded = true;
+      } else {
+        throw new DatabaseDiffernceCheckerException("There was an error testing the connection to the bucket named " + bucketName,
+            error);
       }
     }
   }

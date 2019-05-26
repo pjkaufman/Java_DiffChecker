@@ -2,23 +2,25 @@ package dbdiffchecker.nosql;
 
 import java.util.HashMap;
 import java.util.ArrayList;
+import dbdiffchecker.Database;
+import dbdiffchecker.DatabaseDiffernceCheckerException;
 
 /**
  * @version 5-24-19
  * @since 5-24-19
  */
-public class Bucket {
+public class Bucket extends Database {
   // Instance variables
   private HashMap<String, String> documents = new HashMap<>();
   private HashMap<String, CouchbaseIndex> indices = new HashMap<>();
   private CouchbaseConn conn = null;
 
-  public static void main(String... args) {
+  public static void main(String... args) throws DatabaseDiffernceCheckerException {
     CouchbaseConn conn = new CouchbaseConn("Administrator", "ch@1RLes2", "localhost", "dev");
     Bucket devBucket = new Bucket(conn);
     CouchbaseConn conn1 = new CouchbaseConn("Administrator", "ch@1RLes2", "localhost", "test2");
     Bucket liveBucket = new Bucket(conn1);
-    ArrayList<String> n1ql = devBucket.compareBuckets(liveBucket);
+    ArrayList<String> n1ql = devBucket.compare(liveBucket);
     conn1.establishDatabaseConnection();
     for (String statement : n1ql) {
       conn1.runStatement(statement);
@@ -26,7 +28,7 @@ public class Bucket {
     conn1.closeDatabaseConnection();
   }
 
-  public Bucket(CouchbaseConn conn) {
+  public Bucket(CouchbaseConn conn) throws DatabaseDiffernceCheckerException {
     this.conn = conn;
     this.conn.establishDatabaseConnection();
     this.conn.getDocuments(documents);
@@ -34,34 +36,35 @@ public class Bucket {
     this.conn.closeDatabaseConnection();
   }
 
-  public ArrayList<String> compareBuckets(Bucket liveBucket) {
+  @Override
+  public ArrayList<String> compare(Database liveBucket) {
     ArrayList<String> n1ql = new ArrayList<>();
-    String liveBucketName = liveBucket.conn.getName();
-    String bucketPlaceHolder = liveBucket.conn.getBucketPlaceHolder();
-    String primaryKeyName = liveBucket.conn.getDefaultPrimaryName();
+    String liveBucketName = ((Bucket)liveBucket).conn.getDatabaseName();
+    String bucketPlaceHolder = ((Bucket)liveBucket).conn.getBucketPlaceHolder();
+    String primaryKeyName = ((Bucket)liveBucket).conn.getDefaultPrimaryName();
     // check for documents to create
     for (String documnetName : documents.keySet()) {
-      if (!liveBucket.documents.containsKey(documnetName)) {
+      if (!((Bucket)liveBucket).documents.containsKey(documnetName)) {
         n1ql.add("Create document: " + documnetName);
       }
     }
     // check for documents to drop
-    for (String documnetName : liveBucket.documents.keySet()) {
+    for (String documnetName : ((Bucket)liveBucket).documents.keySet()) {
       if (!documents.containsKey(documnetName)) {
         n1ql.add("Drop document: " + documnetName);
       }
     }
     // check to see if any indices need to be dropped
-    for (String indexName : liveBucket.indices.keySet()) {
+    for (String indexName : ((Bucket)liveBucket).indices.keySet()) {
       if (!indices.containsKey(indexName)) {
         n1ql.add("DROP INDEX `" + liveBucketName + "`.`" + indexName + "`;");
       }
     }
     // check to see if any indices need to be added or modified
     for (String indexName : indices.keySet()) {
-      if (liveBucket.indices.containsKey(indexName)) {
+      if (((Bucket)liveBucket).indices.containsKey(indexName)) {
         // does the index need to be modified
-        if (!liveBucket.indices.get(indexName).equals(indices.get(indexName))) {
+        if (!((Bucket)liveBucket).indices.get(indexName).equals(indices.get(indexName))) {
           n1ql.add("DROP INDEX `" + liveBucketName + "`.`" + indexName + "`;");
           n1ql.add(indices.get(indexName).getCreateStatement().replace(bucketPlaceHolder, liveBucketName) + ";");
         }
@@ -71,9 +74,9 @@ public class Bucket {
     }
     // drop the primary keys that were added manually if they exist
     if (this.conn.primaryAdded()) {
-      n1ql.add("DROP INDEX `" + this.conn.getName() + "`.`" + primaryKeyName + "`;");
+      n1ql.add("DROP INDEX `" + this.conn.getDatabaseName() + "`.`" + primaryKeyName + "`;");
     }
-    if (liveBucket.conn.primaryAdded()) {
+    if (((Bucket)liveBucket).conn.primaryAdded()) {
       n1ql.add("DROP INDEX `" + liveBucketName + "`.`" + primaryKeyName + "`;");
     }
     return n1ql;

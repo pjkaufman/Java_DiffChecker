@@ -17,6 +17,12 @@ import java.util.HashMap;
  */
 abstract public class DbConn {
   /**
+   * This is the default constructor for this class, <b> Needed for
+   * Serialization</b>.
+   */
+  public DbConn() {}
+
+  /**
    * Returns the name of the database to connect to.
    * @author Peter Kaufman
    * @return The name of the database to connect to.
