@@ -1,4 +1,4 @@
-package dbdiffchecker;
+package dbdiffchecker.sql;
 
 import java.io.Serializable;
 

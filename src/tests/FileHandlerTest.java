@@ -3,17 +3,18 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
-import dbdiffchecker.Column;
-import dbdiffchecker.Database;
+import dbdiffchecker.sql.Column;
+import dbdiffchecker.sql.SQLDatabase;
 import dbdiffchecker.FileHandler;
-import dbdiffchecker.Index;
-import dbdiffchecker.Table;
-import dbdiffchecker.MySQLTable;
+import dbdiffchecker.Database;
+import dbdiffchecker.sql.Index;
+import dbdiffchecker.sql.Table;
+import dbdiffchecker.sql.MySQLTable;
 
 /**
  * A unit test that makes sure that the FileHandler object works as intended.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 5-24-19
  * @since 5-11-19
  */
 public class FileHandlerTest {
@@ -90,7 +91,7 @@ public class FileHandlerTest {
    */
   public void testSerialization() {
     ArrayList<String> sql;
-    Database db = new Database();
+    Database db = new SQLDatabase();
     String expectedSQL = "ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, "
         + "\nADD COLUMN `id` varchar(40) NOT NULL AFTER `data`, \nMODIFY COLUMN `ip_address` varchar(45) NOT NULL, "
         + "\nMODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\', \nDROP COLUMN `data2`, "
@@ -107,13 +108,13 @@ public class FileHandlerTest {
         + "`data2` blob NOT NULL,\n  UNIQUE KEY `delete` (`id`)\n  KEY `modify` (`data`,`ip_address`)\n  "
         + "KEY `leave` (`data`, `id`)  \n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin2";
     table2 = new MySQLTable(name, create);
-    db.getTables().put(table2.getName(), table2);
+    ((SQLDatabase)db).getTables().put(table2.getName(), table2);
     try {
       // serialize table2
       FileHandler.serializeDatabase(db, "");
       // deserialize table2
       db = FileHandler.deserailizDatabase("");
-      table2 = db.getTables().get(table2.getName());
+      table2 = ((SQLDatabase)db).getTables().get(table2.getName());
     } catch (Exception e) {
       fail("There was an error with serializing or deserializing the database");
     }

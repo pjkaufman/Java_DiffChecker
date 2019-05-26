@@ -1,4 +1,4 @@
-package dbdiffchecker;
+package dbdiffchecker.sql;
 
 /**
  * Resembles an SQL index and contains index info.

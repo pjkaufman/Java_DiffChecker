@@ -1,4 +1,4 @@
-package dbdiffchecker;
+package dbdiffchecker.sql;
 
 import java.util.ArrayList;
 import java.util.HashMap;

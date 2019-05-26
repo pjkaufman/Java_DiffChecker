@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
+import dbdiffchecker.sql.MySQLConn;
+import dbdiffchecker.sql.SQLDatabase;
 
 /**
  * A JFrame that takes user input to make a comparison between two databases or
@@ -59,14 +61,24 @@ public class MySQLCompare extends DBCompare {
   }
 
   @Override
-  protected DbConn createDevDatabaseConnection() throws SQLException {
+  protected DbConn createDevDatabaseConnection() throws DatabaseDiffernceCheckerException {
     return new MySQLConn(devUsername.getText(), new String(devPassword.getPassword()), devHost.getText(),
         devPort.getText(), devDatabaseName.getText(), "dev");
   }
 
   @Override
-  protected DbConn createLiveDatabaseConnection() throws SQLException {
+  protected DbConn createLiveDatabaseConnection() throws DatabaseDiffernceCheckerException {
     return new MySQLConn(liveUsername.getText(), new String(livePassword.getPassword()), liveHost.getText(),
         livePort.getText(), liveDatabaseName.getText(), "live");
+  }
+
+  @Override
+  protected Database createDevDatabase() throws DatabaseDiffernceCheckerException {
+    return new SQLDatabase(devDatabaseConnection);
+  }
+
+  @Override
+  protected Database createLiveDatabase() throws DatabaseDiffernceCheckerException {
+    return new SQLDatabase(liveDatabaseConnection);
   }
 }

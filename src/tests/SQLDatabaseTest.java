@@ -2,24 +2,24 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import java.util.ArrayList;
 import java.util.HashMap;
-import dbdiffchecker.Column;
-import dbdiffchecker.Database;
-import dbdiffchecker.Index;
-import dbdiffchecker.Table;
-import dbdiffchecker.MySQLTable;
-import dbdiffchecker.View;
+import dbdiffchecker.sql.Column;
+import dbdiffchecker.sql.SQLDatabase;
+import dbdiffchecker.sql.Index;
+import dbdiffchecker.sql.Table;
+import dbdiffchecker.sql.MySQLTable;
+import dbdiffchecker.sql.View;
 
 /**
- * A unit test that makes sure that the Database object works as intended.
+ * A unit test that makes sure that the SQLDatabase object works as intended.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 5-24-19
  * @since 5-11-19
  */
-public class DatabaseTest {
+public class SQLDatabaseTest {
   private Table table1, table2, table3;
   private View view1, view2;
   private String name, create, collation, charSet, autoIncrement, details, columns;
-  private Database db;
+  private SQLDatabase db;
 
   @Test
   /**
@@ -32,7 +32,7 @@ public class DatabaseTest {
     table1 = new MySQLTable(name, create);
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table2 = new MySQLTable(name, create);
-    db = new Database();
+    db = new SQLDatabase();
     assertEquals("The table list should be empty for a newly created database", 0, db.getTables().size());
     db.getTables().put(table1.getName(), table1);
     assertEquals("The table list should have the 1 table after the first addition", 1, db.getTables().size());
@@ -51,7 +51,7 @@ public class DatabaseTest {
    * @author Peter Kaufman
    */
   public void testGetViews() {
-    db = new Database();
+    db = new SQLDatabase();
     name = "testView";
     create = "CREATE VIEW `testView` AS SELECT * FROM Products;";
     view1 = new View(name, create);
@@ -75,7 +75,7 @@ public class DatabaseTest {
    * @author Peter Kaufman
    */
   public void testUpdateViews() {
-    db = new Database();
+    db = new SQLDatabase();
     ArrayList<View> liveViews = new ArrayList<>();
     ArrayList<String> sql;
     name = "testView";
@@ -93,7 +93,7 @@ public class DatabaseTest {
         sql.contains(view1.getCreateStatement()) && sql.contains(view2.getCreateStatement())
             && sql.contains("DROP VIEW `" + view1.getName() + "`;"));
     // test to see if it will drop and add the view back
-    db = new Database();
+    db = new SQLDatabase();
     db.getViews().add(view1);
     sql = db.updateViews(liveViews);
     assertEquals("The expected sql statments are a create statement and a drop statement", 2, sql.size());
@@ -107,7 +107,7 @@ public class DatabaseTest {
    * @author Peter Kaufman
    */
   public void testTablesDiffs() {
-    db = new Database();
+    db = new SQLDatabase();
     HashMap<String, String> tablesToUpdate = new HashMap<>();
     HashMap<String, Table> liveTables = new HashMap<>();
     name = "bloat";
@@ -122,22 +122,22 @@ public class DatabaseTest {
     db.getTables().put(table2.getName(), table2);
     liveTables.put(table3.getName(), table3);
     db.compareTables(liveTables);
-    tablesToUpdate = db.tablesDiffs(liveTables, new Database());
+    tablesToUpdate = db.tablesDiffs(liveTables, new SQLDatabase());
     assertEquals("The expected tables to update should be 1 because only one table they have in common is different", 1,
         tablesToUpdate.size());
     assertEquals("The tables to update should be one which is the name of the only common table in this case", true,
         tablesToUpdate.containsKey(table3.getName()));
     // test to see if it will yield nothing if there are no tables in common
-    db = new Database();
+    db = new SQLDatabase();
     db.getTables().put(table1.getName(), table1);
     db.compareTables(liveTables);
-    tablesToUpdate = db.tablesDiffs(liveTables, new Database());
+    tablesToUpdate = db.tablesDiffs(liveTables, new SQLDatabase());
     assertEquals("The expected tables to update should be 0 because there are no tables in common", 0,
         tablesToUpdate.size());
     // test to see if it will yield nothing if all common tables are the same
     db.getTables().put(table3.getName(), table3);
     liveTables.put(table1.getName(), table1);
-    tablesToUpdate = db.tablesDiffs(liveTables, new Database());
+    tablesToUpdate = db.tablesDiffs(liveTables, new SQLDatabase());
     assertEquals("The expected tables to update should be 0 because all common tables are the same", 0,
         tablesToUpdate.size());
   }
@@ -148,7 +148,7 @@ public class DatabaseTest {
    * @author Peter Kaufman
    */
   public void testCompareTables() {
-    db = new Database();
+    db = new SQLDatabase();
     HashMap<String, Table> liveTables = new HashMap<>();
     ArrayList<String> sql;
     name = "bloat";
@@ -191,7 +191,7 @@ public class DatabaseTest {
    * @author Peter Kaufman
    */
   public void testUpdateTables() {
-    db = new Database();
+    db = new SQLDatabase();
     HashMap<String, Table> liveTables = new HashMap<>();
     HashMap<String, String> tablesToUpdate = new HashMap<>();
     ArrayList<String> sql;
@@ -250,7 +250,7 @@ public class DatabaseTest {
    * @author Peter Kaufman
    */
   public void testFirstSteps() {
-    db = new Database();
+    db = new SQLDatabase();
     HashMap<String, Table> liveTables = new HashMap<>();
     String first1 = "ALTER TABLE `blob`\n ADD PRIMARY KEY (`pikapika`);";
     String first2 = "ALTER TABLE `broach`\n ADD PRIMARY KEY (`mewtwo`);";

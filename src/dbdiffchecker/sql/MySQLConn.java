@@ -1,4 +1,4 @@
-package dbdiffchecker;
+package dbdiffchecker.sql;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import dbdiffchecker.DatabaseDiffernceCheckerException;
 
 /**
  * Establishes a connection with a MySQL database based on the password,
@@ -15,7 +16,7 @@ import java.util.HashMap;
  * @version 5-23-19
  * @since 5-21-19
  */
-public class MySQLConn extends DbConn {
+public class MySQLConn extends SQLDbConn {
   // Instance variables
   private String username = "";
   private String password = "";
@@ -33,10 +34,10 @@ public class MySQLConn extends DbConn {
    * @param database The database in MySQL that the connection is to be
    *        established with.
    * @param type Either 'dev' or 'live'.
-   * @throws SQLException Error connecting to the database.
+   * @throws DatabaseDiffernceCheckerException Error connecting to the database.
    */
   public MySQLConn(String username, String password, String host, String port, String database, String type)
-      throws SQLException {
+      throws DatabaseDiffernceCheckerException {
     this.type = type;
     this.username = username;
     this.password = password;
@@ -180,9 +181,13 @@ public class MySQLConn extends DbConn {
   }
 
   @Override
-  protected void testConnection() throws SQLException {
-    this.con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.db
+  protected void testConnection() throws DatabaseDiffernceCheckerException {
+    try {
+      this.con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.db
         + "?autoReconnect=true&useSSL=false&maxReconnects=5", this.username, this.password);
-    this.con.close();
+      this.con.close();
+    } catch (SQLException error) {
+      throw new DatabaseDiffernceCheckerException("There was an error with the connection to " + this.db + ". Please try again.", error);
+    }
   }
 }

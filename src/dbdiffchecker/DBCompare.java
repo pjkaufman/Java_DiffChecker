@@ -17,12 +17,13 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.text.JTextComponent;
+import dbdiffchecker.sql.SQLDbConn;
 
 /**
  * A JFrame that takes user input to make a comparison between two databases or
  * take a database snapshot.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 5-24-19
  * @since 5-11-19
  */
 public abstract class DBCompare extends JFrameV2 {
@@ -36,7 +37,6 @@ public abstract class DBCompare extends JFrameV2 {
   protected Database liveDatabase;
   protected DbConn devDatabaseConnection;
   protected DbConn liveDatabaseConnection;
-  protected HashMap<String, String> updateTables = new HashMap<>();
   protected JTextField liveDatabaseName = new JTextField(10);
   protected JTextField devDatabaseName = new JTextField(10);
   protected JTextComponent[] devDatabaseInputs;
@@ -71,16 +71,35 @@ public abstract class DBCompare extends JFrameV2 {
    * Creates a database connection for the development database based on user
    * input.
    * @return A database connection for the development database.
-   * @throws SQLException Error connecting to the development database.
+   * @throws DatabaseDiffernceCheckerException Error connecting to the development
+   *         database.
    */
-  protected abstract DbConn createDevDatabaseConnection() throws SQLException;
+  protected abstract DbConn createDevDatabaseConnection() throws DatabaseDiffernceCheckerException;
 
   /**
    * Creates a database connection for the live database based on user input.
    * @return A database connection for the live database.
-   * @throws SQLException Error connecting to the live database.
+   * @throws DatabaseDiffernceCheckerException Error connecting to the live
+   *         database.
    */
-  protected abstract DbConn createLiveDatabaseConnection() throws SQLException;
+  protected abstract DbConn createLiveDatabaseConnection() throws DatabaseDiffernceCheckerException;
+
+  /**
+   * Creates a database for the development database using the develpoment
+   * database connection.
+   * @return A database for the development database
+   * @throws DatabaseDiffernceCheckerException Error getting data from the
+   *         development database.
+   */
+  protected abstract Database createDevDatabase() throws DatabaseDiffernceCheckerException;
+
+  /**
+   * Creates a database for the live database using the develpoment database live.
+   * @return A database for the live database.
+   * @throws DatabaseDiffernceCheckerException Error getting data from the live
+   *         database.
+   */
+  protected abstract Database createLiveDatabase() throws DatabaseDiffernceCheckerException;
 
   /**
    * Whether or not the user has filled out all of the inputs that are needed to
@@ -181,22 +200,16 @@ public abstract class DBCompare extends JFrameV2 {
     SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {
       @Override
       protected Boolean doInBackground() throws Exception {
-        try {
-          publish("Establishing Database Connection");
-          sw.start();
-          devDatabaseConnection = createDevDatabaseConnection();
-          publish("Gathering Database Information");
-          devDatabase = new Database(devDatabaseConnection);
-          publish("Writing to JSON File");
-          FileHandler.serializeDatabase(devDatabase, salt);
-          sw.stop();
-          log("Took a DB Snapshot on " /* + sw.getDate() + " at " + sw.getHour() */ + " in "
-              + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
-        } catch (SQLException e) {
-          sw.stop();
-          throw new DatabaseDiffernceCheckerException(
-              "There was an error" + " with the dev database connection. Please try again.", e);
-        }
+        publish("Establishing Database Connection");
+        sw.start();
+        devDatabaseConnection = createDevDatabaseConnection();
+        publish("Gathering Database Information");
+        devDatabase = createDevDatabase();
+        publish("Writing to JSON File");
+        FileHandler.serializeDatabase(devDatabase, salt);
+        sw.stop();
+        log("Took a DB Snapshot on " /* + sw.getDate() + " at " + sw.getHour() */ + " in "
+            + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
         return true;
       }
 
@@ -236,7 +249,7 @@ public abstract class DBCompare extends JFrameV2 {
       protected Boolean doInBackground() throws Exception {
         setupDatabases();
         publish("Comparing Databases");
-        compareDatabases();
+        sql = devDatabase.compare(liveDatabase);
         return true;
       }
 
@@ -297,12 +310,12 @@ public abstract class DBCompare extends JFrameV2 {
     try {
       if (this.type == 0) {
         devDatabaseConnection = createDevDatabaseConnection();
-        devDatabase = new Database(devDatabaseConnection);
+        devDatabase = createDevDatabase();
       } else {
         devDatabase = FileHandler.deserailizDatabase(salt);
       }
       liveDatabaseConnection = createLiveDatabaseConnection();
-      liveDatabase = new Database(liveDatabaseConnection);
+      liveDatabase = createLiveDatabase();
     } catch (Exception cause) {
       DatabaseDiffernceCheckerException error;
       String errorMessage = "";
@@ -318,23 +331,5 @@ public abstract class DBCompare extends JFrameV2 {
       }
       throw error;
     }
-  }
-
-  /**
-   * Compares two databases and determines their differences and how to make them
-   * the same.
-   * @author Peter Kaufman
-   * @throws DatabaseDiffernceCheckerException if there was an getting the
-   *         database or comparing the database info.
-   */
-  private void compareDatabases() throws DatabaseDiffernceCheckerException {
-    sql.addAll(devDatabase.compareTables(liveDatabase.getTables()));
-    updateTables.putAll(devDatabase.tablesDiffs(liveDatabase.getTables(), liveDatabase));
-    sql.addAll(0, liveDatabase.getFirstSteps());
-    sql.addAll(devDatabase.updateTables(liveDatabase.getTables(), updateTables));
-    sql.addAll(devDatabase.getFirstSteps());
-    sql.addAll(devDatabase.updateViews(liveDatabase.getViews()));
-    sw.stop();
-    log(salt + " DB Comparison Complete in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
   }
 }

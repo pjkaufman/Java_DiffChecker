@@ -1,4 +1,4 @@
-package dbdiffchecker;
+package dbdiffchecker.sql;
 
 /**
  * Resembles an SQL column and contains column info.

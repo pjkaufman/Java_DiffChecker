@@ -1,11 +1,11 @@
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-import dbdiffchecker.Index;
+import dbdiffchecker.sql.Index;
 
 /**
  * A unit test that makes sure that the Index object works as intended.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 5-24-19
  * @since 5-10-19
  */
 public class IndexTest {

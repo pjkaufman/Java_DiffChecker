@@ -63,18 +63,18 @@ public class Bucket {
         // does the index need to be modified
         if (!liveBucket.indices.get(indexName).equals(indices.get(indexName))) {
           n1ql.add("DROP INDEX `" + liveBucketName + "`.`" + indexName + "`;");
-          n1ql.add(indices.get(indexName).getCreateStatement().replace(conn.bucketPlaceHolder, liveBucketName) + ";");
+          n1ql.add(indices.get(indexName).getCreateStatement().replace(bucketPlaceHolder, liveBucketName) + ";");
         }
       } else {
-        n1ql.add(indices.get(indexName).getCreateStatement().replace(conn.bucketPlaceHolder, liveBucketName) + ";");
+        n1ql.add(indices.get(indexName).getCreateStatement().replace(bucketPlaceHolder, liveBucketName) + ";");
       }
     }
     // drop the primary keys that were added manually if they exist
     if (this.conn.primaryAdded()) {
-      n1ql.add("DROP INDEX `" + this.conn.getName() + "`.`" + conn.primaryKeyName + "`;");
+      n1ql.add("DROP INDEX `" + this.conn.getName() + "`.`" + primaryKeyName + "`;");
     }
     if (liveBucket.conn.primaryAdded()) {
-      n1ql.add("DROP INDEX `" + liveBucketName + "`.`" + conn.primaryKeyName + "`;");
+      n1ql.add("DROP INDEX `" + liveBucketName + "`.`" + primaryKeyName + "`;");
     }
     return n1ql;
   }

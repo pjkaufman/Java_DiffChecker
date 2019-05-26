@@ -1,4 +1,4 @@
-package dbdiffchecker;
+package dbdiffchecker.sql;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import dbdiffchecker.DatabaseDiffernceCheckerException;
 
 /**
  * Establishes a connection with an SQL database based on the path to the
@@ -15,7 +16,7 @@ import java.util.HashMap;
  * @version 5-23-19
  * @since 5-5-19
  */
-public class SQLiteConn extends DbConn {
+public class SQLiteConn extends SQLDbConn {
   // Instance variables
   private String path = "";
 
@@ -27,9 +28,9 @@ public class SQLiteConn extends DbConn {
    * @param database The SQLite database name that the connection is to be
    *        established with.
    * @param type Either 'dev' or 'live'.
-   * @throws SQLException Error connecting to the database.
+   * @throws DatabaseDiffernceCheckerException Error connecting to the database.
    */
-  public SQLiteConn(String path, String database, String type) throws SQLException {
+  public SQLiteConn(String path, String database, String type) throws DatabaseDiffernceCheckerException {
     this.type = type;
     this.db = database;
     this.path = path;
@@ -47,9 +48,13 @@ public class SQLiteConn extends DbConn {
   }
 
   @Override
-  protected void testConnection() throws SQLException {
-    this.con = DriverManager.getConnection(this.connString);
-    this.con.close();
+  protected void testConnection() throws DatabaseDiffernceCheckerException {
+    try {
+      this.con = DriverManager.getConnection(this.connString);
+      this.con.close();
+    } catch (SQLException error) {
+      throw new DatabaseDiffernceCheckerException("There was an error with the connection to " + this.db + ". Please try again.", error);
+    }
   }
 
   @Override

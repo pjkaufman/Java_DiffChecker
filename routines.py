@@ -81,7 +81,7 @@ class Routines:
 
     #compile the java files and make the jar file
     try:
-      check_output(start + ' -cp ' + self.getClassPath() + ' ' + os.path.join(self.packagePath, '*.java'), shell=True)
+      check_output(start + ' -cp ' + self.getClassPath() + ' ' + self.getPackagesToCompile(), shell=True)
       print('Compiled files')
     except Exception as e:
       print(str(e))
@@ -232,6 +232,15 @@ class Routines:
     self.__removeClassFiles(os.path.join(os.getcwd(), self.packagePath))
     self.__removeClassFiles(os.path.join(os.getcwd(), self.testsPath))
     self.__removeDirectory(self.getLogFileDirectory())
+
+  #getPackagesToCompile lists all packages that need to be compiled based on 
+  #whether they are in the the package source directory.
+  #returns the string of package compilation statemented for the javac command.
+  def getPackagesToCompile(self):
+    packageList = ''
+    for x in os.walk(self.packagePath):
+      packageList += os.path.join(x[0], '*.java') + ' '
+    return packageList
   
 def sigint_handler(signum, frame):
   print ('Exiting program')

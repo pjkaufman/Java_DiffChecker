@@ -1,4 +1,4 @@
-package dbdiffchecker;
+package dbdiffchecker.sql;
 
 /**
  * Resembles a view in an SQL database and contains view info.

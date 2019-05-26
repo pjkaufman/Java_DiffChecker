@@ -121,7 +121,7 @@ public class Result extends JFrameV2 {
         sw.start();
         for (int i = 0; i < sql.size(); i++) {
           temp = sql.get(i);
-          db.runSequelStatement(temp);
+          db.runStatement(temp);
           publish(i);
         }
         sw.stop();
