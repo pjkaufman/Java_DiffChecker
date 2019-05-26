@@ -43,22 +43,11 @@ abstract public class SQLDbConn extends DbConn {
     return this.firstSteps;
   }
 
-  /**
-   * Makes a connection to the database using the necessary information.
-   * @author Juan Nadal
-   * @see <a href=
-   *      "https://www.youtube.com/watch?v=e3gnhsGqNmI">https://www.youtube.scom/watch?v=e3gnhsGqNmI</a>
-   * @throws DatabaseDiffernceCheckerException Error when connecting to the
-   *         database.
-   */
+  
+  @Override
   abstract public void establishDatabaseConnection() throws DatabaseDiffernceCheckerException;
 
-  /**
-   * Closes the connection to the database.
-   * @author Peter Kaufman
-   * @throws DatabaseDiffernceCheckerException Error when closing the connection
-   *         to the database.
-   */
+  @Override
   public void closeDatabaseConnection() throws DatabaseDiffernceCheckerException {
     try {
       this.con.close();
@@ -94,30 +83,17 @@ abstract public class SQLDbConn extends DbConn {
    */
   abstract public ArrayList<View> getViews() throws DatabaseDiffernceCheckerException;
 
-  /**
-   * Takes an SQL statement and attempts to run it.
-   * @author Peter Kaufman
-   * @param sqlStatement An SQL statement.
-   * @throws DatabaseDiffernceCheckerException An error when running the SQL
-   *         statement.
-   */
+  @Override
   public void runStatement(String sqlStatement) throws DatabaseDiffernceCheckerException {
     try {
-      this.establishDatabaseConnection();
       Statement query = this.con.createStatement();
       query.executeUpdate(sqlStatement);
-      this.closeDatabaseConnection();
     } catch (SQLException e) {
       throw new DatabaseDiffernceCheckerException(
           "There was an error running " + sqlStatement + " on the " + this.db + " database.", e);
     }
   }
 
-  /**
-   * Attempts to connect to the database and responds accordingly.
-   * @author Peter Kaufman
-   * @throws SQLExceptDatabaseDiffernceCheckerExceptionion Error connectecting to
-   *         the database (it might be unavailable).
-   */
+  @Override
   abstract protected void testConnection() throws DatabaseDiffernceCheckerException;
 }

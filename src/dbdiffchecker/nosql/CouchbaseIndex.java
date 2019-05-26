@@ -1,16 +1,14 @@
 package dbdiffchecker.nosql;
 
+import dbdiffchecker.sql.Schema;
+
 /**
  * Resembles an Couchbase index and contains index info.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 5-24-19
  * @since 5-23-19
  */
-public class CouchbaseIndex {
-  // Instance variables
-  private String name;
-  private String createStatement;
-
+public class CouchbaseIndex extends Schema {
   /**
    * Sets the name and create statement of the index.
    * @author Peter Kaufman
@@ -27,24 +25,6 @@ public class CouchbaseIndex {
    * Serialization</b>.
    */
   public CouchbaseIndex() {}
-
-  /**
-   * Returns the name of the index.
-   * @author Peter Kaufman
-   * @return The names of the index.
-   */
-  public String getName() {
-    return this.name;
-  }
-
-  /**
-   * Returns the create statement of the index.
-   * @author Peter Kaufman
-   * @return The create statement of the index.
-   */
-  public String getCreateStatement() {
-    return this.createStatement;
-  }
 
   /**
    * Determines whether or not the indexes are the same by comparing their create

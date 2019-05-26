@@ -13,7 +13,7 @@ import dbdiffchecker.DatabaseDiffernceCheckerException;
  * Establishes a connection with an SQL database based on the path to the
  * database and database name.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 5-24-19
  * @since 5-5-19
  */
 public class SQLiteConn extends SQLDbConn {

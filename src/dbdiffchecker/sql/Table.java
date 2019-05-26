@@ -7,7 +7,7 @@ import java.util.HashMap;
  * Resembles a table in an SQL database and contains info about the table's
  * columns and indices.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 5-24-19
  * @since 9-10-17
  */
 public abstract class Table extends Schema {

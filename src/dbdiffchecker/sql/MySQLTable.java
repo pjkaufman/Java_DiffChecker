@@ -7,7 +7,7 @@ import java.util.HashMap;
  * Resembles a table in MySQL and contains info about the Ttable's columns and
  * indices.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 5-24-19
  * @since 5-15-19
  */
 public class MySQLTable extends Table {

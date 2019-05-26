@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 /**
- * @version 5-23-19
+ * @version 5-24-19
  * @since 5-23-19
  */
 public class CouchbaseConn extends DbConn {
@@ -84,7 +84,7 @@ public class CouchbaseConn extends DbConn {
     } catch (Exception cause) {
       DatabaseDiffernceCheckerException error;
       if (cause instanceof DatabaseDiffernceCheckerException) {
-        error = (DatabaseDiffernceCheckerException)cause;
+        error = (DatabaseDiffernceCheckerException) cause;
       } else {
         error = new DatabaseDiffernceCheckerException("There was an error connecting to the bucket named " + bucketName,
             cause);
@@ -178,13 +178,12 @@ public class CouchbaseConn extends DbConn {
    *         bucket.
    */
   @Override
-  public void testConnection() throws DatabaseDiffernceCheckerException{
+  public void testConnection() throws DatabaseDiffernceCheckerException {
     try {
       query = N1qlQuery.simple("SELECT META().id AS document FROM `" + bucketName + "`", params);
       // Perform a N1QL Query
       result = bucket.query(query);
     } catch (Exception error) {
-      
       String errorMsg = error.getCause().toString();
       if (errorMsg.contains("4000") && errorMsg.contains("CREATE INDEX")) {
         // create a primary key with the
@@ -192,8 +191,8 @@ public class CouchbaseConn extends DbConn {
         bucket.query(query);
         primaryAdded = true;
       } else {
-        throw new DatabaseDiffernceCheckerException("There was an error testing the connection to the bucket named " + bucketName,
-            error);
+        throw new DatabaseDiffernceCheckerException(
+            "There was an error testing the connection to the bucket named " + bucketName, error);
       }
     }
   }

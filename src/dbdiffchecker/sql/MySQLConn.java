@@ -13,7 +13,7 @@ import dbdiffchecker.DatabaseDiffernceCheckerException;
  * Establishes a connection with a MySQL database based on the password,
  * username, port, host, and database provided.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 5-24-19
  * @since 5-21-19
  */
 public class MySQLConn extends SQLDbConn {

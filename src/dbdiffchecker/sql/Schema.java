@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Holds common methods and instance variables for Schema subclasses.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 5-24-19
  * @since 5-17-18
  */
 public class Schema implements Serializable {

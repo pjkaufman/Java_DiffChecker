@@ -183,7 +183,10 @@ class Routines:
 
   #documnet java classes in the repo
   def document(self):
-    call('javadoc -d "docs" -classpath ' + '".;' + self.getSourceDir() + '" ' + self.getPackageName() + '"', shell=True)
+    packagesToDocument = '-subpackages '
+    for package in os.walk(self.packagePath):
+      packagesToDocument += os.path.basename(package[0]) + ':'
+    call('javadoc -d "docs" -classpath ' + self.getClassPath()[:-1] + ';' + self.getSourceDir() + '" ' + packagesToDocument[:-1], shell=True)
     return None
 
   #createLogs makes the log directory

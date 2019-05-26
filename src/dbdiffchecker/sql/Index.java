@@ -3,7 +3,7 @@ package dbdiffchecker.sql;
 /**
  * Resembles an SQL index and contains index info.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 5-24-19
  * @since 9-12-17
  */
 public class Index extends Schema {
