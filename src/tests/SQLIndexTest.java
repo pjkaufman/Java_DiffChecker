@@ -8,7 +8,7 @@ import dbdiffchecker.sql.Index;
  * @version 5-24-19
  * @since 5-10-19
  */
-public class IndexTest {
+public class SQLIndexTest {
   private Index test, test2;
   private String table, name, columns, create;
 

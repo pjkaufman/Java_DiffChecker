@@ -7,16 +7,16 @@ import dbdiffchecker.DbConn;
 import dbdiffchecker.DatabaseDiffernceCheckerException;
 
 /**
- * @version 5-24-19
+ * @version 5-26-19
  * @since 5-24-19
  */
 public class Bucket extends Database {
   // Instance variables
   private HashMap<String, String> documents = new HashMap<>();
   private HashMap<String, CouchbaseIndex> indices = new HashMap<>();
-  private String name;
-  private String bucketPlaceHolder;
-  private String primaryKeyName;
+  private String name = "";
+  private String bucketPlaceHolder = "";
+  private String primaryKeyName = "";
 
   /**
    * Creates a database that models the Couchbase bucket using the Couchbase
@@ -41,31 +41,54 @@ public class Bucket extends Database {
     connection.closeDatabaseConnection();
   }
 
+  /**
+   * This is the default constructor for this class, <b>Needed for
+   * Serialization</b>.
+   */
+  public Bucket() {}
+
+  /**
+   * Returns the list of Couchbase documents where the name is the key and value.
+   * @return The list of documents that exist in the bucket.
+   */
+  public HashMap<String, String> getDocuments() {
+    return this.documents;
+  }
+
+  /**
+   * Returns the list of Couchbase indices where the name is the key.
+   * @return The list of indices that exist in the bucket.
+   */
+  public HashMap<String, CouchbaseIndex> getIndices() {
+    return this.indices;
+  }
+
   @Override
   public ArrayList<String> compare(Database liveBucket) {
+    Bucket live = (Bucket) liveBucket;
     ArrayList<String> n1ql = new ArrayList<>();
-    String liveBucketName = ((Bucket) liveBucket).name;
+    String liveBucketName = live.name;
     // check for documents to create
     for (String documnetName : documents.keySet()) {
-      if (!((Bucket) liveBucket).documents.containsKey(documnetName)) {
+      if (!live.getDocuments().containsKey(documnetName)) {
         n1ql.add("Create document: " + documnetName);
       }
     }
     // check for documents to drop
-    for (String documnetName : ((Bucket) liveBucket).documents.keySet()) {
+    for (String documnetName : live.getDocuments().keySet()) {
       if (!documents.containsKey(documnetName)) {
         n1ql.add("Drop document: " + documnetName);
       }
     }
     // check to see if any indices need to be dropped
-    for (String indexName : ((Bucket) liveBucket).indices.keySet()) {
+    for (String indexName : live.getIndices().keySet()) {
       if (!indices.containsKey(indexName)) {
         n1ql.add("DROP INDEX `" + liveBucketName + "`.`" + indexName + "`;");
       }
     }
     // check to see if any indices need to be added or modified
     for (String indexName : indices.keySet()) {
-      if (((Bucket) liveBucket).indices.containsKey(indexName)) {
+      if (live.getIndices().containsKey(indexName)) {
         // does the index need to be modified
         if (!((Bucket) liveBucket).indices.get(indexName).equals(indices.get(indexName))) {
           n1ql.add("DROP INDEX `" + liveBucketName + "`.`" + indexName + "`;");
