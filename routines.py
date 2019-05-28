@@ -18,12 +18,12 @@ class Routines:
   def __init__(self):
     '''The constructor which initializes all instance variables'''
     #set up compile flags for later use
-    self.__compileFlags['cp'] = " -cp \".;" + os.path.join(self.getDirectoryName('jar'), '*') + "\""
-    self.__compileFlags['C'] = ' -C ' + self.getDirectoryName('source') + ' '
+    self.__compileFlags['cp'] = " -cp \".;" + os.path.join(self.__getDirectoryName('jar'), '*') + "\""
+    self.__compileFlags['C'] = ' -C ' + self.__getDirectoryName('source') + ' '
     # set up paths for later use
-    self.__paths['resource'] = os.path.join(self.getDirectoryName('source'), self.getDirectoryName('resource'))
-    self.__paths['package'] = os.path.join(self.getDirectoryName('source'), self.getFlag('package'))
-    self.__paths['test'] = os.path.join(self.getDirectoryName('source'),  self.getDirectoryName('test'))
+    self.__paths['resource'] = os.path.join(self.__getDirectoryName('source'), self.__getDirectoryName('resource'))
+    self.__paths['package'] = os.path.join(self.__getDirectoryName('source'), self.__getFlag('package'))
+    self.__paths['test'] = os.path.join(self.__getDirectoryName('source'),  self.__getDirectoryName('test'))
     
   def __removeDirectory(self, directory):
     """
@@ -41,13 +41,13 @@ class Routines:
     Removes all class files from the source folders by identifying all subpackages
     in the source directory and then removing all class files
     """
-    for dir in os.walk(self.getDirectoryName('source')):
+    for dir in os.walk(self.__getDirectoryName('source')):
       directory = os.path.join(os.getcwd(), dir[0]) 
       filelist = [f for f in os.listdir(directory) if f.endswith('.class')]
       for f in filelist:
         os.remove(os.path.join(directory, f))
 
-  def getDirectoryName(self, dirType):
+  def __getDirectoryName(self, dirType):
     """
     Gets the name of a directory based on the directory type requested
     Params:
@@ -58,7 +58,7 @@ class Routines:
     """
     return self.__directories[dirType]
 
-  def getPath(self, pathType):
+  def __getPath(self, pathType):
     """
     Gets the path of a directory based on the path type
     Params:
@@ -69,7 +69,7 @@ class Routines:
     """
     return self.__paths[pathType]
 
-  def getFlag(self, flagType):
+  def __getFlag(self, flagType):
     """
     Gets the flag for the java command based on the flagType
     Params:
@@ -80,7 +80,7 @@ class Routines:
     """
     return self.__compileFlags[flagType]
   
-  def compile(self, path, type):
+  def __compile(self, path, type):
     """
     Compiles the java files and determines where to send the output
     Params: 
@@ -91,10 +91,14 @@ class Routines:
     start = 'javac -Xlint:unchecked '
     if(type == True):
       start += '-d ' + path
+    # get all subpackages inside of the package
+    packageList = ''
+    for x in os.walk(self.__getPath('package')):
+      packageList += os.path.join(x[0], '*.java') + ' '
 
     #compile the java files and make the jar file
     try:
-      check_output(start + self.getFlag('cp') + ' ' + self.getPackagesToCompile(), shell=True)
+      check_output(start + self.__getFlag('cp') + ' ' + packageList, shell=True)
       print('Compiled files')
     except Exception as e:
       print(str(e))
@@ -102,60 +106,90 @@ class Routines:
       os._exit(1) # stop the program so that the user can try to fix the issue
     return True
 
-  def makeJar(self):
-    '''Sets up the manifest and makes the JAR file'''
-    self.updateManifest()
-    buildDir = self.getDirectoryName('distrobution')
-    #compile the java files and make the jar file
-    if(self.compile(self.getFlag('package'), False)):
-      call('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') + 
-        ' manifest.mf' + self.getFlag('C') + self.getFlag('package') +
-        self.getFlag('C') + self.getDirectoryName('resource'), shell=True)
-      self.__removeAllClassFiles()
-
+  def __setupEnvironment(self, env):
+    """
+    Sets up the desired environment based on the provided environment name
+    Note: the logs folder will always be created if it does not already exist
+    Params:
+      env - A string which is the name of the environment to set up for
+    """
+    if(env == 'debug'):
+      debugFolder = self.__getDirectoryName('debug')
+      try:
+        os.mkdir(debugFolder)
+      except:
+        pass
+      try:
+        os.mkdir(os.path.join(debugFolder, self.__getDirectoryName('resource')))
+      except:
+        pass
+      #copy current resources to the resources folder in the test directory
+      filelist = [f for f in os.listdir(os.path.join(os.getcwd(), self.__getPath('resource')))]
+      for f in filelist:
+        copy(os.path.join(os.getcwd(), self.__getPath('resource'), f), os.path.join(
+          os.getcwd(), debugFolder, self.__getDirectoryName('resource')))
+    elif(env == 'distrobution'):  
+      buildFolder = self.__getDirectoryName('distrobution')
+      try:
+        os.mkdir(buildFolder)
+      except:
+        pass
+      try:
+        os.mkdir(os.path.join(buildFolder, self.__getDirectoryName('jar')))
+      except:
+        pass
+    # always create logs folder
+    try:
+      os.mkdir(self.__getDirectoryName('log'))
+    except:
+      pass
+                    
   def debug(self):
     '''Sets up the debugging environment for the current code base'''
     #create the test directory
-    self.createTest()
-    testDir = self.getDirectoryName('debug')
+    self.__setupEnvironment('debug')
+    testDir = self.__getDirectoryName('debug')
     #run compiled files with classPath
-    if (self.compile(testDir, True)):
-      call('java' + self.getFlag('cp') + ';' + os.path.join(testDir, ' ')
-        + self.getFlag('package') + '.' + self.getFlag('main'), shell=True)
+    if (self.__compile(testDir, True)):
+      call('java' + self.__getFlag('cp') + ';' + os.path.join(testDir, ' ')
+        + self.__getFlag('package') + '.' + self.__getFlag('main'), shell=True)
 
-  def updateManifest(self):
-    '''Writes to manifest.nf and sets it up for use in a JAR file'''
-    #make the manfest file
+  def clean(self):
+    '''Deletes the test, log, and build directories'''
+    self.__removeDirectory(self.__getDirectoryName('debug'))
+    self.__removeDirectory(self.__getDirectoryName('distrobution'))
+    self.__removeDirectory(self.__getDirectoryName('log'))
+
+  def run(self):
+    '''Creates the build directory, creates the JAR file, and runs the JAR file'''
+    self.__setupEnvironment('distrobution')
+    # make the manfest file
     f = open('manifest.mf', 'w+')
-    #add the proper verion info
+    # add the proper verion info
     f.write("Manifest-Version: 1.0\n")
-    f.write("Ant-Version: Apache Ant 1.9.7\n")
     cP = 'Class-Path: '
-    mC = 'Main-Class: ' + self.getFlag('package') + '.' + self.getFlag('main')
-    #get current jar list and add it to the Class-Path
+    mC = 'Main-Class: ' + self.__getFlag('package') + '.' + self.__getFlag('main')
+    # get current jar list and add it to the Class-Path
     filelist = [fi for fi in os.listdir(os.path.join(os.getcwd(), 
-      self.getDirectoryName('jar'))) if fi.endswith('.jar')]
+      self.__getDirectoryName('jar'))) if fi.endswith('.jar')]
     for fi in filelist:
-      copy(os.path.join(self.getDirectoryName('jar'), fi), os.path.join(
-        self.getDirectoryName('distrobution'), os.path.join(self.getDirectoryName('jar'), fi)))
-      cP += os.path.join(self.getDirectoryName('jar'), fi) + ' '
-    #Class-Path is added if a jar file was found
+      copy(os.path.join(self.__getDirectoryName('jar'), fi), os.path.join(
+        self.__getDirectoryName('distrobution'), os.path.join(self.__getDirectoryName('jar'), fi)))
+      cP += os.path.join(self.__getDirectoryName('jar'), fi) + ' '
+    # Class-Path is added if a jar file was found
     if (cP != 'Class-Path: '):
       f.write(cP  + "\n")
     f.write(mC  + "\n")
     f.close()
-
-  def clean(self):
-    '''Deletes the test, log, and build directories'''
-    self.__removeDirectory(self.getDirectoryName('debug'))
-    self.__removeDirectory(self.getDirectoryName('distrobution'))
-    self.__removeDirectory(self.getDirectoryName('log'))
-
-  def run(self):
-    '''Creates the build directory, creates the JAR file, and runs the JAR file'''
-    self.createBuild()
-    self.makeJar()
-    call('java -jar ' + os.path.join(self.getDirectoryName('distrobution'), 'Db_Diff_Checker.jar'), shell=True)
+    buildDir = self.__getDirectoryName('distrobution')
+    #compile the java files and make the jar file
+    if(self.__compile(self.__getFlag('package'), False)):
+      call('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') + 
+        ' manifest.mf' + self.__getFlag('C') + self.__getFlag('package') +
+        self.__getFlag('C') + self.__getDirectoryName('resource'), shell=True)
+      self.__removeAllClassFiles()
+    # run jar file
+    call('java -jar ' + os.path.join(self.__getDirectoryName('distrobution'), 'Db_Diff_Checker.jar'), shell=True)
     
   def push(self):
     """
@@ -163,90 +197,31 @@ class Routines:
     code 
     """
     #document the repo
-    self.document()
+    packagesToDocument = '-subpackages '
+    for package in os.walk(self.__getPath('package')):
+      packagesToDocument += os.path.basename(package[0]) + ':'
+    call('javadoc -d "docs"' + self.__getFlag('cp')[:-1] + ';' + 
+      self.__getDirectoryName('source') + '" ' + packagesToDocument[:-1], shell=True)
     #get necessary information from the user
     stdout.write('Commit Message: ')
     stdout.flush()
     message = stdin.readline().strip()
     #commit and push the repo
     call("git add -A && git commit -a -m \"" + message + "\" && git push", shell=True)
-    
-  def document(self):
-    """
-    Goes through and determines the subpackage flag that is to be used in order
-    to document all packages for the application
-    """
-    packagesToDocument = '-subpackages '
-    for package in os.walk(self.getPath('package')):
-      packagesToDocument += os.path.basename(package[0]) + ':'
-    call('javadoc -d "docs"' + self.getFlag('cp')[:-1] + ';' + 
-      self.getDirectoryName('source') + '" ' + packagesToDocument[:-1], shell=True)
-    
-  def createLogs(self):
-    '''Makes the log directory'''
-    try:
-      os.mkdir(self.getDirectoryName('log'))
-    except:
-      pass
-
-  def createTest(self):
-    """
-    Creates the test directory and makes it ready for the user by copying all
-    resources into the resource folder created for the tests
-    """
-    debugFolder = self.getDirectoryName('debug')
-    try:
-       os.mkdir(debugFolder)
-    except:
-      pass
-    self.createLogs()
-    try:
-       os.mkdir(os.path.join(debugFolder, self.getDirectoryName('resource')))
-    except:
-      pass
-    #copy current resources to the resources folder in the test directory
-    filelist = [f for f in os.listdir(os.path.join(os.getcwd(), self.getPath('resource')))]
-    for f in filelist:
-      copy(os.path.join(os.getcwd(), self.getPath('resource'), f), os.path.join(
-        os.getcwd(), debugFolder, self.getDirectoryName('resource')))
-
-  def createBuild(self):
-    '''Makes the build directory with a lib folder'''
-    buildFolder = self.getDirectoryName('distrobution')
-    try:
-      os.mkdir(buildFolder)
-    except:
-      pass
-    try:
-      os.mkdir(os.path.join(buildFolder, self.getDirectoryName('jar')))
-    except:
-      pass
-    self.createLogs()
-
+  
   def test(self):
     '''Runs all of the tests in the tests directory'''
     #remove log folder to keep tests from failing erroneously
     self.clean()
     #create log folder for testing purposes
-    self.createLogs()
-    classPath = self.getFlag('cp')[:-1] + ';' + self.getDirectoryName('source')
+    self.__setupEnvironment('')
+    classPath = self.__getFlag('cp')[:-1] + ';' + self.__getDirectoryName('source')
     #run test
-    call('javac' + classPath + '" ' + os.path.join(self.getPath('test'), '*.java'))
-    call('java' + classPath + ';' + self.getPath('test') + '" TestRunner ')
+    call('javac' + classPath + '" ' + os.path.join(self.__getPath('test'), '*.java'))
+    call('java' + classPath + ';' + self.__getPath('test') + '" TestRunner ')
     # remove all class files from the package directories
     self.__removeAllClassFiles()
     self.clean()
-
-  def getPackagesToCompile(self):
-    """
-    Lists all packages that need to be compiled based on whether they are in
-    the the package source directory
-    Returns: A string of package compilation statements for the javac command
-    """
-    packageList = ''
-    for x in os.walk(self.getPath('package')):
-      packageList += os.path.join(x[0], '*.java') + ' '
-    return packageList
   
 def sigint_handler(signum, frame):
   '''Handles the user hitting ctrl + C by exiting the routine'''
