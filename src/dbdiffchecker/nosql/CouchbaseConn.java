@@ -75,8 +75,9 @@ public class CouchbaseConn extends DbConn {
 
   @Override
   public void establishDatabaseConnection() throws DatabaseDiffernceCheckerException {
+    String connString = "couchbase://" + host + "/" + bucketName + "?operation_timeout=5.5&config_total_timeout=15&http_poolsize=0";
     try {
-      Cluster cluster = CouchbaseCluster.create(host);
+      Cluster cluster = CouchbaseCluster.fromConnectionString(connString);;
       cluster.authenticate(username, password);
       bucket = cluster.openBucket(bucketName);
       // check to see if a primary index already exists

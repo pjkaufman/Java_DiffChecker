@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * A unit index that makes sure that the Bucket object works as intended.
+ * A unit test that makes sure that the Bucket object works as intended.
  * @author Peter Kaufman
  * @version 5-26-19
  * @since 5-24-19
