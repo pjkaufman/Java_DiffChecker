@@ -17,7 +17,7 @@ import javax.swing.SwingWorker;
 /**
  * A JFrame that shows the provided data to the user.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 5-30-19
  * @since 9-20-17
  */
 public class Result extends JFrameV2 {
@@ -56,6 +56,7 @@ public class Result extends JFrameV2 {
         this.setSize(300, 75);
         if (this.db != null) {
           instructLabel.setText("The databases are in sync.");
+          btnRun.setVisible(false);
         }
       } else {
         this.sql = SQL;

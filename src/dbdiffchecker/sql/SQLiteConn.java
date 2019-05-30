@@ -1,5 +1,6 @@
 package dbdiffchecker.sql;
 
+import dbdiffchecker.DatabaseDiffernceCheckerException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -7,13 +8,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
-import dbdiffchecker.DatabaseDiffernceCheckerException;
 
 /**
  * Establishes a connection with an SQL database based on the path to the
  * database and database name.
  * @author Peter Kaufman
- * @version 5-24-19
+ * @version 5-30-19
  * @since 5-5-19
  */
 public class SQLiteConn extends SQLDbConn {
@@ -53,7 +53,8 @@ public class SQLiteConn extends SQLDbConn {
       this.con = DriverManager.getConnection(this.connString);
       this.con.close();
     } catch (SQLException error) {
-      throw new DatabaseDiffernceCheckerException("There was an error with the connection to " + this.db + ". Please try again.", error);
+      throw new DatabaseDiffernceCheckerException(
+          "There was an error with the connection to " + this.db + ". Please try again.", error);
     }
   }
 

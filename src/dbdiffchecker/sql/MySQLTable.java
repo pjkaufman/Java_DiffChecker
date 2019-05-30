@@ -7,7 +7,7 @@ import java.util.HashMap;
  * Resembles a table in MySQL and contains info about the Ttable's columns and
  * indices.
  * @author Peter Kaufman
- * @version 5-24-19
+ * @version 5-30-19
  * @since 5-15-19
  */
 public class MySQLTable extends Table {
@@ -118,7 +118,6 @@ public class MySQLTable extends Table {
     String indexIndicator = "KEY";
     String name = "";
     String details = "";
-    String columns = "";
     String create = "";
     parts = this.createStatement.split("\n");
     for (String part : parts) {
@@ -139,9 +138,8 @@ public class MySQLTable extends Table {
           name = part.substring(part.indexOf("`") + 1, part.indexOf("`", part.indexOf("`") + 1));
           create = create.replace("KEY", "INDEX");
         }
-        columns = part.substring(part.indexOf("(") + 1, part.lastIndexOf(")"));
         // add the index
-        addIndex(new Index(name, create, columns));
+        addIndex(new Index(name, create));
       }
     }
   }
@@ -225,7 +223,7 @@ public class MySQLTable extends Table {
       // if the index exists in both databases or only in the dev database then add it
       indices1 = dev.get(indexName);
       if (live.containsKey(indexName)) {
-        if (!indices1.sameDetails(live.get(indexName))) {
+        if (!indices1.equals(live.get(indexName))) {
           if (this.count == 0) {
             sql += "DROP INDEX `" + indices1.getName() + "`";
             sql += ", \n" + indices1.getCreateStatement();

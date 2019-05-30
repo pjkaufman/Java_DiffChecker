@@ -6,10 +6,13 @@ import java.util.ArrayList;
 /**
  * The model for the functions that all database representations should contain.
  * @author Peter Kaufman
- * @version 5-24-19
+ * @version 5-30-19
  * @since 5-24-19
  */
 public abstract class Database implements Serializable {
+  // Instance variables
+  protected static final long serialVersionUID = 1L;
+
   /**
    * This is the default constructor for this class, <b>Needed for
    * Serialization</b>.

@@ -3,7 +3,7 @@ package dbdiffchecker.sql;
 /**
  * Resembles a view in an SQL database and contains view info.
  * @author Peter Kaufman
- * @version 5-24-19
+ * @version 5-30-19
  * @since 9-15-17
  */
 public class View extends Schema {
@@ -32,7 +32,6 @@ public class View extends Schema {
    * @return The SQL drop statement for the view.
    */
   public String getDrop() {
-
     return this.drop;
   }
 }

@@ -7,7 +7,7 @@ import java.util.HashMap;
  * Resembles a table in SQLite and contains info about the table's columns and
  * indices.
  * @author Peter Kaufman
- * @version 5-24-19
+ * @version 5-30-19
  * @since 5-11-19
  */
 public class SQLiteTable extends Table {
@@ -66,7 +66,6 @@ public class SQLiteTable extends Table {
     String details = "";
     String create = "";
     String body;
-    String indexColumns;
     int nameEnd = 0;
     create = createStatement.replace("CREATE TABLE " + this.name + " ", "");
     // separate the main create statement from pther add ons
@@ -127,8 +126,7 @@ public class SQLiteTable extends Table {
     for (int i = 1; i < parts.length; i++) {
       String part = parts[i];
       name = part.substring(part.indexOf("INDEX ") + 6, part.indexOf(" ON"));
-      indexColumns = part.substring(part.indexOf("(") + 1, part.indexOf(")"));
-      addIndex(new Index(name, part.replace(";", "").trim(), indexColumns));
+      addIndex(new Index(name, part.replace(";", "").trim()));
     }
   }
 
@@ -199,7 +197,7 @@ public class SQLiteTable extends Table {
       // if the index exists in both databases or only in the dev database then add it
       indices1 = dev.get(indexName);
       if (live.containsKey(indexName)) {
-        if (!indices1.sameDetails(live.get(indexName))) {
+        if (!indices1.equals(live.get(indexName))) {
           if (this.count != 0) {
             sql += "\n";
           }

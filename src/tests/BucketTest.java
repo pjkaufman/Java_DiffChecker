@@ -1,19 +1,33 @@
 import static org.junit.Assert.assertEquals;
+import org.junit.Before;
 import org.junit.Test;
 import dbdiffchecker.nosql.Bucket;
-import dbdiffchecker.nosql.CouchbaseIndex;
+import dbdiffchecker.sql.Index;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
  * A unit test that makes sure that the Bucket object works as intended.
  * @author Peter Kaufman
- * @version 5-26-19
+ * @version 5-30-19
  * @since 5-24-19
  */
 public class BucketTest {
   private Bucket bucket, bucket2;
   private String bucketName, name, create;
+  private ArrayList<String> statements = new ArrayList<>();
+  private ArrayList<String> expectedStatements = new ArrayList<>();
+
+  @Before
+  /**
+   * Sets up for the serailization compare by resetiing the list of expected
+   * statements and statements.
+   * @author Peter Kaufman
+   */
+  public void setupForCompare() {
+    statements.clear();
+    expectedStatements.clear();
+  }
 
   @Test
   /**
@@ -22,7 +36,7 @@ public class BucketTest {
    * @author Peter Kaufman
    */
   public void testCompareSimple() {
-    ArrayList<String> expectedStatements = new ArrayList<>(), expectedStatements2 = new ArrayList<>(), statements;
+    ArrayList<String> expectedStatements2 = new ArrayList<>();
     name = "blob";
     expectedStatements.add("Create document: " + name);
     expectedStatements2.add("Drop document: " + name);
@@ -68,7 +82,7 @@ public class BucketTest {
     name = "dev_primary";
     create = "CREATE INDEX `" + name + "` ON `development`";
     expectedStatements.add(create + ";");
-    bucket.getIndices().put(name, new CouchbaseIndex(name, create));
+    bucket.getIndices().put(name, new Index(name, create));
     statements = bucket.compare(bucket2);
     assertEquals(
         "There should be one index create statements if the development database has 1 index and live has none (no documents)",
@@ -83,7 +97,7 @@ public class BucketTest {
     name = "devSpeed";
     create = "CREATE INDEX `" + name + "` ON `development` WHERE (`abv` > 6)";
     expectedStatements.add(0, create + ";");
-    bucket.getIndices().put(name, new CouchbaseIndex(name, create));
+    bucket.getIndices().put(name, new Index(name, create));
     statements = bucket.compare(bucket2);
     assertEquals(
         "There should be two index create statements if the development database has 2 indices and live has none (no documents)",
@@ -103,7 +117,6 @@ public class BucketTest {
    * @author Peter Kaufman
    */
   public void testCompareComplex() {
-    ArrayList<String> expectedStatements = new ArrayList<>(), statements;
     name = "blob";
     expectedStatements.add("Create document: " + name);
     bucket = new Bucket();
@@ -120,15 +133,15 @@ public class BucketTest {
     name = "create";
     create = "CREATE INDEX `" + name + "` ON `development`";
     expectedStatements.add(create + ";");
-    bucket.getIndices().put(name, new CouchbaseIndex(name, create));
+    bucket.getIndices().put(name, new Index(name, create));
     name = "leave";
     create = "CREATE INDEX `" + name + "` ON `development`";
-    bucket.getIndices().put(name, new CouchbaseIndex(name, create));
-    bucket2.getIndices().put(name, new CouchbaseIndex(name, create));
+    bucket.getIndices().put(name, new Index(name, create));
+    bucket2.getIndices().put(name, new Index(name, create));
     name = "drop";
     create = "CREATE INDEX `" + name + "` ON `development` WHERE (`abv` > 6)";
     expectedStatements.add(expectedStatements.size() - 1, "DROP INDEX ``.`" + name + "`;");
-    bucket2.getIndices().put(name, new CouchbaseIndex(name, create));
+    bucket2.getIndices().put(name, new Index(name, create));
     statements = bucket.compare(bucket2);
     assertEquals(
         "There should be one index drop, one index create, one document drop, and one document create statment",
@@ -142,7 +155,6 @@ public class BucketTest {
    * @author Peter Kaufman
    */
   public void testModifyIndex() {
-    ArrayList<String> expectedStatements = new ArrayList<>(), statements;
     name = "blob";
     create = "CREATE INDEX `" + name + "` ON `development`";
     expectedStatements.add("DROP INDEX ``.`" + name + "`;");
@@ -150,9 +162,9 @@ public class BucketTest {
     bucket = new Bucket();
     bucket2 = new Bucket();
     // add indices
-    bucket.getIndices().put(name, new CouchbaseIndex(name, create));
+    bucket.getIndices().put(name, new Index(name, create));
     create = "CREATE INDEX `" + name + "` ON `development` WHERE (`abv` > 6)";
-    bucket2.getIndices().put(name, new CouchbaseIndex(name, create));
+    bucket2.getIndices().put(name, new Index(name, create));
     statements = bucket.compare(bucket2);
     assertEquals("There should be statements to modify the statements", expectedStatements, statements);
   }

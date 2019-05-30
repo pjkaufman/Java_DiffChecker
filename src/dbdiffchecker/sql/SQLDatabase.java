@@ -1,15 +1,15 @@
 package dbdiffchecker.sql;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import dbdiffchecker.Database;
 import dbdiffchecker.DatabaseDiffernceCheckerException;
 import dbdiffchecker.DbConn;
-import dbdiffchecker.Database;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Models an SQL database schema.
  * @author Peter Kaufman
- * @version 5-24-19
+ * @version 5-30-19
  * @since 9-18-17
  */
 public class SQLDatabase extends Database {
@@ -32,11 +32,11 @@ public class SQLDatabase extends Database {
   public SQLDatabase(DbConn db) throws DatabaseDiffernceCheckerException {
     // get tables and views
     db.establishDatabaseConnection();
-    this.views = ((SQLDbConn)db).getViews();
-    this.tables = ((SQLDbConn)db).getTableList();
+    this.views = ((SQLDbConn) db).getViews();
+    this.tables = ((SQLDbConn) db).getTableList();
     db.closeDatabaseConnection();
     // get SQL statements to drop all Primary Keys and remove all auot_increments
-    this.firstSteps = ((SQLDbConn)db).getFirstSteps();
+    this.firstSteps = ((SQLDbConn) db).getFirstSteps();
   }
 
   /**
@@ -80,12 +80,12 @@ public class SQLDatabase extends Database {
   public ArrayList<String> compare(Database liveDatabase) {
     ArrayList<String> sql = new ArrayList<>();
     HashMap<String, String> updateTables = new HashMap<>();
-    sql.addAll(this.compareTables(((SQLDatabase)liveDatabase).getTables()));
-    updateTables.putAll(this.tablesDiffs(((SQLDatabase)liveDatabase).getTables(), ((SQLDatabase)liveDatabase)));
-    sql.addAll(0, ((SQLDatabase)liveDatabase).getFirstSteps());
-    sql.addAll(this.updateTables(((SQLDatabase)liveDatabase).getTables(), updateTables));
+    sql.addAll(this.compareTables(((SQLDatabase) liveDatabase).getTables()));
+    updateTables.putAll(this.tablesDiffs(((SQLDatabase) liveDatabase).getTables(), ((SQLDatabase) liveDatabase)));
+    sql.addAll(0, ((SQLDatabase) liveDatabase).getFirstSteps());
+    sql.addAll(this.updateTables(((SQLDatabase) liveDatabase).getTables(), updateTables));
     sql.addAll(this.getFirstSteps());
-    sql.addAll(this.updateViews(((SQLDatabase)liveDatabase).getViews()));
+    sql.addAll(this.updateViews(((SQLDatabase) liveDatabase).getViews()));
     return sql;
   }
 

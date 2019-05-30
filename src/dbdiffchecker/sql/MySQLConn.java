@@ -1,5 +1,6 @@
 package dbdiffchecker.sql;
 
+import dbdiffchecker.DatabaseDiffernceCheckerException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -7,13 +8,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
-import dbdiffchecker.DatabaseDiffernceCheckerException;
 
 /**
  * Establishes a connection with a MySQL database based on the password,
  * username, port, host, and database provided.
  * @author Peter Kaufman
- * @version 5-24-19
+ * @version 5-30-19
  * @since 5-21-19
  */
 public class MySQLConn extends SQLDbConn {
@@ -184,10 +184,11 @@ public class MySQLConn extends SQLDbConn {
   protected void testConnection() throws DatabaseDiffernceCheckerException {
     try {
       this.con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.db
-        + "?autoReconnect=true&useSSL=false&maxReconnects=5", this.username, this.password);
+          + "?autoReconnect=true&useSSL=false&maxReconnects=5", this.username, this.password);
       this.con.close();
     } catch (SQLException error) {
-      throw new DatabaseDiffernceCheckerException("There was an error with the connection to " + this.db + ". Please try again.", error);
+      throw new DatabaseDiffernceCheckerException(
+          "There was an error with the connection to " + this.db + ". Please try again.", error);
     }
   }
 }

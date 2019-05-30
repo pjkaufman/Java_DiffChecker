@@ -1,8 +1,10 @@
 package dbdiffchecker.nosql;
 
+import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
-import com.couchbase.client.java.Bucket;
+import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.query.N1qlParams;
 import com.couchbase.client.java.query.N1qlQueryRow;
 import com.couchbase.client.java.query.N1qlQuery;
@@ -11,13 +13,15 @@ import com.couchbase.client.java.query.dsl.element.IndexElement;
 import com.couchbase.client.java.query.util.IndexInfo;
 import dbdiffchecker.DatabaseDiffernceCheckerException;
 import dbdiffchecker.DbConn;
-import com.couchbase.client.java.document.json.JsonObject;
-import com.couchbase.client.java.document.JsonDocument;
+import dbdiffchecker.sql.Index;
 import java.util.HashMap;
 import java.util.ArrayList;
 
 /**
- * @version 5-24-19
+ * Establishes a connection with a Couchbase bucket based on the password,
+ * username, host, and bucket name provided.
+ * @author Peter Kaufman
+ * @version 5-30-19
  * @since 5-23-19
  */
 public class CouchbaseConn extends DbConn {
@@ -34,6 +38,16 @@ public class CouchbaseConn extends DbConn {
   private N1qlQueryResult result;
   private boolean primaryAdded = false;
 
+  /**
+   * Initializes the username, password, host and bucketName of the bucket
+   * connection.
+   * @author Peter Kaufman
+   * @param username The username of the Couchbase account.
+   * @param password The password of the Couchbase account.
+   * @param host The host of the Couchbase bucket.
+   * @param bucketName The bucket in Couchbase that the connection is to be
+   *        established with.
+   */
   public CouchbaseConn(String username, String password, String host, String bucketName) {
     this.username = username;
     this.password = password;
@@ -43,6 +57,7 @@ public class CouchbaseConn extends DbConn {
 
   /**
    * Returns whether a primary key was added to the bucket.
+   * @author Peter Kaufman
    * @return Whether a primary key was added to the bucket.
    */
   public boolean primaryAdded() {
@@ -57,6 +72,7 @@ public class CouchbaseConn extends DbConn {
   /**
    * Gets and returns the bucket placeholder used in index create statements to
    * hole the place of the bucket to affect.
+   * @author Peter Kaufman
    * @return The bucket placeholder used in index create statements.
    */
   public String getBucketPlaceHolder() {
@@ -66,6 +82,7 @@ public class CouchbaseConn extends DbConn {
   /**
    * Gets and returns the default name to use when creating a primary index which
    * will be removed later if it was added.
+   * @author Peter Kaufman
    * @return The default name used to create a primary index if it needed to be
    *         created.
    */
@@ -75,13 +92,12 @@ public class CouchbaseConn extends DbConn {
 
   @Override
   public void establishDatabaseConnection() throws DatabaseDiffernceCheckerException {
-    String connString = "couchbase://" + host + "/" + bucketName + "?operation_timeout=5.5&config_total_timeout=15&http_poolsize=0";
+    String connString = "couchbase://" + host + "/" + bucketName
+        + "?operation_timeout=5.5&config_total_timeout=15&http_poolsize=0";
     try {
       Cluster cluster = CouchbaseCluster.fromConnectionString(connString);;
       cluster.authenticate(username, password);
       bucket = cluster.openBucket(bucketName);
-      // check to see if a primary index already exists
-      testConnection();
     } catch (Exception cause) {
       DatabaseDiffernceCheckerException error;
       if (cause instanceof DatabaseDiffernceCheckerException) {
@@ -101,6 +117,7 @@ public class CouchbaseConn extends DbConn {
 
   /**
    * Gets and lists all documents that exist in the Couchbase bucket.
+   * @author Peter Kaufman
    * @param documents A list where all of the document names will be stored for
    *        fast lookup later.
    */
@@ -118,10 +135,11 @@ public class CouchbaseConn extends DbConn {
 
   /**
    * Gets and lists all indices that exist in the Couchbase bucket.
+   * @author Peter Kaufman
    * @param indices A list where all of the index names and data that will be
    *        stored for fast lookup later.
    */
-  public void getIndices(HashMap<String, CouchbaseIndex> indices) {
+  public void getIndices(HashMap<String, Index> indices) {
     query = N1qlQuery.simple("SELECT indexes FROM system:indexes WHERE keyspace_id = \"" + bucketName + "\"", params);
     result = bucket.query(query);
     IndexInfo index = null;
@@ -148,12 +166,13 @@ public class CouchbaseConn extends DbConn {
       if (!index.isPrimary()) {
         create += " USING " + index.type();
       }
-      indices.put(index.name(), new CouchbaseIndex(index.name(), create));
+      indices.put(index.name(), new Index(index.name(), create));
     }
   }
 
   /**
    * Takes in a N1QL statement and applies it to the bucket.
+   * @author Peter Kaufman
    * @param n1qlStatement A N1QL statement to be run on the bucket.
    */
   public void runStatement(String n1qlStatement) {
@@ -175,6 +194,7 @@ public class CouchbaseConn extends DbConn {
   /**
    * Tests to see if the bucket can be queried immediately or if a primary key
    * needs to be added first. It will add a primary key if it is needed.
+   * @author Peter Kaufman
    * @throws DatabaseDiffernceCheckerException Error trying to connect to the
    *         bucket.
    */
@@ -187,7 +207,8 @@ public class CouchbaseConn extends DbConn {
     } catch (Exception error) {
       String errorMsg = error.getCause().toString();
       if (errorMsg.contains("4000") && errorMsg.contains("CREATE INDEX")) {
-        // create a primary key with the
+        // create a primary index with the
+        System.out.println("Creating primary key on " + bucketName);
         query = N1qlQuery.simple("CREATE PRIMARY INDEX " + primaryKeyName + " ON `" + bucketName + "`", params);
         bucket.query(query);
         primaryAdded = true;

@@ -26,8 +26,7 @@ class Routines:
     self.__paths['test'] = os.path.join(self.__getDirectoryName('source'),  self.__getDirectoryName('test'))
     
   def __removeDirectory(self, directory):
-    """
-    Removes the directory passed in if it exists
+    """Removes the directory passed in if it exists
     Params: 
       directory - A string which is the directory to remove
     """
@@ -37,9 +36,8 @@ class Routines:
       pass
 
   def __removeAllClassFiles(self):
-    """
-    Removes all class files from the source folders by identifying all subpackages
-    in the source directory and then removing all class files
+    """Removes all class files from the source folders by identifying all
+    subpackages in the source directory and then removing all class files
     """
     for dir in os.walk(self.__getDirectoryName('source')):
       directory = os.path.join(os.getcwd(), dir[0]) 
@@ -48,8 +46,7 @@ class Routines:
         os.remove(os.path.join(directory, f))
 
   def __getDirectoryName(self, dirType):
-    """
-    Gets the name of a directory based on the directory type requested
+    """Gets the name of a directory based on the directory type requested
     Params:
       dirType - A string which is the key for the directory to retrieve from 
         the directories dictionary
@@ -59,8 +56,7 @@ class Routines:
     return self.__directories[dirType]
 
   def __getPath(self, pathType):
-    """
-    Gets the path of a directory based on the path type
+    """Gets the path of a directory based on the path type
     Params:
       pathType - A string which is the key for the path to retrieve from 
         the paths dictionary
@@ -70,8 +66,7 @@ class Routines:
     return self.__paths[pathType]
 
   def __getFlag(self, flagType):
-    """
-    Gets the flag for the java command based on the flagType
+    """Gets the flag for the java command based on the flagType
     Params:
       flagType - A string which is the key for the flag to retrieve from 
         the flags dictionary
@@ -81,8 +76,7 @@ class Routines:
     return self.__compileFlags[flagType]
   
   def __compile(self, path, type):
-    """
-    Compiles the java files and determines where to send the output
+    """Compiles the java files and determines where to send the output
     Params: 
       path - A string which is the path to where to send the class files
       type - A boolean to determine whether or not to compile the class files 
@@ -107,8 +101,7 @@ class Routines:
     return True
 
   def __setupEnvironment(self, env):
-    """
-    Sets up the desired environment based on the provided environment name
+    """Sets up the desired environment based on the provided environment name
     Note: the logs folder will always be created if it does not already exist
     Params:
       env - A string which is the name of the environment to set up for
@@ -192,9 +185,8 @@ class Routines:
     call('java -jar ' + os.path.join(self.__getDirectoryName('distrobution'), 'Db_Diff_Checker.jar'), shell=True)
     
   def push(self):
-    """
-    Documents the java application, asks for a commit message, and commits the
-    code 
+    """Documents the java application, asks for a commit message, and commits
+    the code 
     """
     #document the repo
     packagesToDocument = '-subpackages '

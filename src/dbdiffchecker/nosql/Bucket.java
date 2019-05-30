@@ -1,19 +1,22 @@
 package dbdiffchecker.nosql;
 
+import dbdiffchecker.Database;
+import dbdiffchecker.DatabaseDiffernceCheckerException;
+import dbdiffchecker.DbConn;
+import dbdiffchecker.sql.Index;
 import java.util.HashMap;
 import java.util.ArrayList;
-import dbdiffchecker.Database;
-import dbdiffchecker.DbConn;
-import dbdiffchecker.DatabaseDiffernceCheckerException;
 
 /**
- * @version 5-26-19
+ * Models a Couchbase bucket by keeping track of all indices and documents.
+ * @author Peter Kaufman
+ * @version 5-30-19
  * @since 5-24-19
  */
 public class Bucket extends Database {
   // Instance variables
   private HashMap<String, String> documents = new HashMap<>();
-  private HashMap<String, CouchbaseIndex> indices = new HashMap<>();
+  private HashMap<String, Index> indices = new HashMap<>();
   private String name = "";
   private String bucketPlaceHolder = "";
   private String primaryKeyName = "";
@@ -22,6 +25,7 @@ public class Bucket extends Database {
    * Creates a database that models the Couchbase bucket using the Couchbase
    * connection in orde to get a list of documents, idndices, and other pertinent
    * information.
+   * @author Peter Kaufman
    * @param conn The connection to the Couchbase bucket.
    * @throws DatabaseDiffernceCheckerException Error connecting to the Couchbase
    *         bucket.
@@ -29,6 +33,8 @@ public class Bucket extends Database {
   public Bucket(DbConn conn) throws DatabaseDiffernceCheckerException {
     CouchbaseConn connection = (CouchbaseConn) conn;
     connection.establishDatabaseConnection();
+    // check to see if a primary index already exists
+    connection.testConnection();
     connection.getDocuments(documents);
     connection.getIndices(indices);
     this.bucketPlaceHolder = connection.getBucketPlaceHolder();
@@ -36,6 +42,7 @@ public class Bucket extends Database {
     this.name = connection.getDatabaseName();
     // drop the primary key that was added manually if it exists
     if (connection.primaryAdded()) {
+      System.out.println("Dropping primary key on " + name);
       connection.runStatement("DROP INDEX `" + name + "`.`" + primaryKeyName + "`;");
     }
     connection.closeDatabaseConnection();
@@ -49,6 +56,7 @@ public class Bucket extends Database {
 
   /**
    * Returns the list of Couchbase documents where the name is the key and value.
+   * @author Peter Kaufman
    * @return The list of documents that exist in the bucket.
    */
   public HashMap<String, String> getDocuments() {
@@ -57,9 +65,10 @@ public class Bucket extends Database {
 
   /**
    * Returns the list of Couchbase indices where the name is the key.
+   * @author Peter Kaufman
    * @return The list of indices that exist in the bucket.
    */
-  public HashMap<String, CouchbaseIndex> getIndices() {
+  public HashMap<String, Index> getIndices() {
     return this.indices;
   }
 
