@@ -1,7 +1,7 @@
 package dbdiffchecker.sql;
 
 /**
- * Resembles a generic index and contains index info.
+ * Resembles an generic index and contains index info.
  * @author Peter Kaufman
  * @version 5-30-19
  * @since 9-12-17
