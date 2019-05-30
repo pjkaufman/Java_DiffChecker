@@ -29,7 +29,7 @@ Clone this repo by running `git clone https://github.com/pjkaufman/Java_DiffChec
 
 Make sure that Python and the jre paths have been added to your PATH variable.
 
-[Back to Table of Contents](#table_of_contents)
+[Back to Table of Contents](#table-of-contents)
 
 ## Usage
 
@@ -81,7 +81,7 @@ To run the applciation through the JAR file run
 java -jar path_to_jar_file
 ```
 
-[Back to Table of Contents](#table_of_contents)
+[Back to Table of Contents](#table-of-contents)
 
 ## Supported Database Implimentations
 
@@ -91,7 +91,7 @@ java -jar path_to_jar_file
 * NoSQL
   * Couchbase
 
-[Back to Table of Contents](#table_of_contents)
+[Back to Table of Contents](#table-of-contents)
 
 ## Features
 1.Two Connection Database Comparison
@@ -157,7 +157,7 @@ After selecting this option, you will see something similar to this:
   <img src="UserGuides\images\runLog.png" alt="Run Logs" height = "300"/>
 </center>
 
-[Back to Table of Contents](#table_of_contents)
+[Back to Table of Contents](#table-of-contents)
 
 ## Documentation
 
@@ -171,10 +171,10 @@ After selecting this option, you will see something similar to this:
 
 Java documentation can be found [here](https://pjkaufman.github.io/Java_DiffChecker/).
 
-[Back to Table of Contents](#table_of_contents)
+[Back to Table of Contents](#table-of-contents)
 
 ## License
 
 [MIT](LICENSE)
 
-[Back to Table of Contents](#table_of_contents)
+[Back to Table of Contents](#table-of-contents)

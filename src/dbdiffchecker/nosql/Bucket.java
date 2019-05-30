@@ -42,7 +42,6 @@ public class Bucket extends Database {
     this.name = connection.getDatabaseName();
     // drop the primary key that was added manually if it exists
     if (connection.primaryAdded()) {
-      System.out.println("Dropping primary key on " + name);
       connection.runStatement("DROP INDEX `" + name + "`.`" + primaryKeyName + "`;");
     }
     connection.closeDatabaseConnection();

@@ -177,15 +177,12 @@ public class CouchbaseConn extends DbConn {
    */
   public void runStatement(String n1qlStatement) {
     if (n1qlStatement.startsWith("Create document: ")) {
-      System.out.println("Creating: " + n1qlStatement.substring(n1qlStatement.indexOf(": ") + 2));
       JsonDocument document = JsonDocument.create(n1qlStatement.substring(n1qlStatement.indexOf(": ") + 2),
           JsonObject.empty());
       bucket.insert(document);
     } else if (n1qlStatement.startsWith("Drop document: ")) {
-      System.out.println("Dropping: " + n1qlStatement.substring(n1qlStatement.indexOf(": ") + 2));
       bucket.remove(n1qlStatement.substring(n1qlStatement.indexOf(": ") + 2));
     } else {
-      System.out.println("Running: " + n1qlStatement);
       query = N1qlQuery.simple(n1qlStatement, params);
       bucket.query(query);
     }
@@ -208,7 +205,6 @@ public class CouchbaseConn extends DbConn {
       String errorMsg = error.getCause().toString();
       if (errorMsg.contains("4000") && errorMsg.contains("CREATE INDEX")) {
         // create a primary index with the
-        System.out.println("Creating primary key on " + bucketName);
         query = N1qlQuery.simple("CREATE PRIMARY INDEX " + primaryKeyName + " ON `" + bucketName + "`", params);
         bucket.query(query);
         primaryAdded = true;
