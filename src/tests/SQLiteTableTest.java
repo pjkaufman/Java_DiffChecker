@@ -1,12 +1,12 @@
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import java.util.ArrayList;
-import dbdiffchecker.SQLiteTable;
+import dbdiffchecker.sql.SQLiteTable;
 
 /**
  * A unit test that makes sure that the SQLiteTable object works as intended.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 5-24-19
  * @since 5-10-19
  */
 public class SQLiteTableTest {

@@ -31,7 +31,7 @@ public class DBDiffCheckerGUI extends JFrameV2 {
   private final String[] optionLabelText = { "1-Database compare using 2 database connections",
       "2-Database compare using 1 database connection", "3-Take database snapshot using 1" + " database connection",
       "4-Review the SQL statement(s) from the last run ", "5-Review the logs" };
-  private final String[] databaseTypes = { "Select Database Type", "MySQL", "SQLite" };
+  private final String[] databaseTypes = { "Select Database Type", "MySQL", "SQLite", "Couchbase" };
   private DBCompare compareGUI;
   private JTextField input = new JTextField(1);
   private JButton continueBtn = new JButton("Continue");
@@ -221,6 +221,10 @@ public class DBDiffCheckerGUI extends JFrameV2 {
       compareGUI = new MySQLCompare(0);
       this.close();
       break;
+    case "Couchbase":
+      compareGUI = new CouchbaseCompare(0);
+      this.close();
+      break;
     default:
       optionTitleLabel.setText("Please select a database type.");
     }
@@ -240,6 +244,10 @@ public class DBDiffCheckerGUI extends JFrameV2 {
       break;
     case "MySQL":
       compareGUI = new MySQLCompare(1);
+      this.close();
+      break;
+    case "Couchbase":
+      compareGUI = new CouchbaseCompare(1);
       this.close();
       break;
     default:
@@ -263,6 +271,9 @@ public class DBDiffCheckerGUI extends JFrameV2 {
       compareGUI = new MySQLCompare(2);
       this.close();
       break;
+    case "Couchbase":
+      compareGUI = new CouchbaseCompare(2);
+      this.close();
     default:
       optionTitleLabel.setText("Please select a database type.");
     }

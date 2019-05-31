@@ -17,7 +17,7 @@ import javax.swing.SwingWorker;
 /**
  * A JFrame that shows the provided data to the user.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 5-30-19
  * @since 9-20-17
  */
 public class Result extends JFrameV2 {
@@ -56,6 +56,7 @@ public class Result extends JFrameV2 {
         this.setSize(300, 75);
         if (this.db != null) {
           instructLabel.setText("The databases are in sync.");
+          btnRun.setVisible(false);
         }
       } else {
         this.sql = SQL;
@@ -119,11 +120,13 @@ public class Result extends JFrameV2 {
         // boolean cont = true;
         String temp = null;
         sw.start();
+        db.establishDatabaseConnection();
         for (int i = 0; i < sql.size(); i++) {
           temp = sql.get(i);
-          db.runSequelStatement(temp);
+          db.runStatement(temp);
           publish(i);
         }
+        db.closeDatabaseConnection();
         sw.stop();
         log("Ran SQL in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
         return true;

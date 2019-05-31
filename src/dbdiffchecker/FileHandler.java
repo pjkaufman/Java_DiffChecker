@@ -14,8 +14,8 @@ import java.util.Scanner;
 
 /**
  * Deals with all data coming from and going out to files.
- * @author Peter Kaufman
- * @version 5-23-19
+ * @author Peter Kaufman and Chris Dail
+ * @version 5-30-19
  * @since 9-12-17
  */
 public class FileHandler {
