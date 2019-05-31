@@ -17,13 +17,14 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.text.JTextComponent;
+import dbdiffchecker.sql.SQLDatabase;
 import dbdiffchecker.sql.SQLDbConn;
 
 /**
  * A JFrame that takes user input to make a comparison between two databases or
  * take a database snapshot.
  * @author Peter Kaufman
- * @version 5-24-19
+ * @version 5-31-19
  * @since 5-11-19
  */
 public abstract class DBCompare extends JFrameV2 {
@@ -31,6 +32,7 @@ public abstract class DBCompare extends JFrameV2 {
   protected static final String[] titleOptions = { "Compare Two Databases", "Compare Database to Snapshot",
       "Take Database Snapshot" };
   protected int type = 0;
+  protected int implimentation;
   protected String salt = "";
   protected String[] labelText;
   protected Database devDatabase;
@@ -85,21 +87,15 @@ public abstract class DBCompare extends JFrameV2 {
   protected abstract DbConn createLiveDatabaseConnection() throws DatabaseDiffernceCheckerException;
 
   /**
-   * Creates a database for the development database using the develpoment
-   * database connection.
+   * Creates a database for the database connection provided.
+   * @param databaseConn The database connection to use to make the database.
    * @return A database for the development database
    * @throws DatabaseDiffernceCheckerException Error getting data from the
    *         development database.
    */
-  protected abstract Database createDevDatabase() throws DatabaseDiffernceCheckerException;
-
-  /**
-   * Creates a database for the live database using the develpoment database live.
-   * @return A database for the live database.
-   * @throws DatabaseDiffernceCheckerException Error getting data from the live
-   *         database.
-   */
-  protected abstract Database createLiveDatabase() throws DatabaseDiffernceCheckerException;
+  protected Database createDatabase(DbConn databaseConn) throws DatabaseDiffernceCheckerException {
+    return new SQLDatabase(databaseConn, this.implimentation);
+  }
 
   /**
    * Whether or not the user has filled out all of the inputs that are needed to
@@ -204,7 +200,7 @@ public abstract class DBCompare extends JFrameV2 {
         sw.start();
         devDatabaseConnection = createDevDatabaseConnection();
         publish("Gathering Database Information");
-        devDatabase = createDevDatabase();
+        devDatabase = createDatabase(devDatabaseConnection);
         publish("Writing to JSON File");
         FileHandler.serializeDatabase(devDatabase, salt);
         sw.stop();
@@ -310,12 +306,12 @@ public abstract class DBCompare extends JFrameV2 {
     try {
       if (this.type == 0) {
         devDatabaseConnection = createDevDatabaseConnection();
-        devDatabase = createDevDatabase();
+        devDatabase = createDatabase(devDatabaseConnection);
       } else {
         devDatabase = FileHandler.deserailizDatabase(salt);
       }
       liveDatabaseConnection = createLiveDatabaseConnection();
-      liveDatabase = createLiveDatabase();
+      liveDatabase = createDatabase(liveDatabaseConnection);
     } catch (Exception cause) {
       DatabaseDiffernceCheckerException error;
       String errorMessage = "";

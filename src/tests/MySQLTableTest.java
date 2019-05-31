@@ -6,12 +6,13 @@ import dbdiffchecker.sql.MySQLTable;
 /**
  * A unit test that makes sure that the MySQLTable object works as intended.
  * @author Peter Kaufman
- * @version 5-24-19
+ * @version 5-31-19
  * @since 5-10-19
  */
 public class MySQLTableTest {
   private MySQLTable table1, table2;
-  private String name, create, collation, charSet, autoIncrement;
+  private String name, create, collation, charSet, autoIncrement, expectedSQL;
+  private ArrayList<String> sql;
 
   @Test
   /**
@@ -50,7 +51,7 @@ public class MySQLTableTest {
 
   @Test
   /**
-   * Tests whether the addColumn function works as intended.
+   * Tests whether the parsin function works as intended.
    * @author Peter Kaufman
    */
   public void testAddColumn() {
@@ -78,7 +79,7 @@ public class MySQLTableTest {
 
   @Test
   /**
-   * Tests whether the addIndex function works as intended.
+   * Tests whether the parsing function works as intended.
    * @author Peter Kaufman
    */
   public void testAddIndex() {
@@ -108,15 +109,30 @@ public class MySQLTableTest {
 
   @Test
   /**
+   * Tests whetehr the parsing function adds Foreign Keys
+   * @author Peter Kaufman
+   */
+  public void testAddForeignKey() {
+    name = "products";
+    create = "CREATE TABLE `products` (\n  `prd_id` int not null auto_increment primary key,\n"
+        + "  `prd_name` varchar(355) not null,\n  `prd_price` decimal,\n  `cat_id` int not null,\n  "
+        + "CONSTRAINT `constraint_name`\n  FOREIGN KEY `fk_cat`(`cat_id`)\n  REFERENCES `categories`"
+        + "(`cat_id`)\n  ON UPDATE CASCADE\n  ON DELETE RESTRICT\n  )ENGINE=InnoDB";
+    table1 = new MySQLTable(name, create);
+    assertEquals("There should be a Foreign Key in the index list", true, table1.getIndices().containsKey("fk_cat"));
+  }
+
+  @Test
+  /**
    * Tests whether the equals function works as intended.
    * @author Peter Kaufman
    */
   public void testEquals() {
-    ArrayList<String> sql;
-    String expectedSQL = "ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, "
-        + "\nADD COLUMN `id` varchar(40) NOT NULL AFTER `data`, \nMODIFY COLUMN `ip_address` varchar(45) NOT NULL, "
-        + "\nMODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\', \nDROP COLUMN `data2`, "
-        + "\nADD INDEX `add` (`id`), \nDROP INDEX `modify`, \nADD INDEX `modify` (`data`);";
+    expectedSQL = "ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, "
+        + "\nADD COLUMN `id` varchar(40) NOT NULL, \nMODIFY COLUMN `ip_address`"
+        + " varchar(45) NOT NULL AFTER `id`, \nMODIFY COLUMN `timestamp` int(10) unsigned "
+        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`, \nDROP COLUMN `data2`, \nADD INDEX "
+        + "`add` (`id`), \nDROP INDEX `modify`, \nADD INDEX `modify` (`data`);";
     // setup table1
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  "
@@ -142,8 +158,7 @@ public class MySQLTableTest {
    * @author Peter Kaufman
    */
   public void testIndexAddition() {
-    ArrayList<String> sql;
-    String expectedSQL = "ALTER TABLE `ci_sessions`\nADD INDEX `add` (`id`);";
+    expectedSQL = "ALTER TABLE `ci_sessions`\nADD INDEX `add` (`id`);";
     // setup tables
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  "
@@ -179,8 +194,7 @@ public class MySQLTableTest {
    * @author Peter Kaufman
    */
   public void testIndexDropping() {
-    ArrayList<String> sql;
-    String expectedSQL = "ALTER TABLE `ci_sessions`\nDROP INDEX `drop1`;";
+    expectedSQL = "ALTER TABLE `ci_sessions`\nDROP INDEX `drop1`;";
     // setup tables
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  "
@@ -216,8 +230,7 @@ public class MySQLTableTest {
    * @author Peter Kaufman
    */
   public void testIndexModification() {
-    ArrayList<String> sql;
-    String expectedSQL = "ALTER TABLE `ci_sessions`\nDROP INDEX `modify1`, \nADD UNIQUE INDEX `modify1` (`id`);";
+    expectedSQL = "ALTER TABLE `ci_sessions`\nDROP INDEX `modify1`, \nADD UNIQUE INDEX `modify1` (`id`);";
     // setup tables
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  "
@@ -264,8 +277,7 @@ public class MySQLTableTest {
    * @author Peter Kaufman
    */
   public void testColumnAddition() {
-    ArrayList<String> sql;
-    String expectedSQL = "ALTER TABLE `ci_sessions`\nADD COLUMN `id` varchar(40) NOT NULL AFTER `ip_address`;";
+    expectedSQL = "ALTER TABLE `ci_sessions`\nADD COLUMN `id` varchar(40) NOT NULL AFTER `data`;";
     // setup tables
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `ip_address` varchar(45) NOT NULL,\n  "
@@ -290,9 +302,9 @@ public class MySQLTableTest {
         + "  `data2` blob NOT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table1 = new MySQLTable(name, create);
     sql = table1.equals(table2);
-    expectedSQL = "ALTER TABLE `ci_sessions`\nADD COLUMN `data2` blob NOT NULL AFTER `data`, \n"
-        + "ADD COLUMN `id` varchar(40) NOT NULL AFTER `ip_address`;";
-    assertEquals("The sql generated should be a two column addition", true, sql.contains(expectedSQL));
+    expectedSQL = "ALTER TABLE `ci_sessions`\nADD COLUMN `data2` blob NOT NULL AFTER `id`, \n"
+        + "ADD COLUMN `id` varchar(40) NOT NULL AFTER `data`;";
+    assertEquals("The sql generated should be a two column addition", expectedSQL, sql.get(0));
   }
 
   @Test
@@ -301,8 +313,7 @@ public class MySQLTableTest {
    * @author Peter Kaufman
    */
   public void testColumnDropping() {
-    ArrayList<String> sql;
-    String expectedSQL = "ALTER TABLE `ci_sessions`\nDROP COLUMN `id`;";
+    expectedSQL = "ALTER TABLE `ci_sessions`\nDROP COLUMN `id`;";
     // setup tables
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `ip_address` varchar(45) NOT NULL,\n  "
@@ -336,8 +347,7 @@ public class MySQLTableTest {
    * @author Peter Kaufman
    */
   public void testColumnModification() {
-    ArrayList<String> sql;
-    String expectedSQL = "ALTER TABLE `ci_sessions`\nMODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\';";
+    expectedSQL = "ALTER TABLE `ci_sessions`\nMODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\' AFTER `id`;";
     // setup tables
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `id` varchar(45) NOT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
@@ -365,8 +375,8 @@ public class MySQLTableTest {
         + "`data2` blob\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table2 = new MySQLTable(name, create);
     sql = table1.equals(table2);
-    expectedSQL = "ALTER TABLE `ci_sessions`\nMODIFY COLUMN `data2` blob NOT NULL, \n"
-        + "MODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT '0';";
+    expectedSQL = "ALTER TABLE `ci_sessions`\nMODIFY COLUMN `data2` blob NOT NULL AFTER `timestamp`, \n"
+        + "MODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT '0' AFTER `id`;";
     assertEquals("The sql generated should have two column modifications", expectedSQL, sql.get(0));
   }
 }

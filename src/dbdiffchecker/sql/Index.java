@@ -12,10 +12,12 @@ public class Index extends Schema {
    * @author Peter Kaufman
    * @param name The name of the index.
    * @param create The create statement of the index.
+   * @param drop The drop statment of the index;
    */
-  public Index(String name, String create) {
+  public Index(String name, String create, String drop) {
     this.name = name;
     this.createStatement = create;
+    this.drop = drop;
   }
 
   /**

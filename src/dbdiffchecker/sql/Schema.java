@@ -12,6 +12,7 @@ public class Schema implements Serializable {
   // Defuat instance variables
   protected static final long serialVersionUID = 1L;
   protected String name = "";
+  protected String drop = "";
   protected String createStatement = "";
 
   /**
@@ -36,5 +37,14 @@ public class Schema implements Serializable {
    */
   public String getCreateStatement() {
     return this.createStatement;
+  }
+
+  /**
+   * Returns the drop statement of the Schema object.
+   * @author Peter Kaufman
+   * @return The drop statement of the of the Schema object.
+   */
+  public String getDrop() {
+    return this.drop;
   }
 }

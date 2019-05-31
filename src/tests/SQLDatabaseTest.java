@@ -12,7 +12,7 @@ import dbdiffchecker.sql.View;
 /**
  * A unit test that makes sure that the SQLDatabase object works as intended.
  * @author Peter Kaufman
- * @version 5-24-19
+ * @version 5-31-19
  * @since 5-11-19
  */
 public class SQLDatabaseTest {
@@ -196,9 +196,10 @@ public class SQLDatabaseTest {
     HashMap<String, String> tablesToUpdate = new HashMap<>();
     ArrayList<String> sql;
     String expectedSQL = "ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, "
-        + "\nADD COLUMN `id` varchar(40) NOT NULL AFTER `data`, \nMODIFY COLUMN `ip_address` varchar(45) NOT NULL, "
-        + "\nMODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\', \nDROP COLUMN `data2`, "
-        + "\nADD INDEX `add` (`id`), \nDROP INDEX `modify`, \nADD INDEX `modify` (`data`);";
+        + "\nADD COLUMN `id` varchar(40) NOT NULL, \nMODIFY COLUMN `ip_address`"
+        + " varchar(45) NOT NULL AFTER `id`, \nMODIFY COLUMN `timestamp` int(10) unsigned "
+        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`, \nDROP COLUMN `data2`, \nADD INDEX "
+        + "`add` (`id`), \nDROP INDEX `modify`, \nADD INDEX `modify` (`data`);";
     String expectedSQL2 = "ALTER TABLE `bloat`\nMODIFY COLUMN `bloatware` int(11) NOT NULL, \n"
         + "ADD PRIMARY KEY (`bloatware`);";
     // test for two tables with many differences

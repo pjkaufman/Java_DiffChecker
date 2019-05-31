@@ -9,15 +9,18 @@ import java.util.HashMap;
 /**
  * Models an SQL database schema.
  * @author Peter Kaufman
- * @version 5-30-19
+ * @version 5-31-19
  * @since 9-18-17
  */
 public class SQLDatabase extends Database {
   // Instance variables
+  private final static String foreignKeysOn[] = { "SET FOREIGN_KEY_CHECKS=0;", "PRAGMA foreign_keys=on;" };
+  private final static String foreignKeysOff[] = { "SET FOREIGN_KEY_CHECKS=1;", "PRAGMA foreign_keys=off;" };
   private HashMap<String, Table> tables = new HashMap<>();
   private HashMap<String, String> exclude = new HashMap<>();
   private ArrayList<View> views = new ArrayList<>();
   private ArrayList<String> firstSteps = new ArrayList<>();
+  private int type;
 
   /**
    * Uses a database connection to initialize a HashMap of tables and views that
@@ -26,10 +29,12 @@ public class SQLDatabase extends Database {
    * which will only be used on the live database</b>
    * @author Peter Kaufman
    * @param db The database connection used to get the database information
+   * @param type The type of datbase implimentation which is being used. <b>Note:
+   *        this allows for the appropriate turning off of Foreign Keys</b>
    * @throws DatabaseDiffernceCheckerException Error connecting or closing the
    *         database connection.
    */
-  public SQLDatabase(DbConn db) throws DatabaseDiffernceCheckerException {
+  public SQLDatabase(DbConn db, int type) throws DatabaseDiffernceCheckerException {
     // get tables and views
     db.establishDatabaseConnection();
     this.views = ((SQLDbConn) db).getViews();
@@ -37,6 +42,12 @@ public class SQLDatabase extends Database {
     db.closeDatabaseConnection();
     // get SQL statements to drop all Primary Keys and remove all auot_increments
     this.firstSteps = ((SQLDbConn) db).getFirstSteps();
+    // make sure that the type is valid
+    if (type >= foreignKeysOn.length) {
+      throw new DatabaseDiffernceCheckerException("Unable to determine the database implimentation being used.",
+          new Exception());
+    }
+    this.type = type;
   }
 
   /**
@@ -86,6 +97,10 @@ public class SQLDatabase extends Database {
     sql.addAll(this.updateTables(((SQLDatabase) liveDatabase).getTables(), updateTables));
     sql.addAll(this.getFirstSteps());
     sql.addAll(this.updateViews(((SQLDatabase) liveDatabase).getViews()));
+    if (!sql.isEmpty()) {
+      sql.add(0, foreignKeysOn[type]);
+      sql.add(foreignKeysOff[type]);
+    }
     return sql;
   }
 
@@ -131,7 +146,7 @@ public class SQLDatabase extends Database {
     // drop the table
     for (String tableName : liveTables.keySet()) {
       if (!this.tables.containsKey(tableName)) {
-        sql.add("DROP TABLE `" + tableName + "`;");
+        sql.add(liveTables.get(tableName).getDrop());
         this.exclude.put(tableName, tableName);
       }
     }

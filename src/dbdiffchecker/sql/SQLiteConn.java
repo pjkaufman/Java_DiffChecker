@@ -13,7 +13,7 @@ import java.util.HashMap;
  * Establishes a connection with an SQL database based on the path to the
  * database and database name.
  * @author Peter Kaufman
- * @version 5-30-19
+ * @version 5-31-19
  * @since 5-5-19
  */
 public class SQLiteConn extends SQLDbConn {
@@ -80,7 +80,7 @@ public class SQLiteConn extends SQLDbConn {
   @Override
   public HashMap<String, Table> getTableList() throws DatabaseDiffernceCheckerException {
     HashMap<String, Table> tablesList = new HashMap<>();
-    String sql = "SELECT `name`, `sql` FROM `sqlite_master` WHERE `type`= 'table'";
+    String sql = "SELECT `name`, `sql` FROM `sqlite_master` WHERE `type`= 'table' AND `name` NOT Like 'sqlite%'";
     try {
       String table = "";
       String create = "";
