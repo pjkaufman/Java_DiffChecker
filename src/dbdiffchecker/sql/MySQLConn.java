@@ -13,7 +13,7 @@ import java.util.HashMap;
  * Establishes a connection with a MySQL database based on the password,
  * username, port, host, and database provided.
  * @author Peter Kaufman
- * @version 5-30-19
+ * @version 5-31-19
  * @since 5-21-19
  */
 public class MySQLConn extends SQLDbConn {
@@ -136,6 +136,30 @@ public class MySQLConn extends SQLDbConn {
                 break;
               }
             }
+          }
+          if (create.contains("FOREIGN KEY")) {
+            // drop the all Foreign Keys before the Primary Keys are to be dropped
+            int start;
+            boolean firstTime = true;
+            String foreignKeyDrop = "ALTER TABLE `" + table + "`";
+            String name;
+            String temp = create;
+            do {
+              start = 0;
+              start = temp.indexOf("CONSTRAINT `", start) + 12;
+              // get name
+              name = temp.substring(start, temp.indexOf("`", start));
+              if (!firstTime) {
+                foreignKeyDrop += "\n,";
+              }
+              foreignKeyDrop += " DROP FOREIGN KEY `" + name + "`";
+              add.getIndices().remove(name);
+              firstTime = false;
+              // update temp
+              temp = temp.substring(temp.indexOf("FOREIGN KEY") + 11);
+            } while (temp.contains("FOREIGN KEY"));
+            // remove foreign key
+            firstSteps.add(0, foreignKeyDrop + ";");
           }
           if (create.contains("PRIMARY KEY")) {
             if (count != 0) {

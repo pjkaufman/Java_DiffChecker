@@ -7,12 +7,13 @@ import java.util.HashMap;
  * Resembles a table in SQLite and contains info about the table's columns and
  * indices.
  * @author Peter Kaufman
- * @version 5-30-19
+ * @version 5-31-19
  * @since 5-11-19
  */
 public class SQLiteTable extends Table {
   // Instance variables
   private boolean stopCompare = false;
+  private int foreignKeyCount = 0;
 
   /**
    * Sets the name and create statement of the table.
@@ -23,6 +24,7 @@ public class SQLiteTable extends Table {
    */
   public SQLiteTable(String name, String create) {
     super(name, create);
+    this.drop = "DROP TABLE " + name + ";";
   }
 
   /**
@@ -37,7 +39,18 @@ public class SQLiteTable extends Table {
     this.count = 0;
     ArrayList<String> sql = new ArrayList<>();
     String sql2 = "";
+    // if there are a different amount of foreing keys the table needs to be
+    // recreated
+    if (this.foreignKeyCount != ((SQLiteTable) t1).foreignKeyCount) {
+      sql.addAll(recreateTable(t1.getColumns()));
+      return sql;
+    }
     sql2 += dropIndices(this.indices, t1.getIndices());
+    // if a foreign key is to be dripped, recreate the table
+    if (stopCompare) {
+      sql.addAll(recreateTable(t1.getColumns()));
+      return sql;
+    }
     sql2 += otherCols(this.columns, t1.getColumns());
     // if a column needs to be modified, recreate the table
     if (stopCompare) {
@@ -51,6 +64,11 @@ public class SQLiteTable extends Table {
       return sql;
     }
     sql2 += otherIndices(this.indices, t1.getIndices());
+    // if a foreign key needs to be added or modified, recreate the table
+    if (stopCompare) {
+      sql.addAll(recreateTable(t1.getColumns()));
+      return sql;
+    }
     if (this.count != 0) {
       sql.add(sql2);
     }
@@ -63,19 +81,21 @@ public class SQLiteTable extends Table {
     ArrayList<String> bodySections = new ArrayList<>();
     String indexIndicator = "KEY (";
     String name = "";
+    String drop = "";
     String details = "";
     String create = "";
     String body;
     int nameEnd = 0;
-    create = createStatement.replace("CREATE TABLE " + this.name + " ", "");
-    // separate the main create statement from pther add ons
-    parts = create.split("\n");
+    create = createStatement.substring(createStatement.indexOf("(") + 1).trim();
+    create = create.trim();
+    if (create.endsWith(";")) {
+      create = create.substring(0, create.indexOf(";", create.length() - 6)); // remove last character of create statement
+    }
+    // separate the main create statement from other add ons
+    parts = create.split(";");
     body = parts[0];
     // remove unneeded characters
     body = body.trim();
-    if (body.startsWith("(")) {
-      body = body.substring(1);
-    }
     if (body.endsWith(");")) {
       body = body.substring(0, body.length() - 2);
     } else if (body.endsWith(")")) {
@@ -117,8 +137,16 @@ public class SQLiteTable extends Table {
             column = column.trim();
             addColumn(new Column(column, this.columns.get(column.trim()).getDetails().concat(" PRIMARY KEY")));
           }
-        } else {
-          System.out.println("Unknown key: " + part);
+        } else if (part.contains("FOREIGN KEY")) {
+          foreignKeyCount++;
+          if (part.contains("CONSTRAINT ")) {
+            int start = part.indexOf("CONSTRAINT ") + 11;
+            name = part.substring(start, part.indexOf(" ", start));
+          } else {
+            name = "FOREIGN KEY" + foreignKeyCount;
+          }
+          drop = "";
+          addIndex(new Index(name, part.trim(), drop));
         }
       }
     }
@@ -126,7 +154,8 @@ public class SQLiteTable extends Table {
     for (int i = 1; i < parts.length; i++) {
       String part = parts[i];
       name = part.substring(part.indexOf("INDEX ") + 6, part.indexOf(" ON"));
-      addIndex(new Index(name, part.replace(";", "").trim()));
+      drop = "DROP INDEX " + name + ";";
+      addIndex(new Index(name, part.replace(";", "").trim(), drop));
     }
   }
 
@@ -178,10 +207,14 @@ public class SQLiteTable extends Table {
     for (String indexName : live.keySet()) {
       // if the index does not exist in the dev database then drop it
       if (!dev.containsKey(indexName)) {
+        if (live.get(indexName).getCreateStatement().contains("FOREIGN KEY")) {
+          stopCompare = true;
+          return sql;
+        }
         if (this.count != 0) {
           sql += "\n";
         }
-        sql += "DROP INDEX " + indexName + ";";
+        sql += live.get(indexName).getDrop();
         this.count++;
       }
     }
@@ -198,13 +231,21 @@ public class SQLiteTable extends Table {
       indices1 = dev.get(indexName);
       if (live.containsKey(indexName)) {
         if (!indices1.equals(live.get(indexName))) {
+          if (live.get(indexName).getCreateStatement().contains("FOREIGN KEY")) {
+            stopCompare = true;
+            return sql;
+          }
           if (this.count != 0) {
             sql += "\n";
           }
-          sql += "DROP INDEX " + indices1.getName() + ";\n" + indices1.getCreateStatement() + ";";
+          sql += live.get(indexName).getDrop() + "\n" + indices1.getCreateStatement() + ";";
           this.count++;
         }
       } else {
+        if (indices1.getCreateStatement().contains("FOREIGN KEY")) {
+          stopCompare = true;
+          return sql;
+        }
         if (this.count != 0) {
           sql += "\n";
         }
@@ -237,7 +278,6 @@ public class SQLiteTable extends Table {
       // have its data copied into a new table of the same name, and then be deleted
       commonColumns = commonColumns.substring(0, commonColumns.length() - 1);
       // add the appropriate sql
-      sql.add("PRAGMA foreign_keys=off;");
       sql.add("ALTER TABLE " + this.name + " RENAME TO temp_table;");
       if (!doExtraWork) {
         sql.add(this.createStatement);
@@ -250,9 +290,8 @@ public class SQLiteTable extends Table {
       if (doExtraWork) {
         sql.add(this.createStatement.substring(this.createStatement.indexOf("CREATE", 6)));
       }
-      sql.add("PRAGMA foreign_keys=on;");
     } else {
-      sql.add("DROP TABLE " + this.name + ";");
+      sql.add(this.drop);
       sql.add(this.createStatement);
     }
     return sql;

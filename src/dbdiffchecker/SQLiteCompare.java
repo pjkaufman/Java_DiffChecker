@@ -6,13 +6,12 @@ import java.sql.SQLException;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 import dbdiffchecker.sql.SQLiteConn;
-import dbdiffchecker.sql.SQLDatabase;
 
 /**
  * A JFrame that takes user input to make a comparison between two databases or
  * to take a database snapshot.
  * @author Peter Kaufman
- * @version 5-24-19
+ * @version 5-31-19
  * @since 9-20-17
  */
 public class SQLiteCompare extends DBCompare {
@@ -28,6 +27,7 @@ public class SQLiteCompare extends DBCompare {
    */
   public SQLiteCompare(int type) {
     super(type);
+    this.implimentation = 1;
     labelText = new String[] { "Enter SQLite Database Path:", "Enter SQLite Database:" };
     devDatabaseInputs = new JTextComponent[] { devPath, devDatabaseName };
     livevDatabaseInputs = new JTextComponent[] { livePath, liveDatabaseName };
@@ -62,16 +62,6 @@ public class SQLiteCompare extends DBCompare {
   @Override
   protected DbConn createLiveDatabaseConnection() throws DatabaseDiffernceCheckerException {
     return new SQLiteConn(livePath.getText(), liveDatabaseName.getText(), "dev");
-  }
-
-  @Override
-  protected Database createDevDatabase() throws DatabaseDiffernceCheckerException {
-    return new SQLDatabase(devDatabaseConnection);
-  }
-
-  @Override
-  protected Database createLiveDatabase() throws DatabaseDiffernceCheckerException {
-    return new SQLDatabase(liveDatabaseConnection);
   }
 
   /**

@@ -7,7 +7,7 @@ import java.util.HashMap;
  * Resembles a table in MySQL and contains info about the Ttable's columns and
  * indices.
  * @author Peter Kaufman
- * @version 5-30-19
+ * @version 5-31-19
  * @since 5-15-19
  */
 public class MySQLTable extends Table {
@@ -25,6 +25,7 @@ public class MySQLTable extends Table {
    */
   public MySQLTable(String name, String create) {
     super(name, create);
+    this.drop = "DROP TABLE `" + name + "`;";
     String temp = create.substring(create.indexOf("DEFAULT CHARSET=") + 16) + " ";
     this.charSet = temp.substring(0, temp.indexOf(" "));
   }
@@ -117,6 +118,8 @@ public class MySQLTable extends Table {
     String columnIndicator = "`";
     String indexIndicator = "KEY";
     String name = "";
+    String drop = "";
+    String last = "";
     String details = "";
     String create = "";
     parts = this.createStatement.split("\n");
@@ -127,19 +130,25 @@ public class MySQLTable extends Table {
       }
       if (part.startsWith(columnIndicator)) {
         name = part.substring(part.indexOf("`") + 1, part.lastIndexOf("`"));
-        details = part.substring(part.lastIndexOf("`") + 2);
+        details = part.substring(part.lastIndexOf("`") + 2) + last;
         // add the column
         addColumn(new Column(name, details));
+        last = " AFTER `" + name + "`";
       } else if (part.contains(indexIndicator)) {
         create = "ADD " + part;
         if (part.contains("PRIMARY KEY")) { // dealing with PRIMARY KEY
           name = "PRIMARY";
+          drop = "DROP PRIMARY KEY";
+        } else if (part.contains("FOREIGN KEY")) { // dealing with FOREIGN KEY
+          name = part.substring(part.indexOf("`") + 1, part.indexOf("`", part.indexOf("`") + 1));
+          drop = "DROP FOREIGN KEY `" + name + "`";
         } else {
           name = part.substring(part.indexOf("`") + 1, part.indexOf("`", part.indexOf("`") + 1));
+          drop = "DROP INDEX `" + name + "`";
           create = create.replace("KEY", "INDEX");
         }
         // add the index
-        addIndex(new Index(name, create));
+        addIndex(new Index(name, create, drop));
       }
     }
   }
@@ -152,11 +161,10 @@ public class MySQLTable extends Table {
     for (String columnName : cols2.keySet()) {
       col = cols2.get(columnName);
       if (!cols1.containsKey(columnName)) {
-        if (this.count == 0) {
-          sql += "DROP COLUMN `" + col.getName() + "`";
-        } else {
-          sql += ", \nDROP COLUMN `" + col.getName() + "`";
+        if (!(this.count == 0)) {
+          sql += ", \n";
         }
+        sql += col.getDrop();
         this.count++;
       }
     }
@@ -166,32 +174,28 @@ public class MySQLTable extends Table {
   @Override
   protected String otherCols(HashMap<String, Column> cols1, HashMap<String, Column> cols2) {
     String sql = "";
-    String last = "";
     Column col = null;
     Column col2 = null;
     for (String columnName : cols1.keySet()) {
       col = cols1.get(columnName);
       if (!cols2.containsKey(columnName)) {
-        if (this.count == 0) {
-          sql += "ADD COLUMN `" + col.getName() + "` " + col.getDetails() + last;
-        } else {
-          sql += ", \nADD COLUMN `" + col.getName() + "` " + col.getDetails() + last;
+        if (!(this.count == 0)) {
+          sql += ", \n";
         }
+        sql += "ADD COLUMN `" + col.getName() + "` " + col.getDetails();
         this.count++;
       } else {
         col2 = cols2.get(columnName);
         if (col.getName().equals(col2.getName())) { // columns are the same
           if (!col.getDetails().equals(col2.getDetails())) { // column details are different
-            if (this.count == 0) {
-              sql += "MODIFY COLUMN `" + col.getName() + "` " + col.getDetails();
-            } else {
-              sql += ", \nMODIFY COLUMN `" + col.getName() + "` " + col.getDetails();
+            if (!(this.count == 0)) {
+              sql += ", \n";
             }
+            sql += "MODIFY COLUMN `" + col.getName() + "` " + col.getDetails();
             this.count++;
           }
         }
       }
-      last = " AFTER `" + col.getName() + "`";
     }
     return sql;
   }
@@ -203,11 +207,10 @@ public class MySQLTable extends Table {
     for (String indexName : live.keySet()) {
       // if the index does not exist in the dev database then drop it
       if (!dev.containsKey(indexName)) {
-        if (this.count == 0) {
-          sql += "DROP INDEX `" + indexName + "`";
-        } else {
-          sql += ", \nDROP INDEX `" + indexName + "`";
+        if (!(this.count == 0)) {
+          sql += ", \n";
         }
+        sql += live.get(indexName).getDrop();
         this.count++;
       }
     }
@@ -224,21 +227,17 @@ public class MySQLTable extends Table {
       indices1 = dev.get(indexName);
       if (live.containsKey(indexName)) {
         if (!indices1.equals(live.get(indexName))) {
-          if (this.count == 0) {
-            sql += "DROP INDEX `" + indices1.getName() + "`";
-            sql += ", \n" + indices1.getCreateStatement();
-          } else {
-            sql += ", \nDROP INDEX `" + indices1.getName() + "`";
-            sql += ", \n" + indices1.getCreateStatement();
+          if (!(this.count == 0)) {
+            sql += ", \n";
           }
+          sql += indices1.getDrop() + ", \n" + indices1.getCreateStatement();
           this.count++;
         }
       } else {
-        if (this.count == 0) {
-          sql += indices1.getCreateStatement();
-        } else {
-          sql += ", \n" + indices1.getCreateStatement();
+        if (!(this.count == 0)) {
+          sql += ", \n";
         }
+        sql += indices1.getCreateStatement();
         this.count++;
       }
     }

@@ -3,7 +3,7 @@ package dbdiffchecker.sql;
 /**
  * Resembles an SQL column and contains column info.
  * @author Peter Kaufman
- * @version 5-24-19
+ * @version 5-30-19
  * @since 9-10-17
  */
 public class Column extends Schema {
@@ -18,6 +18,7 @@ public class Column extends Schema {
   public Column(String name, String details) {
     this.name = name;
     this.details = details;
+    this.drop = "DROP COLUMN `" + name + "`";
   }
 
   /**

@@ -6,7 +6,7 @@ import dbdiffchecker.sql.MySQLTable;
 /**
  * A unit test that makes sure that the MySQLTable object works as intended.
  * @author Peter Kaufman
- * @version 5-24-19
+ * @version 5-31-19
  * @since 5-10-19
  */
 public class MySQLTableTest {
@@ -114,9 +114,10 @@ public class MySQLTableTest {
   public void testEquals() {
     ArrayList<String> sql;
     String expectedSQL = "ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, "
-        + "\nADD COLUMN `id` varchar(40) NOT NULL AFTER `data`, \nMODIFY COLUMN `ip_address` varchar(45) NOT NULL, "
-        + "\nMODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\', \nDROP COLUMN `data2`, "
-        + "\nADD INDEX `add` (`id`), \nDROP INDEX `modify`, \nADD INDEX `modify` (`data`);";
+        + "\nADD COLUMN `id` varchar(40) NOT NULL, \nMODIFY COLUMN `ip_address`"
+        + " varchar(45) NOT NULL AFTER `id`, \nMODIFY COLUMN `timestamp` int(10) unsigned "
+        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`, \nDROP COLUMN `data2`, \nADD INDEX "
+        + "`add` (`id`), \nDROP INDEX `modify`, \nADD INDEX `modify` (`data`);";
     // setup table1
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  "
@@ -265,7 +266,7 @@ public class MySQLTableTest {
    */
   public void testColumnAddition() {
     ArrayList<String> sql;
-    String expectedSQL = "ALTER TABLE `ci_sessions`\nADD COLUMN `id` varchar(40) NOT NULL AFTER `ip_address`;";
+    String expectedSQL = "ALTER TABLE `ci_sessions`\nADD COLUMN `id` varchar(40) NOT NULL AFTER `data`;";
     // setup tables
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `ip_address` varchar(45) NOT NULL,\n  "
@@ -290,9 +291,9 @@ public class MySQLTableTest {
         + "  `data2` blob NOT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table1 = new MySQLTable(name, create);
     sql = table1.equals(table2);
-    expectedSQL = "ALTER TABLE `ci_sessions`\nADD COLUMN `data2` blob NOT NULL AFTER `data`, \n"
-        + "ADD COLUMN `id` varchar(40) NOT NULL AFTER `ip_address`;";
-    assertEquals("The sql generated should be a two column addition", true, sql.contains(expectedSQL));
+    expectedSQL = "ALTER TABLE `ci_sessions`\nADD COLUMN `data2` blob NOT NULL AFTER `id`, \n"
+        + "ADD COLUMN `id` varchar(40) NOT NULL AFTER `data`;";
+    assertEquals("The sql generated should be a two column addition", expectedSQL, sql.get(0));
   }
 
   @Test
@@ -337,7 +338,7 @@ public class MySQLTableTest {
    */
   public void testColumnModification() {
     ArrayList<String> sql;
-    String expectedSQL = "ALTER TABLE `ci_sessions`\nMODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\';";
+    String expectedSQL = "ALTER TABLE `ci_sessions`\nMODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\' AFTER `id`;";
     // setup tables
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `id` varchar(45) NOT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
@@ -365,8 +366,8 @@ public class MySQLTableTest {
         + "`data2` blob\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table2 = new MySQLTable(name, create);
     sql = table1.equals(table2);
-    expectedSQL = "ALTER TABLE `ci_sessions`\nMODIFY COLUMN `data2` blob NOT NULL, \n"
-        + "MODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT '0';";
+    expectedSQL = "ALTER TABLE `ci_sessions`\nMODIFY COLUMN `data2` blob NOT NULL AFTER `timestamp`, \n"
+        + "MODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT '0' AFTER `id`;";
     assertEquals("The sql generated should have two column modifications", expectedSQL, sql.get(0));
   }
 }

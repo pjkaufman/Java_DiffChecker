@@ -11,7 +11,7 @@ import dbdiffchecker.nosql.Bucket;
  * A JFrame that takes user input to make a comparison between two databases or
  * to take a database snapshot.
  * @author Peter Kaufman
- * @version 5-24-19
+ * @version 5-31-19
  * @since 5-24-19
  */
 public class CouchbaseCompare extends DBCompare {
@@ -70,12 +70,7 @@ public class CouchbaseCompare extends DBCompare {
   }
 
   @Override
-  protected Database createDevDatabase() throws DatabaseDiffernceCheckerException {
-    return new Bucket(devDatabaseConnection);
-  }
-
-  @Override
-  protected Database createLiveDatabase() throws DatabaseDiffernceCheckerException {
-    return new Bucket(liveDatabaseConnection);
+  protected Database createDatabase(DbConn databaseConn) throws DatabaseDiffernceCheckerException {
+    return new Bucket(databaseConn);
   }
 }

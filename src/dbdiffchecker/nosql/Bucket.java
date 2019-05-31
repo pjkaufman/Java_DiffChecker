@@ -88,21 +88,20 @@ public class Bucket extends Database {
         n1ql.add("Drop document: " + documnetName);
       }
     }
-    // check to see if any indices need to be dropped
+    // check to see if any indices need to be dropped or modified
+    Index couchbaseIndex = null;
     for (String indexName : live.getIndices().keySet()) {
+      couchbaseIndex = live.indices.get(indexName);
       if (!indices.containsKey(indexName)) {
-        n1ql.add("DROP INDEX `" + liveBucketName + "`.`" + indexName + "`;");
+        n1ql.add(couchbaseIndex.getDrop());
+      } else if (!couchbaseIndex.equals(indices.get(indexName))) {
+        n1ql.add(couchbaseIndex.getDrop());
+        n1ql.add(indices.get(indexName).getCreateStatement().replace(bucketPlaceHolder, liveBucketName) + ";");
       }
     }
     // check to see if any indices need to be added or modified
     for (String indexName : indices.keySet()) {
-      if (live.getIndices().containsKey(indexName)) {
-        // does the index need to be modified
-        if (!((Bucket) liveBucket).indices.get(indexName).equals(indices.get(indexName))) {
-          n1ql.add("DROP INDEX `" + liveBucketName + "`.`" + indexName + "`;");
-          n1ql.add(indices.get(indexName).getCreateStatement().replace(bucketPlaceHolder, liveBucketName) + ";");
-        }
-      } else {
+      if (!live.getIndices().containsKey(indexName)) {
         n1ql.add(indices.get(indexName).getCreateStatement().replace(bucketPlaceHolder, liveBucketName) + ";");
       }
     }

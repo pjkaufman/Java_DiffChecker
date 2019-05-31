@@ -144,6 +144,7 @@ public class CouchbaseConn extends DbConn {
     result = bucket.query(query);
     IndexInfo index = null;
     String create;
+    String drop;
     int size;
     for (N1qlQueryRow row : result) {
       index = new IndexInfo(row.value().getObject("indexes"));
@@ -166,7 +167,8 @@ public class CouchbaseConn extends DbConn {
       if (!index.isPrimary()) {
         create += " USING " + index.type();
       }
-      indices.put(index.name(), new Index(index.name(), create));
+      drop = "DROP INDEX `" + bucketPlaceHolder + "`.`" + index.name() + "`;";
+      indices.put(index.name(), new Index(index.name(), create, drop));
     }
   }
 
