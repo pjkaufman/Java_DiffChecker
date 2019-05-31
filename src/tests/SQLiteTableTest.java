@@ -11,7 +11,8 @@ import dbdiffchecker.sql.SQLiteTable;
  */
 public class SQLiteTableTest {
   private SQLiteTable table1, table2;
-  private String name, create;
+  private String name, create, expectedSQL;
+  private ArrayList<String> sql;
 
   @Test
   /**
@@ -90,8 +91,7 @@ public class SQLiteTableTest {
    * @author Peter Kaufman
    */
   public void testAddColumns() {
-    ArrayList<String> sql;
-    String expectedSQL = "ALTER TABLE helper\n\tADD COLUMN Thor INTEGER (67) DEFAULT (12);";
+    expectedSQL = "ALTER TABLE helper\n\tADD COLUMN Thor INTEGER (67) DEFAULT (12);";
     // setup tables
     name = "helper";
     create = "CREATE TABLE helper (hulk STRING (12))";
@@ -121,8 +121,7 @@ public class SQLiteTableTest {
    * @author Peter Kaufman
    */
   public void testAddIndicesRegular() {
-    ArrayList<String> sql;
-    String expectedSQL = "CREATE UNIQUE INDEX add2 ON helper (Thor);\n" + "CREATE INDEX add1 ON helper (hulk, Thor);";
+    expectedSQL = "CREATE UNIQUE INDEX add2 ON helper (Thor);\n" + "CREATE INDEX add1 ON helper (hulk, Thor);";
     // setup tables
     name = "helper";
     create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12));\n"
@@ -142,13 +141,26 @@ public class SQLiteTableTest {
 
   @Test
   /**
+   * Tests whetehr the parsing function adds Foreign Keys
+   * @author Peter Kaufman
+   */
+  public void testAddForeignKey() {
+    name = "Books";
+    create = "CREATE TABLE Books(BookId INTEGER PRIMARY KEY, Title TEXT, AuthorId INTEGER,"
+        + "FOREIGN KEY(AuthorId) REFERENCES Authors(AuthorId));";
+    table1 = new SQLiteTable(name, create);
+    assertEquals("There should be a Foreign Key in the index list", true,
+        table1.getIndices().containsKey("FOREIGN KEY1"));
+  }
+
+  @Test
+  /**
    * Tests whether the equals function catches the dropping of regular indices
    * (not testing primary key).
    * @author Peter Kaufman
    */
   public void testDropIndicesRegular() {
-    ArrayList<String> sql;
-    String expectedSQL = "DROP INDEX add2;\nDROP INDEX add1;";
+    expectedSQL = "DROP INDEX add2;\nDROP INDEX add1;";
     // setup tables
     name = "helper";
     create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12));\n"
@@ -173,9 +185,8 @@ public class SQLiteTableTest {
    * @author Peter Kaufman
    */
   public void testModifyIndicesRegular() {
-    ArrayList<String> sql;
     String create1, create2;
-    String expectedSQL = "DROP INDEX add1;\nCREATE INDEX add1 ON helper (hulk, Thor);";
+    expectedSQL = "DROP INDEX add1;\nCREATE INDEX add1 ON helper (hulk, Thor);";
     // setup table1
     name = "helper";
     create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12));\n"
@@ -209,7 +220,7 @@ public class SQLiteTableTest {
    * @author Peter Kaufman
    */
   public void testRecreateTable() {
-    ArrayList<String> sql, expectedSQL = new ArrayList<>();
+    ArrayList<String> expectedSQL = new ArrayList<>();
     String insert1 = "INSERT INTO helper (hulk)\n\tSELECT hulk\n\tFROM temp_table;";
     String insert2 = "INSERT INTO helper (truthtable,hulk)\n\tSELECT truthtable,hulk\n\tFROM temp_table;";
     expectedSQL.add("ALTER TABLE helper RENAME TO temp_table;");
@@ -289,7 +300,7 @@ public class SQLiteTableTest {
    * @author Peter Kaufman
    */
   public void testRecreateTableSpecial() {
-    ArrayList<String> sql, expectedSQL = new ArrayList<>();
+    ArrayList<String> expectedSQL = new ArrayList<>();
     String extraCreate = "CREATE INDEX addition ON helper (Thor)";
     expectedSQL.add("ALTER TABLE helper RENAME TO temp_table;");
     expectedSQL.add("CREATE TABLE helper (hulk STRING (12));");

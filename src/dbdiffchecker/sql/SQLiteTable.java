@@ -79,7 +79,7 @@ public class SQLiteTable extends Table {
   protected void parseCreateStatement() {
     String[] parts, columns;
     ArrayList<String> bodySections = new ArrayList<>();
-    String indexIndicator = "KEY (";
+    String indexIndicator = ".*([K|k][E|e][Y|y])(\\s)*(\\().*";
     String name = "";
     String drop = "";
     String details = "";
@@ -122,7 +122,7 @@ public class SQLiteTable extends Table {
     // parse the columns, PRIMARY KEYs, FOREIGN KEYs, and constraints
     for (String part : bodySections) {
       part = part.trim();
-      if (!part.contains(indexIndicator)) {
+      if (!part.matches(indexIndicator)) {
         nameEnd = part.indexOf(" ");
         name = part.substring(0, nameEnd);
         details = part.substring(nameEnd + 1);
