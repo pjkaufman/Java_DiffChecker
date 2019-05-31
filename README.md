@@ -87,9 +87,12 @@ java -jar path_to_jar_file
 
 * SQL
   * MySQL
+    * Tables, Columns, Indices (except Foriegn Key), and Views (non-nested) can be compared
   * SQLite
+    * Tables, Columns, Indices (except Foriegn Key), and Views (non-nested) can be compared
 * NoSQL
   * Couchbase
+    * Buckets, Documents, and Indices can be compared
 
 [Back to Table of Contents](#table-of-contents)
 
