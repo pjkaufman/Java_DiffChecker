@@ -9,7 +9,7 @@ Compares two databases and generates the statements that are needed to make the 
 
 * [Installation](#installation)
 * [Usage](#usage)
-* [Supported Database Implimentations]()
+* [Supported Database Implimentations](#supported-database-implimentations)
 * [Features](#features)
 * [Documentation](#documentation)
 * [License](#license)
