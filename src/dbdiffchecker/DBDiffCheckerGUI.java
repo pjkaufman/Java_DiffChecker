@@ -22,7 +22,7 @@ import javax.swing.SwingUtilities;
 /**
  * A JFrame that takes user input to decide which JFrame to open.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 6-15-19
  * @since 9-20-17
  */
 public class DBDiffCheckerGUI extends JFrameV2 {
@@ -195,13 +195,13 @@ public class DBDiffCheckerGUI extends JFrameV2 {
       }
       rs.results(FileHandler.readFrom(file), title);
       rs.setTitle(title.substring(0, title.length() - 1));
-    } catch (IOException e) {
+    } catch (DatabaseDifferenceCheckerException cause) {
       try {
-        log("There was an error recovering the last list of SQL statements.");
-      } catch (DatabaseDiffernceCheckerException logError) {
+        log("There was an error recovering the last list of statements.");
+      } catch (DatabaseDifferenceCheckerException logError) {
         System.out.println("unable to log error... " + logError.getMessage());
       }
-      error(new DatabaseDiffernceCheckerException("There was an error recovering the last list of SQL statements.", e));
+      error(cause);
     }
   }
 

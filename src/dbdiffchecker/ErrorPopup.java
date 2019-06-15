@@ -13,7 +13,7 @@ import java.awt.Color;
 /**
  * A JFrame that displays an error that occurred.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 6-15-19
  * @since 9-21-17
  */
 public class ErrorPopup extends JFrameV2 {
@@ -27,14 +27,14 @@ public class ErrorPopup extends JFrameV2 {
    * @author Peter Kaufman
    * @param error The error message to display to the user and to log.
    */
-  public ErrorPopup(DatabaseDiffernceCheckerException error) {
+  public ErrorPopup(DatabaseDifferenceCheckerException error) {
     String errorMessage = "";
     StringWriter sw = new StringWriter();
     error.printStackTrace(new PrintWriter(sw));
     String exceptionAsString = sw.toString();
     try {
       log(exceptionAsString);
-    } catch (DatabaseDiffernceCheckerException err) {
+    } catch (DatabaseDifferenceCheckerException err) {
       System.out.println("Could not log the error...");
     }
     this.error = false;

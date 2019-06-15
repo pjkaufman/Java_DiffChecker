@@ -1,7 +1,7 @@
 package dbdiffchecker.sql;
 
 import dbdiffchecker.Database;
-import dbdiffchecker.DatabaseDiffernceCheckerException;
+import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +9,7 @@ import java.util.HashMap;
 /**
  * Models an SQL database schema.
  * @author Peter Kaufman
- * @version 5-31-19
+ * @version 6-15-19
  * @since 9-18-17
  */
 public class SQLDatabase extends Database {
@@ -31,10 +31,10 @@ public class SQLDatabase extends Database {
    * @param db The database connection used to get the database information
    * @param type The type of datbase implimentation which is being used. <b>Note:
    *        this allows for the appropriate turning off of Foreign Keys</b>
-   * @throws DatabaseDiffernceCheckerException Error connecting or closing the
+   * @throws DatabaseDifferenceCheckerException Error connecting or closing the
    *         database connection.
    */
-  public SQLDatabase(DbConn db, int type) throws DatabaseDiffernceCheckerException {
+  public SQLDatabase(DbConn db, int type) throws DatabaseDifferenceCheckerException {
     // get tables and views
     db.establishDatabaseConnection();
     this.views = ((SQLDbConn) db).getViews();
@@ -44,8 +44,8 @@ public class SQLDatabase extends Database {
     this.firstSteps = ((SQLDbConn) db).getFirstSteps();
     // make sure that the type is valid
     if (type >= foreignKeysOn.length) {
-      throw new DatabaseDiffernceCheckerException("Unable to determine the database implimentation being used.",
-          new Exception());
+      throw new DatabaseDifferenceCheckerException("Unable to determine the database implimentation being used.",
+          new Exception(), 1019);
     }
     this.type = type;
   }

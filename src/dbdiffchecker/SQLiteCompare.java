@@ -11,7 +11,7 @@ import dbdiffchecker.sql.SQLiteConn;
  * A JFrame that takes user input to make a comparison between two databases or
  * to take a database snapshot.
  * @author Peter Kaufman
- * @version 5-31-19
+ * @version 6-15-19
  * @since 9-20-17
  */
 public class SQLiteCompare extends DBCompare {
@@ -55,12 +55,12 @@ public class SQLiteCompare extends DBCompare {
   }
 
   @Override
-  protected DbConn createDevDatabaseConnection() throws DatabaseDiffernceCheckerException {
+  protected DbConn createDevDatabaseConnection() throws DatabaseDifferenceCheckerException {
     return new SQLiteConn(devPath.getText(), devDatabaseName.getText(), "dev");
   }
 
   @Override
-  protected DbConn createLiveDatabaseConnection() throws DatabaseDiffernceCheckerException {
+  protected DbConn createLiveDatabaseConnection() throws DatabaseDifferenceCheckerException {
     return new SQLiteConn(livePath.getText(), liveDatabaseName.getText(), "dev");
   }
 

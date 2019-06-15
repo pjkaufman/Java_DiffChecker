@@ -1,6 +1,6 @@
 package dbdiffchecker.sql;
 
-import dbdiffchecker.DatabaseDiffernceCheckerException;
+import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,7 +14,7 @@ import java.util.HashMap;
  * Establishes a connection with an SQL database and runs the necessary SQL
  * statements to get schema information.
  * @author Peter Kaufman
- * @version 5-30-19
+ * @version 6-15-19
  * @since 5-24-19
  */
 abstract public class SQLDbConn extends DbConn {
@@ -44,14 +44,14 @@ abstract public class SQLDbConn extends DbConn {
   }
 
   @Override
-  abstract public void establishDatabaseConnection() throws DatabaseDiffernceCheckerException;
+  abstract public void establishDatabaseConnection() throws DatabaseDifferenceCheckerException;
 
   @Override
-  public void closeDatabaseConnection() throws DatabaseDiffernceCheckerException {
+  public void closeDatabaseConnection() throws DatabaseDifferenceCheckerException {
     try {
       this.con.close();
     } catch (SQLException e) {
-      throw new DatabaseDiffernceCheckerException("There was an error closing the " + this.db + " database.", e);
+      throw new DatabaseDifferenceCheckerException("There was an error closing the " + this.db + " database.", e, 1011);
     }
   }
 
@@ -61,38 +61,38 @@ abstract public class SQLDbConn extends DbConn {
    * @param table The name of the table for which the create statement should be
    *        retrieved.
    * @return Table's create statement or an empty string if an error occurred.
-   * @throws DatabaseDiffernceCheckerException Error when getting a table's create
+   * @throws DatabaseDifferenceCheckerException Error when getting a table's create
    *         statement.
    */
-  abstract public String getTableCreateStatement(String table) throws DatabaseDiffernceCheckerException;
+  abstract public String getTableCreateStatement(String table) throws DatabaseDifferenceCheckerException;
 
   /**
    * Gets the tables, columns, and indices of the database.
    * @author Peter Kaufman
    * @return The list of tables in the database where the table name is the key.
-   * @throws DatabaseDiffernceCheckerException Error when getting table data.
+   * @throws DatabaseDifferenceCheckerException Error when getting table data.
    */
-  abstract public HashMap<String, Table> getTableList() throws DatabaseDiffernceCheckerException;
+  abstract public HashMap<String, Table> getTableList() throws DatabaseDifferenceCheckerException;
 
   /**
    * Gets a list of views of that exist in the database.
    * @author Peter Kaufman
    * @return All of the views in the database.
-   * @throws DatabaseDiffernceCheckerException Error when getting view data.
+   * @throws DatabaseDifferenceCheckerException Error when getting view data.
    */
-  abstract public ArrayList<View> getViews() throws DatabaseDiffernceCheckerException;
+  abstract public ArrayList<View> getViews() throws DatabaseDifferenceCheckerException;
 
   @Override
-  public void runStatement(String sqlStatement) throws DatabaseDiffernceCheckerException {
+  public void runStatement(String sqlStatement) throws DatabaseDifferenceCheckerException {
     try {
       Statement query = this.con.createStatement();
       query.executeUpdate(sqlStatement);
     } catch (SQLException e) {
-      throw new DatabaseDiffernceCheckerException(
-          "There was an error running " + sqlStatement + " on the " + this.db + " database.", e);
+      throw new DatabaseDifferenceCheckerException(
+          "There was an error running " + sqlStatement + " on the " + this.db + " database.", e, 1012);
     }
   }
 
   @Override
-  abstract protected void testConnection() throws DatabaseDiffernceCheckerException;
+  abstract protected void testConnection() throws DatabaseDifferenceCheckerException;
 }

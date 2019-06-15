@@ -12,7 +12,7 @@ import dbdiffchecker.sql.SQLDatabase;
  * A JFrame that takes user input to make a comparison between two databases or
  * to take a database snapshot.
  * @author Peter Kaufman
- * @version 5-31-19
+ * @version 6-15-19
  * @since 5-21-19
  */
 public class MySQLCompare extends DBCompare {
@@ -62,13 +62,13 @@ public class MySQLCompare extends DBCompare {
   }
 
   @Override
-  protected DbConn createDevDatabaseConnection() throws DatabaseDiffernceCheckerException {
+  protected DbConn createDevDatabaseConnection() throws DatabaseDifferenceCheckerException {
     return new MySQLConn(devUsername.getText(), new String(devPassword.getPassword()), devHost.getText(),
         devPort.getText(), devDatabaseName.getText(), "dev");
   }
 
   @Override
-  protected DbConn createLiveDatabaseConnection() throws DatabaseDiffernceCheckerException {
+  protected DbConn createLiveDatabaseConnection() throws DatabaseDifferenceCheckerException {
     return new MySQLConn(liveUsername.getText(), new String(livePassword.getPassword()), liveHost.getText(),
         livePort.getText(), liveDatabaseName.getText(), "live");
   }
