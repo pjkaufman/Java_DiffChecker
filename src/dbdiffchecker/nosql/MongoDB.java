@@ -15,7 +15,7 @@ import java.util.ArrayList;
  */
 public class MongoDB extends Database {
   // Instance variables
-  private HashMap<String, String> collections = new HashMap<>();
+  private HashMap<String, Collection> collections = new HashMap<>();
   private HashMap<String, Index> indices = new HashMap<>();
   private String name = "";
 
@@ -50,7 +50,7 @@ public class MongoDB extends Database {
    * @author Peter Kaufman
    * @return The list of documents that exist in the bucket.
    */
-  public HashMap<String, String> getCollections() {
+  public HashMap<String, Collection> getCollections() {
     return this.collections;
   }
 
@@ -66,24 +66,57 @@ public class MongoDB extends Database {
   @Override
   public ArrayList<String> compare(Database liveDatabase) {
     MongoDB live = (MongoDB) liveDatabase;
-    ArrayList<String> statements = new ArrayList<>();
+    ArrayList<String> statements = new ArrayList<>(), updateCollections, 
+      common = new ArrayList<>();
     String liveDatabaseName = live.name;
-    // check for documents to create
-    for (String collectionName : collections.keySet()) {
-      if (!live.getCollections().containsKey(collectionName)) {
-        statements.add("Create document: " + collectionName);
-      }
-    }
-    // check for documents to drop
-    for (String collectionName : live.getCollections().keySet()) {
-      if (!collections.containsKey(collectionName)) {
-        statements.add("Drop document: " + collectionName);
-      }
-    }
+    // check for collections to create and drop
+    statements.addAll(compareCollections(live.getCollections(), common));
+    // determine which collections need to be updated
+    updateCollections = collectionDiffs(common, live.getCollections());
+    // generate the statements needed to modify the collections
+    statements.addAll(updateCollections(live.getCollections(), updateCollections));
     // check to see if any indices need to be dropped or modified
     // TODO
     // check to see if any indices need to be added or modified
     // TODO
     return statements;
+  }
+
+  public ArrayList<String> compareCollections(HashMap<String, Collection> liveCollections, ArrayList<String> common) {
+    ArrayList<String> statements = new ArrayList<>();
+    // check for collections to create
+    for(String collectionName : liveCollections.keySet()) {
+      if (!collections.containsKey(collectionName)) {
+        statements.add("Create Collection: " + collectionName);
+      }
+    }
+    // check for collections to drop
+    for(String collectionName : collections.keySet()) {
+      if (!liveCollections.containsKey(collectionName)) {
+        statements.add("Delete Collection: " + collectionName);
+      } else {
+        common.add(collectionName);
+      }
+    } 
+    return statements;
+  }
+
+  public ArrayList<String> collectionDiffs(ArrayList<String> common, 
+          HashMap<String, Collection> liveColls) {
+    ArrayList<String> updateCollections = new ArrayList<>();
+    // make sure that all common collections are the same, but if not make sure to 
+    // add them to the list of collections to update
+    for(String collectionName : common) {
+      if (!collections.get(collectionName).equals(liveColls.get(collectionName))) {
+        updateCollections.add(collectionName);
+      }
+    }
+    return updateCollections;
+  }
+
+  public ArrayList<String> updateCollections(HashMap<String, Collection> liveColls, 
+          ArrayList<String> collectionsToUpdate) {
+    // TODO
+    return new ArrayList<String>();
   }
 }

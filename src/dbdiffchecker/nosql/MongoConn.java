@@ -1,6 +1,7 @@
 package dbdiffchecker.nosql;
 
 import com.mongodb.client.MongoDatabase; 
+import org.bson.Document;
 import com.mongodb.MongoClient;  
 import com.mongodb.client.MongoIterable;
 import java.util.logging.Logger;
@@ -15,8 +16,8 @@ import java.util.ArrayList;
  * Establishes a connection with a Couchbase bucket based on the password,
  * username, host, and bucket name provided.
  * @author Peter Kaufman
- * @version 6-15-19
- * @since 5-23-19
+ * @version 10-26-19
+ * @since 10-26-19
  */
 public class MongoConn extends DbConn {
   // Instance variables
@@ -81,11 +82,19 @@ public class MongoConn extends DbConn {
    * @param documents A list where all of the document names will be stored for
    *        fast lookup later.
    */
-  public void getCollections(HashMap<String, String> collections) {
+  public void getCollections(HashMap<String, Collection> collections) {
     MongoIterable <String> collectionList = database.listCollectionNames();
-    System.out.println("Collections:");
+    boolean isCapped = false;
+    int size = 0;
     for (String collectionName: collectionList) {
-        collections.put(collectionName, collectionName);
+      Document collStats = database.runCommand(new Document("collStats", collectionName));
+      isCapped = "1" == collStats.get("capped").toString();
+      if (isCapped) {
+        size = Integer.parseInt(collStats.get("storageSize").toString());
+      } else {
+        size = 0;
+      }
+      collections.put(collectionName, new Collection(collectionName, new HashMap<String, Index>(), isCapped, size));
     }
   }
 
