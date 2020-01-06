@@ -1,15 +1,12 @@
 package dbdiffchecker;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.util.ArrayList;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.JButton;
@@ -22,7 +19,7 @@ import javax.swing.SwingUtilities;
 /**
  * A JFrame that takes user input to decide which JFrame to open.
  * @author Peter Kaufman
- * @version 10-27-19
+ * @version 1-6-20
  * @since 9-20-17
  */
 public class DBDiffCheckerGUI extends JFrameV2 {

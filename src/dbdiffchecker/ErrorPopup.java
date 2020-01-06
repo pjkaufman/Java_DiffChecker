@@ -13,7 +13,7 @@ import java.awt.Color;
 /**
  * A JFrame that displays an error that occurred.
  * @author Peter Kaufman
- * @version 6-15-19
+ * @version 1-6-20
  * @since 9-21-17
  */
 public class ErrorPopup extends JFrameV2 {
@@ -38,7 +38,7 @@ public class ErrorPopup extends JFrameV2 {
       System.out.println("Could not log the error...");
     }
     this.error = false;
-    errorMessage = error.getMessage().substring(error.getMessage().indexOf(":") + 2);
+    errorMessage = error.toString();
     sizeFactor = errorMessage.length();
     initComponents();
     this.errorLabel.setText(errorMessage);

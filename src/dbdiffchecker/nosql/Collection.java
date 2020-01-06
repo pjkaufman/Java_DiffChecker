@@ -4,7 +4,7 @@ package dbdiffchecker.nosql;
  * Models a Collection in a Mongo database by keeping track of specific properties of a collections.
  * @author Peter Kaufman
  * @version 1-6-20
- * @since 10-??-19
+ * @since 10-26-19
  */
 public class Collection {
 

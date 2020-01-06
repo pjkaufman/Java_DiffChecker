@@ -17,13 +17,12 @@ public class MongoDB extends Database {
   private HashMap<String, Collection> collections = new HashMap<>();
 
   /**
-   * Creates a database that models the Couchbase bucket using the Couchbase
-   * connection in orde to get a list of documents, idndices, and other pertinent
-   * information.
+   * Creates a database that models the Mongo database using the Mongo
+   * connection in order to get a list of collections.
    * @author Peter Kaufman
-   * @param conn The connection to the Couchbase bucket.
-   * @throws DatabaseDifferenceCheckerException Error connecting to the Couchbase
-   *         bucket.
+   * @param conn The connection to the Mongo database.
+   * @throws DatabaseDifferenceCheckerException Error connecting to the Mongo
+   *         database.
    */
   public MongoDB(DbConn conn) throws DatabaseDifferenceCheckerException {
     MongoConn connection = (MongoConn) conn;
@@ -70,7 +69,7 @@ public class MongoDB extends Database {
    * @param common The collections which are common between the live and dev databases.
    * @return A set of statmentst that have to do with dropping and or creating collections.
    */
-  public ArrayList<String> compareCollections(HashMap<String, Collection> liveCollections, ArrayList<String> common) {
+  private ArrayList<String> compareCollections(HashMap<String, Collection> liveCollections, ArrayList<String> common) {
     ArrayList<String> statements = new ArrayList<>();
     // check for collections to create
     String createStatement;

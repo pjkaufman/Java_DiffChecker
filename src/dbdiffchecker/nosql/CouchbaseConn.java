@@ -15,13 +15,12 @@ import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
 import dbdiffchecker.sql.Index;
 import java.util.HashMap;
-import java.util.ArrayList;
 
 /**
  * Establishes a connection with a Couchbase bucket based on the password,
  * username, host, and bucket name provided.
  * @author Peter Kaufman
- * @version 6-15-19
+ * @version 1-6-20
  * @since 5-23-19
  */
 public class CouchbaseConn extends DbConn {

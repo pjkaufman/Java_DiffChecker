@@ -29,4 +29,6 @@ Here is a list of error codes and what they mean:
 - 1022- There was an error when trying to get the create statement of a SQLite view
 - 1023- There was an error when testing the connection to the SQLite database 
 - 1024- There was an error when getting data collected about a SQLite table
-
+### MongoDB
+- 1025- There was an error connecting to the Mongo database
+- 1026- There was an error when testing the connection to the Mongo database

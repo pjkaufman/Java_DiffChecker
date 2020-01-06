@@ -7,9 +7,6 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -18,13 +15,12 @@ import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 import javax.swing.text.JTextComponent;
 import dbdiffchecker.sql.SQLDatabase;
-import dbdiffchecker.sql.SQLDbConn;
 
 /**
  * A JFrame that takes user input to make a comparison between two databases or
  * take a database snapshot.
  * @author Peter Kaufman
- * @version 6-15-19
+ * @version 1-6-20
  * @since 5-11-19
  */
 public abstract class DBCompare extends JFrameV2 {

@@ -3,7 +3,7 @@ package dbdiffchecker;
 /**
  * Used to wrap exception that occur throughtout the program.
  * @author Peter Kaufman
- * @version 6-13-19
+ * @version 1-6-20
  * @since 7-29-18
  */
 public class DatabaseDifferenceCheckerException extends Exception {
@@ -22,6 +22,6 @@ public class DatabaseDifferenceCheckerException extends Exception {
 
   @Override
   public String toString() {
-    return errorCode + "-" + super.toString();
+    return super.toString().replace("dbdiffchecker.DatabaseDifferenceCheckerException:", errorCode + " -");
   }
 }

@@ -1,18 +1,10 @@
 package dbdiffchecker;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-
 /**
  * Establishes a connection with a database and runs the necessary statements to
  * get schema information.
  * @author Peter Kaufman
- * @version 6-15-19
+ * @version 1-6-20
  * @since 5-24-19
  */
 abstract public class DbConn {

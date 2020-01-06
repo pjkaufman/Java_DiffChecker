@@ -13,10 +13,10 @@ import dbdiffchecker.DbConn;
 import java.util.HashMap;
 
 /**
- * Establishes a connection with a Couchbase bucket based on the password,
- * username, host, and bucket name provided.
+ * Establishes a connection with a Mongo database based on the password,
+ * username, host, port, and database name provided.
  * @author Peter Kaufman
- * @version 10-26-19
+ * @version 1-6-20
  * @since 10-26-19
  */
 public class MongoConn extends DbConn {
@@ -27,13 +27,14 @@ public class MongoConn extends DbConn {
   private MongoClient mongo;
 
   /**
-   * Initializes the username, password, host and bucketName of the bucket
-   * connection.
+   * Fills in the parts of the uri connections string using the username,
+   * password, host, and port provided by the user.
    * @author Peter Kaufman
-   * @param username The username of the Couchbase account.
-   * @param password The password of the Couchbase account.
-   * @param host The host of the Couchbase bucket.
-   * @param name The bucket in Couchbase that the connection is to be
+   * @param username The username of the Mongo account.
+   * @param password The password of the Mongo account.
+   * @param host The host of the Mongo database.
+   * @param port The port of the host where the Mongo database is.
+   * @param name The database in Mongo that the connection is to be
    *        established with.
    */
   public MongoConn(String username, String password, String host, String port, String name) {
@@ -59,7 +60,7 @@ public class MongoConn extends DbConn {
         error = (DatabaseDifferenceCheckerException) cause;
       } else {
         error = new DatabaseDifferenceCheckerException("There was an error connecting to the database named " + name,
-            cause, 4019);
+            cause, 1025);
       }
       throw error;
     }
@@ -71,10 +72,9 @@ public class MongoConn extends DbConn {
   }
 
   /**
-   * Gets and lists all documents that exist in the Couchbase bucket.
+   * Gets and lists all of the collections that exist in the Mongo database.
    * @author Peter Kaufman
-   * @param documents A list where all of the document names will be stored for
-   *        fast lookup later.
+   * @param collections A list of all the collections in the Mongo database.
    */
   public void getCollections(HashMap<String, Collection> collections) {
     MongoIterable <String> collectionList = database.listCollectionNames();
@@ -82,10 +82,8 @@ public class MongoConn extends DbConn {
     int size = 0;
     for (String collectionName: collectionList) {
       Document collStats = database.runCommand(new Document("collStats", collectionName));
-      //System.out.println(collStats);
       isCapped = collStats.get("capped").toString().equals("true");
       if (isCapped) {
-        System.out.println(collectionName + " is capped");
         size = Integer.parseInt(collStats.get("storageSize").toString());
       } else {
         size = 0;
@@ -122,13 +120,6 @@ public class MongoConn extends DbConn {
     }
   }
 
-  /**
-   * Tests to see if the bucket can be queried immediately or if a primary key
-   * needs to be added first. It will add a primary key if it is needed.
-   * @author Peter Kaufman
-   * @throws DatabaseDifferenceCheckerException Error trying to connect to the
-   *         bucket.
-   */
   @Override
   public void testConnection() throws DatabaseDifferenceCheckerException {
     try {
@@ -136,7 +127,7 @@ public class MongoConn extends DbConn {
       database = mongo.getDatabase(name);
     } catch (Exception error) {
       throw new DatabaseDifferenceCheckerException(
-            "There was an error testing the connection to the database named " + name, error, 4010);
+            "There was an error testing the connection to the database named " + name, error, 1025);
     } finally {
       mongo.close();
     } 

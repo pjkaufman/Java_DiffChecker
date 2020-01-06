@@ -1,7 +1,6 @@
 package dbdiffchecker.sql;
 
 import dbdiffchecker.DatabaseDifferenceCheckerException;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,7 +12,7 @@ import java.util.HashMap;
  * Establishes a connection with a MySQL database based on the password,
  * username, port, host, and database provided.
  * @author Peter Kaufman
- * @version 6-15-19
+ * @version 1-6-20
  * @since 5-21-19
  */
 public class MySQLConn extends SQLDbConn {

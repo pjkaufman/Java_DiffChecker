@@ -8,7 +8,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -20,7 +19,7 @@ import javax.swing.border.TitledBorder;
  * A JFrame that has all of the common methods that any JFrame in this package
  * uses.
  * @author Peter Kaufman
- * @version 6-15-19
+ * @version 1-6-20
  * @since 5-14-18
  */
 public abstract class JFrameV2 extends JFrame {

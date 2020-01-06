@@ -1,7 +1,6 @@
 package dbdiffchecker.sql;
 
 import dbdiffchecker.DatabaseDifferenceCheckerException;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,7 +12,7 @@ import java.util.HashMap;
  * Establishes a connection with an SQL database based on the path to the
  * database and database name.
  * @author Peter Kaufman
- * @version 6-15-19
+ * @version 1-6-20
  * @since 5-5-19
  */
 public class SQLiteConn extends SQLDbConn {
