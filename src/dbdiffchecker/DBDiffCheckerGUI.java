@@ -22,7 +22,7 @@ import javax.swing.SwingUtilities;
 /**
  * A JFrame that takes user input to decide which JFrame to open.
  * @author Peter Kaufman
- * @version 6-15-19
+ * @version 10-27-19
  * @since 9-20-17
  */
 public class DBDiffCheckerGUI extends JFrameV2 {
@@ -31,7 +31,7 @@ public class DBDiffCheckerGUI extends JFrameV2 {
   private final String[] optionLabelText = { "1-Database compare using 2 database connections",
       "2-Database compare using 1 database connection", "3-Take database snapshot using 1" + " database connection",
       "4-Review the SQL statement(s) from the last run ", "5-Review the logs" };
-  private final String[] databaseTypes = { "Select Database Type", "MySQL", "SQLite", "Couchbase" };
+  private final String[] databaseTypes = { "Select Database Type", "MySQL", "SQLite", "Couchbase", "MongoDB" };
   private DBCompare compareGUI;
   private JTextField input = new JTextField(1);
   private JButton continueBtn = new JButton("Continue");
@@ -225,6 +225,10 @@ public class DBDiffCheckerGUI extends JFrameV2 {
       compareGUI = new CouchbaseCompare(0);
       this.close();
       break;
+    case "MongoDB":
+      compareGUI = new MongoDBCompare(0);
+      this.close();
+      break;
     default:
       optionTitleLabel.setText("Please select a database type.");
     }
@@ -248,6 +252,10 @@ public class DBDiffCheckerGUI extends JFrameV2 {
       break;
     case "Couchbase":
       compareGUI = new CouchbaseCompare(1);
+      this.close();
+      break;
+    case "MongoDB":
+      compareGUI = new MongoDBCompare(1);
       this.close();
       break;
     default:
@@ -274,6 +282,11 @@ public class DBDiffCheckerGUI extends JFrameV2 {
     case "Couchbase":
       compareGUI = new CouchbaseCompare(2);
       this.close();
+      break;
+    case "MongoDB":
+      compareGUI = new MongoDBCompare(2);
+      this.close();
+      break;
     default:
       optionTitleLabel.setText("Please select a database type.");
     }

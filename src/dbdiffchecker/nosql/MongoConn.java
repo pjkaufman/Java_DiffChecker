@@ -1,6 +1,8 @@
 package dbdiffchecker.nosql;
 
-import com.mongodb.client.MongoDatabase; 
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.MongoClientURI;
+import com.mongodb.client.model.CreateCollectionOptions;
 import org.bson.Document;
 import com.mongodb.MongoClient;  
 import com.mongodb.client.MongoIterable;
@@ -8,9 +10,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
-import dbdiffchecker.sql.Index;
 import java.util.HashMap;
-import java.util.ArrayList;
 
 /**
  * Establishes a connection with a Couchbase bucket based on the password,
@@ -21,11 +21,8 @@ import java.util.ArrayList;
  */
 public class MongoConn extends DbConn {
   // Instance variables
-  private String username;
-  private String password;
   private String name;
-  private String host;
-  private String port;
+  private MongoClientURI uri;
   private MongoDatabase database;
   private MongoClient mongo;
 
@@ -40,10 +37,7 @@ public class MongoConn extends DbConn {
    *        established with.
    */
   public MongoConn(String username, String password, String host, String port, String name) {
-    this.username = username;
-    this.password = password;
-    this.host = host;
-    this.port = port;
+    uri = new MongoClientURI("mongodb://" + username + ":" + password + "@" + host + "/?authSource=admin");
     this.name = name;
     Logger mongoLogger = Logger.getLogger( "org.mongodb.driver" );
     mongoLogger.setLevel(Level.WARNING);
@@ -57,7 +51,7 @@ public class MongoConn extends DbConn {
   @Override
   public void establishDatabaseConnection() throws DatabaseDifferenceCheckerException {
     try {
-      mongo = new MongoClient(host , Integer.parseInt(host)); 
+      mongo = new MongoClient(uri);     
       database = mongo.getDatabase(name);
     } catch (Exception cause) {
       DatabaseDifferenceCheckerException error;
@@ -88,33 +82,44 @@ public class MongoConn extends DbConn {
     int size = 0;
     for (String collectionName: collectionList) {
       Document collStats = database.runCommand(new Document("collStats", collectionName));
-      isCapped = "1" == collStats.get("capped").toString();
+      //System.out.println(collStats);
+      isCapped = collStats.get("capped").toString().equals("true");
       if (isCapped) {
+        System.out.println(collectionName + " is capped");
         size = Integer.parseInt(collStats.get("storageSize").toString());
       } else {
         size = 0;
       }
-      collections.put(collectionName, new Collection(collectionName, new HashMap<String, Index>(), isCapped, size));
+      collections.put(collectionName, new Collection(collectionName, isCapped, size));
     }
   }
 
   /**
-   * Gets and lists all indices that exist in the Couchbase bucket.
+   * Takes in a statement and applies it to the Mongo Database.
    * @author Peter Kaufman
-   * @param indices A list where all of the index names and data that will be
-   *        stored for fast lookup later.
+   * @param statement A statement to be run on the Mongo Database.
    */
-  public void getIndices(HashMap<String, Index> indices) {
-   // TODO
-  }
-
-  /**
-   * Takes in a N1QL statement and applies it to the bucket.
-   * @author Peter Kaufman
-   * @param n1qlStatement A N1QL statement to be run on the bucket.
-   */
-  public void runStatement(String n1qlStatement) {
-    // TODO
+  public void runStatement(String statement) {
+    // determine if a collection is being dropped or added
+    String name;
+    String[] options;
+    int size;
+    if (statement.startsWith("Create Collection: ")) {
+        options = statement.split(",");
+        if (options.length > 1) { // capped collection
+          name = options[0].replace("Create Collection: ", "");
+          size = Integer.parseInt(options[2].replace(" size=", ""));
+          CreateCollectionOptions collOptions = new CreateCollectionOptions();
+          collOptions.capped(true);
+          collOptions.sizeInBytes((long)size);
+          database.createCollection(name, collOptions);
+        } else {
+          name = statement.replace("Create Collection: ", "");
+          database.createCollection(name);
+        }
+    } else { // collection is being dropped
+       database.getCollection(statement.replace("Delete Collection: ", "")).drop();
+    }
   }
 
   /**
@@ -127,10 +132,9 @@ public class MongoConn extends DbConn {
   @Override
   public void testConnection() throws DatabaseDifferenceCheckerException {
     try {
-      mongo = new MongoClient(host , Integer.parseInt(host)); 
+      mongo = new MongoClient(uri);   
       database = mongo.getDatabase(name);
     } catch (Exception error) {
-      String errorMsg = error.getCause().toString();
       throw new DatabaseDifferenceCheckerException(
             "There was an error testing the connection to the database named " + name, error, 4010);
     } finally {

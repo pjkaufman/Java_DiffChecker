@@ -11,11 +11,13 @@ import dbdiffchecker.sql.Table;
 import dbdiffchecker.sql.MySQLTable;
 import dbdiffchecker.sql.SQLiteTable;
 import dbdiffchecker.nosql.Bucket;
+import dbdiffchecker.nosql.MongoDB;
+import dbdiffchecker.nosql.Collection;
 
 /**
  * A unit test that makes sure that the FileHandler object works as intended.
  * @author Peter Kaufman
- * @version 5-31-19
+ * @version 1-6-20
  * @since 5-11-19
  */
 public class FileHandlerTest {
@@ -169,9 +171,9 @@ public class FileHandlerTest {
         @Test
         /**
          * Tests whether the serialization functions work as intended on a Couchbase
-         * database.
+         * Bucket.
          * @author Peter Kaufman
-         * @throws Exception Error serializing or deserializing the SQLite database.
+         * @throws Exception Error serializing or deserializing the Couchbase Bucket.
          */
         public void testSerializationCouchbase() throws Exception {
                 name = "blob";
@@ -209,5 +211,46 @@ public class FileHandlerTest {
                 statements = db.compare(bucket2);
                 assertEquals("There should be one index drop, one index create, one document drop, and one document create statment",
                                 expectedStatements, statements);
+        }
+
+        @Test
+        /**
+         * Tests whether the serialization functions work as intended on a Mongo database.
+         * @author Peter Kaufman
+         * @throws Exception Error serializing or deserializing the Mongo database.
+         */
+        public void testSerializationMongo() throws Exception {
+                String createPre = "Create Collection: ", deletePre = "Delete Collection: ";
+                String name1 = "Skipper", name2 = "Private", name3 = "Commoner", name4 = "Creeper", name5 = "Creep", name6 = "Pillager", name7 = "Villager";
+                Collection coll1 = new Collection(name1,false, 0), coll2 = new Collection(name2, true, 50000), coll12 = new Collection (name1, true, 67890),
+                        coll22 = new Collection(name2, false, 0), coll3 = new Collection(name3, false, 0), coll4 = new Collection(name4, false, 0), 
+                        coll5 = new Collection(name3, true, 587390),  coll6 = new Collection(name6, false, 0),  coll7 = new Collection(name7, true, 234560);
+                MongoDB test = new MongoDB(), test1 = new MongoDB();
+                // setup
+                test.getCollections().put(name1, coll1); // collection to modify
+                test.getCollections().put(name2, coll2); // collection to modify
+                test.getCollections().put(name3, coll3); // common collection
+                test.getCollections().put(name6, coll6); // collection to add
+                test.getCollections().put(name7, coll7); // collection to add
+                test1.getCollections().put(name1, coll12); // collection to modify
+                test1.getCollections().put(name2, coll22); // collection to modify
+                test1.getCollections().put(name3, coll3); // common collection
+                test1.getCollections().put(name4, coll4); // collection to drop
+                test1.getCollections().put(name5, coll5); // collection to drop
+                statements = test.compare(test1);
+                // start assertions
+                assertEquals("The Mongo database should suggest 8 changes when 2 collections need to be updated (4)," + 
+                " 2 collections need to be created (2), and 2 collections need to be dropped (2).", 8,
+                statements.size());
+                // 2 create statements
+                assertEquals("The statements from the compare should include the creations of the collections that only dev has", true,
+                statements.contains(createPre + name6) && statements.contains(createPre + name7 + ", capped=true, size=234560"));
+                // 2 delete statements
+                assertEquals("The statements from the compare should include the deletions of the collections that only live has", true,
+                statements.contains(deletePre + name4) && statements.contains(deletePre + name5));
+                // 4 update statements
+                assertEquals("The statements from the compare should include the deletions and recreations of the collections that need to be updated", true,
+                statements.contains(deletePre + name1) && statements.contains(deletePre + name2) && statements.contains(createPre + name1) && 
+                statements.contains(createPre + name2 + ", capped=true, size=50000"));
         }
 }

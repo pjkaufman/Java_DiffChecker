@@ -1,40 +1,63 @@
 package dbdiffchecker.nosql;
 
-import dbdiffchecker.sql.Index;
-import java.util.HashMap;
-import java.util.ArrayList;
+/**
+ * Models a Collection in a Mongo database by keeping track of specific properties of a collections.
+ * @author Peter Kaufman
+ * @version 1-6-20
+ * @since 10-??-19
+ */
 public class Collection {
 
   private String name;
-  private HashMap<String, Index> indices;
   private boolean isCapped;
   private int size;
 
-  public Collection(String name, HashMap<String, Index> indices, boolean isCapped, int size) {
+  public Collection(String name, boolean isCapped, int size) {
     this.name = name;
-    this.indices = indices;
     this.isCapped = isCapped;
     this.size = size;
   }
 
-  protected boolean isCapped() {
+  /**
+   * This is the default constructor for this class, <b>Needed for
+   * Serialization</b>.
+   */
+  public Collection() {}
+
+  /**
+   * Returns whether the collection is capped or not.
+   * @author Peter Kaufman
+   * @return Whether or not the collection is capped.
+   */
+  public boolean isCapped() {
     return isCapped;
   }
 
-  protected String getName() {
+  /**
+   * Returns the name of the collection.
+   * @author Peter Kaufman
+   * @return The name of the collection.
+   */
+  public String getName() {
     return name;
   }
 
-  protected HashMap<String, Index> getIndices() {
-    return indices;
-  }
-
-  protected int getSize() {
+  /**
+   * Returns the max size of the collection.
+   * @author Peter Kaufman
+   * @return The  max size of the collection.
+   */
+  public int getSize() {
     return size;
   }
 
+  /**
+   * Determines wheteher two collections are equal.
+   * @param coll2 The collection to compare the current collection to.
+   * @return Whether or not the two collections are the same.
+   */
   public boolean equals(Collection coll2) {
-    return name == coll2.getName() && isCapped == coll2.isCapped() 
-            && indices == coll2.getIndices() && size == coll2.getSize();
+    return name.equals(coll2.getName()) && isCapped == coll2.isCapped() 
+            &&  size == coll2.getSize();
   }
 }

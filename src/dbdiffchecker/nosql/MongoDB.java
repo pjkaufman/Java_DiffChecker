@@ -3,21 +3,18 @@ package dbdiffchecker.nosql;
 import dbdiffchecker.Database;
 import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
-import dbdiffchecker.sql.Index;
 import java.util.HashMap;
 import java.util.ArrayList;
 
 /**
- * Models a Couchbase bucket by keeping track of all indices and documents.
+ * Models a Mongo Database by keeping track of all collections.
  * @author Peter Kaufman
- * @version 10-26-19
+ * @version 1-6-20
  * @since 10-26-19
  */
 public class MongoDB extends Database {
   // Instance variables
   private HashMap<String, Collection> collections = new HashMap<>();
-  private HashMap<String, Index> indices = new HashMap<>();
-  private String name = "";
 
   /**
    * Creates a database that models the Couchbase bucket using the Couchbase
@@ -30,12 +27,9 @@ public class MongoDB extends Database {
    */
   public MongoDB(DbConn conn) throws DatabaseDifferenceCheckerException {
     MongoConn connection = (MongoConn) conn;
-    connection.establishDatabaseConnection();
-    // check to see if a primary index already exists
     connection.testConnection();
+    connection.establishDatabaseConnection();
     connection.getCollections(collections);
-    connection.getIndices(indices);
-    this.name = connection.getDatabaseName();
     connection.closeDatabaseConnection();
   }
 
@@ -46,7 +40,7 @@ public class MongoDB extends Database {
   public MongoDB() {}
 
   /**
-   * Returns the list of Couchbase documents where the name is the key and value.
+   * Returns the list of MongoDB collections where the name is the key and value.
    * @author Peter Kaufman
    * @return The list of documents that exist in the bucket.
    */
@@ -54,54 +48,59 @@ public class MongoDB extends Database {
     return this.collections;
   }
 
-  /**
-   * Returns the list of Couchbase indices where the name is the key.
-   * @author Peter Kaufman
-   * @return The list of indices that exist in the bucket.
-   */
-  public HashMap<String, Index> getIndices() {
-    return this.indices;
-  }
 
   @Override
   public ArrayList<String> compare(Database liveDatabase) {
     MongoDB live = (MongoDB) liveDatabase;
     ArrayList<String> statements = new ArrayList<>(), updateCollections, 
       common = new ArrayList<>();
-    String liveDatabaseName = live.name;
     // check for collections to create and drop
     statements.addAll(compareCollections(live.getCollections(), common));
     // determine which collections need to be updated
     updateCollections = collectionDiffs(common, live.getCollections());
     // generate the statements needed to modify the collections
-    statements.addAll(updateCollections(live.getCollections(), updateCollections));
-    // check to see if any indices need to be dropped or modified
-    // TODO
-    // check to see if any indices need to be added or modified
-    // TODO
+    statements.addAll(updateCollections(updateCollections));
     return statements;
   }
 
+  /**
+   * Determines which collections are in the live and dev database along 
+   * with those that need to be created and deleted.
+   * @param liveCollections The collections that exist in the live database.
+   * @param common The collections which are common between the live and dev databases.
+   * @return A set of statmentst that have to do with dropping and or creating collections.
+   */
   public ArrayList<String> compareCollections(HashMap<String, Collection> liveCollections, ArrayList<String> common) {
     ArrayList<String> statements = new ArrayList<>();
     // check for collections to create
-    for(String collectionName : liveCollections.keySet()) {
-      if (!collections.containsKey(collectionName)) {
-        statements.add("Create Collection: " + collectionName);
-      }
-    }
-    // check for collections to drop
+    String createStatement;
     for(String collectionName : collections.keySet()) {
       if (!liveCollections.containsKey(collectionName)) {
-        statements.add("Delete Collection: " + collectionName);
+        createStatement = "Create Collection: " + collectionName;
+        if (collections.get(collectionName).isCapped()) {
+          createStatement += ", capped=true, size=" + collections.get(collectionName).getSize();
+        }
+        statements.add(createStatement);
       } else {
         common.add(collectionName);
       }
     } 
+    // check for collections to drop
+    for(String collectionName : liveCollections.keySet()) {
+      if (!collections.containsKey(collectionName)) {
+        statements.add("Delete Collection: " + collectionName);
+      }
+    }
     return statements;
   }
 
-  public ArrayList<String> collectionDiffs(ArrayList<String> common, 
+  /**
+   * Determines which collections out of the common ones have differences.
+   * @param common The list of common collections between dev and live.
+   * @param liveColls The collection list from the live database.
+   * @return The list of collections that need to be updated.
+   */
+  private ArrayList<String> collectionDiffs(ArrayList<String> common, 
           HashMap<String, Collection> liveColls) {
     ArrayList<String> updateCollections = new ArrayList<>();
     // make sure that all common collections are the same, but if not make sure to 
@@ -114,9 +113,23 @@ public class MongoDB extends Database {
     return updateCollections;
   }
 
-  public ArrayList<String> updateCollections(HashMap<String, Collection> liveColls, 
-          ArrayList<String> collectionsToUpdate) {
-    // TODO
-    return new ArrayList<String>();
+  /**
+   * Determines what needs to be done to each collection that needs to be updated.
+   * @param collectionsToUpdate The list of collections that need to be updated.
+   * @return The statements needed to make the collections from the collections to 
+   *    updated the same.
+   */
+  private ArrayList<String> updateCollections(ArrayList<String> collectionsToUpdate) {
+    ArrayList<String> statements = new ArrayList<>();
+    String createStatement;
+    for (String collectionName : collectionsToUpdate) {
+        statements.add("Delete Collection: " + collectionName);
+        createStatement = "Create Collection: " + collectionName;
+        if (collections.get(collectionName).isCapped()) {
+          createStatement += ", capped=true, size=" + collections.get(collectionName).getSize();
+        }
+        statements.add(createStatement);
+    }
+    return statements;
   }
 }
