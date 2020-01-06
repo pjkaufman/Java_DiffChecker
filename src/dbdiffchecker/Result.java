@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JButton;
@@ -17,7 +16,7 @@ import javax.swing.SwingWorker;
 /**
  * A JFrame that shows the provided data to the user.
  * @author Peter Kaufman
- * @version 5-30-19
+ * @version 6-15-19
  * @since 9-20-17
  */
 public class Result extends JFrameV2 {
@@ -70,10 +69,9 @@ public class Result extends JFrameV2 {
         this.setSize(600, 210);
       }
       this.setVisible(true);
-    } catch (IOException e) {
-      error(
-          new DatabaseDiffernceCheckerException("There was an error" + " writing the SQL statement(s) to a file.", e));
-    }
+    } catch (DatabaseDifferenceCheckerException cause) {
+      error(cause);
+    } 
   }
 
   @Override
@@ -140,10 +138,10 @@ public class Result extends JFrameV2 {
           endProgressBar("Done");
         } catch (Exception e) {
           endProgressBar("An Error Occurred");
-          if (e instanceof DatabaseDiffernceCheckerException) {
-            error((DatabaseDiffernceCheckerException) e);
+          if (e instanceof DatabaseDifferenceCheckerException) {
+            error((DatabaseDifferenceCheckerException) e);
           } else {
-            error(new DatabaseDiffernceCheckerException(e.getMessage().substring(e.getMessage().indexOf(":") + 1), e));
+            error(new DatabaseDifferenceCheckerException(e.getMessage().substring(e.getMessage().indexOf(":") + 1), e, 1008));
           }
         }
       }

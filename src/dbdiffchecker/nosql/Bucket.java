@@ -1,7 +1,7 @@
 package dbdiffchecker.nosql;
 
 import dbdiffchecker.Database;
-import dbdiffchecker.DatabaseDiffernceCheckerException;
+import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
 import dbdiffchecker.sql.Index;
 import java.util.HashMap;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 /**
  * Models a Couchbase bucket by keeping track of all indices and documents.
  * @author Peter Kaufman
- * @version 5-30-19
+ * @version 6-15-19
  * @since 5-24-19
  */
 public class Bucket extends Database {
@@ -27,10 +27,10 @@ public class Bucket extends Database {
    * information.
    * @author Peter Kaufman
    * @param conn The connection to the Couchbase bucket.
-   * @throws DatabaseDiffernceCheckerException Error connecting to the Couchbase
+   * @throws DatabaseDifferenceCheckerException Error connecting to the Couchbase
    *         bucket.
    */
-  public Bucket(DbConn conn) throws DatabaseDiffernceCheckerException {
+  public Bucket(DbConn conn) throws DatabaseDifferenceCheckerException {
     CouchbaseConn connection = (CouchbaseConn) conn;
     connection.establishDatabaseConnection();
     // check to see if a primary index already exists

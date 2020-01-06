@@ -92,7 +92,9 @@ java -jar path_to_jar_file
     * Tables, Columns, Indices, and Views (non-nested) can be compared
 * NoSQL
   * Couchbase
-    * Buckets, Documents, and Indices can be compared
+    * Documents, and Indices can be compared
+  * MongoDB
+    * Collections can be compared
 
 [Back to Table of Contents](#table-of-contents)
 
@@ -175,6 +177,10 @@ After selecting this option, you will see something similar to this:
 Java documentation can be found [here](https://pjkaufman.github.io/Java_DiffChecker/).
 
 [Back to Table of Contents](#table-of-contents)
+
+### Error Code List
+
+The error codes can be found [here](ErrorCodes.md).
 
 ## License
 

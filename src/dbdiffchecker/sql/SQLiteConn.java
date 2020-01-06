@@ -1,7 +1,6 @@
 package dbdiffchecker.sql;
 
-import dbdiffchecker.DatabaseDiffernceCheckerException;
-import java.sql.Connection;
+import dbdiffchecker.DatabaseDifferenceCheckerException;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,7 +12,7 @@ import java.util.HashMap;
  * Establishes a connection with an SQL database based on the path to the
  * database and database name.
  * @author Peter Kaufman
- * @version 5-31-19
+ * @version 1-6-20
  * @since 5-5-19
  */
 public class SQLiteConn extends SQLDbConn {
@@ -28,9 +27,9 @@ public class SQLiteConn extends SQLDbConn {
    * @param database The SQLite database name that the connection is to be
    *        established with.
    * @param type Either 'dev' or 'live'.
-   * @throws DatabaseDiffernceCheckerException Error connecting to the database.
+   * @throws DatabaseDifferenceCheckerException Error connecting to the database.
    */
-  public SQLiteConn(String path, String database, String type) throws DatabaseDiffernceCheckerException {
+  public SQLiteConn(String path, String database, String type) throws DatabaseDifferenceCheckerException {
     this.type = type;
     this.db = database;
     this.path = path;
@@ -39,27 +38,27 @@ public class SQLiteConn extends SQLDbConn {
   }
 
   @Override
-  public void establishDatabaseConnection() throws DatabaseDiffernceCheckerException {
+  public void establishDatabaseConnection() throws DatabaseDifferenceCheckerException {
     try {
       this.con = DriverManager.getConnection(this.connString);
     } catch (SQLException e) {
-      throw new DatabaseDiffernceCheckerException("There was an error connecting to the " + this.db + " database.", e);
+      throw new DatabaseDifferenceCheckerException("There was an error connecting to the " + this.db + " database.", e, 1020);
     }
   }
 
   @Override
-  protected void testConnection() throws DatabaseDiffernceCheckerException {
+  protected void testConnection() throws DatabaseDifferenceCheckerException {
     try {
       this.con = DriverManager.getConnection(this.connString);
       this.con.close();
     } catch (SQLException error) {
-      throw new DatabaseDiffernceCheckerException(
-          "There was an error with the connection to " + this.db + ". Please try again.", error);
+      throw new DatabaseDifferenceCheckerException(
+          "There was an error with the connection to " + this.db + ". Please try again.", error, 1023);
     }
   }
 
   @Override
-  public String getTableCreateStatement(String table) throws DatabaseDiffernceCheckerException {
+  public String getTableCreateStatement(String table) throws DatabaseDifferenceCheckerException {
     try {
       String create = "";
       Statement query = this.con.createStatement();
@@ -72,13 +71,13 @@ public class SQLiteConn extends SQLDbConn {
       create = create.substring(0, create.length() - 2);
       return create;
     } catch (SQLException e) {
-      throw new DatabaseDiffernceCheckerException(
-          "There was an error getting the " + table + " table's create statement.", e);
+      throw new DatabaseDifferenceCheckerException(
+          "There was an error getting the " + table + " table's create statement.", e, 1021);
     }
   }
 
   @Override
-  public HashMap<String, Table> getTableList() throws DatabaseDiffernceCheckerException {
+  public HashMap<String, Table> getTableList() throws DatabaseDifferenceCheckerException {
     HashMap<String, Table> tablesList = new HashMap<>();
     String sql = "SELECT `name`, `sql` FROM `sqlite_master` WHERE `type`= 'table' AND `name` NOT Like 'sqlite%'";
     try {
@@ -98,13 +97,13 @@ public class SQLiteConn extends SQLDbConn {
       }
       return tablesList;
     } catch (SQLException e) {
-      throw new DatabaseDiffernceCheckerException(
-          "There was an error getting the " + this.db + " database's table, column, and index details.", e);
+      throw new DatabaseDifferenceCheckerException(
+          "There was an error getting the " + this.db + " database's table, column, and index details.", e, 1024);
     }
   }
 
   @Override
-  public ArrayList<View> getViews() throws DatabaseDiffernceCheckerException {
+  public ArrayList<View> getViews() throws DatabaseDifferenceCheckerException {
     ArrayList<View> views = new ArrayList<>();
     try {
       String sql = "SELECT `name`, `sql` FROM `sqlite_master` WHERE `type`= 'view';";
@@ -115,8 +114,8 @@ public class SQLiteConn extends SQLDbConn {
       }
       return views;
     } catch (SQLException e) {
-      throw new DatabaseDiffernceCheckerException(
-          "There was an error getting the " + this.db + " database's view details.", e);
+      throw new DatabaseDifferenceCheckerException(
+          "There was an error getting the " + this.db + " database's view details.", e, 1022);
     }
   }
 }

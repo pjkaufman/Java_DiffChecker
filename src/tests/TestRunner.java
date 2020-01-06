@@ -52,6 +52,6 @@ public class TestRunner {
     } else {
       result = "FAIL";
     }
-    System.out.printf("Total: %s tests: %d fails: %d in %dms \n", result, numTests, numFails, testTime);
+    System.out.printf("Result: %s tests: %d fails: %d in %dms \n", result, numTests, numFails, testTime);
   }
 }

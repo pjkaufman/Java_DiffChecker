@@ -8,7 +8,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -20,7 +19,7 @@ import javax.swing.border.TitledBorder;
  * A JFrame that has all of the common methods that any JFrame in this package
  * uses.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 1-6-20
  * @since 5-14-18
  */
 public abstract class JFrameV2 extends JFrame {
@@ -111,7 +110,7 @@ public abstract class JFrameV2 extends JFrame {
    * @param error The exception which contains a user friendly message and the
    *        error that is the cause.
    */
-  protected void error(DatabaseDiffernceCheckerException error) {
+  protected void error(DatabaseDifferenceCheckerException error) {
     new ErrorPopup(error);
     this.error = true;
   }
@@ -153,14 +152,10 @@ public abstract class JFrameV2 extends JFrame {
    * Takes in data and writes it to a log file.
    * @author Peter Kaufman
    * @param info The data to be logged.
-   * @throws DatabaseDiffernceCheckerException Error logging data.
+   * @throws DatabaseDifferenceCheckerException Error logging data.
    */
-  protected void log(String info) throws DatabaseDiffernceCheckerException {
-    try {
+  protected void log(String info) throws DatabaseDifferenceCheckerException {
       FileHandler.writeToFile(info);
-    } catch (IOException e) {
-      throw new DatabaseDiffernceCheckerException("There was an error writing to the logs.", e);
-    }
   }
 
   /**

@@ -11,17 +11,16 @@ import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.dsl.element.IndexElement;
 import com.couchbase.client.java.query.util.IndexInfo;
-import dbdiffchecker.DatabaseDiffernceCheckerException;
+import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
 import dbdiffchecker.sql.Index;
 import java.util.HashMap;
-import java.util.ArrayList;
 
 /**
  * Establishes a connection with a Couchbase bucket based on the password,
  * username, host, and bucket name provided.
  * @author Peter Kaufman
- * @version 5-30-19
+ * @version 1-6-20
  * @since 5-23-19
  */
 public class CouchbaseConn extends DbConn {
@@ -91,7 +90,7 @@ public class CouchbaseConn extends DbConn {
   }
 
   @Override
-  public void establishDatabaseConnection() throws DatabaseDiffernceCheckerException {
+  public void establishDatabaseConnection() throws DatabaseDifferenceCheckerException {
     String connString = "couchbase://" + host + "/" + bucketName
         + "?operation_timeout=5.5&config_total_timeout=15&http_poolsize=0";
     try {
@@ -99,12 +98,12 @@ public class CouchbaseConn extends DbConn {
       cluster.authenticate(username, password);
       bucket = cluster.openBucket(bucketName);
     } catch (Exception cause) {
-      DatabaseDiffernceCheckerException error;
-      if (cause instanceof DatabaseDiffernceCheckerException) {
-        error = (DatabaseDiffernceCheckerException) cause;
+      DatabaseDifferenceCheckerException error;
+      if (cause instanceof DatabaseDifferenceCheckerException) {
+        error = (DatabaseDifferenceCheckerException) cause;
       } else {
-        error = new DatabaseDiffernceCheckerException("There was an error connecting to the bucket named " + bucketName,
-            cause);
+        error = new DatabaseDifferenceCheckerException("There was an error connecting to the bucket named " + bucketName,
+            cause, 1009);
       }
       throw error;
     }
@@ -194,11 +193,11 @@ public class CouchbaseConn extends DbConn {
    * Tests to see if the bucket can be queried immediately or if a primary key
    * needs to be added first. It will add a primary key if it is needed.
    * @author Peter Kaufman
-   * @throws DatabaseDiffernceCheckerException Error trying to connect to the
+   * @throws DatabaseDifferenceCheckerException Error trying to connect to the
    *         bucket.
    */
   @Override
-  public void testConnection() throws DatabaseDiffernceCheckerException {
+  public void testConnection() throws DatabaseDifferenceCheckerException {
     try {
       query = N1qlQuery.simple("SELECT META().id AS document FROM `" + bucketName + "`", params);
       // Perform a N1QL Query
@@ -211,8 +210,8 @@ public class CouchbaseConn extends DbConn {
         bucket.query(query);
         primaryAdded = true;
       } else {
-        throw new DatabaseDiffernceCheckerException(
-            "There was an error testing the connection to the bucket named " + bucketName, error);
+        throw new DatabaseDifferenceCheckerException(
+            "There was an error testing the connection to the bucket named " + bucketName, error, 1010);
       }
     }
   }

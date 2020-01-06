@@ -1,15 +1,12 @@
 package dbdiffchecker;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.util.ArrayList;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.JButton;
@@ -22,7 +19,7 @@ import javax.swing.SwingUtilities;
 /**
  * A JFrame that takes user input to decide which JFrame to open.
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 1-6-20
  * @since 9-20-17
  */
 public class DBDiffCheckerGUI extends JFrameV2 {
@@ -31,7 +28,7 @@ public class DBDiffCheckerGUI extends JFrameV2 {
   private final String[] optionLabelText = { "1-Database compare using 2 database connections",
       "2-Database compare using 1 database connection", "3-Take database snapshot using 1" + " database connection",
       "4-Review the SQL statement(s) from the last run ", "5-Review the logs" };
-  private final String[] databaseTypes = { "Select Database Type", "MySQL", "SQLite", "Couchbase" };
+  private final String[] databaseTypes = { "Select Database Type", "MySQL", "SQLite", "Couchbase", "MongoDB" };
   private DBCompare compareGUI;
   private JTextField input = new JTextField(1);
   private JButton continueBtn = new JButton("Continue");
@@ -195,13 +192,13 @@ public class DBDiffCheckerGUI extends JFrameV2 {
       }
       rs.results(FileHandler.readFrom(file), title);
       rs.setTitle(title.substring(0, title.length() - 1));
-    } catch (IOException e) {
+    } catch (DatabaseDifferenceCheckerException cause) {
       try {
-        log("There was an error recovering the last list of SQL statements.");
-      } catch (DatabaseDiffernceCheckerException logError) {
+        log("There was an error recovering the last list of statements.");
+      } catch (DatabaseDifferenceCheckerException logError) {
         System.out.println("unable to log error... " + logError.getMessage());
       }
-      error(new DatabaseDiffernceCheckerException("There was an error recovering the last list of SQL statements.", e));
+      error(cause);
     }
   }
 
@@ -223,6 +220,10 @@ public class DBDiffCheckerGUI extends JFrameV2 {
       break;
     case "Couchbase":
       compareGUI = new CouchbaseCompare(0);
+      this.close();
+      break;
+    case "MongoDB":
+      compareGUI = new MongoDBCompare(0);
       this.close();
       break;
     default:
@@ -250,6 +251,10 @@ public class DBDiffCheckerGUI extends JFrameV2 {
       compareGUI = new CouchbaseCompare(1);
       this.close();
       break;
+    case "MongoDB":
+      compareGUI = new MongoDBCompare(1);
+      this.close();
+      break;
     default:
       optionTitleLabel.setText("Please select a database type.");
     }
@@ -274,6 +279,11 @@ public class DBDiffCheckerGUI extends JFrameV2 {
     case "Couchbase":
       compareGUI = new CouchbaseCompare(2);
       this.close();
+      break;
+    case "MongoDB":
+      compareGUI = new MongoDBCompare(2);
+      this.close();
+      break;
     default:
       optionTitleLabel.setText("Please select a database type.");
     }
