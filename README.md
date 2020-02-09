@@ -20,8 +20,13 @@ Compares two databases and generates the statements that are needed to make the 
 
 1. [Java](https://java.com/en/download/)
 2. [Python 2.7 or later](https://www.python.org/downloads/)
-3. Some kind of hosting service for the database implimentation if need:
+3. Some kind of hosting service for the database implementation if need:
     * MySQL - one option is [WAMP](http://wampserver.aviatechno.net/)
+      * For development I recommend [MySQL Workbench](https://dev.mysql.com/downloads/workbench/)
+    * SQLite - NA since your computer hosts the database.
+      * For development I recommend [SQLiteStudio](https://sqlitestudio.pl/index.rvt?act=download)
+    * Couchbase - one option is [Couchbase Server Community Edition](https://www.couchbase.com/downloads)
+    * MongoDB - one option is [MongoDB Compass Community](https://www.mongodb.com/download-center/community)
 
 _Note: the python scripts have only been tested in Python 2.7 and 3.7_
 
