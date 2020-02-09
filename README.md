@@ -185,7 +185,7 @@ Java documentation can be found [here](https://pjkaufman.github.io/Java_DiffChec
 
 ### Error Code List
 
-The error codes can be found [here](ErrorCodes.md).
+The error codes can be found [here](https://github.com/pjkaufman/Java_DiffChecker/wiki/Error-Codes).
 
 ## License
 
