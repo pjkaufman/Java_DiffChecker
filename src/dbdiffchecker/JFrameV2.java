@@ -122,7 +122,7 @@ public abstract class JFrameV2 extends JFrame {
    */
   protected void displayResult(DbConn db) {
     Result rs = new Result(db);
-    rs.results(this.sql, "Run the following SQL to make the two databases the same:");
+    rs.results(this.sql, "Run the following statements to make the two databases the same:");
   }
 
   /**
