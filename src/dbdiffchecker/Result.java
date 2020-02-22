@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
@@ -136,10 +138,10 @@ public class Result extends JFrameV2 {
           get();
           instructLabel.setText("The database has been updated.");
           endProgressBar("Done");
-        } catch (Exception e) {
+        } catch (InterruptedException | ExecutionException e) {
           endProgressBar("An Error Occurred");
-          if (e instanceof DatabaseDifferenceCheckerException) {
-            error((DatabaseDifferenceCheckerException) e);
+          if (e.getCause() instanceof DatabaseDifferenceCheckerException) {
+            error((DatabaseDifferenceCheckerException) e.getCause());
           } else {
             error(new DatabaseDifferenceCheckerException(e.getMessage().substring(e.getMessage().indexOf(":") + 1), e, 1008));
           }

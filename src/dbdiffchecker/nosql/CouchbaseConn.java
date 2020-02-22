@@ -98,14 +98,8 @@ public class CouchbaseConn extends DbConn {
       cluster.authenticate(username, password);
       bucket = cluster.openBucket(bucketName);
     } catch (Exception cause) {
-      DatabaseDifferenceCheckerException error;
-      if (cause instanceof DatabaseDifferenceCheckerException) {
-        error = (DatabaseDifferenceCheckerException) cause;
-      } else {
-        error = new DatabaseDifferenceCheckerException("There was an error connecting to the bucket named " + bucketName,
+      throw new DatabaseDifferenceCheckerException("There was an error connecting to the bucket named " + bucketName,
             cause, 1009);
-      }
-      throw error;
     }
   }
 

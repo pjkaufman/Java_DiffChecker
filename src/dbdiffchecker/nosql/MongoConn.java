@@ -55,14 +55,8 @@ public class MongoConn extends DbConn {
       mongo = new MongoClient(uri);     
       database = mongo.getDatabase(name);
     } catch (Exception cause) {
-      DatabaseDifferenceCheckerException error;
-      if (cause instanceof DatabaseDifferenceCheckerException) {
-        error = (DatabaseDifferenceCheckerException) cause;
-      } else {
-        error = new DatabaseDifferenceCheckerException("There was an error connecting to the database named " + name,
+      throw new DatabaseDifferenceCheckerException("There was an error connecting to the database named " + name,
             cause, 1025);
-      }
-      throw error;
     }
   }
 

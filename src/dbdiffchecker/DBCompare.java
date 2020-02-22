@@ -8,6 +8,8 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -211,10 +213,10 @@ public abstract class DBCompare extends JFrameV2 {
           endProgressBar("Database Snapshot Complete");
           error = true;
           close();
-        } catch (Exception e) {
+        } catch (InterruptedException | ExecutionException e) {
           endProgressBar("An Error Occurred");
-          if (e instanceof DatabaseDifferenceCheckerException) {
-            error((DatabaseDifferenceCheckerException) e);
+          if (e.getCause() instanceof DatabaseDifferenceCheckerException) {
+            error((DatabaseDifferenceCheckerException) e.getCause());
           } else {
             error(new DatabaseDifferenceCheckerException(e.getMessage().substring(e.getMessage().indexOf(":") + 1), e, 1005));
           }
@@ -237,7 +239,7 @@ public abstract class DBCompare extends JFrameV2 {
     prepProgressBar("Establishing Database Connection(s) and Collecting Database Info", true);
     SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {
       @Override
-      protected Boolean doInBackground() throws Exception {
+      protected Boolean doInBackground() throws DatabaseDifferenceCheckerException {
         setupDatabases();
         publish("Comparing Databases");
         sql = devDatabase.compare(liveDatabase);
@@ -251,11 +253,11 @@ public abstract class DBCompare extends JFrameV2 {
           endProgressBar("Database Comparison Complete");
           displayResult(liveDatabaseConnection);
           close();
-        } catch (Exception e) {
+        } catch (InterruptedException | ExecutionException e) {
           sw.stop();
           endProgressBar("An Error Occurred");
-          if (e instanceof DatabaseDifferenceCheckerException) {
-            error((DatabaseDifferenceCheckerException) e);
+          if (e.getCause() instanceof DatabaseDifferenceCheckerException) {
+            error((DatabaseDifferenceCheckerException) e.getCause());
           } else {
             error(new DatabaseDifferenceCheckerException(e.getMessage(), e, 1006));
           }
@@ -298,25 +300,13 @@ public abstract class DBCompare extends JFrameV2 {
    */
   private void setupDatabases() throws DatabaseDifferenceCheckerException {
     sw.start();
-    try {
-      if (this.type == 0) {
-        devDatabaseConnection = createDevDatabaseConnection();
-        devDatabase = createDatabase(devDatabaseConnection);
-      } else {
-        devDatabase = FileHandler.deserailizDatabase(salt);
-      }
-      liveDatabaseConnection = createLiveDatabaseConnection();
-      liveDatabase = createDatabase(liveDatabaseConnection);
-    } catch (Exception cause) {
-      DatabaseDifferenceCheckerException error;
-      String errorMessage = "";
-      if (cause instanceof DatabaseDifferenceCheckerException) {
-        error = (DatabaseDifferenceCheckerException) cause;
-      } else {
-        errorMessage = "There was an error reading in the database snapshot. Please try again.";
-        error = new DatabaseDifferenceCheckerException(errorMessage, cause, 1007);
-      }
-      throw error;
+    if (this.type == 0) {
+      devDatabaseConnection = createDevDatabaseConnection();
+      devDatabase = createDatabase(devDatabaseConnection);
+    } else {
+      devDatabase = FileHandler.deserailizDatabase(salt);
     }
+    liveDatabaseConnection = createLiveDatabaseConnection();
+    liveDatabase = createDatabase(liveDatabaseConnection);
   }
 }
