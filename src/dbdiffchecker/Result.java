@@ -64,7 +64,7 @@ public class Result extends JFrameV2 {
         for (String statement : SQL) {
           SQLShow.append(statement + "\n");
         }
-        if (title.equals("Run the following SQL to make the two databases the same:")) {
+        if (title.equals("Run the following Statments to make the two databases the same:")) {
           FileHandler.writeToFile(SQL);
         }
         instructLabel.setText(title);
