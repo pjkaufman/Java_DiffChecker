@@ -50,6 +50,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
+/**
+ * A JFrame that has several tabs and includes the entire frontend.
+ * 
+ * @author Peter Kaufman
+ * @version 3-8-20
+ * @since 9-20-17
+ */
 public class DBDiffCheckerGUI extends JFrame {
   private final String tabText[] = { "Compare to Database", "Compare to Snapshot", "Create Snapshot", "Logs",
       "Last Run" };
@@ -62,14 +69,17 @@ public class DBDiffCheckerGUI extends JFrame {
       new String[] { "Username", "Password", "Host", "Database Name" },
       new String[] { "Username", "Password:", "Host", "Port", "Database Name" } };
   private HashMap<String, JPanel> tabContent = new HashMap<String, JPanel>(tabText.length);
-  private HashMap<String, JComboBox<String>> databaseDropdowns = new HashMap<String, JComboBox<String>>();
-  private HashMap<String, JButton> executeButtons = new HashMap<String, JButton>();
-  private HashMap<String, JButton> runButtons = new HashMap<String, JButton>();
-  private HashMap<String, JProgressBar> progressBars = new HashMap<String, JProgressBar>();
-  private HashMap<String, ArrayList<JPanel>> userInputForms = new HashMap<String, ArrayList<JPanel>>();
-  private HashMap<String, ArrayList<JTextComponent>> userInputs = new HashMap<String, ArrayList<JTextComponent>>();
-  private HashMap<String, JTextArea> informationDisplays = new HashMap<String, JTextArea>(tabText.length);
-  private HashMap<String, JLabel> errorMessages = new HashMap<String, JLabel>(tabText.length);
+  private HashMap<String, JComboBox<String>> databaseDropdowns = new HashMap<String, JComboBox<String>>(
+      tabText.length - 2);
+  private HashMap<String, JButton> executeButtons = new HashMap<String, JButton>(tabText.length - 2);
+  private HashMap<String, JButton> runButtons = new HashMap<String, JButton>(tabText.length - 3);
+  private HashMap<String, JProgressBar> progressBars = new HashMap<String, JProgressBar>(tabText.length - 2);
+  private HashMap<String, ArrayList<JPanel>> userInputForms = new HashMap<String, ArrayList<JPanel>>(
+      tabText.length - 2);
+  private HashMap<String, ArrayList<JTextComponent>> userInputs = new HashMap<String, ArrayList<JTextComponent>>(
+      tabText.length - 2);
+  private HashMap<String, JTextArea> informationDisplays = new HashMap<String, JTextArea>(tabText.length - 1);
+  private HashMap<String, JLabel> errorMessages = new HashMap<String, JLabel>(tabText.length - 2);
   private JTabbedPane jtp = new JTabbedPane();
   private JButton currentRunBtn;
   private Database devDatabase;
@@ -86,10 +96,21 @@ public class DBDiffCheckerGUI extends JFrame {
   private Font regFont = new Font("Tahoma", Font.PLAIN, 12);
   private Font tabFont = new Font("Tahoma", Font.PLAIN, 16);
 
+  /**
+   * Initializes a JFrame which will be used by the user to navigate through the
+   * application.
+   * 
+   * @author Peter Kaufman
+   */
   public DBDiffCheckerGUI() {
     initComponents();
   }
 
+  /**
+   * Sets up the GUI layout, all action events, and instance variables.
+   * 
+   * @author Peter Kaufman
+   */
   private void initComponents() {
     jtp.setFont(tabFont);
     getContentPane().add(jtp);
@@ -121,11 +142,25 @@ public class DBDiffCheckerGUI extends JFrame {
               informationDisplays.get(currentTab).setText(null);
             }
             ArrayList<JTextComponent> userInputComponents = new ArrayList<>();
-            for (JPanel inputForm : userInputForms.get(currentTab)) {
-              createComponents(inputForm, databaseInputs[databasePos - 1], userInputComponents);
+            if (tabPos == 1
+                && !FileHandler.fileExists(databaseTypes[databasePos] + "_" + FileHandler.databaseSnapshotFileName)
+                && databasePos != 0) {
+              errorMessages.get(currentTab).setText("Unable to do comparison: " + databaseTypes[databasePos]
+                  + " snapshot does not exist. Please run a database snapshot first.");
+              errorMessages.get(currentTab).setVisible(true);
+            } else {
+              for (JPanel inputForm : userInputForms.get(currentTab)) {
+                if (databasePos == 0) {
+                  inputForm.removeAll();
+                  inputForm.revalidate();
+                  inputForm.repaint();
+                } else {
+                  createComponents(inputForm, databaseInputs[databasePos - 1], userInputComponents);
+                }
+              }
+              executeButtons.get(tabText[tabPos]).setEnabled(false);
+              userInputs.put(tabText[tabPos], userInputComponents);
             }
-            executeButtons.get(tabText[tabPos]).setEnabled(false);
-            userInputs.put(tabText[tabPos], userInputComponents);
           }
         });
         tempHeader.add(databaseOptions);
@@ -247,7 +282,7 @@ public class DBDiffCheckerGUI extends JFrame {
     JScrollPane data;
     JTextArea dataShow;
     String position = BorderLayout.SOUTH;
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < tabText.length; i++) {
       if (i < 2) { // both compare tabs
         JLabel footerTitle = new JLabel("Preview:", JLabel.CENTER);
         cpnt.add(footerTitle);
@@ -292,7 +327,7 @@ public class DBDiffCheckerGUI extends JFrame {
             displayLog(FileHandler.lastSequelStatementFileName);
           } else {
             JTextArea dataShow = informationDisplays.get(currentTab);
-            dataShow.setText("The application has no record of any statments run before.");
+            dataShow.setText("The application has no record of any statements run before.");
           }
         }
       }
@@ -351,12 +386,27 @@ public class DBDiffCheckerGUI extends JFrame {
     setVisible(true);
   }
 
+  /**
+   * Creates the input form based on the component input list and adds it to the
+   * provided panel.
+   * 
+   * @author Peter Kaufman
+   * @param componentHolder The JPanel that will hold the components that are
+   *                        generated.
+   * @param componentList   The list of components to add to the panel as well as
+   *                        the text to be displayed as the input's label.
+   * @param formComponents  A list of all the form components that can have input
+   *                        from the user - it is used for validating user input.
+   */
   private void createComponents(JPanel componentHolder, String[] componentList,
       ArrayList<JTextComponent> formComponents) {
     JTextComponent temp;
+    JLabel tempLabel;
     componentHolder.removeAll();
     for (int i = 0; i < componentList.length; i++) {
-      componentHolder.add(new JLabel(componentList[i] + ":"));
+      tempLabel = new JLabel(componentList[i] + ":");
+      tempLabel.setFont(regFont);
+      componentHolder.add(tempLabel);
       switch (componentList[i]) {
         case "Password":
           temp = new JPasswordField(10);
@@ -374,6 +424,16 @@ public class DBDiffCheckerGUI extends JFrame {
     componentHolder.repaint();
   }
 
+  /**
+   * Creates an input listener which is used to validate the data that is input
+   * and determine whether it is time to allow the user to submit the entered
+   * data.
+   * 
+   * @author Peter Kaufman
+   * @param input The component that will have the listener added to it.
+   * @param type  The description of the input (i.e. Username, Password, etc.).
+   *              This helps determine which listener to apply.
+   */
   private void createInputListener(JComponent input, String type) {
     if (type.equals("Port")) { // the input should only be integers
       JTextField cpn = (JTextField) input;
@@ -447,6 +507,15 @@ public class DBDiffCheckerGUI extends JFrame {
     }
   }
 
+  /**
+   * Determines whether or not all the user input fields for the current tab are
+   * filled out.
+   * 
+   * @author Peter Kaufman
+   * @return A boolean that is false if not all fields have a non-whitespace
+   *         character in them and true if all input fields have something other
+   *         than non-whitespace characters in them.
+   */
   private boolean allFieldsFilled() {
     for (JTextComponent cpn : userInputs.get(currentTab)) {
       if (new String(cpn.getText()).trim().isEmpty()) {
@@ -457,11 +526,13 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   /**
-   * Takes a devDatabase snapshot based on user input.
+   * Takes a snapshot of what the user indicates is the development database.
+   * <i>Note: most of this function is run in a background thread.</i>
    * 
    * @author Peter Kaufman
    */
   private void createSnapshot() {
+    databaseDropdowns.get(currentTab).setEnabled(false);
     prepProgressBar("Establishing Database Connection", true);
     SwingWorker<Boolean, String> worker = new SwingWorker<Boolean, String>() {
       @Override
@@ -472,7 +543,7 @@ public class DBDiffCheckerGUI extends JFrame {
         publish("Gathering Database Information");
         devDatabase = createDatabase(devDatabaseConnection);
         publish("Writing to JSON File");
-        FileHandler.serializeDatabase(devDatabase, currentTab);
+        FileHandler.serializeDatabase(devDatabase, databaseTypes[databaseDropdowns.get(currentTab).getSelectedIndex()]);
         sw.stop();
         log("Took a DB Snapshot in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
         return true;
@@ -491,6 +562,8 @@ public class DBDiffCheckerGUI extends JFrame {
             error(new DatabaseDifferenceCheckerException(e.getMessage().substring(e.getMessage().indexOf(":") + 1), e,
                 1005));
           }
+        } finally {
+          databaseDropdowns.get(currentTab).setEnabled(true);
         }
       }
 
@@ -503,11 +576,14 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   /**
-   * Compares two databases based on user input (one can be a snapshot).
+   * Compares two databases based on user input (one can be a snapshot) and
+   * generates the statements needed to make them the same. <i>Note: most of this
+   * function runs in a background thread.</i>
    * 
    * @author Peter Kaufman
    */
   private void generateStatements() {
+    databaseDropdowns.get(currentTab).setEnabled(false);
     prepProgressBar("Establishing Database Connection(s) and Collecting Database Info", true);
     SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {
       @Override
@@ -532,6 +608,8 @@ public class DBDiffCheckerGUI extends JFrame {
           } else {
             error(new DatabaseDifferenceCheckerException(e.getMessage(), e, 1006));
           }
+        } finally {
+          databaseDropdowns.get(currentTab).setEnabled(true);
         }
       }
 
@@ -543,6 +621,13 @@ public class DBDiffCheckerGUI extends JFrame {
     swingW.execute();
   }
 
+  /**
+   * Makes sure that all fields are filled in and makes sure that the buttons to
+   * generate statements and execute statements are disabled if alll fields are
+   * not filled out.
+   * 
+   * @author Peter Kaufman
+   */
   private void validateInput() {
     if (allFieldsFilled()) {
       executeButtons.get(currentTab).setEnabled(true);
@@ -575,8 +660,7 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   /**
-   * Stops the progressBar, sets the border to the given String, and then hides
-   * the progressBar.
+   * Stops the progressBar and sets the border to the given String.
    * 
    * @author Peter Kaufman
    * @param title The title for the border of the progressBar
@@ -607,6 +691,7 @@ public class DBDiffCheckerGUI extends JFrame {
   /**
    * Creates a database for the database connection provided.
    * 
+   * @author Peter Kaufman
    * @param databaseConn The database connection to use to make the database.
    * @return A database for the development database
    * @throws DatabaseDifferenceCheckerException Error getting data from the
@@ -629,6 +714,7 @@ public class DBDiffCheckerGUI extends JFrame {
    * Creates a database connection for the development database based on user
    * input.
    * 
+   * @author Peter Kaufman
    * @return A database connection for the development database.
    * @throws DatabaseDifferenceCheckerException Error connecting to the
    *                                            development database.
@@ -654,6 +740,7 @@ public class DBDiffCheckerGUI extends JFrame {
   /**
    * Creates a database connection for the live database based on user input.
    * 
+   * @author Peter Kaufman
    * @return A database connection for the live database.
    * @throws DatabaseDifferenceCheckerException Error connecting to the live
    *                                            database.
@@ -662,22 +749,29 @@ public class DBDiffCheckerGUI extends JFrame {
     String selectedType = databaseTypes[databaseDropdowns.get(currentTab).getSelectedIndex()];
     String type = "live";
     ArrayList<JTextComponent> inputs = userInputs.get(currentTab);
+    int startIndex = (inputs.size() / 2);
+    if (currentTab.equals(tabText[1])) {
+      startIndex = 0;
+    }
     if (databaseTypes[1].equals(selectedType)) {
-      return new MySQLConn(inputs.get(5).getText().trim(), inputs.get(6).getText().trim(),
-          inputs.get(7).getText().trim(), inputs.get(8).getText().trim(), inputs.get(9).getText().trim(), type);
+      return new MySQLConn(inputs.get(startIndex).getText().trim(), inputs.get(startIndex + 1).getText().trim(),
+          inputs.get(startIndex + 2).getText().trim(), inputs.get(startIndex + 3).getText().trim(),
+          inputs.get(startIndex + 4).getText().trim(), type);
     } else if (databaseTypes[2].equals(selectedType)) {
-      return new SQLiteConn(inputs.get(2).getText().trim(), inputs.get(3).getText().trim(), type);
+      return new SQLiteConn(inputs.get(startIndex).getText().trim(), inputs.get(startIndex + 1).getText().trim(), type);
     } else if (databaseTypes[3].equals(selectedType)) {
-      return new CouchbaseConn(inputs.get(4).getText().trim(), inputs.get(5).getText().trim(),
-          inputs.get(6).getText().trim(), inputs.get(7).getText().trim());
+      return new CouchbaseConn(inputs.get(startIndex).getText().trim(), inputs.get(startIndex + 1).getText().trim(),
+          inputs.get(startIndex + 2).getText().trim(), inputs.get(startIndex + 3).getText().trim());
     } else {
-      return new MongoConn(inputs.get(5).getText().trim(), inputs.get(6).getText().trim(),
-          inputs.get(7).getText().trim(), inputs.get(8).getText().trim(), inputs.get(9).getText().trim());
+      return new MongoConn(inputs.get(startIndex).getText().trim(), inputs.get(startIndex + 1).getText().trim(),
+          inputs.get(startIndex + 2).getText().trim(), inputs.get(startIndex + 3).getText().trim(),
+          inputs.get(startIndex + 4).getText().trim());
     }
   }
 
   /**
-   * Opens a JFrame with the error message provided as a paramater.
+   * Displays the error message to the user on the current tab and logs the error.
+   * If an error occurs while logging the error, the error is not logged.
    * 
    * @author Peter Kaufman
    * @param error The exception which contains a user friendly message and the
@@ -697,7 +791,7 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   /**
-   * Takes in data and writes it to a log file.
+   * Takes in data and writes it to the log file.
    * 
    * @author Peter Kaufman
    * @param info The data to be logged.
@@ -708,7 +802,8 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   /**
-   * Opens a JFrame with log information based on what file name is passed to it.
+   * Reads in data from a log file and displays it to the user by adding it to the
+   * current tab's JTextArea.
    * 
    * @author Peter Kaufman
    * @param file The file to have its contents displayed.
@@ -721,7 +816,7 @@ public class DBDiffCheckerGUI extends JFrame {
         if (currentTab.equals(tabText[3])) {
           dataShow.setText("There are no logs to display.");
         } else {
-          dataShow.setText("The application has no record of any statments run before.");
+          dataShow.setText("The application has no record of any statements run before.");
         }
       } else {
         dataShow.setText(null);
@@ -740,6 +835,12 @@ public class DBDiffCheckerGUI extends JFrame {
     }
   }
 
+  /**
+   * Displays the generated statements or displays that the databases are in sync
+   * in the tab's JTextArea based upon the amount of statements generated.
+   * 
+   * @author Peter Kaufman
+   */
   private void displayCompareResult() {
     try {
       JTextArea dataShow = informationDisplays.get(currentTab);
@@ -747,6 +848,7 @@ public class DBDiffCheckerGUI extends JFrame {
         dataShow.setText("The databases are in sync.");
         runButtons.get(currentTab).setEnabled(false);
       } else {
+        dataShow.setText(null);
         runButtons.get(currentTab).setEnabled(true);
         for (String statement : statements) {
           dataShow.append(statement + "\n");
@@ -759,7 +861,8 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   /**
-   * Gets two databases setup based on the type of the JFrame.
+   * Gets the two databases ready for the database comparison based on the current
+   * tab that is active.
    * 
    * @author Peter Kaufman
    * @throws DatabaseDifferenceCheckerException if there was an error connnecting
@@ -777,8 +880,14 @@ public class DBDiffCheckerGUI extends JFrame {
     liveDatabase = createDatabase(liveDatabaseConnection);
   }
 
+  /**
+   * Takes the statements that were generated by the database comparison and runs
+   * them on the live database. <i>Note: most of this function is run in a
+   * background thread.</i>
+   */
   private void executeStatements() {
     runButtons.get(currentTab).setEnabled(false);
+    databaseDropdowns.get(currentTab).setEnabled(false);
     prepProgressBar("Waiting On Action", false);
     SwingWorker<Boolean, Integer> swingW = new SwingWorker<Boolean, Integer>() {
       @Override
@@ -810,6 +919,8 @@ public class DBDiffCheckerGUI extends JFrame {
             error(new DatabaseDifferenceCheckerException(e.getMessage().substring(e.getMessage().indexOf(":") + 1), e,
                 1008));
           }
+        } finally {
+          databaseDropdowns.get(currentTab).setEnabled(true);
         }
       }
 
@@ -825,6 +936,12 @@ public class DBDiffCheckerGUI extends JFrame {
     swingW.execute();
   }
 
+  /**
+   * Initializes UI.
+   * 
+   * @author Peter Kaufman
+   * @param args Parameters from the user. <b>Note it is not used</b>
+   */
   public static void main(String[] args) {
     try {
       // Set System L&F
