@@ -45,7 +45,6 @@ public class MySQLConn extends SQLDbConn {
     this.port = port;
     this.connString = "jdbc:mysql://" + this.host + ":" + this.port + "/" + this.db
         + "?autoReconnect=true&useSSL=false&maxReconnects=150";
-    System.out.println("testing MySQL connection...");
     this.testConnection();
   }
 
