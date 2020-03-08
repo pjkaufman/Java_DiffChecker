@@ -31,6 +31,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.ImageIcon;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -134,13 +136,14 @@ public class DBDiffCheckerGUI extends JFrame {
       tabContent.put(tabText[i], temp);
       jtp.addTab(tabText[i], temp);
     }
+    jtp.setTitleAt(0, "<html><b>" + tabText[0] + "</b></html>");
     // create the content for the first 3 tab bodies
     JPanel body, mainBody, inputBody1, inputBody2, bodyFooter, inputs, buttons;
     buttons = new JPanel(new GridLayout(1, 4));
     ArrayList<JPanel> tempInputs;
     JButton tempExecute, tempRun;
     JProgressBar tempPB;
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < tabText.length - 2; i++) {
       tempInputs = new ArrayList<>();
       // create common panels
       body = new JPanel(new BorderLayout());
@@ -271,7 +274,12 @@ public class DBDiffCheckerGUI extends JFrame {
     jtp.addChangeListener(new ChangeListener() {
 
       public void stateChanged(ChangeEvent e) {
-        currentTab = tabText[jtp.getSelectedIndex()];
+        for (int i = 0; i < tabText.length; i++) {
+          jtp.setTitleAt(i, tabText[i]);
+        }
+        int tabPos = jtp.getSelectedIndex();
+        currentTab = tabText[tabPos];
+        jtp.setTitleAt(tabPos, "<html><b>" + tabText[tabPos] + "</b></html>");
         if (currentTab.equals(tabText[3])) {
           if (FileHandler.fileExists(FileHandler.logFileName)) {
             displayLog(FileHandler.logFileName);
@@ -289,7 +297,7 @@ public class DBDiffCheckerGUI extends JFrame {
         }
       }
     });
-    // set size differences
+    // set size for different types of components
     addComponentListener(new ComponentListener() {
       @Override
       public void componentResized(ComponentEvent e) {
@@ -725,7 +733,7 @@ public class DBDiffCheckerGUI extends JFrame {
     } catch (DatabaseDifferenceCheckerException cause) {
       error(cause);
       try {
-        log("There was an error recovering " + file + ".");
+        log("There was an error finding " + file + ".");
       } catch (DatabaseDifferenceCheckerException logError) {
         System.out.println("unable to log error... " + logError.getMessage());
       }
@@ -818,6 +826,13 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   public static void main(String[] args) {
+    try {
+      // Set System L&F
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException
+        | IllegalAccessException e) {
+      System.out.println("Unable to get the system's look and feel...");
+    }
     new DBDiffCheckerGUI();
   }
 }
