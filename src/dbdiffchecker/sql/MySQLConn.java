@@ -11,6 +11,7 @@ import java.util.HashMap;
 /**
  * Establishes a connection with a MySQL database based on the password,
  * username, port, host, and database provided.
+ * 
  * @author Peter Kaufman
  * @version 1-6-20
  * @since 5-21-19
@@ -25,14 +26,16 @@ public class MySQLConn extends SQLDbConn {
   /**
    * Sets the instance variables and tests the database connection to make sure
    * that the database can be reached.
+   * 
    * @author Peter Kaufman
    * @param username The username of the MySQL account.
    * @param password The password of the MySQL account.
-   * @param host The host of the MySQL account.
-   * @param port The port MySQL is running on. <b>Note: the default is 3306 </b>
+   * @param host     The host of the MySQL account.
+   * @param port     The port MySQL is running on. <b>Note: the default is 3306
+   *                 </b>
    * @param database The database in MySQL that the connection is to be
-   *        established with.
-   * @param type Either 'dev' or 'live'.
+   *                 established with.
+   * @param type     Either 'dev' or 'live'.
    * @throws DatabaseDifferenceCheckerException Error connecting to the database.
    */
   public MySQLConn(String username, String password, String host, String port, String database, String type)
@@ -53,7 +56,8 @@ public class MySQLConn extends SQLDbConn {
     try {
       this.con = DriverManager.getConnection(this.connString, this.username, this.password);
     } catch (SQLException e) {
-      throw new DatabaseDifferenceCheckerException("There was an error connecting to the " + this.db + " database.", e, 1013);
+      throw new DatabaseDifferenceCheckerException("There was an error connecting to the " + this.db + " database.", e,
+          1013);
     }
   }
 
@@ -72,12 +76,13 @@ public class MySQLConn extends SQLDbConn {
 
   /**
    * Gets and returns the create statement of the desired table.
+   * 
    * @author Peter Kaufman
    * @param view The name of the view for which the create statement should be
-   *        retrieved.
+   *             retrieved.
    * @return The view's create statement.
    * @throws DatabaseDifferenceCheckerException Error when getting a view's create
-   *         statement.
+   *                                            statement.
    */
   public String getViewCreateStatement(String view) throws DatabaseDifferenceCheckerException {
     try {

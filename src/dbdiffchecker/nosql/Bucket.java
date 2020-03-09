@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 /**
  * Models a Couchbase bucket by keeping track of all indices and documents.
+ * 
  * @author Peter Kaufman
  * @version 6-15-19
  * @since 5-24-19
@@ -25,10 +26,11 @@ public class Bucket extends Database {
    * Creates a database that models the Couchbase bucket using the Couchbase
    * connection in orde to get a list of documents, idndices, and other pertinent
    * information.
+   * 
    * @author Peter Kaufman
    * @param conn The connection to the Couchbase bucket.
    * @throws DatabaseDifferenceCheckerException Error connecting to the Couchbase
-   *         bucket.
+   *                                            bucket.
    */
   public Bucket(DbConn conn) throws DatabaseDifferenceCheckerException {
     CouchbaseConn connection = (CouchbaseConn) conn;
@@ -51,10 +53,12 @@ public class Bucket extends Database {
    * This is the default constructor for this class, <b>Needed for
    * Serialization</b>.
    */
-  public Bucket() {}
+  public Bucket() {
+  }
 
   /**
    * Returns the list of Couchbase documents where the name is the key and value.
+   * 
    * @author Peter Kaufman
    * @return The list of documents that exist in the bucket.
    */
@@ -64,6 +68,7 @@ public class Bucket extends Database {
 
   /**
    * Returns the list of Couchbase indices where the name is the key.
+   * 
    * @author Peter Kaufman
    * @return The list of indices that exist in the bucket.
    */

@@ -1,7 +1,9 @@
 package dbdiffchecker.nosql;
 
 /**
- * Models a Collection in a Mongo database by keeping track of specific properties of a collections.
+ * Models a Collection in a Mongo database by keeping track of specific
+ * properties of a collections.
+ * 
  * @author Peter Kaufman
  * @version 1-6-20
  * @since 10-26-19
@@ -22,10 +24,12 @@ public class Collection {
    * This is the default constructor for this class, <b>Needed for
    * Serialization</b>.
    */
-  public Collection() {}
+  public Collection() {
+  }
 
   /**
    * Returns whether the collection is capped or not.
+   * 
    * @author Peter Kaufman
    * @return Whether or not the collection is capped.
    */
@@ -35,6 +39,7 @@ public class Collection {
 
   /**
    * Returns the name of the collection.
+   * 
    * @author Peter Kaufman
    * @return The name of the collection.
    */
@@ -44,8 +49,9 @@ public class Collection {
 
   /**
    * Returns the max size of the collection.
+   * 
    * @author Peter Kaufman
-   * @return The  max size of the collection.
+   * @return The max size of the collection.
    */
   public int getSize() {
     return size;
@@ -53,11 +59,11 @@ public class Collection {
 
   /**
    * Determines wheteher two collections are equal.
+   * 
    * @param coll2 The collection to compare the current collection to.
    * @return Whether or not the two collections are the same.
    */
   public boolean equals(Collection coll2) {
-    return name.equals(coll2.getName()) && isCapped == coll2.isCapped() 
-            &&  size == coll2.getSize();
+    return name.equals(coll2.getName()) && isCapped == coll2.isCapped() && size == coll2.getSize();
   }
 }

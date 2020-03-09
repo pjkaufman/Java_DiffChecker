@@ -11,6 +11,7 @@ import java.util.HashMap;
 /**
  * Establishes a connection with an SQL database based on the path to the
  * database and database name.
+ * 
  * @author Peter Kaufman
  * @version 1-6-20
  * @since 5-5-19
@@ -22,11 +23,12 @@ public class SQLiteConn extends SQLDbConn {
   /**
    * Sets the instance variables and tests the database connection to make sure
    * that the database can be reached.
+   * 
    * @author Peter Kaufman
-   * @param path The path of the SQLite database.
+   * @param path     The path of the SQLite database.
    * @param database The SQLite database name that the connection is to be
-   *        established with.
-   * @param type Either 'dev' or 'live'.
+   *                 established with.
+   * @param type     Either 'dev' or 'live'.
    * @throws DatabaseDifferenceCheckerException Error connecting to the database.
    */
   public SQLiteConn(String path, String database, String type) throws DatabaseDifferenceCheckerException {
@@ -42,7 +44,8 @@ public class SQLiteConn extends SQLDbConn {
     try {
       this.con = DriverManager.getConnection(this.connString);
     } catch (SQLException e) {
-      throw new DatabaseDifferenceCheckerException("There was an error connecting to the " + this.db + " database.", e, 1020);
+      throw new DatabaseDifferenceCheckerException("There was an error connecting to the " + this.db + " database.", e,
+          1020);
     }
   }
 

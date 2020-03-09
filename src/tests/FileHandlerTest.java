@@ -16,6 +16,7 @@ import dbdiffchecker.nosql.Collection;
 
 /**
  * A unit test that makes sure that the FileHandler object works as intended.
+ * 
  * @author Peter Kaufman
  * @version 1-6-20
  * @since 5-11-19
@@ -31,6 +32,7 @@ public class FileHandlerTest {
         /**
          * Sets up for the serailization compare by resetiing the list of expected
          * statements and statements.
+         * 
          * @author Peter Kaufman
          */
         public void setupForCompare() {
@@ -41,6 +43,7 @@ public class FileHandlerTest {
         @Test
         /**
          * Tests whether the writting and reading functions work as intended.
+         * 
          * @author Peter Kaufman
          * @throws Exception Error writting to or reading from log files.
          */
@@ -83,6 +86,7 @@ public class FileHandlerTest {
         @Test
         /**
          * Tests whether the fileExists function works as intended.
+         * 
          * @author Peter Kaufman
          * @throws Exception Error writting to the log file.
          */
@@ -102,6 +106,7 @@ public class FileHandlerTest {
         /**
          * Tests whether the serialization functions work as intended on a MySQL
          * database.
+         * 
          * @author Peter Kaufman
          * @throws Exception Error sereliazing or deserializing a MySQL database.
          */
@@ -140,6 +145,7 @@ public class FileHandlerTest {
         /**
          * Tests whether the serialization functions work as intended on an SQLite
          * database.
+         * 
          * @author Peter Kaufman
          * @throws Exception Error serializing or deserializing the SQLite database.
          */
@@ -172,6 +178,7 @@ public class FileHandlerTest {
         /**
          * Tests whether the serialization functions work as intended on a Couchbase
          * Bucket.
+         * 
          * @author Peter Kaufman
          * @throws Exception Error serializing or deserializing the Couchbase Bucket.
          */
@@ -215,16 +222,21 @@ public class FileHandlerTest {
 
         @Test
         /**
-         * Tests whether the serialization functions work as intended on a Mongo database.
+         * Tests whether the serialization functions work as intended on a Mongo
+         * database.
+         * 
          * @author Peter Kaufman
          * @throws Exception Error serializing or deserializing the Mongo database.
          */
         public void testSerializationMongo() throws Exception {
                 String createPre = "Create Collection: ", deletePre = "Delete Collection: ";
-                String name1 = "Skipper", name2 = "Private", name3 = "Commoner", name4 = "Creeper", name5 = "Creep", name6 = "Pillager", name7 = "Villager";
-                Collection coll1 = new Collection(name1,false, 0), coll2 = new Collection(name2, true, 50000), coll12 = new Collection (name1, true, 67890),
-                        coll22 = new Collection(name2, false, 0), coll3 = new Collection(name3, false, 0), coll4 = new Collection(name4, false, 0), 
-                        coll5 = new Collection(name3, true, 587390),  coll6 = new Collection(name6, false, 0),  coll7 = new Collection(name7, true, 234560);
+                String name1 = "Skipper", name2 = "Private", name3 = "Commoner", name4 = "Creeper", name5 = "Creep",
+                                name6 = "Pillager", name7 = "Villager";
+                Collection coll1 = new Collection(name1, false, 0), coll2 = new Collection(name2, true, 50000),
+                                coll12 = new Collection(name1, true, 67890), coll22 = new Collection(name2, false, 0),
+                                coll3 = new Collection(name3, false, 0), coll4 = new Collection(name4, false, 0),
+                                coll5 = new Collection(name3, true, 587390), coll6 = new Collection(name6, false, 0),
+                                coll7 = new Collection(name7, true, 234560);
                 MongoDB test = new MongoDB(), test1 = new MongoDB();
                 // setup
                 test.getCollections().put(name1, coll1); // collection to modify
@@ -239,18 +251,21 @@ public class FileHandlerTest {
                 test1.getCollections().put(name5, coll5); // collection to drop
                 statements = test.compare(test1);
                 // start assertions
-                assertEquals("The Mongo database should suggest 8 changes when 2 collections need to be updated (4)," + 
-                " 2 collections need to be created (2), and 2 collections need to be dropped (2).", 8,
-                statements.size());
+                assertEquals("The Mongo database should suggest 8 changes when 2 collections need to be updated (4),"
+                                + " 2 collections need to be created (2), and 2 collections need to be dropped (2).", 8,
+                                statements.size());
                 // 2 create statements
-                assertEquals("The statements from the compare should include the creations of the collections that only dev has", true,
-                statements.contains(createPre + name6) && statements.contains(createPre + name7 + ", capped=true, size=234560"));
+                assertEquals("The statements from the compare should include the creations of the collections that only dev has",
+                                true, statements.contains(createPre + name6) && statements
+                                                .contains(createPre + name7 + ", capped=true, size=234560"));
                 // 2 delete statements
-                assertEquals("The statements from the compare should include the deletions of the collections that only live has", true,
-                statements.contains(deletePre + name4) && statements.contains(deletePre + name5));
+                assertEquals("The statements from the compare should include the deletions of the collections that only live has",
+                                true, statements.contains(deletePre + name4) && statements.contains(deletePre + name5));
                 // 4 update statements
-                assertEquals("The statements from the compare should include the deletions and recreations of the collections that need to be updated", true,
-                statements.contains(deletePre + name1) && statements.contains(deletePre + name2) && statements.contains(createPre + name1) && 
-                statements.contains(createPre + name2 + ", capped=true, size=50000"));
+                assertEquals("The statements from the compare should include the deletions and recreations of the collections that need to be updated",
+                                true,
+                                statements.contains(deletePre + name1) && statements.contains(deletePre + name2)
+                                                && statements.contains(createPre + name1) && statements.contains(
+                                                                createPre + name2 + ", capped=true, size=50000"));
         }
 }

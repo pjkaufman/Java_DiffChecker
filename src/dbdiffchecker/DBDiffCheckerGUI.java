@@ -7,6 +7,7 @@ import dbdiffchecker.nosql.Bucket;
 import dbdiffchecker.nosql.CouchbaseConn;
 import dbdiffchecker.nosql.MongoConn;
 import dbdiffchecker.nosql.MongoDB;
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import javax.swing.JFrame;
@@ -54,7 +55,7 @@ import java.awt.event.ComponentListener;
  * A JFrame that has several tabs and includes the entire frontend.
  * 
  * @author Peter Kaufman
- * @version 3-8-20
+ * @version 3-9-20
  * @since 9-20-17
  */
 public class DBDiffCheckerGUI extends JFrame {
@@ -727,7 +728,7 @@ public class DBDiffCheckerGUI extends JFrame {
       return new MySQLConn(inputs.get(0).getText().trim(), inputs.get(1).getText().trim(),
           inputs.get(2).getText().trim(), inputs.get(3).getText().trim(), inputs.get(4).getText().trim(), type);
     } else if (databaseTypes[2].equals(selectedType)) {
-      return new SQLiteConn(inputs.get(0).getText().trim(), inputs.get(1).getText().trim(), type);
+      return new SQLiteConn(fixPath(inputs.get(0).getText().trim()), inputs.get(1).getText().trim(), type);
     } else if (databaseTypes[3].equals(selectedType)) {
       return new CouchbaseConn(inputs.get(0).getText().trim(), inputs.get(1).getText().trim(),
           inputs.get(2).getText().trim(), inputs.get(3).getText().trim());
@@ -758,7 +759,8 @@ public class DBDiffCheckerGUI extends JFrame {
           inputs.get(startIndex + 2).getText().trim(), inputs.get(startIndex + 3).getText().trim(),
           inputs.get(startIndex + 4).getText().trim(), type);
     } else if (databaseTypes[2].equals(selectedType)) {
-      return new SQLiteConn(inputs.get(startIndex).getText().trim(), inputs.get(startIndex + 1).getText().trim(), type);
+      return new SQLiteConn(fixPath(inputs.get(startIndex).getText().trim()),
+          inputs.get(startIndex + 1).getText().trim(), type);
     } else if (databaseTypes[3].equals(selectedType)) {
       return new CouchbaseConn(inputs.get(startIndex).getText().trim(), inputs.get(startIndex + 1).getText().trim(),
           inputs.get(startIndex + 2).getText().trim(), inputs.get(startIndex + 3).getText().trim());
@@ -934,6 +936,21 @@ public class DBDiffCheckerGUI extends JFrame {
       }
     };
     swingW.execute();
+  }
+
+  /**
+   * Takes in a path and makes sure that it ends with a file separator.
+   * 
+   * @author Peter Kaufman
+   * @param path The path to assure has a file separator at the end.
+   * @return The original path ending with a file separator if it did not already
+   *         have one.
+   */
+  private String fixPath(String path) {
+    if (!path.endsWith(File.separator)) {
+      path += File.separator;
+    }
+    return path;
   }
 
   /**

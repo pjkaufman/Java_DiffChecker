@@ -4,6 +4,7 @@ import dbdiffchecker.sql.View;
 
 /**
  * A unit test that makes sure that the View object works as intended.
+ * 
  * @author Peter Kaufman
  * @version 5-24-19
  * @since 5-10-19
@@ -15,6 +16,7 @@ public class ViewTest {
   @Test
   /**
    * Tests whether the get statements inside of the View object work as intended.
+   * 
    * @author Peter Kaufman
    */
   public void testGetStatements() {
