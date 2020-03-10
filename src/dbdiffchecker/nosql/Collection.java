@@ -1,14 +1,16 @@
 package dbdiffchecker.nosql;
 
+import java.io.Serializable;
+
 /**
  * Models a Collection in a Mongo database by keeping track of specific
  * properties of a collections.
  * 
  * @author Peter Kaufman
- * @version 1-6-20
+ * @version 3-9-20
  * @since 10-26-19
  */
-public class Collection {
+public class Collection implements Serializable {
 
   private String name;
   private boolean isCapped;

@@ -55,7 +55,7 @@ import java.awt.event.ComponentListener;
  * A JFrame that has several tabs and includes the entire frontend.
  * 
  * @author Peter Kaufman
- * @version 3-9-20
+ * @version 3-10-20
  * @since 9-20-17
  */
 public class DBDiffCheckerGUI extends JFrame {
@@ -68,7 +68,7 @@ public class DBDiffCheckerGUI extends JFrame {
       new String[] { "Username", "Password", "Host", "Port", "Database Name" },
       new String[] { "Database Path", "Database Name" },
       new String[] { "Username", "Password", "Host", "Database Name" },
-      new String[] { "Username", "Password:", "Host", "Port", "Database Name" } };
+      new String[] { "Username", "Password", "Host", "Port", "Database Name" } };
   private HashMap<String, JPanel> tabContent = new HashMap<String, JPanel>(tabText.length);
   private HashMap<String, JComboBox<String>> databaseDropdowns = new HashMap<String, JComboBox<String>>(
       tabText.length - 2);
@@ -83,6 +83,7 @@ public class DBDiffCheckerGUI extends JFrame {
   private HashMap<String, JLabel> errorMessages = new HashMap<String, JLabel>(tabText.length - 2);
   private JTabbedPane jtp = new JTabbedPane();
   private JButton currentRunBtn;
+  private JTextArea currentDataShow;
   private Database devDatabase;
   private Database liveDatabase;
   private DbConn devDatabaseConnection;
@@ -138,6 +139,10 @@ public class DBDiffCheckerGUI extends JFrame {
           public void actionPerformed(ActionEvent event) {
             int tabPos = jtp.getSelectedIndex();
             int databasePos = databaseDropdowns.get(currentTab).getSelectedIndex();
+            boolean contCreation = true;
+            if (tabPos < 3) {
+              newBorder("");
+            }
             errorMessages.get(currentTab).setVisible(false);
             if (!currentTab.equals(tabText[2])) {
               informationDisplays.get(currentTab).setText(null);
@@ -149,19 +154,19 @@ public class DBDiffCheckerGUI extends JFrame {
               errorMessages.get(currentTab).setText("Unable to do comparison: " + databaseTypes[databasePos]
                   + " snapshot does not exist. Please run a database snapshot first.");
               errorMessages.get(currentTab).setVisible(true);
-            } else {
-              for (JPanel inputForm : userInputForms.get(currentTab)) {
-                if (databasePos == 0) {
-                  inputForm.removeAll();
-                  inputForm.revalidate();
-                  inputForm.repaint();
-                } else {
-                  createComponents(inputForm, databaseInputs[databasePos - 1], userInputComponents);
-                }
-              }
-              executeButtons.get(tabText[tabPos]).setEnabled(false);
-              userInputs.put(tabText[tabPos], userInputComponents);
+              contCreation = false;
             }
+            for (JPanel inputForm : userInputForms.get(currentTab)) {
+              if (databasePos == 0 || !contCreation) {
+                inputForm.removeAll();
+              } else {
+                createComponents(inputForm, databaseInputs[databasePos - 1], userInputComponents);
+              }
+              inputForm.revalidate();
+              inputForm.repaint();
+            }
+            executeButtons.get(tabText[tabPos]).setEnabled(false);
+            userInputs.put(tabText[tabPos], userInputComponents);
           }
         });
         tempHeader.add(databaseOptions);
@@ -306,6 +311,7 @@ public class DBDiffCheckerGUI extends JFrame {
       tabContent.get(tabText[i]).add(informationDisplay, position);
       informationDisplays.put(tabText[i], dataShow);
     }
+    currentDataShow = informationDisplays.get(tabText[0]);
     // add listener for tab changes
     jtp.addChangeListener(new ChangeListener() {
 
@@ -315,20 +321,19 @@ public class DBDiffCheckerGUI extends JFrame {
         }
         int tabPos = jtp.getSelectedIndex();
         currentTab = tabText[tabPos];
+        currentDataShow = informationDisplays.get(currentTab);
         jtp.setTitleAt(tabPos, "<html><b>" + tabText[tabPos] + "</b></html>");
         if (currentTab.equals(tabText[3])) {
           if (FileHandler.fileExists(FileHandler.logFileName)) {
             displayLog(FileHandler.logFileName);
           } else {
-            JTextArea dataShow = informationDisplays.get(currentTab);
-            dataShow.setText("There are no logs to display.");
+            currentDataShow.setText("There are no logs to display.");
           }
         } else if (currentTab.equals(tabText[4])) {
           if (FileHandler.fileExists(FileHandler.lastSequelStatementFileName)) {
             displayLog(FileHandler.lastSequelStatementFileName);
           } else {
-            JTextArea dataShow = informationDisplays.get(currentTab);
-            dataShow.setText("The application has no record of any statements run before.");
+            currentDataShow.setText("The application has no record of any statements run before.");
           }
         }
       }
@@ -421,8 +426,6 @@ public class DBDiffCheckerGUI extends JFrame {
       componentHolder.add(temp);
       formComponents.add(temp);
     }
-    componentHolder.revalidate();
-    componentHolder.repaint();
   }
 
   /**
@@ -452,16 +455,19 @@ public class DBDiffCheckerGUI extends JFrame {
             }
           };
           SwingUtilities.invokeLater(format);
+          disableRunningStatements();
           validateInput();
         }
 
         @Override
         public void removeUpdate(DocumentEvent e) {
+          disableRunningStatements();
           validateInput();
         }
 
         @Override
         public void changedUpdate(DocumentEvent e) {
+          disableRunningStatements();
           validateInput();
         }
       });
@@ -472,16 +478,19 @@ public class DBDiffCheckerGUI extends JFrame {
 
           @Override
           public void insertUpdate(DocumentEvent e) {
+            disableRunningStatements();
             validateInput();
           }
 
           @Override
           public void removeUpdate(DocumentEvent e) {
+            disableRunningStatements();
             validateInput();
           }
 
           @Override
           public void changedUpdate(DocumentEvent e) {
+            disableRunningStatements();
             validateInput();
           }
         });
@@ -490,16 +499,19 @@ public class DBDiffCheckerGUI extends JFrame {
         cpn.getDocument().addDocumentListener(new DocumentListener() {
           @Override
           public void insertUpdate(DocumentEvent e) {
+            disableRunningStatements();
             validateInput();
           }
 
           @Override
           public void removeUpdate(DocumentEvent e) {
+            disableRunningStatements();
             validateInput();
           }
 
           @Override
           public void changedUpdate(DocumentEvent e) {
+            disableRunningStatements();
             validateInput();
           }
         });
@@ -585,6 +597,7 @@ public class DBDiffCheckerGUI extends JFrame {
    */
   private void generateStatements() {
     databaseDropdowns.get(currentTab).setEnabled(false);
+    runButtons.get(currentTab).setEnabled(false);
     prepProgressBar("Establishing Database Connection(s) and Collecting Database Info", true);
     SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {
       @Override
@@ -653,9 +666,12 @@ public class DBDiffCheckerGUI extends JFrame {
     newBorder(title);
     currentPB.setIndeterminate(indeterminate);
     if (!indeterminate) {
-      currentPB.setValue(0);
       currentPB.setStringPainted(true);
+    } else {
+      currentPB.setString(null);
+      currentPB.setStringPainted(false);
     }
+    currentPB.setValue(0);
     currentPB.setEnabled(true);
     sw.reset();
   }
@@ -813,18 +829,17 @@ public class DBDiffCheckerGUI extends JFrame {
   private void displayLog(String file) {
     try {
       ArrayList<String> statementList = FileHandler.readFrom(file);
-      JTextArea dataShow = informationDisplays.get(currentTab);
       if (statementList.isEmpty()) {
         if (currentTab.equals(tabText[3])) {
-          dataShow.setText("There are no logs to display.");
+          currentDataShow.setText("There are no logs to display.");
         } else {
-          dataShow.setText("The application has no record of any statements run before.");
+          currentDataShow.setText("The application has no record of any statements run before.");
         }
       } else {
-        dataShow.setText(null);
+        currentDataShow.setText(null);
         this.statements = statementList;
         for (String statement : statementList) {
-          dataShow.append(statement + "\n");
+          currentDataShow.append(statement + "\n");
         }
       }
     } catch (DatabaseDifferenceCheckerException cause) {
@@ -845,15 +860,14 @@ public class DBDiffCheckerGUI extends JFrame {
    */
   private void displayCompareResult() {
     try {
-      JTextArea dataShow = informationDisplays.get(currentTab);
       if (statements.isEmpty()) {
-        dataShow.setText("The databases are in sync.");
+        currentDataShow.setText("The databases are in sync.");
         runButtons.get(currentTab).setEnabled(false);
       } else {
-        dataShow.setText(null);
+        currentDataShow.setText(null);
         runButtons.get(currentTab).setEnabled(true);
         for (String statement : statements) {
-          dataShow.append(statement + "\n");
+          currentDataShow.append(statement + "\n");
         }
         FileHandler.writeToFile(statements);
       }
@@ -951,6 +965,15 @@ public class DBDiffCheckerGUI extends JFrame {
       path += File.separator;
     }
     return path;
+  }
+
+  /**
+   * 
+   */
+  private void disableRunningStatements() {
+    if (runButtons.get(currentTab) != null) {
+      runButtons.get(currentTab).setEnabled(false);
+    }
   }
 
   /**
