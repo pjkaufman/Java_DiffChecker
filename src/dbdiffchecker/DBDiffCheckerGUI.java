@@ -55,7 +55,7 @@ import java.awt.event.ComponentListener;
  * A JFrame that has several tabs and includes the entire frontend.
  * 
  * @author Peter Kaufman
- * @version 3-10-20
+ * @version 3-11-20
  * @since 9-20-17
  */
 public class DBDiffCheckerGUI extends JFrame {
@@ -81,6 +81,9 @@ public class DBDiffCheckerGUI extends JFrame {
       tabText.length - 2);
   private HashMap<String, JTextArea> informationDisplays = new HashMap<String, JTextArea>(tabText.length - 1);
   private HashMap<String, JLabel> errorMessages = new HashMap<String, JLabel>(tabText.length - 2);
+  private HashMap<String, ArrayList<String>> statementsLists = new HashMap<String, ArrayList<String>>(
+      tabText.length - 3);
+  private HashMap<String, DbConn> liveConnectionLists = new HashMap<String, DbConn>(tabText.length - 3);
   private JTabbedPane jtp = new JTabbedPane();
   private JButton currentRunBtn;
   private JTextArea currentDataShow;
@@ -140,9 +143,7 @@ public class DBDiffCheckerGUI extends JFrame {
             int tabPos = jtp.getSelectedIndex();
             int databasePos = databaseDropdowns.get(currentTab).getSelectedIndex();
             boolean contCreation = true;
-            if (tabPos < 3) {
-              newBorder("");
-            }
+            newBorder("");
             errorMessages.get(currentTab).setVisible(false);
             if (!currentTab.equals(tabText[2])) {
               informationDisplays.get(currentTab).setText(null);
@@ -214,6 +215,7 @@ public class DBDiffCheckerGUI extends JFrame {
         currentRunBtn = tempRun;
         cpnBtn.add(currentRunBtn);
         tempExecute.addActionListener(new ActionListener() {
+
           @Override
           public void actionPerformed(ActionEvent evt) {
             errorMessages.get(currentTab).setVisible(false);
@@ -335,6 +337,14 @@ public class DBDiffCheckerGUI extends JFrame {
           } else {
             currentDataShow.setText("The application has no record of any statements run before.");
           }
+        }
+        // copy over statements from a previous run on the tab and the previous live
+        // connection
+        if (liveConnectionLists.containsKey(currentTab)) {
+          liveDatabaseConnection = liveConnectionLists.get(currentTab);
+        }
+        if (statementsLists.containsKey(currentTab)) {
+          statements = statementsLists.get(currentTab);
         }
       }
     });
@@ -605,6 +615,7 @@ public class DBDiffCheckerGUI extends JFrame {
         setupDatabases();
         publish("Comparing Databases");
         statements = devDatabase.compare(liveDatabase);
+        statementsLists.put(currentTab, statements);
         return true;
       }
 
@@ -893,6 +904,7 @@ public class DBDiffCheckerGUI extends JFrame {
       devDatabase = FileHandler.deserailizDatabase(databaseTypes[databaseDropdowns.get(currentTab).getSelectedIndex()]);
     }
     liveDatabaseConnection = createLiveDatabaseConnection();
+    liveConnectionLists.put(currentTab, liveDatabaseConnection);
     liveDatabase = createDatabase(liveDatabaseConnection);
   }
 
