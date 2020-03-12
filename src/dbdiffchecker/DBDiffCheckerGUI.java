@@ -147,6 +147,7 @@ public class DBDiffCheckerGUI extends JFrame {
             errorMessages.get(currentTab).setVisible(false);
             if (!currentTab.equals(tabText[2])) {
               informationDisplays.get(currentTab).setText(null);
+              runButtons.get(currentTab).setEnabled(false);
             }
             ArrayList<JTextComponent> userInputComponents = new ArrayList<>();
             if (tabPos == 1
