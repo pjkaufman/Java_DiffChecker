@@ -6,6 +6,7 @@ import java.util.HashMap;
 /**
  * Resembles a table in SQLite and contains info about the table's columns and
  * indices.
+ * 
  * @author Peter Kaufman
  * @version 5-31-19
  * @since 5-11-19
@@ -17,10 +18,11 @@ public class SQLiteTable extends Table {
 
   /**
    * Sets the name and create statement of the table.
+   * 
    * @author Peter Kaufman
-   * @param name The name of the table.
+   * @param name   The name of the table.
    * @param create The create statement of the table which will be used to create
-   *        its columns and indices.
+   *               its columns and indices.
    */
   public SQLiteTable(String name, String create) {
     super(name, create);
@@ -31,7 +33,8 @@ public class SQLiteTable extends Table {
    * This is the default constructor for this class, <b> Needed for
    * Serialization</b>.
    */
-  public SQLiteTable() {}
+  public SQLiteTable() {
+  }
 
   @Override
   public ArrayList<String> equals(Table t1) {
@@ -89,7 +92,8 @@ public class SQLiteTable extends Table {
     create = createStatement.substring(createStatement.indexOf("(") + 1).trim();
     create = create.trim();
     if (create.endsWith(";")) {
-      create = create.substring(0, create.indexOf(";", create.length() - 6)); // remove last character of create statement
+      create = create.substring(0, create.indexOf(";", create.length() - 6)); // remove last character of create
+                                                                              // statement
     }
     // separate the main create statement from other add ons
     parts = create.split(";");
@@ -260,8 +264,9 @@ public class SQLiteTable extends Table {
    * Recreates the structure of the table using the columns provided to copy over
    * old data into the new table based on common columns between the development
    * and live tables.
+   * 
    * @param live A list of columns and their definitions which helps the transfer
-   *        of data for common collumns.
+   *             of data for common collumns.
    * @return The SQL statements needed to recreate the development table.
    */
   private ArrayList<String> recreateTable(HashMap<String, Column> live) {

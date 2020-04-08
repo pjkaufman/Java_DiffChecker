@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 /**
  * Models an SQL database schema.
+ * 
  * @author Peter Kaufman
  * @version 6-15-19
  * @since 9-18-17
@@ -27,12 +28,13 @@ public class SQLDatabase extends Database {
    * exist in the database provided. <b>Note: It will also SQL statements to drop
    * all Primary Keys and remove all auot_increments in the database provided
    * which will only be used on the live database</b>
+   * 
    * @author Peter Kaufman
-   * @param db The database connection used to get the database information
+   * @param db   The database connection used to get the database information
    * @param type The type of datbase implimentation which is being used. <b>Note:
-   *        this allows for the appropriate turning off of Foreign Keys</b>
+   *             this allows for the appropriate turning off of Foreign Keys</b>
    * @throws DatabaseDifferenceCheckerException Error connecting or closing the
-   *         database connection.
+   *                                            database connection.
    */
   public SQLDatabase(DbConn db, int type) throws DatabaseDifferenceCheckerException {
     // get tables and views
@@ -54,13 +56,15 @@ public class SQLDatabase extends Database {
    * This is the default constructor for this class, <b>Needed for
    * Serialization</b>.
    */
-  public SQLDatabase() {}
+  public SQLDatabase() {
+  }
 
   /**
    * Returns the first steps to be taken in order to run the SQL statements. These
    * SQL statements are used to drop Primary Keys and remove auto_increments on
    * the database provided. <b>Note: this function will return an empty ArrayList
    * if the function is called for the development database</b>
+   * 
    * @author Peter Kaufman
    * @return The first steps to be taken in order to run the SQL statements.
    */
@@ -72,6 +76,7 @@ public class SQLDatabase extends Database {
   /**
    * Returns the list of tables in the database provided. The key is the name of
    * the table.
+   * 
    * @author Peter Kaufman
    * @return A list of all the tables in the provided database.
    */
@@ -81,6 +86,7 @@ public class SQLDatabase extends Database {
 
   /**
    * Returns all of the views in the database.
+   * 
    * @return All of the views in the database..
    */
   public ArrayList<View> getViews() {
@@ -108,6 +114,7 @@ public class SQLDatabase extends Database {
    * Takes in a list of views and returns the SQL statements needed to make the
    * two databases have the exact same views. <b>Note: all views in the live
    * database will be dropped and all from the dev database will be created</b>
+   * 
    * @author Peter Kaufman
    * @param liveViews All of the views in the live database.
    * @return The SQL statements to run in order to make the live database have the
@@ -128,9 +135,10 @@ public class SQLDatabase extends Database {
 
   /**
    * Determines which tables are to be created and which are to be dropped.
+   * 
    * @author Peter Kaufman
    * @param liveTables All tables in the live database where the key is the name
-   *        of the table.
+   *                   of the table.
    * @return The SQL statements to run in order to remove and/or create tables in
    *         the live database.
    */
@@ -156,11 +164,12 @@ public class SQLDatabase extends Database {
   /**
    * Takes in two table lists and returns the SQL statements to run in order to
    * make the live database have the same table definitions as the dev one.
+   * 
    * @author Peter Kaufman
-   * @param live All tables in the live database where the key is the name of the
-   *        table.
+   * @param live         All tables in the live database where the key is the name
+   *                     of the table.
    * @param updateTables All the tables which are not the same in the live and
-   *        development databases.
+   *                     development databases.
    * @return The SQL statements to run in order to make the live database have the
    *         same table definitions as the dev one.
    */
@@ -179,12 +188,13 @@ public class SQLDatabase extends Database {
    * Compares the tables in the live and dev databases, and returns a list of
    * table names whose structure did not match between the development and live
    * databases.
+   * 
    * @author Peter Kaufman
-   * @param liveTables All tables in the live database where the key is the name
-   *        of the table.
+   * @param liveTables   All tables in the live database where the key is the name
+   *                     of the table.
    * @param liveDatabase The live database connection which allows the live
-   *        exclusions to be updated here to prevent unnecessary Primary Key
-   *        dropping.
+   *                     exclusions to be updated here to prevent unnecessary
+   *                     Primary Key dropping.
    * @return The tables that are to be updated because their structures did not
    *         match between the development and live databases.
    */
@@ -204,6 +214,7 @@ public class SQLDatabase extends Database {
   /**
    * Removes any of the SQL statements in fistSteps that affect any tables in the
    * exclusion list.
+   * 
    * @author Peter Kaufman
    */
   private void checkFirstSteps() {

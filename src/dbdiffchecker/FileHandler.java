@@ -14,6 +14,7 @@ import java.util.Scanner;
 
 /**
  * Deals with all data coming from and going out to files.
+ * 
  * @author Peter Kaufman and Chris Dail
  * @version 6-15-19
  * @since 9-12-17
@@ -27,10 +28,12 @@ public class FileHandler {
 
   /**
    * Serializes a database with all of its table and view data.
+   * 
    * @author Peter Kaufman
    * @param database The database to serialize.
-   * @param prefix The prefix of the database snapshot to deserailize. <b>Note: it
-   *        is the name of the database implimentation of the database</b>
+   * @param prefix   The prefix of the database snapshot to deserailize. <b>Note:
+   *                 it is the name of the database implimentation of the
+   *                 database</b>
    * @throws DatabaseDifferenceCheckerException Error serializing the database.
    */
   public static void serializeDatabase(Database database, String prefix) throws DatabaseDifferenceCheckerException {
@@ -50,10 +53,11 @@ public class FileHandler {
 
   /**
    * Takes SQL statements and writes them to the last run file.
+   * 
    * @author Peter Kaufman
    * @param sequelStatements Statements to be logged.
-   * @throws DatabaseDifferenceCheckerException Error writing the statements to the
-   *         last run file.
+   * @throws DatabaseDifferenceCheckerException Error writing the statements to
+   *                                            the last run file.
    */
   public static void writeToFile(ArrayList<String> sequelStatements) throws DatabaseDifferenceCheckerException {
     try (PrintWriter out = new PrintWriter(
@@ -62,37 +66,38 @@ public class FileHandler {
         out.println(statement);
       }
     } catch (IOException cause) {
-      throw new DatabaseDifferenceCheckerException(
-          "There was an error writing the statements to the last run file", cause, 1001);
+      throw new DatabaseDifferenceCheckerException("There was an error writing the statements to the last run file",
+          cause, 1001);
     }
   }
 
   /**
    * Takes a String and writes it to the log file.
+   * 
    * @author Peter Kaufman
    * @param data The data to be written to the log file.
-   * @throws DatabaseDifferenceCheckerException Error writing the data to
-   *         the log file.
+   * @throws DatabaseDifferenceCheckerException Error writing the data to the log
+   *                                            file.
    */
   public static void writeToFile(String data) throws DatabaseDifferenceCheckerException {
     Date currentTime = new Date();
     try (PrintWriter out = new PrintWriter(new FileWriter(new File(logFolder + File.separator + logFileName), true));) {
       out.println(currentTime.toString() + " " + data);
     } catch (IOException cause) {
-      throw new DatabaseDifferenceCheckerException("There was an error writing the to the log file", cause,
-          1002);
+      throw new DatabaseDifferenceCheckerException("There was an error writing the to the log file", cause, 1002);
     }
   }
 
   /**
    * Deserializes a database file.
+   * 
    * @author Peter Kaufman
    * @param prefix The prefix of the database snapshot to deserailize. <b>Note: it
-   *        is the name of the database implimentation of the database</b>
+   *               is the name of the database implimentation of the database</b>
    * @return The database created through deserialization with table and view
    *         data.
    * @throws DatabaseDifferenceCheckerException Error deserializing the database
-   *         file.
+   *                                            file.
    */
   public static Database deserailizDatabase(String prefix) throws DatabaseDifferenceCheckerException {
     Database database = null;
@@ -103,23 +108,25 @@ public class FileHandler {
       // Read object
       database = (Database) inputStream.readObject();
     } catch (Exception cause) {
-      throw new DatabaseDifferenceCheckerException("There was an error when trying to get the database snapshot.", cause,
-          1003);
-    } finally {}
+      throw new DatabaseDifferenceCheckerException("There was an error when trying to get the database snapshot.",
+          cause, 1003);
+    } finally {
+    }
     return database;
   }
 
   /**
    * Returns the contents of the specified file.
+   * 
    * @author Peter Kaufman
    * @param file The name of the file to be read from.
    * @return Data that was stored in the file that was read from.
-   * @throws DatabaseDifferenceCheckerException Error reading in the data
-   *         from the specified file.
+   * @throws DatabaseDifferenceCheckerException Error reading in the data from the
+   *                                            specified file.
    */
   public static ArrayList<String> readFrom(String file) throws DatabaseDifferenceCheckerException {
     ArrayList<String> fileLines = new ArrayList<>();
-    try ( Scanner in = new Scanner(new File(logFolder + File.separator + file))) {
+    try (Scanner in = new Scanner(new File(logFolder + File.separator + file))) {
       while (in.hasNextLine()) {
         fileLines.add(in.nextLine());
       }
@@ -132,6 +139,7 @@ public class FileHandler {
 
   /**
    * Takes a file path and determines whether the file exists or not.
+   * 
    * @author Chris Dail
    * @param file The file path to the file.
    * @return Whether the file exists or not.

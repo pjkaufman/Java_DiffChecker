@@ -2,6 +2,7 @@ package dbdiffchecker.sql;
 
 /**
  * Resembles an SQL column and contains column info.
+ * 
  * @author Peter Kaufman
  * @version 5-30-19
  * @since 9-10-17
@@ -11,8 +12,9 @@ public class Column extends Schema {
 
   /**
    * Sets the name and details of the column.
+   * 
    * @author Peter Kaufman
-   * @param name the name of the column
+   * @param name    the name of the column
    * @param details the info of the column
    */
   public Column(String name, String details) {
@@ -25,10 +27,12 @@ public class Column extends Schema {
    * This is the default constructor for this class, <b>Needed for
    * Serialization</b>.
    */
-  public Column() {}
+  public Column() {
+  }
 
   /**
    * Returns the column's details.
+   * 
    * @author Peter Kaufman
    * @return Details about the column.
    */
