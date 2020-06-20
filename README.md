@@ -13,7 +13,7 @@ Compares two databases and generates the statements that are needed to make the 
 * [Features](#features)
 * [Documentation](#documentation)
 * [License](#license)
- 
+
 ## Installation
 
 ### Dependencies
@@ -46,7 +46,7 @@ python routines.py
 
 You should see
 
-``` 
+```
 Routine Options
 run - makes and runs the JAR file
 push - commits the current repo and pushes it
@@ -56,7 +56,7 @@ clean - deletes the test, logs, and build directories
 Enter desired option:
 ```
 
-### Running 
+### Running
 
 When prompted by the script for a routine to run, type 'run'.
 
@@ -68,7 +68,7 @@ If there are no errors you will see the following GUI:
 
 ### Testing
 
-After modifying any of the Java files in the repository, you can go to the base directory of this repository and run 
+After modifying any of the Java files in the repository, you can go to the base directory of this repository and run
 
 ```
 python routines.py
@@ -105,16 +105,16 @@ java -jar path_to_jar_file
 
 ## Features
 **1. Two Connection Database Comparison**
-    
+
 This type of database comparison connects to two databases and compares them yeilding the SQL statements to make them the same.
 
 When going to this tab, the user input forms are generated dynamically based on the database implementation selected and look something like this:
 
 <img src="UserGuides\images\twoDBComparison.png" alt="Two Database Comparison MySQL Screen" height = "300"/>
 
-Fill out each of the needed fields and click Generate Statements.
+Fill out each of the needed fields and click Produce Statements.
 
-*Note: the default port for MYSQL is 3306 and that the development database information goes on the LEFT and the live database information goes on the RIGHT*
+*Note: the default port for MySQL is 3306*
 
 **2. One Connection Database Comparison**
 
@@ -123,23 +123,23 @@ This type of database comparison connects to one database and uses a serialized 
 When going to this tab, the user input forms are generated dynamically based on the database implementation selected and look something like this:
 
 <img src="UserGuides\images\oneDBComparison.png" alt="One Database Comparison MySQL Screen" height = "300"/>
-  
-Fill out each of the needed fields and click Generate Statments.
 
-*Note: the default port for MYSQL is 3306 and that the development database is the serialized database*
+Fill out each of the needed fields and click Produce Statments.
+
+*Note: the default port for MySQL is 3306*
 
 **3. Database Snapshot**
-    
+
 A database snapshot is where a "copy" of the schema structure for the database is written to a serialized file for later use. It stores information such as tables, indexes, views, columns, and other pertinent data for database comparisons.
 
 When going to this tab, the user input forms are generated dynamically based on the database implementation selected and look something like this:
 
 <img src="UserGuides\images\takeDBSnapshot.png" alt="Database Snapshot MySQL Screen" height = "300"/>
 
-Fill out each of the needed fields and click Take Snapshot. 
+Fill out each of the needed fields and click Take Snapshot.
 
-*Note: the default port for MYSQL is 3306, and this option is for the development database*
-   
+*Note: the default port for MySQL is 3306*
+
 **4. Review Last Set of Statements**
 
 This option allows the user to see the last set of SQL statements that were run.
