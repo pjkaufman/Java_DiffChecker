@@ -16,7 +16,7 @@ import java.util.Scanner;
  * Deals with all data coming from and going out to files.
  * 
  * @author Peter Kaufman and Chris Dail
- * @version 6-15-19
+ * @version 6-20-20
  * @since 9-12-17
  */
 public class FileHandler {
@@ -40,7 +40,7 @@ public class FileHandler {
     try (
         FileOutputStream fileOutput = new FileOutputStream(
             new File(logFolder + File.separator + prefix + "_" + databaseSnapshotFileName));
-        ObjectOutputStream outputStream = new ObjectOutputStream(fileOutput);) {
+        ObjectOutputStream outputStream = new ObjectOutputStream(fileOutput)) {
       // Write object to file
       outputStream.writeObject(database);
       outputStream.close();
@@ -61,7 +61,7 @@ public class FileHandler {
    */
   public static void writeToFile(ArrayList<String> sequelStatements) throws DatabaseDifferenceCheckerException {
     try (PrintWriter out = new PrintWriter(
-        new FileWriter(new File(logFolder + File.separator + lastSequelStatementFileName)));) {
+        new FileWriter(new File(logFolder + File.separator + lastSequelStatementFileName)))) {
       for (String statement : sequelStatements) {
         out.println(statement);
       }
@@ -81,7 +81,7 @@ public class FileHandler {
    */
   public static void writeToFile(String data) throws DatabaseDifferenceCheckerException {
     Date currentTime = new Date();
-    try (PrintWriter out = new PrintWriter(new FileWriter(new File(logFolder + File.separator + logFileName), true));) {
+    try (PrintWriter out = new PrintWriter(new FileWriter(new File(logFolder + File.separator + logFileName), true))) {
       out.println(currentTime.toString() + " " + data);
     } catch (IOException cause) {
       throw new DatabaseDifferenceCheckerException("There was an error writing the to the log file", cause, 1002);
@@ -104,7 +104,7 @@ public class FileHandler {
     try (
         FileInputStream fileInput = new FileInputStream(
             new File(logFolder + File.separator + prefix + "_" + databaseSnapshotFileName));
-        ObjectInputStream inputStream = new ObjectInputStream(fileInput);) {
+        ObjectInputStream inputStream = new ObjectInputStream(fileInput)) {
       // Read object
       database = (Database) inputStream.readObject();
     } catch (Exception cause) {

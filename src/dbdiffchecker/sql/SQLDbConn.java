@@ -13,7 +13,7 @@ import java.util.HashMap;
  * statements to get schema information.
  * 
  * @author Peter Kaufman
- * @version 1-6-20
+ * @version 6-20-20
  * @since 5-24-19
  */
 abstract public class SQLDbConn extends DbConn {
@@ -87,8 +87,7 @@ abstract public class SQLDbConn extends DbConn {
 
   @Override
   public void runStatement(String sqlStatement) throws DatabaseDifferenceCheckerException {
-    try {
-      Statement query = this.con.createStatement();
+    try (Statement query = this.con.createStatement()) {
       query.executeUpdate(sqlStatement);
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(

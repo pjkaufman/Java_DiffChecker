@@ -1,10 +1,12 @@
 package dbdiffchecker.sql;
 
 import dbdiffchecker.DatabaseDifferenceCheckerException;
+
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -13,7 +15,7 @@ import java.util.HashMap;
  * database and database name.
  * 
  * @author Peter Kaufman
- * @version 1-6-20
+ * @version 6-20-20
  * @since 5-5-19
  */
 public class SQLiteConn extends SQLDbConn {
@@ -51,9 +53,7 @@ public class SQLiteConn extends SQLDbConn {
 
   @Override
   protected void testConnection() throws DatabaseDifferenceCheckerException {
-    try {
-      this.con = DriverManager.getConnection(this.connString);
-      this.con.close();
+    try (Connection tempCon = DriverManager.getConnection(this.connString)) {
     } catch (SQLException error) {
       throw new DatabaseDifferenceCheckerException(
           "There was an error with the connection to " + this.db + ". Please try again.", error, 1023);
@@ -62,11 +62,11 @@ public class SQLiteConn extends SQLDbConn {
 
   @Override
   public String getTableCreateStatement(String table) throws DatabaseDifferenceCheckerException {
-    try {
+    String sql = "SELECT `sql` FROM `sqlite_master` WHERE tbl_name='?' AND `sql` NOT NULL;";
+    try (PreparedStatement query = this.con.prepareStatement(sql)) {
+      query.setString(1, table);
       String create = "";
-      Statement query = this.con.createStatement();
-      ResultSet set = query.executeQuery(
-          "SELECT `sql` FROM `sqlite_master` WHERE tbl_name='" + table + "' AND `sql` NOT NULL; -- create table;");
+      ResultSet set = query.executeQuery();
       // get all data needed to create the table
       while (set.next()) {
         create += set.getString("sql") + ";\n";
@@ -83,13 +83,12 @@ public class SQLiteConn extends SQLDbConn {
   public HashMap<String, Table> getTableList() throws DatabaseDifferenceCheckerException {
     HashMap<String, Table> tablesList = new HashMap<>();
     String sql = "SELECT `name`, `sql` FROM `sqlite_master` WHERE `type`= 'table' AND `name` NOT Like 'sqlite%'";
-    try {
+    try (PreparedStatement query = this.con.prepareStatement(sql)) {
       String table = "";
       String create = "";
       Table add = null;
       // set up and run the query to get the table names
-      Statement query1 = this.con.createStatement();
-      ResultSet tables = query1.executeQuery(sql);
+      ResultSet tables = query.executeQuery();
       // for each table in the database
       while (tables.next()) {
         // get the table name and its createStatement
@@ -108,10 +107,9 @@ public class SQLiteConn extends SQLDbConn {
   @Override
   public ArrayList<View> getViews() throws DatabaseDifferenceCheckerException {
     ArrayList<View> views = new ArrayList<>();
-    try {
-      String sql = "SELECT `name`, `sql` FROM `sqlite_master` WHERE `type`= 'view';";
-      Statement query = this.con.createStatement();
-      ResultSet set = query.executeQuery(sql);
+    String sql = "SELECT `name`, `sql` FROM `sqlite_master` WHERE `type`= 'view';";
+    try (PreparedStatement query = this.con.prepareStatement(sql)) {
+      ResultSet set = query.executeQuery();
       while (set.next()) {
         views.add(new View(set.getString("name"), set.getString("sql")));
       }
