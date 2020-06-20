@@ -9,9 +9,9 @@ from shutil import copy
 class Routines:
   '''This class makes running routines easy and reproducible'''
   #instance variables
-  __directories = {'debug': 'build', 'distrobution':'build', 'jar': 'lib', 
-    'resource': 'resources', 'source': 'src', 'test': 'tests', 'log': 'logs'}
-  __compileFlags = {'cp': None, 'C': None, 'main': 'DBDiffCheckerGUI', 
+  __directories = {'debug': 'build', 'distrobution':'build', 'jar': 'lib',
+    'resource': 'resources', 'source': 'src', 'test': 'test', 'log': 'log'}
+  __compileFlags = {'cp': None, 'C': None, 'main': 'DBDiffCheckerGUI',
     'package': 'dbdiffchecker' }
   __paths = {'test': None, 'resource': None, 'package': None}
 
@@ -24,10 +24,10 @@ class Routines:
     self.__paths['resource'] = os.path.join(self.__getDirectoryName('source'), self.__getDirectoryName('resource'))
     self.__paths['package'] = os.path.join(self.__getDirectoryName('source'), self.__getFlag('package'))
     self.__paths['test'] = os.path.join(self.__getDirectoryName('source'),  self.__getDirectoryName('test'))
-    
+
   def __removeDirectory(self, directory):
     """Removes the directory passed in if it exists
-    Params: 
+    Params:
       directory - A string which is the directory to remove
     """
     try:
@@ -40,7 +40,7 @@ class Routines:
     subpackages in the source directory and then removing all class files
     """
     for dir in os.walk(self.__getDirectoryName('source')):
-      directory = os.path.join(os.getcwd(), dir[0]) 
+      directory = os.path.join(os.getcwd(), dir[0])
       filelist = [f for f in os.listdir(directory) if f.endswith('.class')]
       for f in filelist:
         os.remove(os.path.join(directory, f))
@@ -48,9 +48,9 @@ class Routines:
   def __getDirectoryName(self, dirType):
     """Gets the name of a directory based on the directory type requested
     Params:
-      dirType - A string which is the key for the directory to retrieve from 
+      dirType - A string which is the key for the directory to retrieve from
         the directories dictionary
-    Retunrs: A string which is the name of a directory which is determined by 
+    Retunrs: A string which is the name of a directory which is determined by
       dirType
     """
     return self.__directories[dirType]
@@ -58,9 +58,9 @@ class Routines:
   def __getPath(self, pathType):
     """Gets the path of a directory based on the path type
     Params:
-      pathType - A string which is the key for the path to retrieve from 
+      pathType - A string which is the key for the path to retrieve from
         the paths dictionary
-    Retunrs: A string which is the path of a directory which is determined by 
+    Retunrs: A string which is the path of a directory which is determined by
       pathType
     """
     return self.__paths[pathType]
@@ -68,18 +68,18 @@ class Routines:
   def __getFlag(self, flagType):
     """Gets the flag for the java command based on the flagType
     Params:
-      flagType - A string which is the key for the flag to retrieve from 
+      flagType - A string which is the key for the flag to retrieve from
         the flags dictionary
     Retunrs: A string which is the flag of a java command which is determined by
       flagType
     """
     return self.__compileFlags[flagType]
-  
+
   def __compile(self, path, type):
     """Compiles the java files and determines where to send the output
-    Params: 
+    Params:
       path - A string which is the path to where to send the class files
-      type - A boolean to determine whether or not to compile the class files 
+      type - A boolean to determine whether or not to compile the class files
             to the provided path
     """
     start = 'javac -Xlint:unchecked '
@@ -121,7 +121,7 @@ class Routines:
       for f in filelist:
         copy(os.path.join(os.getcwd(), self.__getPath('resource'), f), os.path.join(
           os.getcwd(), debugFolder, self.__getDirectoryName('resource')))
-    elif(env == 'distrobution'):  
+    elif(env == 'distrobution'):
       buildFolder = self.__getDirectoryName('distrobution')
       try:
         os.mkdir(buildFolder)
@@ -136,7 +136,7 @@ class Routines:
       os.mkdir(self.__getDirectoryName('log'))
     except:
       pass
-                    
+
   def debug(self):
     '''Sets up the debugging environment for the current code base'''
     #create the test directory
@@ -163,7 +163,7 @@ class Routines:
     cP = 'Class-Path: '
     mC = 'Main-Class: ' + self.__getFlag('package') + '.' + self.__getFlag('main')
     # get current jar list and add it to the Class-Path
-    filelist = [fi for fi in os.listdir(os.path.join(os.getcwd(), 
+    filelist = [fi for fi in os.listdir(os.path.join(os.getcwd(),
       self.__getDirectoryName('jar'))) if fi.endswith('.jar')]
     for fi in filelist:
       copy(os.path.join(self.__getDirectoryName('jar'), fi), os.path.join(
@@ -177,22 +177,22 @@ class Routines:
     buildDir = self.__getDirectoryName('distrobution')
     #compile the java files and make the jar file
     if(self.__compile(self.__getFlag('package'), False)):
-      call('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') + 
+      call('jar cvfm ' + os.path.join(buildDir, 'Db_Diff_Checker.jar') +
         ' manifest.mf' + self.__getFlag('C') + self.__getFlag('package') +
         self.__getFlag('C') + self.__getDirectoryName('resource'), shell=True)
       self.__removeAllClassFiles()
     # run jar file
     call('java -jar ' + os.path.join(self.__getDirectoryName('distrobution'), 'Db_Diff_Checker.jar'), shell=True)
-    
+
   def push(self):
     """Documents the java application, asks for a commit message, and commits
-    the code 
+    the code
     """
     #document the repo
     packagesToDocument = '-subpackages '
     for package in os.walk(self.__getPath('package')):
       packagesToDocument += os.path.basename(package[0]) + ':'
-    call('javadoc -d "docs"' + self.__getFlag('cp')[:-1] + ';' + 
+    call('javadoc -d "docs"' + self.__getFlag('cp')[:-1] + ';' +
       self.__getDirectoryName('source') + '" ' + packagesToDocument[:-1], shell=True)
     #get necessary information from the user
     stdout.write('Commit Message: ')
@@ -200,7 +200,7 @@ class Routines:
     message = stdin.readline().strip()
     #commit and push the repo
     call("git add -A && git commit -a -m \"" + message + "\" && git push", shell=True)
-  
+
   def test(self):
     '''Runs all of the tests in the tests directory'''
     #remove log folder to keep tests from failing erroneously
@@ -210,11 +210,11 @@ class Routines:
     classPath = self.__getFlag('cp')[:-1] + ';' + self.__getDirectoryName('source')
     #run test
     call('javac' + classPath + '" ' + os.path.join(self.__getPath('test'), '*.java'))
-    call('java' + classPath + ';' + self.__getPath('test') + '" TestRunner ')
+    call('java' + classPath + ';' + self.__getPath('test') + '" test.TestRunner ')
     # remove all class files from the package directories
     self.__removeAllClassFiles()
     self.clean()
-  
+
 def sigint_handler(signum, frame):
   '''Handles the user hitting ctrl + C by exiting the routine'''
   print ('Exiting program')

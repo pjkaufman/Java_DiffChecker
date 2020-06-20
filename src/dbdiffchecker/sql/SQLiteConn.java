@@ -87,11 +87,8 @@ public class SQLiteConn extends SQLDbConn {
       String table = "";
       String create = "";
       Table add = null;
-      // set up and run the query to get the table names
       ResultSet tables = query.executeQuery();
-      // for each table in the database
       while (tables.next()) {
-        // get the table name and its createStatement
         table = tables.getString("name");
         create = getTableCreateStatement(table);
         add = new SQLiteTable(table, create);

@@ -480,7 +480,7 @@ public class DBDiffCheckerGUI extends JFrame {
           validateInput();
         }
       });
-    } else { // the validation is just that content exists
+    } else {
       if (type.equals("Password")) {
         JPasswordField cpn = (JPasswordField) input;
         cpn.getDocument().addDocumentListener(new DocumentListener() {
@@ -525,7 +525,6 @@ public class DBDiffCheckerGUI extends JFrame {
           }
         });
       }
-
     }
   }
 

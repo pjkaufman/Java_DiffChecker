@@ -11,7 +11,6 @@ import java.io.Serializable;
  * @since 10-26-19
  */
 public class Collection implements Serializable {
-
   private String name;
   private boolean isCapped;
   private int size;

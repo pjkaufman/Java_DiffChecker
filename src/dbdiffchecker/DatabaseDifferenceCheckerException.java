@@ -4,11 +4,10 @@ package dbdiffchecker;
  * Used to wrap exception that occur throughtout the program.
  * 
  * @author Peter Kaufman
- * @version 1-6-20
+ * @version 6-20-20
  * @since 7-29-18
  */
 public class DatabaseDifferenceCheckerException extends Exception {
-  // Instance variables
   private int errorCode;
 
   /**

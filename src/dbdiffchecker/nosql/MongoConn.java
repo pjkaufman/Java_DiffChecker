@@ -21,7 +21,6 @@ import java.util.HashMap;
  * @since 10-26-19
  */
 public class MongoConn extends DbConn {
-  // Instance variables
   private String name;
   private MongoClientURI uri;
   private MongoDatabase database;
@@ -113,7 +112,7 @@ public class MongoConn extends DbConn {
         name = statement.replace("Create Collection: ", "");
         database.createCollection(name);
       }
-    } else { // collection is being dropped
+    } else {
       database.getCollection(statement.replace("Delete Collection: ", "")).drop();
     }
   }

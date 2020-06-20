@@ -1,10 +1,12 @@
+package test;
+
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import dbdiffchecker.sql.Index;
 
 /**
  * A unit test that makes sure that the Index object works as intended.
- * 
+ *
  * @author Peter Kaufman
  * @version 5-30-19
  * @since 5-10-19
@@ -16,7 +18,7 @@ public class IndexTest {
   @Test
   /**
    * Tests whether the get statements inside of the Index object work as intended.
-   * 
+   *
    * @author Peter Kaufman
    */
   public void testGetStatements() {
@@ -35,7 +37,7 @@ public class IndexTest {
   @Test
   /**
    * Tests whether Index objects are equal when intended.
-   * 
+   *
    * @author Peter Kaufman
    */
   public void testIndexEquality() {

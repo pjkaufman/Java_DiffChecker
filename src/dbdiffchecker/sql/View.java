@@ -8,7 +8,6 @@ package dbdiffchecker.sql;
  * @since 9-15-17
  */
 public class View extends Schema {
-  // Instance variables
   private String drop = "";
 
   /**

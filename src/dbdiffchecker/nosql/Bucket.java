@@ -9,13 +9,12 @@ import java.util.ArrayList;
 
 /**
  * Models a Couchbase bucket by keeping track of all indices and documents.
- * 
+ *
  * @author Peter Kaufman
  * @version 6-15-19
  * @since 5-24-19
  */
 public class Bucket extends Database {
-  // Instance variables
   private HashMap<String, String> documents = new HashMap<>();
   private HashMap<String, Index> indices = new HashMap<>();
   private String name = "";
@@ -26,7 +25,7 @@ public class Bucket extends Database {
    * Creates a database that models the Couchbase bucket using the Couchbase
    * connection in orde to get a list of documents, idndices, and other pertinent
    * information.
-   * 
+   *
    * @author Peter Kaufman
    * @param conn The connection to the Couchbase bucket.
    * @throws DatabaseDifferenceCheckerException Error connecting to the Couchbase
@@ -58,7 +57,7 @@ public class Bucket extends Database {
 
   /**
    * Returns the list of Couchbase documents where the name is the key and value.
-   * 
+   *
    * @author Peter Kaufman
    * @return The list of documents that exist in the bucket.
    */
@@ -68,7 +67,7 @@ public class Bucket extends Database {
 
   /**
    * Returns the list of Couchbase indices where the name is the key.
-   * 
+   *
    * @author Peter Kaufman
    * @return The list of indices that exist in the bucket.
    */
@@ -81,13 +80,12 @@ public class Bucket extends Database {
     Bucket live = (Bucket) liveBucket;
     ArrayList<String> n1ql = new ArrayList<>();
     String liveBucketName = live.name;
-    // check for documents to create
     for (String documnetName : documents.keySet()) {
       if (!live.getDocuments().containsKey(documnetName)) {
         n1ql.add("Create document: " + documnetName);
       }
     }
-    // check for documents to drop
+
     for (String documnetName : live.getDocuments().keySet()) {
       if (!documents.containsKey(documnetName)) {
         n1ql.add("Drop document: " + documnetName);

@@ -14,7 +14,6 @@ import java.util.HashMap;
  * @since 9-18-17
  */
 public class SQLDatabase extends Database {
-  // Instance variables
   private final static String foreignKeysOn[] = { "SET FOREIGN_KEY_CHECKS=0;", "PRAGMA foreign_keys=on;" };
   private final static String foreignKeysOff[] = { "SET FOREIGN_KEY_CHECKS=1;", "PRAGMA foreign_keys=off;" };
   private HashMap<String, Table> tables = new HashMap<>();
@@ -37,7 +36,6 @@ public class SQLDatabase extends Database {
    *                                            database connection.
    */
   public SQLDatabase(DbConn db, int type) throws DatabaseDifferenceCheckerException {
-    // get tables and views
     db.establishDatabaseConnection();
     this.views = ((SQLDbConn) db).getViews();
     this.tables = ((SQLDbConn) db).getTableList();
@@ -122,11 +120,10 @@ public class SQLDatabase extends Database {
    */
   public ArrayList<String> updateViews(ArrayList<View> liveViews) {
     ArrayList<String> sql = new ArrayList<>();
-    // drop all views
     for (View liveView : liveViews) {
       sql.add(liveView.getDrop());
     }
-    // add all views
+
     for (View devView : this.views) {
       sql.add(devView.getCreateStatement());
     }
@@ -144,14 +141,13 @@ public class SQLDatabase extends Database {
    */
   public ArrayList<String> compareTables(HashMap<String, Table> liveTables) {
     ArrayList<String> sql = new ArrayList<>();
-    // get the create statement
     for (String tableName : this.tables.keySet()) {
       if (!liveTables.containsKey(tableName)) {
         sql.add(this.tables.get(tableName).getCreateStatement());
         this.exclude.put(tableName, tableName);
       }
     }
-    // drop the table
+
     for (String tableName : liveTables.keySet()) {
       if (!this.tables.containsKey(tableName)) {
         sql.add(liveTables.get(tableName).getDrop());
@@ -175,7 +171,6 @@ public class SQLDatabase extends Database {
    */
   public ArrayList<String> updateTables(HashMap<String, Table> live, HashMap<String, String> updateTables) {
     ArrayList<String> sql = new ArrayList<>();
-    // find the info that is differnet between the tables
     for (String tableName : updateTables.keySet()) {
       if (!exclude.containsKey(tableName)) {
         sql.addAll(this.tables.get(tableName).equals(live.get(tableName)));

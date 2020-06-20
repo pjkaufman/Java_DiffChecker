@@ -1,3 +1,5 @@
+package test;
+
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -5,9 +7,9 @@ import java.io.File;
 
 /**
  * Runs all of the unit tests.
- * 
+ *
  * @author Peter Kaufman
- * @version 5-23-19
+ * @version 6-20-20
  * @since 5-11-19
  */
 public class TestRunner {
@@ -17,14 +19,14 @@ public class TestRunner {
     long testTime = 0, tempTime;
     int numTests = 0, numFails = 0, tempTestCount, tempFailCount;
     boolean success = true;
-    File dir = new File("src" + File.separator + "tests");
+    File dir = new File("src" + File.separator + "test");
     File[] tests = dir.listFiles((d, name) -> name.endsWith(".class"));
     for (File test : tests) {
       // skip current file's class file
       if (test.getName().equals("TestRunner.class")) {
         continue;
       }
-      testName = test.getName().replace(".class", "");
+      testName = "test." + test.getName().replace(".class", "");
       try {
         result = "OK";
         System.out.println("Running Test for " + testName);

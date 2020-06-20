@@ -25,9 +25,7 @@ import java.util.HashMap;
  * @since 5-23-19
  */
 public class CouchbaseConn extends DbConn {
-  // Instance variables
-  private static final String bucketPlaceHolder = "dbDiffBucket";
-  private static final String primaryKeyName = "dbDiffKey";
+  private static final String bucketPlaceHolder = "dbDiffBucket", primaryKeyName = "dbDiffKey";
   private String username;
   private String password;
   private String bucketName;
@@ -123,9 +121,7 @@ public class CouchbaseConn extends DbConn {
    */
   public void getDocuments(HashMap<String, String> documents) {
     query = N1qlQuery.simple("SELECT META().id AS document FROM `" + bucketName + "`", params);
-    // Perform a N1QL Query
     result = bucket.query(query);
-    // Print each found Row
     String documentName;
     for (N1qlQueryRow row : result) {
       documentName = row.value().getString("document");
@@ -204,12 +200,11 @@ public class CouchbaseConn extends DbConn {
   public void testConnection() throws DatabaseDifferenceCheckerException {
     try {
       query = N1qlQuery.simple("SELECT META().id AS document FROM `" + bucketName + "`", params);
-      // Perform a N1QL Query
       result = bucket.query(query);
     } catch (Exception error) {
       String errorMsg = error.getCause().toString();
       if (errorMsg.contains("4000") && errorMsg.contains("CREATE INDEX")) {
-        // create a primary index with the
+        // create a primary index
         query = N1qlQuery.simple("CREATE PRIMARY INDEX " + primaryKeyName + " ON `" + bucketName + "`", params);
         bucket.query(query);
         primaryAdded = true;

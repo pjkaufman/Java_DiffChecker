@@ -14,7 +14,6 @@ import java.util.ArrayList;
  * @since 10-26-19
  */
 public class MongoDB extends Database {
-  // Instance variables
   private HashMap<String, Collection> collections = new HashMap<>();
 
   /**
@@ -107,8 +106,6 @@ public class MongoDB extends Database {
    */
   private ArrayList<String> collectionDiffs(ArrayList<String> common, HashMap<String, Collection> liveColls) {
     ArrayList<String> updateCollections = new ArrayList<>();
-    // make sure that all common collections are the same, but if not make sure to
-    // add them to the list of collections to update
     for (String collectionName : common) {
       if (!collections.get(collectionName).equals(liveColls.get(collectionName))) {
         updateCollections.add(collectionName);

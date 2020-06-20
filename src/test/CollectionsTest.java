@@ -1,10 +1,12 @@
+package test;
+
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import dbdiffchecker.nosql.Collection;
 
 /**
  * A unit test that makes sure that the Collection object works as intended.
- * 
+ *
  * @author Peter Kaufman
  * @version 1-2-20
  * @since 1-1-20
@@ -19,7 +21,7 @@ public class CollectionsTest {
   /**
    * Tests whether the get statements inside of the Collection object work as
    * intended.
-   * 
+   *
    * @author Peter Kaufman
    */
   public void testGetStatements() {
@@ -37,7 +39,7 @@ public class CollectionsTest {
   @Test
   /**
    * Tests whether Collection objects are equal when intended.
-   * 
+   *
    * @author Peter Kaufman
    */
   public void testCollectionEquality() {
