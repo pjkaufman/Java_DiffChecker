@@ -1,12 +1,6 @@
 # Compiled class file
-src/dbdiffchecker/*.class
-src/tests/*.class
-
+**/*.class
 # build data
 build/
-
 # log data
 logs/
-
-# vs code files
-.vscode

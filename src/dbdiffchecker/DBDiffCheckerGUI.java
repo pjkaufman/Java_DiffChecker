@@ -55,7 +55,7 @@ import java.awt.event.ComponentListener;
  * A JFrame that has several tabs and includes the entire frontend.
  * 
  * @author Peter Kaufman
- * @version 3-11-20
+ * @version 6-20-20
  * @since 9-20-17
  */
 public class DBDiffCheckerGUI extends JFrame {
@@ -87,10 +87,8 @@ public class DBDiffCheckerGUI extends JFrame {
   private JTabbedPane jtp = new JTabbedPane();
   private JButton currentRunBtn;
   private JTextArea currentDataShow;
-  private Database devDatabase;
-  private Database liveDatabase;
-  private DbConn devDatabaseConnection;
-  private DbConn liveDatabaseConnection;
+  private Database devDatabase, liveDatabase;
+  private DbConn devDatabaseConnection, liveDatabaseConnection;
   private TitledBorder nBorder = null;
   private StopWatch sw = new StopWatch();
   private String currentTab = tabText[0];

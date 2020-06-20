@@ -1,10 +1,12 @@
 package dbdiffchecker.sql;
 
 import dbdiffchecker.DatabaseDifferenceCheckerException;
+
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -13,7 +15,7 @@ import java.util.HashMap;
  * username, port, host, and database provided.
  * 
  * @author Peter Kaufman
- * @version 1-6-20
+ * @version 6-19-20
  * @since 5-21-19
  */
 public class MySQLConn extends SQLDbConn {
@@ -63,9 +65,9 @@ public class MySQLConn extends SQLDbConn {
 
   @Override
   public String getTableCreateStatement(String table) throws DatabaseDifferenceCheckerException {
-    try {
-      Statement query = this.con.createStatement();
-      ResultSet set = query.executeQuery("SHOW CREATE TABLE `" + table + "` -- create table;");
+    try (PreparedStatement query = this.con.prepareStatement("SHOW CREATE TABLE `?`;")) {
+      query.setString(1, table);
+      ResultSet set = query.executeQuery();
       set.next(); // move to the first result
       return set.getString("Create Table");
     } catch (SQLException e) {
@@ -85,9 +87,9 @@ public class MySQLConn extends SQLDbConn {
    *                                            statement.
    */
   public String getViewCreateStatement(String view) throws DatabaseDifferenceCheckerException {
-    try {
-      Statement query = this.con.createStatement();
-      ResultSet set = query.executeQuery("SHOW CREATE VIEW `" + view + "` -- create view");
+    try (PreparedStatement query = this.con.prepareStatement("SHOW CREATE VIEW `?`;")) {
+      query.setString(1, view);
+      ResultSet set = query.executeQuery();
       set.next(); // move to the first result
       return set.getString("Create View");
     } catch (SQLException e) {
@@ -99,14 +101,13 @@ public class MySQLConn extends SQLDbConn {
   @Override
   public HashMap<String, Table> getTableList() throws DatabaseDifferenceCheckerException {
     HashMap<String, Table> tablesList = new HashMap<>();
-    String sql = "SHOW FULL TABLES IN `" + this.db + "` WHERE TABLE_TYPE LIKE 'BASE TABLE';";
-    try {
-      String table = "";
-      String create = "";
-      Table add = null;
+    String sql = "SHOW FULL TABLES IN `?` WHERE TABLE_TYPE LIKE 'BASE TABLE';";
+    try (PreparedStatement query = this.con.prepareStatement(sql)) {
       // set up and run the query to get the table names
-      Statement query1 = this.con.createStatement();
-      ResultSet tables = query1.executeQuery(sql);
+      query.setString(1, this.db);
+      ResultSet tables = query.executeQuery(sql);
+      String table = "", create = "";
+      Table add = null;
       // for each table in the database
       while (tables.next()) {
         // get the table name and its createStatement
@@ -193,9 +194,9 @@ public class MySQLConn extends SQLDbConn {
   @Override
   public ArrayList<View> getViews() throws DatabaseDifferenceCheckerException {
     ArrayList<View> views = new ArrayList<>();
-    try {
-      String sql = "SHOW FULL TABLES IN `" + this.db + "` WHERE TABLE_TYPE LIKE 'VIEW';";
-      Statement query = this.con.createStatement();
+    String sql = "SHOW FULL TABLES IN `?` WHERE TABLE_TYPE LIKE 'VIEW';";
+    try (PreparedStatement query = this.con.prepareStatement(sql)) {
+      query.setString(1, this.db);
       ResultSet set = query.executeQuery(sql);
       while (set.next()) {
         views.add(new View(set.getString("Tables_in_" + this.db),
@@ -210,10 +211,8 @@ public class MySQLConn extends SQLDbConn {
 
   @Override
   protected void testConnection() throws DatabaseDifferenceCheckerException {
-    try {
-      this.con = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.db
-          + "?autoReconnect=true&useSSL=false&maxReconnects=5", this.username, this.password);
-      this.con.close();
+    try (Connection testCon = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.db
+        + "?autoReconnect=true&useSSL=false&maxReconnects=5", this.username, this.password)) {
     } catch (SQLException error) {
       throw new DatabaseDifferenceCheckerException(
           "There was an error with the connection to " + this.db + ". Please try again.", error, 1016);
