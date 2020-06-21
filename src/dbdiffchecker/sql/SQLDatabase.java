@@ -8,13 +8,12 @@ import java.util.HashMap;
 
 /**
  * Models an SQL database schema.
- * 
+ *
  * @author Peter Kaufman
- * @version 6-15-19
+ * @version 6-20-20
  * @since 9-18-17
  */
 public class SQLDatabase extends Database {
-  // Instance variables
   private final static String foreignKeysOn[] = { "SET FOREIGN_KEY_CHECKS=0;", "PRAGMA foreign_keys=on;" };
   private final static String foreignKeysOff[] = { "SET FOREIGN_KEY_CHECKS=1;", "PRAGMA foreign_keys=off;" };
   private HashMap<String, Table> tables = new HashMap<>();
@@ -28,8 +27,7 @@ public class SQLDatabase extends Database {
    * exist in the database provided. <b>Note: It will also SQL statements to drop
    * all Primary Keys and remove all auot_increments in the database provided
    * which will only be used on the live database</b>
-   * 
-   * @author Peter Kaufman
+   *
    * @param db   The database connection used to get the database information
    * @param type The type of datbase implimentation which is being used. <b>Note:
    *             this allows for the appropriate turning off of Foreign Keys</b>
@@ -37,7 +35,6 @@ public class SQLDatabase extends Database {
    *                                            database connection.
    */
   public SQLDatabase(DbConn db, int type) throws DatabaseDifferenceCheckerException {
-    // get tables and views
     db.establishDatabaseConnection();
     this.views = ((SQLDbConn) db).getViews();
     this.tables = ((SQLDbConn) db).getTableList();
@@ -64,8 +61,7 @@ public class SQLDatabase extends Database {
    * SQL statements are used to drop Primary Keys and remove auto_increments on
    * the database provided. <b>Note: this function will return an empty ArrayList
    * if the function is called for the development database</b>
-   * 
-   * @author Peter Kaufman
+   *
    * @return The first steps to be taken in order to run the SQL statements.
    */
   public ArrayList<String> getFirstSteps() {
@@ -76,8 +72,7 @@ public class SQLDatabase extends Database {
   /**
    * Returns the list of tables in the database provided. The key is the name of
    * the table.
-   * 
-   * @author Peter Kaufman
+   *
    * @return A list of all the tables in the provided database.
    */
   public HashMap<String, Table> getTables() {
@@ -86,8 +81,8 @@ public class SQLDatabase extends Database {
 
   /**
    * Returns all of the views in the database.
-   * 
-   * @return All of the views in the database..
+   *
+   * @return All of the views in the database.
    */
   public ArrayList<View> getViews() {
     return this.views;
@@ -114,19 +109,17 @@ public class SQLDatabase extends Database {
    * Takes in a list of views and returns the SQL statements needed to make the
    * two databases have the exact same views. <b>Note: all views in the live
    * database will be dropped and all from the dev database will be created</b>
-   * 
-   * @author Peter Kaufman
+   *
    * @param liveViews All of the views in the live database.
    * @return The SQL statements to run in order to make the live database have the
    *         same views as the dev one.
    */
   public ArrayList<String> updateViews(ArrayList<View> liveViews) {
     ArrayList<String> sql = new ArrayList<>();
-    // drop all views
     for (View liveView : liveViews) {
       sql.add(liveView.getDrop());
     }
-    // add all views
+
     for (View devView : this.views) {
       sql.add(devView.getCreateStatement());
     }
@@ -135,8 +128,7 @@ public class SQLDatabase extends Database {
 
   /**
    * Determines which tables are to be created and which are to be dropped.
-   * 
-   * @author Peter Kaufman
+   *
    * @param liveTables All tables in the live database where the key is the name
    *                   of the table.
    * @return The SQL statements to run in order to remove and/or create tables in
@@ -144,14 +136,13 @@ public class SQLDatabase extends Database {
    */
   public ArrayList<String> compareTables(HashMap<String, Table> liveTables) {
     ArrayList<String> sql = new ArrayList<>();
-    // get the create statement
     for (String tableName : this.tables.keySet()) {
       if (!liveTables.containsKey(tableName)) {
         sql.add(this.tables.get(tableName).getCreateStatement());
         this.exclude.put(tableName, tableName);
       }
     }
-    // drop the table
+
     for (String tableName : liveTables.keySet()) {
       if (!this.tables.containsKey(tableName)) {
         sql.add(liveTables.get(tableName).getDrop());
@@ -164,8 +155,7 @@ public class SQLDatabase extends Database {
   /**
    * Takes in two table lists and returns the SQL statements to run in order to
    * make the live database have the same table definitions as the dev one.
-   * 
-   * @author Peter Kaufman
+   *
    * @param live         All tables in the live database where the key is the name
    *                     of the table.
    * @param updateTables All the tables which are not the same in the live and
@@ -175,7 +165,6 @@ public class SQLDatabase extends Database {
    */
   public ArrayList<String> updateTables(HashMap<String, Table> live, HashMap<String, String> updateTables) {
     ArrayList<String> sql = new ArrayList<>();
-    // find the info that is differnet between the tables
     for (String tableName : updateTables.keySet()) {
       if (!exclude.containsKey(tableName)) {
         sql.addAll(this.tables.get(tableName).equals(live.get(tableName)));
@@ -188,8 +177,7 @@ public class SQLDatabase extends Database {
    * Compares the tables in the live and dev databases, and returns a list of
    * table names whose structure did not match between the development and live
    * databases.
-   * 
-   * @author Peter Kaufman
+   *
    * @param liveTables   All tables in the live database where the key is the name
    *                     of the table.
    * @param liveDatabase The live database connection which allows the live
@@ -214,8 +202,6 @@ public class SQLDatabase extends Database {
   /**
    * Removes any of the SQL statements in fistSteps that affect any tables in the
    * exclusion list.
-   * 
-   * @author Peter Kaufman
    */
   private void checkFirstSteps() {
     for (String table : exclude.keySet()) {

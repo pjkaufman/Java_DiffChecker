@@ -14,22 +14,18 @@ import java.util.Scanner;
 
 /**
  * Deals with all data coming from and going out to files.
- * 
+ *
  * @author Peter Kaufman and Chris Dail
  * @version 6-20-20
  * @since 9-12-17
  */
 public class FileHandler {
-  // static variables
-  public static final String logFileName = "activity.log";
-  public static final String lastSequelStatementFileName = "lastRun.txt";
-  public static final String databaseSnapshotFileName = "dbsnapshot";
-  public static final String logFolder = "logs";
+  public static final String logFileName = "activity.log", lastSequelStatementFileName = "lastRun.txt",
+      databaseSnapshotFileName = "dbsnapshot", logFolder = "log";
 
   /**
    * Serializes a database with all of its table and view data.
-   * 
-   * @author Peter Kaufman
+   *
    * @param database The database to serialize.
    * @param prefix   The prefix of the database snapshot to deserailize. <b>Note:
    *                 it is the name of the database implimentation of the
@@ -41,7 +37,6 @@ public class FileHandler {
         FileOutputStream fileOutput = new FileOutputStream(
             new File(logFolder + File.separator + prefix + "_" + databaseSnapshotFileName));
         ObjectOutputStream outputStream = new ObjectOutputStream(fileOutput)) {
-      // Write object to file
       outputStream.writeObject(database);
       outputStream.close();
       fileOutput.close();
@@ -53,8 +48,7 @@ public class FileHandler {
 
   /**
    * Takes SQL statements and writes them to the last run file.
-   * 
-   * @author Peter Kaufman
+   *
    * @param sequelStatements Statements to be logged.
    * @throws DatabaseDifferenceCheckerException Error writing the statements to
    *                                            the last run file.
@@ -73,8 +67,7 @@ public class FileHandler {
 
   /**
    * Takes a String and writes it to the log file.
-   * 
-   * @author Peter Kaufman
+   *
    * @param data The data to be written to the log file.
    * @throws DatabaseDifferenceCheckerException Error writing the data to the log
    *                                            file.
@@ -90,8 +83,7 @@ public class FileHandler {
 
   /**
    * Deserializes a database file.
-   * 
-   * @author Peter Kaufman
+   *
    * @param prefix The prefix of the database snapshot to deserailize. <b>Note: it
    *               is the name of the database implimentation of the database</b>
    * @return The database created through deserialization with table and view
@@ -105,7 +97,6 @@ public class FileHandler {
         FileInputStream fileInput = new FileInputStream(
             new File(logFolder + File.separator + prefix + "_" + databaseSnapshotFileName));
         ObjectInputStream inputStream = new ObjectInputStream(fileInput)) {
-      // Read object
       database = (Database) inputStream.readObject();
     } catch (Exception cause) {
       throw new DatabaseDifferenceCheckerException("There was an error when trying to get the database snapshot.",
@@ -117,8 +108,7 @@ public class FileHandler {
 
   /**
    * Returns the contents of the specified file.
-   * 
-   * @author Peter Kaufman
+   *
    * @param file The name of the file to be read from.
    * @return Data that was stored in the file that was read from.
    * @throws DatabaseDifferenceCheckerException Error reading in the data from the
@@ -139,8 +129,7 @@ public class FileHandler {
 
   /**
    * Takes a file path and determines whether the file exists or not.
-   * 
-   * @author Chris Dail
+   *
    * @param file The file path to the file.
    * @return Whether the file exists or not.
    * @see <a href=

@@ -5,17 +5,24 @@ import java.io.Serializable;
 /**
  * Models a Collection in a Mongo database by keeping track of specific
  * properties of a collections.
- * 
+ *
  * @author Peter Kaufman
- * @version 3-9-20
+ * @version 6-20-20
  * @since 10-26-19
  */
 public class Collection implements Serializable {
-
   private String name;
   private boolean isCapped;
   private int size;
 
+  /**
+   * Initializes a Collection using the name provided and the size as well as
+   * marking whether it is capped.
+   *
+   * @param name     The name of the collection.
+   * @param isCapped Whether or not the collection has a max size.
+   * @param size     The size of the collection.
+   */
   public Collection(String name, boolean isCapped, int size) {
     this.name = name;
     this.isCapped = isCapped;
@@ -31,8 +38,7 @@ public class Collection implements Serializable {
 
   /**
    * Returns whether the collection is capped or not.
-   * 
-   * @author Peter Kaufman
+   *
    * @return Whether or not the collection is capped.
    */
   public boolean isCapped() {
@@ -41,8 +47,7 @@ public class Collection implements Serializable {
 
   /**
    * Returns the name of the collection.
-   * 
-   * @author Peter Kaufman
+   *
    * @return The name of the collection.
    */
   public String getName() {
@@ -51,8 +56,7 @@ public class Collection implements Serializable {
 
   /**
    * Returns the max size of the collection.
-   * 
-   * @author Peter Kaufman
+   *
    * @return The max size of the collection.
    */
   public int getSize() {
@@ -61,7 +65,7 @@ public class Collection implements Serializable {
 
   /**
    * Determines wheteher two collections are equal.
-   * 
+   *
    * @param coll2 The collection to compare the current collection to.
    * @return Whether or not the two collections are the same.
    */

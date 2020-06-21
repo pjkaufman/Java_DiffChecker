@@ -13,23 +13,18 @@ import java.util.HashMap;
 /**
  * Establishes a connection with a MySQL database based on the password,
  * username, port, host, and database provided.
- * 
+ *
  * @author Peter Kaufman
- * @version 6-19-20
+ * @version 6-20-20
  * @since 5-21-19
  */
 public class MySQLConn extends SQLDbConn {
-  // Instance variables
-  private String username = "";
-  private String password = "";
-  private String host = "";
-  private String port = "";
+  private String username = "", password = "", host = "", port = "";
 
   /**
    * Sets the instance variables and tests the database connection to make sure
    * that the database can be reached.
-   * 
-   * @author Peter Kaufman
+   *
    * @param username The username of the MySQL account.
    * @param password The password of the MySQL account.
    * @param host     The host of the MySQL account.
@@ -78,8 +73,7 @@ public class MySQLConn extends SQLDbConn {
 
   /**
    * Gets and returns the create statement of the desired table.
-   * 
-   * @author Peter Kaufman
+   *
    * @param view The name of the view for which the create statement should be
    *             retrieved.
    * @return The view's create statement.

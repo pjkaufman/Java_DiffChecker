@@ -8,20 +8,18 @@ import java.util.ArrayList;
 
 /**
  * Models a Mongo Database by keeping track of all collections.
- * 
+ *
  * @author Peter Kaufman
- * @version 1-6-20
+ * @version 6-20-20
  * @since 10-26-19
  */
 public class MongoDB extends Database {
-  // Instance variables
   private HashMap<String, Collection> collections = new HashMap<>();
 
   /**
    * Creates a database that models the Mongo database using the Mongo connection
    * in order to get a list of collections.
-   * 
-   * @author Peter Kaufman
+   *
    * @param conn The connection to the Mongo database.
    * @throws DatabaseDifferenceCheckerException Error connecting to the Mongo
    *                                            database.
@@ -43,8 +41,7 @@ public class MongoDB extends Database {
 
   /**
    * Returns the list of MongoDB collections where the name is the key and value.
-   * 
-   * @author Peter Kaufman
+   *
    * @return The list of documents that exist in the bucket.
    */
   public HashMap<String, Collection> getCollections() {
@@ -67,7 +64,7 @@ public class MongoDB extends Database {
   /**
    * Determines which collections are in the live and dev database along with
    * those that need to be created and deleted.
-   * 
+   *
    * @param liveCollections The collections that exist in the live database.
    * @param common          The collections which are common between the live and
    *                        dev databases.
@@ -100,15 +97,13 @@ public class MongoDB extends Database {
 
   /**
    * Determines which collections out of the common ones have differences.
-   * 
+   *
    * @param common    The list of common collections between dev and live.
    * @param liveColls The collection list from the live database.
    * @return The list of collections that need to be updated.
    */
   private ArrayList<String> collectionDiffs(ArrayList<String> common, HashMap<String, Collection> liveColls) {
     ArrayList<String> updateCollections = new ArrayList<>();
-    // make sure that all common collections are the same, but if not make sure to
-    // add them to the list of collections to update
     for (String collectionName : common) {
       if (!collections.get(collectionName).equals(liveColls.get(collectionName))) {
         updateCollections.add(collectionName);
@@ -119,7 +114,7 @@ public class MongoDB extends Database {
 
   /**
    * Determines what needs to be done to each collection that needs to be updated.
-   * 
+   *
    * @param collectionsToUpdate The list of collections that need to be updated.
    * @return The statements needed to make the collections from the collections to
    *         updated the same.

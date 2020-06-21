@@ -6,21 +6,17 @@ import java.util.HashMap;
 /**
  * Resembles a table in MySQL and contains info about the Ttable's columns and
  * indices.
- * 
+ *
  * @author Peter Kaufman
- * @version 5-31-19
+ * @version 6-20-20
  * @since 5-15-19
  */
 public class MySQLTable extends Table {
-  // Instance variables
-  private String charSet = "";
-  private String collation = "";
-  private String autoIncrement = "";
+  private String charSet = "", collation = "", autoIncrement = "";
 
   /**
    * Sets the name and create statement of the table.
-   * 
-   * @author Peter Kaufman
+   *
    * @param name   The name of the table.
    * @param create The create statement of the table which will be used to create
    *               its columns and indices.
@@ -41,8 +37,7 @@ public class MySQLTable extends Table {
 
   /**
    * Returns the collation of the table.
-   * 
-   * @author Peter Kaufman
+   *
    * @return The collation of the table.
    */
   public String getCollation() {
@@ -51,8 +46,7 @@ public class MySQLTable extends Table {
 
   /**
    * Returns the character set of the table.
-   * 
-   * @author Peter Kaufman
+   *
    * @return The character set of the table.
    */
   public String getCharSet() {
@@ -61,8 +55,7 @@ public class MySQLTable extends Table {
 
   /**
    * Returns the autoIncrement count of the table.
-   * 
-   * @author Peter Kaufman
+   *
    * @return The autoIncrement count of the table.
    */
   public String getAutoIncrement() {
@@ -71,8 +64,7 @@ public class MySQLTable extends Table {
 
   /**
    * Sets the collation of the table.
-   * 
-   * @author Peter Kaufman
+   *
    * @param collation The collation of the table.
    */
   public void setCollation(String collation) {
@@ -81,8 +73,7 @@ public class MySQLTable extends Table {
 
   /**
    * Sets the character set of the table.
-   * 
-   * @author Peter Kaufman
+   *
    * @param charSet The character set of the table.
    */
   public void setCharSet(String charSet) {
@@ -91,8 +82,7 @@ public class MySQLTable extends Table {
 
   /**
    * Sets the autoIncrement count of the table.
-   * 
-   * @author Peter Kaufman
+   *
    * @param autoIncrement The autoIncrement count of the table.
    */
   public void setAutoIncrement(String autoIncrement) {
@@ -140,15 +130,14 @@ public class MySQLTable extends Table {
       if (part.startsWith(columnIndicator)) {
         name = part.substring(part.indexOf("`") + 1, part.lastIndexOf("`"));
         details = part.substring(part.lastIndexOf("`") + 2) + last;
-        // add the column
         addColumn(new Column(name, details));
         last = " AFTER `" + name + "`";
       } else if (part.contains(indexIndicator)) {
         create = "ADD " + part;
-        if (part.contains("PRIMARY KEY")) { // dealing with PRIMARY KEY
+        if (part.contains("PRIMARY KEY")) {
           name = "PRIMARY";
           drop = "DROP PRIMARY KEY";
-        } else if (part.contains("FOREIGN KEY")) { // dealing with FOREIGN KEY
+        } else if (part.contains("FOREIGN KEY")) {
           name = part.substring(part.indexOf("`") + 1, part.indexOf("`", part.indexOf("`") + 1));
           drop = "DROP FOREIGN KEY `" + name + "`";
         } else {
@@ -156,7 +145,6 @@ public class MySQLTable extends Table {
           drop = "DROP INDEX `" + name + "`";
           create = create.replace("KEY", "INDEX");
         }
-        // add the index
         addIndex(new Index(name, create, drop));
       }
     }
@@ -166,7 +154,6 @@ public class MySQLTable extends Table {
   protected String dropCols(HashMap<String, Column> cols1, HashMap<String, Column> cols2) {
     String sql = "";
     Column col = null;
-    // check for columns to drop
     for (String columnName : cols2.keySet()) {
       col = cols2.get(columnName);
       if (!cols1.containsKey(columnName)) {
@@ -195,8 +182,8 @@ public class MySQLTable extends Table {
         this.count++;
       } else {
         col2 = cols2.get(columnName);
-        if (col.getName().equals(col2.getName())) { // columns are the same
-          if (!col.getDetails().equals(col2.getDetails())) { // column details are different
+        if (col.getName().equals(col2.getName())) {
+          if (!col.getDetails().equals(col2.getDetails())) {
             if (!(this.count == 0)) {
               sql += ", \n";
             }
@@ -212,9 +199,7 @@ public class MySQLTable extends Table {
   @Override
   protected String dropIndices(HashMap<String, Index> dev, HashMap<String, Index> live) {
     String sql = "";
-    // check for indices to remove
     for (String indexName : live.keySet()) {
-      // if the index does not exist in the dev database then drop it
       if (!dev.containsKey(indexName)) {
         if (!(this.count == 0)) {
           sql += ", \n";
@@ -230,9 +215,7 @@ public class MySQLTable extends Table {
   protected String otherIndices(HashMap<String, Index> dev, HashMap<String, Index> live) {
     String sql = "";
     Index indices1 = null;
-    // check for missing indices
     for (String indexName : dev.keySet()) {
-      // if the index exists in both databases or only in the dev database then add it
       indices1 = dev.get(indexName);
       if (live.containsKey(indexName)) {
         if (!indices1.equals(live.get(indexName))) {

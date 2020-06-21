@@ -13,20 +13,18 @@ import java.util.HashMap;
 /**
  * Establishes a connection with an SQL database based on the path to the
  * database and database name.
- * 
+ *
  * @author Peter Kaufman
  * @version 6-20-20
  * @since 5-5-19
  */
 public class SQLiteConn extends SQLDbConn {
-  // Instance variables
   private String path = "";
 
   /**
    * Sets the instance variables and tests the database connection to make sure
    * that the database can be reached.
-   * 
-   * @author Peter Kaufman
+   *
    * @param path     The path of the SQLite database.
    * @param database The SQLite database name that the connection is to be
    *                 established with.
@@ -87,11 +85,8 @@ public class SQLiteConn extends SQLDbConn {
       String table = "";
       String create = "";
       Table add = null;
-      // set up and run the query to get the table names
       ResultSet tables = query.executeQuery();
-      // for each table in the database
       while (tables.next()) {
-        // get the table name and its createStatement
         table = tables.getString("name");
         create = getTableCreateStatement(table);
         add = new SQLiteTable(table, create);
