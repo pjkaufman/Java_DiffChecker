@@ -53,7 +53,7 @@ import java.awt.event.ComponentListener;
 
 /**
  * A JFrame that has several tabs and includes the entire frontend.
- * 
+ *
  * @author Peter Kaufman
  * @version 6-20-20
  * @since 9-20-17
@@ -96,14 +96,12 @@ public class DBDiffCheckerGUI extends JFrame {
   private ArrayList<Component> cpnt = new ArrayList<>();
   private ArrayList<Component> cpnBtn = new ArrayList<>();
   private ArrayList<Component> cpnr = new ArrayList<>();
-  private Font regFont = new Font("Tahoma", Font.PLAIN, 12);
-  private Font tabFont = new Font("Tahoma", Font.PLAIN, 16);
+  private Font regFont = new Font("Tahoma", Font.PLAIN, 12), tabFont = new Font("Tahoma", Font.PLAIN, 16);
 
   /**
    * Initializes a JFrame which will be used by the user to navigate through the
    * application.
-   * 
-   * @author Peter Kaufman
+   *
    */
   public DBDiffCheckerGUI() {
     initComponents();
@@ -111,8 +109,7 @@ public class DBDiffCheckerGUI extends JFrame {
 
   /**
    * Sets up the GUI layout, all action events, and instance variables.
-   * 
-   * @author Peter Kaufman
+   *
    */
   private void initComponents() {
     jtp.setFont(tabFont);
@@ -404,8 +401,7 @@ public class DBDiffCheckerGUI extends JFrame {
   /**
    * Creates the input form based on the component input list and adds it to the
    * provided panel.
-   * 
-   * @author Peter Kaufman
+   *
    * @param componentHolder The JPanel that will hold the components that are
    *                        generated.
    * @param componentList   The list of components to add to the panel as well as
@@ -441,8 +437,7 @@ public class DBDiffCheckerGUI extends JFrame {
    * Creates an input listener which is used to validate the data that is input
    * and determine whether it is time to allow the user to submit the entered
    * data.
-   * 
-   * @author Peter Kaufman
+   *
    * @param input The component that will have the listener added to it.
    * @param type  The description of the input (i.e. Username, Password, etc.).
    *              This helps determine which listener to apply.
@@ -531,8 +526,7 @@ public class DBDiffCheckerGUI extends JFrame {
   /**
    * Determines whether or not all the user input fields for the current tab are
    * filled out.
-   * 
-   * @author Peter Kaufman
+   *
    * @return A boolean that is false if not all fields have a non-whitespace
    *         character in them and true if all input fields have something other
    *         than non-whitespace characters in them.
@@ -549,8 +543,6 @@ public class DBDiffCheckerGUI extends JFrame {
   /**
    * Takes a snapshot of what the user indicates is the development database.
    * <i>Note: most of this function is run in a background thread.</i>
-   * 
-   * @author Peter Kaufman
    */
   private void createSnapshot() {
     databaseDropdowns.get(currentTab).setEnabled(false);
@@ -600,8 +592,7 @@ public class DBDiffCheckerGUI extends JFrame {
    * Compares two databases based on user input (one can be a snapshot) and
    * generates the statements needed to make them the same. <i>Note: most of this
    * function runs in a background thread.</i>
-   * 
-   * @author Peter Kaufman
+   *
    */
   private void generateStatements() {
     databaseDropdowns.get(currentTab).setEnabled(false);
@@ -648,8 +639,6 @@ public class DBDiffCheckerGUI extends JFrame {
    * Makes sure that all fields are filled in and makes sure that the buttons to
    * generate statements and execute statements are disabled if alll fields are
    * not filled out.
-   * 
-   * @author Peter Kaufman
    */
   private void validateInput() {
     if (allFieldsFilled()) {
@@ -665,8 +654,7 @@ public class DBDiffCheckerGUI extends JFrame {
   /**
    * Gets the progressBar ready by reseting the StopWatch object and determines
    * which settings to turn on.
-   * 
-   * @author Peter Kaufman
+   *
    * @param title         The title for the border of the progressBar.
    * @param indeterminate Whether or not the progressBar is to be indeterminate.
    */
@@ -687,8 +675,7 @@ public class DBDiffCheckerGUI extends JFrame {
 
   /**
    * Stops the progressBar and sets the border to the given String.
-   * 
-   * @author Peter Kaufman
+   *
    * @param title The title for the border of the progressBar
    */
   private void endProgressBar(String title) {
@@ -703,8 +690,7 @@ public class DBDiffCheckerGUI extends JFrame {
 
   /**
    * Takes and sets the new title for the progressbar's border.
-   * 
-   * @author Peter Kaufman
+   *
    * @param title The new name of the titled borders.
    */
   private void newBorder(String title) {
@@ -716,8 +702,7 @@ public class DBDiffCheckerGUI extends JFrame {
 
   /**
    * Creates a database for the database connection provided.
-   * 
-   * @author Peter Kaufman
+   *
    * @param databaseConn The database connection to use to make the database.
    * @return A database for the development database
    * @throws DatabaseDifferenceCheckerException Error getting data from the
@@ -739,8 +724,7 @@ public class DBDiffCheckerGUI extends JFrame {
   /**
    * Creates a database connection for the development database based on user
    * input.
-   * 
-   * @author Peter Kaufman
+   *
    * @return A database connection for the development database.
    * @throws DatabaseDifferenceCheckerException Error connecting to the
    *                                            development database.
@@ -765,8 +749,7 @@ public class DBDiffCheckerGUI extends JFrame {
 
   /**
    * Creates a database connection for the live database based on user input.
-   * 
-   * @author Peter Kaufman
+   *
    * @return A database connection for the live database.
    * @throws DatabaseDifferenceCheckerException Error connecting to the live
    *                                            database.
@@ -799,8 +782,7 @@ public class DBDiffCheckerGUI extends JFrame {
   /**
    * Displays the error message to the user on the current tab and logs the error.
    * If an error occurs while logging the error, the error is not logged.
-   * 
-   * @author Peter Kaufman
+   *
    * @param error The exception which contains a user friendly message and the
    *              error that is the cause.
    */
@@ -819,8 +801,7 @@ public class DBDiffCheckerGUI extends JFrame {
 
   /**
    * Takes in data and writes it to the log file.
-   * 
-   * @author Peter Kaufman
+   *
    * @param info The data to be logged.
    * @throws DatabaseDifferenceCheckerException Error logging data.
    */
@@ -831,8 +812,7 @@ public class DBDiffCheckerGUI extends JFrame {
   /**
    * Reads in data from a log file and displays it to the user by adding it to the
    * current tab's JTextArea.
-   * 
-   * @author Peter Kaufman
+   *
    * @param file The file to have its contents displayed.
    */
   private void displayLog(String file) {
@@ -864,8 +844,6 @@ public class DBDiffCheckerGUI extends JFrame {
   /**
    * Displays the generated statements or displays that the databases are in sync
    * in the tab's JTextArea based upon the amount of statements generated.
-   * 
-   * @author Peter Kaufman
    */
   private void displayCompareResult() {
     try {
@@ -888,8 +866,7 @@ public class DBDiffCheckerGUI extends JFrame {
   /**
    * Gets the two databases ready for the database comparison based on the current
    * tab that is active.
-   * 
-   * @author Peter Kaufman
+   *
    * @throws DatabaseDifferenceCheckerException if there was an error connnecting
    *                                            to a database.
    */
@@ -964,8 +941,7 @@ public class DBDiffCheckerGUI extends JFrame {
 
   /**
    * Takes in a path and makes sure that it ends with a file separator.
-   * 
-   * @author Peter Kaufman
+   *
    * @param path The path to assure has a file separator at the end.
    * @return The original path ending with a file separator if it did not already
    *         have one.
@@ -978,7 +954,7 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   /**
-   * 
+   * Disables the button that lets you run the statements.
    */
   private void disableRunningStatements() {
     if (runButtons.get(currentTab) != null) {
@@ -988,8 +964,7 @@ public class DBDiffCheckerGUI extends JFrame {
 
   /**
    * Initializes UI.
-   * 
-   * @author Peter Kaufman
+   *
    * @param args Parameters from the user. <b>Note it is not used</b>
    */
   public static void main(String[] args) {

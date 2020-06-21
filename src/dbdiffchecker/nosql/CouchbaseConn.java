@@ -19,17 +19,14 @@ import java.util.HashMap;
 /**
  * Establishes a connection with a Couchbase bucket based on the password,
  * username, host, and bucket name provided.
- * 
+ *
  * @author Peter Kaufman
- * @version 1-6-20
+ * @version 6-20-20
  * @since 5-23-19
  */
 public class CouchbaseConn extends DbConn {
   private static final String bucketPlaceHolder = "dbDiffBucket", primaryKeyName = "dbDiffKey";
-  private String username;
-  private String password;
-  private String bucketName;
-  private String host;
+  private String username = "", password = "", bucketName = "", host = "";
   private Bucket bucket;
   private N1qlParams params = N1qlParams.build().adhoc(false);
   private N1qlQuery query;
@@ -39,8 +36,7 @@ public class CouchbaseConn extends DbConn {
   /**
    * Initializes the username, password, host and bucketName of the bucket
    * connection.
-   * 
-   * @author Peter Kaufman
+   *
    * @param username   The username of the Couchbase account.
    * @param password   The password of the Couchbase account.
    * @param host       The host of the Couchbase bucket.
@@ -56,8 +52,7 @@ public class CouchbaseConn extends DbConn {
 
   /**
    * Returns whether a primary key was added to the bucket.
-   * 
-   * @author Peter Kaufman
+   *
    * @return Whether a primary key was added to the bucket.
    */
   public boolean primaryAdded() {
@@ -72,8 +67,7 @@ public class CouchbaseConn extends DbConn {
   /**
    * Gets and returns the bucket placeholder used in index create statements to
    * hole the place of the bucket to affect.
-   * 
-   * @author Peter Kaufman
+   *
    * @return The bucket placeholder used in index create statements.
    */
   public String getBucketPlaceHolder() {
@@ -83,8 +77,7 @@ public class CouchbaseConn extends DbConn {
   /**
    * Gets and returns the default name to use when creating a primary index which
    * will be removed later if it was added.
-   * 
-   * @author Peter Kaufman
+   *
    * @return The default name used to create a primary index if it needed to be
    *         created.
    */
@@ -114,8 +107,7 @@ public class CouchbaseConn extends DbConn {
 
   /**
    * Gets and lists all documents that exist in the Couchbase bucket.
-   * 
-   * @author Peter Kaufman
+   *
    * @param documents A list where all of the document names will be stored for
    *                  fast lookup later.
    */
@@ -131,8 +123,7 @@ public class CouchbaseConn extends DbConn {
 
   /**
    * Gets and lists all indices that exist in the Couchbase bucket.
-   * 
-   * @author Peter Kaufman
+   *
    * @param indices A list where all of the index names and data that will be
    *                stored for fast lookup later.
    */
@@ -171,8 +162,7 @@ public class CouchbaseConn extends DbConn {
 
   /**
    * Takes in a N1QL statement and applies it to the bucket.
-   * 
-   * @author Peter Kaufman
+   *
    * @param n1qlStatement A N1QL statement to be run on the bucket.
    */
   public void runStatement(String n1qlStatement) {
@@ -191,8 +181,7 @@ public class CouchbaseConn extends DbConn {
   /**
    * Tests to see if the bucket can be queried immediately or if a primary key
    * needs to be added first. It will add a primary key if it is needed.
-   * 
-   * @author Peter Kaufman
+   *
    * @throws DatabaseDifferenceCheckerException Error trying to connect to the
    *                                            bucket.
    */

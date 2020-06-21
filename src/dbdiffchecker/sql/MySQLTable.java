@@ -6,20 +6,17 @@ import java.util.HashMap;
 /**
  * Resembles a table in MySQL and contains info about the Ttable's columns and
  * indices.
- * 
+ *
  * @author Peter Kaufman
  * @version 6-20-20
  * @since 5-15-19
  */
 public class MySQLTable extends Table {
-  private String charSet = "";
-  private String collation = "";
-  private String autoIncrement = "";
+  private String charSet = "", collation = "", autoIncrement = "";
 
   /**
    * Sets the name and create statement of the table.
-   * 
-   * @author Peter Kaufman
+   *
    * @param name   The name of the table.
    * @param create The create statement of the table which will be used to create
    *               its columns and indices.
@@ -40,8 +37,7 @@ public class MySQLTable extends Table {
 
   /**
    * Returns the collation of the table.
-   * 
-   * @author Peter Kaufman
+   *
    * @return The collation of the table.
    */
   public String getCollation() {
@@ -50,8 +46,7 @@ public class MySQLTable extends Table {
 
   /**
    * Returns the character set of the table.
-   * 
-   * @author Peter Kaufman
+   *
    * @return The character set of the table.
    */
   public String getCharSet() {
@@ -60,8 +55,7 @@ public class MySQLTable extends Table {
 
   /**
    * Returns the autoIncrement count of the table.
-   * 
-   * @author Peter Kaufman
+   *
    * @return The autoIncrement count of the table.
    */
   public String getAutoIncrement() {
@@ -70,8 +64,7 @@ public class MySQLTable extends Table {
 
   /**
    * Sets the collation of the table.
-   * 
-   * @author Peter Kaufman
+   *
    * @param collation The collation of the table.
    */
   public void setCollation(String collation) {
@@ -80,8 +73,7 @@ public class MySQLTable extends Table {
 
   /**
    * Sets the character set of the table.
-   * 
-   * @author Peter Kaufman
+   *
    * @param charSet The character set of the table.
    */
   public void setCharSet(String charSet) {
@@ -90,8 +82,7 @@ public class MySQLTable extends Table {
 
   /**
    * Sets the autoIncrement count of the table.
-   * 
-   * @author Peter Kaufman
+   *
    * @param autoIncrement The autoIncrement count of the table.
    */
   public void setAutoIncrement(String autoIncrement) {

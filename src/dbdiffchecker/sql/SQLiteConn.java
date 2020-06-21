@@ -13,20 +13,18 @@ import java.util.HashMap;
 /**
  * Establishes a connection with an SQL database based on the path to the
  * database and database name.
- * 
+ *
  * @author Peter Kaufman
  * @version 6-20-20
  * @since 5-5-19
  */
 public class SQLiteConn extends SQLDbConn {
-  // Instance variables
   private String path = "";
 
   /**
    * Sets the instance variables and tests the database connection to make sure
    * that the database can be reached.
-   * 
-   * @author Peter Kaufman
+   *
    * @param path     The path of the SQLite database.
    * @param database The SQLite database name that the connection is to be
    *                 established with.

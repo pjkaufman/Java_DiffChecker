@@ -2,9 +2,9 @@ package dbdiffchecker.sql;
 
 /**
  * Resembles a view in an SQL database and contains view info.
- * 
+ *
  * @author Peter Kaufman
- * @version 5-30-19
+ * @version 6-20-20
  * @since 9-15-17
  */
 public class View extends Schema {
@@ -12,7 +12,7 @@ public class View extends Schema {
 
   /**
    * Sets the name, create statement, and drop statement of the view.
-   * 
+   *
    * @param name   The name of the view.
    * @param create The create statement of the view.
    */
@@ -30,8 +30,7 @@ public class View extends Schema {
 
   /**
    * Returns the SQL drop statement for the view.
-   * 
-   * @author Peter Kaufman
+   *
    * @return The SQL drop statement for the view.
    */
   public String getDrop() {

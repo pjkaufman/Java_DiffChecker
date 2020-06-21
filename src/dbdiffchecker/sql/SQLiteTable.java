@@ -8,7 +8,7 @@ import java.util.HashMap;
  * indices.
  *
  * @author Peter Kaufman
- * @version 5-31-19
+ * @version 6-20-20
  * @since 5-11-19
  */
 public class SQLiteTable extends Table {
@@ -18,7 +18,6 @@ public class SQLiteTable extends Table {
   /**
    * Sets the name and create statement of the table.
    *
-   * @author Peter Kaufman
    * @param name   The name of the table.
    * @param create The create statement of the table which will be used to create
    *               its columns and indices.

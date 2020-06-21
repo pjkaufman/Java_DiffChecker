@@ -11,22 +11,19 @@ import java.util.ArrayList;
  * Models a Couchbase bucket by keeping track of all indices and documents.
  *
  * @author Peter Kaufman
- * @version 6-15-19
+ * @version 6-20-20
  * @since 5-24-19
  */
 public class Bucket extends Database {
   private HashMap<String, String> documents = new HashMap<>();
   private HashMap<String, Index> indices = new HashMap<>();
-  private String name = "";
-  private String bucketPlaceHolder = "";
-  private String primaryKeyName = "";
+  private String name = "", bucketPlaceHolder = "", primaryKeyName = "";
 
   /**
    * Creates a database that models the Couchbase bucket using the Couchbase
    * connection in orde to get a list of documents, idndices, and other pertinent
    * information.
    *
-   * @author Peter Kaufman
    * @param conn The connection to the Couchbase bucket.
    * @throws DatabaseDifferenceCheckerException Error connecting to the Couchbase
    *                                            bucket.
@@ -58,7 +55,6 @@ public class Bucket extends Database {
   /**
    * Returns the list of Couchbase documents where the name is the key and value.
    *
-   * @author Peter Kaufman
    * @return The list of documents that exist in the bucket.
    */
   public HashMap<String, String> getDocuments() {
@@ -68,7 +64,6 @@ public class Bucket extends Database {
   /**
    * Returns the list of Couchbase indices where the name is the key.
    *
-   * @author Peter Kaufman
    * @return The list of indices that exist in the bucket.
    */
   public HashMap<String, Index> getIndices() {

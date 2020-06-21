@@ -4,7 +4,7 @@ package dbdiffchecker.sql;
  * Resembles an SQL column and contains column info.
  *
  * @author Peter Kaufman
- * @version 5-30-19
+ * @version 6-20-20
  * @since 9-10-17
  */
 public class Column extends Schema {
@@ -13,7 +13,6 @@ public class Column extends Schema {
   /**
    * Sets the name and details of the column.
    *
-   * @author Peter Kaufman
    * @param name    the name of the column
    * @param details the info of the column
    */
@@ -33,7 +32,6 @@ public class Column extends Schema {
   /**
    * Returns the column's details.
    *
-   * @author Peter Kaufman
    * @return Details about the column.
    */
   public String getDetails() {

@@ -15,9 +15,9 @@ import java.util.HashMap;
 /**
  * Establishes a connection with a Mongo database based on the password,
  * username, host, port, and database name provided.
- * 
+ *
  * @author Peter Kaufman
- * @version 1-6-20
+ * @version 6-20-20
  * @since 10-26-19
  */
 public class MongoConn extends DbConn {
@@ -29,8 +29,7 @@ public class MongoConn extends DbConn {
   /**
    * Fills in the parts of the uri connections string using the username,
    * password, host, and port provided by the user.
-   * 
-   * @author Peter Kaufman
+   *
    * @param username The username of the Mongo account.
    * @param password The password of the Mongo account.
    * @param host     The host of the Mongo database.
@@ -68,8 +67,7 @@ public class MongoConn extends DbConn {
 
   /**
    * Gets and lists all of the collections that exist in the Mongo database.
-   * 
-   * @author Peter Kaufman
+   *
    * @param collections A list of all the collections in the Mongo database.
    */
   public void getCollections(HashMap<String, Collection> collections) {
@@ -90,15 +88,14 @@ public class MongoConn extends DbConn {
 
   /**
    * Takes in a statement and applies it to the Mongo Database.
-   * 
-   * @author Peter Kaufman
+   *
    * @param statement A statement to be run on the Mongo Database.
    */
   public void runStatement(String statement) {
-    // determine if a collection is being dropped or added
     String name;
     String[] options;
     int size;
+    // determine if a collection is being dropped or added
     if (statement.startsWith("Create Collection: ")) {
       options = statement.split(",");
       if (options.length > 1) { // capped collection

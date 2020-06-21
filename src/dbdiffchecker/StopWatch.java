@@ -6,7 +6,7 @@ import java.time.Instant;
 /**
  * Models a stopwatch and can determine how much time has elapsed since the last
  * start and end method calls.
- * 
+ *
  * @author Jonas_Hess and Peter Kaufman
  * @version 6-20-20
  * @since 10-26-17
@@ -14,16 +14,14 @@ import java.time.Instant;
  *      "https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java">https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java</a>
  */
 public class StopWatch {
-  private Instant startTime;
-  private Instant endTime;
+  private Instant startTime, endTime;
   private Duration duration;
   private boolean isRunning = false;
 
   /**
    * Checks to see if the program is running. If it is not running, then start
    * time is set. Otherwise a RuntimeException error is thrown.
-   * 
-   * @author Jonas_Hess
+   *
    * @throws RuntimeException The stopwatch was running when this function was
    *                          called.
    */
@@ -39,8 +37,7 @@ public class StopWatch {
    * Checks to see if the program is running. If it is running, then stop time is
    * set, and the duration that the program has run is set and returned. Otherwise
    * a RuntimeException error is thrown.
-   * 
-   * @author Jonas_Hess
+   *
    * @return The amount of time elapsed since the last start method was called.
    * @throws RuntimeException The stopwatch has not been started.
    */
@@ -62,8 +59,7 @@ public class StopWatch {
   /**
    * Returns the duration between the last time the start and stop methods were
    * run.
-   * 
-   * @author Jonas_Hess
+   *
    * @return The duration between the last time the start and stop methods were
    *         run.
    */
@@ -73,8 +69,6 @@ public class StopWatch {
 
   /**
    * Stops the program if it is running and sets the duration to null.
-   * 
-   * @author Jonas_Hess
    */
   public void reset() {
     if (this.isRunning) {
