@@ -7,28 +7,18 @@ import dbdiffchecker.nosql.Bucket;
 import dbdiffchecker.nosql.CouchbaseConn;
 import dbdiffchecker.nosql.MongoConn;
 import dbdiffchecker.nosql.MongoDB;
+
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.text.JTextComponent;
-import javax.swing.JPasswordField;
 import javax.swing.JProgressBar;
-import javax.swing.JTextField;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.JScrollPane;
 import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.DocumentEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.ImageIcon;
@@ -39,9 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.lang.InterruptedException;
-import java.awt.GridLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
@@ -59,279 +46,88 @@ import java.awt.event.ComponentListener;
  * @since 9-20-17
  */
 public class DBDiffCheckerGUI extends JFrame {
-  private final String tabText[] = { "Compare to Database", "Compare to Snapshot", "Create Snapshot", "Logs",
-      "Last Run" };
-  private final String tabTitles[] = { "Development and Live Database Information", "Live Database Information",
-      "Development Database Information", "Logs", "Last Set of Statements Run" };
-  private final String[] databaseTypes = { "Select Database Type", "MySQL", "SQLite", "Couchbase", "MongoDB" };
-  private final String[][] databaseInputs = new String[][] {
-      new String[] { "Username", "Password", "Host", "Port", "Database Name" },
-      new String[] { "Database Path", "Database Name" },
-      new String[] { "Username", "Password", "Host", "Database Name" },
-      new String[] { "Username", "Password", "Host", "Port", "Database Name" } };
-  private HashMap<String, JPanel> tabContent = new HashMap<String, JPanel>(tabText.length);
-  private HashMap<String, JComboBox<String>> databaseDropdowns = new HashMap<String, JComboBox<String>>(
-      tabText.length - 2);
-  private HashMap<String, JButton> executeButtons = new HashMap<String, JButton>(tabText.length - 2);
-  private HashMap<String, JButton> runButtons = new HashMap<String, JButton>(tabText.length - 3);
-  private HashMap<String, JProgressBar> progressBars = new HashMap<String, JProgressBar>(tabText.length - 2);
+  DatabaseType[] databaseTypeOptions = DatabaseType.values();
+  PaneType[] paneTypeOptions = PaneType.values();
+  TabPane selectedTab;
   private HashMap<String, ArrayList<JPanel>> userInputForms = new HashMap<String, ArrayList<JPanel>>(
-      tabText.length - 2);
-  private HashMap<String, ArrayList<JTextComponent>> userInputs = new HashMap<String, ArrayList<JTextComponent>>(
-      tabText.length - 2);
-  private HashMap<String, JTextArea> informationDisplays = new HashMap<String, JTextArea>(tabText.length - 1);
-  private HashMap<String, JLabel> errorMessages = new HashMap<String, JLabel>(tabText.length - 2);
+      paneTypeOptions.length - 2);
   private HashMap<String, ArrayList<String>> statementsLists = new HashMap<String, ArrayList<String>>(
-      tabText.length - 3);
-  private HashMap<String, DbConn> liveConnectionLists = new HashMap<String, DbConn>(tabText.length - 3);
+      paneTypeOptions.length - 3);
+  private HashMap<String, DbConn> liveConnectionLists = new HashMap<String, DbConn>(paneTypeOptions.length - 3);
   private JTabbedPane jtp = new JTabbedPane();
-  private JButton currentRunBtn;
-  private JTextArea currentDataShow;
   private Database devDatabase, liveDatabase;
   private DbConn devDatabaseConnection, liveDatabaseConnection;
   private TitledBorder nBorder = null;
   private StopWatch sw = new StopWatch();
-  private String currentTab = tabText[0];
+  private String currentTab = paneTypeOptions[0].getTabText();
   private ArrayList<String> statements;
   private ArrayList<Component> cpnt = new ArrayList<>();
   private ArrayList<Component> cpnBtn = new ArrayList<>();
   private ArrayList<Component> cpnr = new ArrayList<>();
   private Font regFont = new Font("Tahoma", Font.PLAIN, 12), tabFont = new Font("Tahoma", Font.PLAIN, 16);
+  private int tabPos = 0;
 
   /**
    * Initializes a JFrame which will be used by the user to navigate through the
    * application.
-   *
    */
   public DBDiffCheckerGUI() {
-    initComponents();
-  }
-
-  /**
-   * Sets up the GUI layout, all action events, and instance variables.
-   *
-   */
-  private void initComponents() {
-    jtp.setFont(tabFont);
-    getContentPane().add(jtp);
-    // Setup for the tabs by creating their content
-    JPanel temp = new JPanel(), tempHeader;
-    JLabel tempErrorMsg, tempTitle;
-    for (int i = 0; i < tabText.length; i++) {
-      // create the temporary items
-      temp = new JPanel(new BorderLayout());
-      tempHeader = new JPanel(new GridLayout(0, 1));
-      tempErrorMsg = new JLabel("Error Message", JLabel.CENTER);
-      tempErrorMsg.setForeground(Color.RED);
-      tempErrorMsg.setVisible(false);
-      cpnr.add(tempErrorMsg);
-      errorMessages.put(tabText[i], tempErrorMsg);
-      tempTitle = new JLabel(tabTitles[i], JLabel.CENTER);
-      tempHeader.add(tempTitle);
-      cpnt.add(tempTitle);
-      tempHeader.add(tempErrorMsg);
+    PaneType tabPaneType;
+    TabPane tabPane;
+    for (int i = 0; i < paneTypeOptions.length; i++) {
+      tabPaneType = paneTypeOptions[i];
+      tabPane = new TabPane(tabPaneType);
       if (i < 3) {
-        JComboBox<String> databaseOptions = new JComboBox<String>(databaseTypes);
-        cpnr.add(databaseOptions);
-        databaseOptions.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent event) {
-            int tabPos = jtp.getSelectedIndex();
-            int databasePos = databaseDropdowns.get(currentTab).getSelectedIndex();
-            boolean contCreation = true;
-            newBorder("");
-            errorMessages.get(currentTab).setVisible(false);
-            if (!currentTab.equals(tabText[2])) {
-              informationDisplays.get(currentTab).setText(null);
-              runButtons.get(currentTab).setEnabled(false);
+        if (i < 2) {
+          tabPane.getRunBtn().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+              executeStatements();
             }
-            ArrayList<JTextComponent> userInputComponents = new ArrayList<>();
-            if (tabPos == 1
-                && !FileHandler.fileExists(databaseTypes[databasePos] + "_" + FileHandler.databaseSnapshotFileName)
-                && databasePos != 0) {
-              errorMessages.get(currentTab).setText("Unable to do comparison: " + databaseTypes[databasePos]
-                  + " snapshot does not exist. Please run a database snapshot first.");
-              errorMessages.get(currentTab).setVisible(true);
-              contCreation = false;
+          });
+          tabPane.getExecuteBtn().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+              hideErrorMsg();
+              generateStatements();
             }
-            for (JPanel inputForm : userInputForms.get(currentTab)) {
-              if (databasePos == 0 || !contCreation) {
-                inputForm.removeAll();
-              } else {
-                createComponents(inputForm, databaseInputs[databasePos - 1], userInputComponents);
-              }
-              inputForm.revalidate();
-              inputForm.repaint();
+          });
+        } else {
+          tabPane.getExecuteBtn().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+              hideErrorMsg();
+              createSnapshot();
             }
-            executeButtons.get(tabText[tabPos]).setEnabled(false);
-            userInputs.put(tabText[tabPos], userInputComponents);
-          }
-        });
-        tempHeader.add(databaseOptions);
-        databaseDropdowns.put(tabText[i], databaseOptions);
-      }
-      temp.add(tempHeader, BorderLayout.NORTH);
-      // add them all to the layout
-      tabContent.put(tabText[i], temp);
-      jtp.addTab(tabText[i], temp);
-    }
-    jtp.setTitleAt(0, "<html><b>" + tabText[0] + "</b></html>");
-    // create the content for the first 3 tab bodies
-    JPanel body, mainBody, inputBody1, inputBody2, bodyFooter, inputs, buttons;
-    buttons = new JPanel(new GridLayout(1, 4));
-    ArrayList<JPanel> tempInputs;
-    JButton tempExecute, tempRun;
-    JProgressBar tempPB;
-    for (int i = 0; i < tabText.length - 2; i++) {
-      tempInputs = new ArrayList<>();
-      // create common panels
-      body = new JPanel(new BorderLayout());
-      mainBody = new JPanel(new GridLayout(0, 1));
-      inputBody1 = new JPanel(new GridLayout(0, 2));
-      bodyFooter = new JPanel(new GridLayout(0, 1));
-      tempPB = new JProgressBar();
-      tempInputs.add(inputBody1);
-      // add panel content and speicific panels
-      if (i == 0) {
-        inputs = new JPanel(new GridLayout(0, 2));
-        inputBody2 = new JPanel(new GridLayout(0, 2));
-        buttons = new JPanel(new GridLayout(0, 4));
-        inputBody1.setBorder(BorderFactory.createTitledBorder("Development Information"));
-        inputBody2.setBorder(BorderFactory.createTitledBorder("Live Information"));
-        inputs.add(inputBody1);
-        inputs.add(inputBody2);
-        tempExecute = new JButton("Produce Statements");
-        tempRun = new JButton("Run Statements");
-        runButtons.put(tabText[i], tempRun);
-        buttons.add(new JLabel());
-        buttons.add(tempExecute);
-        buttons.add(tempRun);
-        buttons.add(new JLabel());
-        tempInputs.add(inputBody2);
-        tempRun.setEnabled(false);
-        currentRunBtn = tempRun;
-        cpnBtn.add(currentRunBtn);
-        tempExecute.addActionListener(new ActionListener() {
-
-          @Override
-          public void actionPerformed(ActionEvent evt) {
-            errorMessages.get(currentTab).setVisible(false);
-            generateStatements();
-          }
-        });
-        tempRun.addActionListener(new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent evt) {
-            executeStatements();
-          }
-        });
-      } else if (i == 1) {
-        inputs = new JPanel(new GridLayout(0, 1));
-        buttons = new JPanel(new GridLayout(0, 4));
-        inputBody1.setBorder(BorderFactory.createTitledBorder("Live Information"));
-        inputs.add(inputBody1);
-        tempExecute = new JButton("Produce Statements");
-        tempRun = new JButton("Run Statements");
-        buttons.add(new JLabel());
-        buttons.add(tempExecute);
-        buttons.add(tempRun);
-        tempRun.setEnabled(false);
-        runButtons.put(tabText[i], tempRun);
-        currentRunBtn = tempRun;
-        cpnBtn.add(currentRunBtn);
-        tempRun.addActionListener(new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent evt) {
-            executeStatements();
-          }
-        });
-        tempExecute.addActionListener(new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent evt) {
-            errorMessages.get(currentTab).setVisible(false);
-            generateStatements();
-          }
-        });
-      } else {
-        inputs = new JPanel(new GridLayout(0, 1));
-        buttons = new JPanel(new GridLayout(0, 3));
-        inputBody1.setBorder(BorderFactory.createTitledBorder("Development Information"));
-        inputs.add(inputBody1);
-        tempExecute = new JButton("Take Snapshot");
-        buttons.add(new JLabel());
-        buttons.add(tempExecute);
-        buttons.add(new JLabel());
-        currentRunBtn = null;
-        tempExecute.addActionListener(new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent evt) {
-            errorMessages.get(currentTab).setVisible(false);
-            createSnapshot();
-          }
-        });
-      }
-      cpnBtn.add(tempExecute);
-      tempExecute.setEnabled(false);
-      mainBody.add(inputs);
-      bodyFooter.add(buttons);
-      bodyFooter.add(tempPB);
-      body.add(mainBody);
-      body.add(bodyFooter, BorderLayout.SOUTH);
-      progressBars.put(tabText[i], tempPB);
-      userInputForms.put(tabText[i], tempInputs);
-      executeButtons.put(tabText[i], tempExecute);
-      tabContent.get(tabText[i]).add(body);
-    }
-    // create the display for previewing statements or data
-    JPanel informationDisplay;
-    JScrollPane data;
-    JTextArea dataShow;
-    String position = BorderLayout.SOUTH;
-    for (int i = 0; i < tabText.length; i++) {
-      if (i < 2) { // both compare tabs
-        JLabel footerTitle = new JLabel("Preview:", JLabel.CENTER);
-        cpnt.add(footerTitle);
-        informationDisplay = new JPanel(new BorderLayout());
-        informationDisplay.add(footerTitle, BorderLayout.NORTH);
-      } else { // logs and last run tab preview
-        if (i == 2) {
-          position = BorderLayout.CENTER;
-          i++;
+          });
         }
-        informationDisplay = new JPanel(new GridLayout(0, 1));
       }
-      data = new JScrollPane();
-      dataShow = new JTextArea(5, 20);
-      cpnr.add(dataShow);
-      data.setAutoscrolls(true);
-      dataShow.setEditable(false);
-      data.setViewportView(dataShow);
-      informationDisplay.add(data);
-      tabContent.get(tabText[i]).add(informationDisplay, position);
-      informationDisplays.put(tabText[i], dataShow);
+      jtp.addTab(tabPaneType.getTabText(), tabPane);
     }
-    currentDataShow = informationDisplays.get(tabText[0]);
+    jtp.setFont(tabFont);
+    jtp.setTitleAt(0, "<html><b>" + currentTab + "</b></html>");
+    selectedTab = (TabPane) jtp.getComponentAt(0);
     // add listener for tab changes
     jtp.addChangeListener(new ChangeListener() {
 
+      @Override
       public void stateChanged(ChangeEvent e) {
-        for (int i = 0; i < tabText.length; i++) {
-          jtp.setTitleAt(i, tabText[i]);
-        }
-        int tabPos = jtp.getSelectedIndex();
-        currentTab = tabText[tabPos];
-        currentDataShow = informationDisplays.get(currentTab);
-        jtp.setTitleAt(tabPos, "<html><b>" + tabText[tabPos] + "</b></html>");
-        if (currentTab.equals(tabText[3])) {
+        jtp.setTitleAt(tabPos, currentTab);
+        tabPos = jtp.getSelectedIndex();
+        currentTab = paneTypeOptions[tabPos].getTabText();
+        jtp.setTitleAt(tabPos, "<html><b>" + currentTab + "</b></html>");
+        selectedTab = (TabPane) jtp.getSelectedComponent();
+        if (selectedTab.type == PaneType.LOGS) {
           if (FileHandler.fileExists(FileHandler.logFileName)) {
             displayLog(FileHandler.logFileName);
           } else {
-            currentDataShow.setText("There are no logs to display.");
+            selectedTab.dataShow.setText("There are no logs to display.");
           }
-        } else if (currentTab.equals(tabText[4])) {
+        } else if (selectedTab.type == PaneType.LAST_RUN) {
           if (FileHandler.fileExists(FileHandler.lastSequelStatementFileName)) {
             displayLog(FileHandler.lastSequelStatementFileName);
           } else {
-            currentDataShow.setText("The application has no record of any statements run before.");
+            selectedTab.dataShow.setText("The application has no record of any statements run before.");
           }
         }
         // copy over statements from a previous run on the tab and the previous live
@@ -344,36 +140,10 @@ public class DBDiffCheckerGUI extends JFrame {
         }
       }
     });
-    // set size for different types of components
     addComponentListener(new ComponentListener() {
       @Override
       public void componentResized(ComponentEvent e) {
-        double width = e.getComponent().getWidth();
-        // determine font sizes based on width of the GUI
-        Font title = new Font("Tahoma", Font.BOLD, (int) (width / 38));
-        Font reg = new Font("Tahoma", Font.PLAIN, (int) (width / 58));
-        Font button = new Font("Tahoma", Font.BOLD, (int) (width / 53));
-        // regular components
-        for (ArrayList<JPanel> inputForms : userInputForms.values()) {
-          for (JPanel inputForm : inputForms) {
-            ((TitledBorder) inputForm.getBorder()).setTitleFont(reg.deriveFont(Font.BOLD));
-            for (Component cpn : inputForm.getComponents()) {
-              cpn.setFont(reg);
-            }
-          }
-        }
-        for (Component cpn : cpnr) {
-          cpn.setFont(reg);
-        }
-        // title components
-        for (Component cpn : cpnt) {
-          cpn.setFont(title);
-        }
-        // button components
-        for (Component cpn : cpnBtn) {
-          cpn.setFont(button);
-        }
-        regFont = reg;
+        resizeWindowComponents(e.getComponent().getWidth());
       }
 
       @Override
@@ -388,7 +158,7 @@ public class DBDiffCheckerGUI extends JFrame {
       public void componentMoved(ComponentEvent e) {
       }
     });
-    // set intrinsic properties
+    getContentPane().add(jtp);
     setTitle("Databse Difference Checker");
     setMinimumSize(new Dimension(700, 300));
     setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
@@ -398,154 +168,16 @@ public class DBDiffCheckerGUI extends JFrame {
     setVisible(true);
   }
 
-  /**
-   * Creates the input form based on the component input list and adds it to the
-   * provided panel.
-   *
-   * @param componentHolder The JPanel that will hold the components that are
-   *                        generated.
-   * @param componentList   The list of components to add to the panel as well as
-   *                        the text to be displayed as the input's label.
-   * @param formComponents  A list of all the form components that can have input
-   *                        from the user - it is used for validating user input.
-   */
-  private void createComponents(JPanel componentHolder, String[] componentList,
-      ArrayList<JTextComponent> formComponents) {
-    JTextComponent temp;
-    JLabel tempLabel;
-    componentHolder.removeAll();
-    for (int i = 0; i < componentList.length; i++) {
-      tempLabel = new JLabel(componentList[i] + ":");
-      tempLabel.setFont(regFont);
-      componentHolder.add(tempLabel);
-      switch (componentList[i]) {
-        case "Password":
-          temp = new JPasswordField(10);
-          break;
-        default:
-          temp = new JTextField(10);
-          break;
-      }
-      temp.setFont(regFont);
-      createInputListener(temp, componentList[i]);
-      componentHolder.add(temp);
-      formComponents.add(temp);
-    }
-  }
-
-  /**
-   * Creates an input listener which is used to validate the data that is input
-   * and determine whether it is time to allow the user to submit the entered
-   * data.
-   *
-   * @param input The component that will have the listener added to it.
-   * @param type  The description of the input (i.e. Username, Password, etc.).
-   *              This helps determine which listener to apply.
-   */
-  private void createInputListener(JComponent input, String type) {
-    if (type.equals("Port")) { // the input should only be integers
-      JTextField cpn = (JTextField) input;
-      cpn.getDocument().addDocumentListener(new DocumentListener() {
-        @Override
-        public void insertUpdate(DocumentEvent e) {
-          Runnable format = new Runnable() {
-            @Override
-            public void run() {
-              String text = cpn.getText();
-              String regex = "\\d+";
-              if (!text.matches(regex) && text.length() > 0) {
-                cpn.setText(text.substring(0, text.length() - 1));
-              }
-            }
-          };
-          SwingUtilities.invokeLater(format);
-          disableRunningStatements();
-          validateInput();
-        }
-
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-          disableRunningStatements();
-          validateInput();
-        }
-
-        @Override
-        public void changedUpdate(DocumentEvent e) {
-          disableRunningStatements();
-          validateInput();
-        }
-      });
-    } else {
-      if (type.equals("Password")) {
-        JPasswordField cpn = (JPasswordField) input;
-        cpn.getDocument().addDocumentListener(new DocumentListener() {
-
-          @Override
-          public void insertUpdate(DocumentEvent e) {
-            disableRunningStatements();
-            validateInput();
-          }
-
-          @Override
-          public void removeUpdate(DocumentEvent e) {
-            disableRunningStatements();
-            validateInput();
-          }
-
-          @Override
-          public void changedUpdate(DocumentEvent e) {
-            disableRunningStatements();
-            validateInput();
-          }
-        });
-      } else {
-        JTextField cpn = (JTextField) input;
-        cpn.getDocument().addDocumentListener(new DocumentListener() {
-          @Override
-          public void insertUpdate(DocumentEvent e) {
-            disableRunningStatements();
-            validateInput();
-          }
-
-          @Override
-          public void removeUpdate(DocumentEvent e) {
-            disableRunningStatements();
-            validateInput();
-          }
-
-          @Override
-          public void changedUpdate(DocumentEvent e) {
-            disableRunningStatements();
-            validateInput();
-          }
-        });
-      }
-    }
-  }
-
-  /**
-   * Determines whether or not all the user input fields for the current tab are
-   * filled out.
-   *
-   * @return A boolean that is false if not all fields have a non-whitespace
-   *         character in them and true if all input fields have something other
-   *         than non-whitespace characters in them.
-   */
-  private boolean allFieldsFilled() {
-    for (JTextComponent cpn : userInputs.get(currentTab)) {
-      if (new String(cpn.getText()).trim().isEmpty()) {
-        return false;
-      }
-    }
-    return true;
+  private void hideErrorMsg() {
+    selectedTab.errorMsg.setVisible(false);
   }
 
   /**
    * Takes a snapshot of what the user indicates is the development database.
    * <i>Note: most of this function is run in a background thread.</i>
    */
-  private void createSnapshot() {
-    databaseDropdowns.get(currentTab).setEnabled(false);
+  protected void createSnapshot() {
+    selectedTab.databaseOptions.setEnabled(false);
     prepProgressBar("Establishing Database Connection", true);
     SwingWorker<Boolean, String> worker = new SwingWorker<Boolean, String>() {
       @Override
@@ -556,7 +188,7 @@ public class DBDiffCheckerGUI extends JFrame {
         publish("Gathering Database Information");
         devDatabase = createDatabase(devDatabaseConnection);
         publish("Writing to JSON File");
-        FileHandler.serializeDatabase(devDatabase, databaseTypes[databaseDropdowns.get(currentTab).getSelectedIndex()]);
+        FileHandler.serializeDatabase(devDatabase, selectedTab.getSelectedDatabase().getType());
         sw.stop();
         log("Took a DB Snapshot in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
         return true;
@@ -576,7 +208,7 @@ public class DBDiffCheckerGUI extends JFrame {
                 1005));
           }
         } finally {
-          databaseDropdowns.get(currentTab).setEnabled(true);
+          selectedTab.databaseOptions.setEnabled(true);
         }
       }
 
@@ -594,9 +226,9 @@ public class DBDiffCheckerGUI extends JFrame {
    * function runs in a background thread.</i>
    *
    */
-  private void generateStatements() {
-    databaseDropdowns.get(currentTab).setEnabled(false);
-    runButtons.get(currentTab).setEnabled(false);
+  protected void generateStatements() {
+    selectedTab.databaseOptions.setEnabled(false);
+    selectedTab.runBtn.setEnabled(false);
     prepProgressBar("Establishing Database Connection(s) and Collecting Database Info", true);
     SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {
       @Override
@@ -623,7 +255,7 @@ public class DBDiffCheckerGUI extends JFrame {
             error(new DatabaseDifferenceCheckerException(e.getMessage(), e, 1006));
           }
         } finally {
-          databaseDropdowns.get(currentTab).setEnabled(true);
+          selectedTab.databaseOptions.setEnabled(true);
         }
       }
 
@@ -636,22 +268,6 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   /**
-   * Makes sure that all fields are filled in and makes sure that the buttons to
-   * generate statements and execute statements are disabled if alll fields are
-   * not filled out.
-   */
-  private void validateInput() {
-    if (allFieldsFilled()) {
-      executeButtons.get(currentTab).setEnabled(true);
-    } else {
-      executeButtons.get(currentTab).setEnabled(false);
-      if (currentRunBtn != null) {
-        currentRunBtn.setEnabled(false);
-      }
-    }
-  }
-
-  /**
    * Gets the progressBar ready by reseting the StopWatch object and determines
    * which settings to turn on.
    *
@@ -659,7 +275,7 @@ public class DBDiffCheckerGUI extends JFrame {
    * @param indeterminate Whether or not the progressBar is to be indeterminate.
    */
   private void prepProgressBar(String title, boolean indeterminate) {
-    JProgressBar currentPB = progressBars.get(currentTab);
+    JProgressBar currentPB = selectedTab.progressBar;
     newBorder(title);
     currentPB.setIndeterminate(indeterminate);
     if (!indeterminate) {
@@ -680,7 +296,7 @@ public class DBDiffCheckerGUI extends JFrame {
    */
   private void endProgressBar(String title) {
     newBorder(title);
-    JProgressBar currentPB = progressBars.get(currentTab);
+    JProgressBar currentPB = selectedTab.progressBar;
     if (currentPB.isIndeterminate()) {
       currentPB.setIndeterminate(false);
     } else {
@@ -693,8 +309,8 @@ public class DBDiffCheckerGUI extends JFrame {
    *
    * @param title The new name of the titled borders.
    */
-  private void newBorder(String title) {
-    JProgressBar currentPB = progressBars.get(currentTab);
+  protected void newBorder(String title) {
+    JProgressBar currentPB = selectedTab.progressBar;
     nBorder = BorderFactory.createTitledBorder(title);
     nBorder.setTitleFont(regFont);
     currentPB.setBorder(nBorder);
@@ -709,12 +325,12 @@ public class DBDiffCheckerGUI extends JFrame {
    *                                            development database.
    */
   private Database createDatabase(DbConn databaseConn) throws DatabaseDifferenceCheckerException {
-    String selectedType = databaseTypes[databaseDropdowns.get(currentTab).getSelectedIndex()];
-    if (databaseTypes[1].equals(selectedType)) {
+    DatabaseType selectedType = selectedTab.getSelectedDatabase();
+    if (databaseTypeOptions[1] == selectedType) {
       return new SQLDatabase(databaseConn, 0);
-    } else if (databaseTypes[2].equals(selectedType)) {
+    } else if (databaseTypeOptions[2] == selectedType) {
       return new SQLDatabase(databaseConn, 1);
-    } else if (databaseTypes[3].equals(selectedType)) {
+    } else if (databaseTypeOptions[3] == selectedType) {
       return new Bucket(databaseConn);
     } else {
       return new MongoDB(databaseConn);
@@ -730,15 +346,15 @@ public class DBDiffCheckerGUI extends JFrame {
    *                                            development database.
    */
   private DbConn createDevDatabaseConnection() throws DatabaseDifferenceCheckerException {
-    String selectedType = databaseTypes[databaseDropdowns.get(currentTab).getSelectedIndex()];
+    DatabaseType selectedType = selectedTab.getSelectedDatabase();
     String type = "dev";
-    ArrayList<JTextComponent> inputs = userInputs.get(currentTab);
-    if (databaseTypes[1].equals(selectedType)) {
+    ArrayList<JTextComponent> inputs = selectedTab.userInputComponents;
+    if (databaseTypeOptions[1] == selectedType) {
       return new MySQLConn(inputs.get(0).getText().trim(), inputs.get(1).getText().trim(),
           inputs.get(2).getText().trim(), inputs.get(3).getText().trim(), inputs.get(4).getText().trim(), type);
-    } else if (databaseTypes[2].equals(selectedType)) {
+    } else if (databaseTypeOptions[2] == selectedType) {
       return new SQLiteConn(fixPath(inputs.get(0).getText().trim()), inputs.get(1).getText().trim(), type);
-    } else if (databaseTypes[3].equals(selectedType)) {
+    } else if (databaseTypeOptions[3] == selectedType) {
       return new CouchbaseConn(inputs.get(0).getText().trim(), inputs.get(1).getText().trim(),
           inputs.get(2).getText().trim(), inputs.get(3).getText().trim());
     } else {
@@ -755,21 +371,21 @@ public class DBDiffCheckerGUI extends JFrame {
    *                                            database.
    */
   private DbConn createLiveDatabaseConnection() throws DatabaseDifferenceCheckerException {
-    String selectedType = databaseTypes[databaseDropdowns.get(currentTab).getSelectedIndex()];
+    DatabaseType selectedType = selectedTab.getSelectedDatabase();
     String type = "live";
-    ArrayList<JTextComponent> inputs = userInputs.get(currentTab);
+    ArrayList<JTextComponent> inputs = selectedTab.userInputComponents;
     int startIndex = (inputs.size() / 2);
-    if (currentTab.equals(tabText[1])) {
+    if (currentTab.equals(paneTypeOptions[1].getTabText())) {
       startIndex = 0;
     }
-    if (databaseTypes[1].equals(selectedType)) {
+    if (databaseTypeOptions[1] == selectedType) {
       return new MySQLConn(inputs.get(startIndex).getText().trim(), inputs.get(startIndex + 1).getText().trim(),
           inputs.get(startIndex + 2).getText().trim(), inputs.get(startIndex + 3).getText().trim(),
           inputs.get(startIndex + 4).getText().trim(), type);
-    } else if (databaseTypes[2].equals(selectedType)) {
+    } else if (databaseTypeOptions[2] == selectedType) {
       return new SQLiteConn(fixPath(inputs.get(startIndex).getText().trim()),
           inputs.get(startIndex + 1).getText().trim(), type);
-    } else if (databaseTypes[3].equals(selectedType)) {
+    } else if (databaseTypeOptions[3] == selectedType) {
       return new CouchbaseConn(inputs.get(startIndex).getText().trim(), inputs.get(startIndex + 1).getText().trim(),
           inputs.get(startIndex + 2).getText().trim(), inputs.get(startIndex + 3).getText().trim());
     } else {
@@ -795,8 +411,8 @@ public class DBDiffCheckerGUI extends JFrame {
     } catch (DatabaseDifferenceCheckerException err) {
       System.out.println("Could not log the error...");
     }
-    errorMessages.get(currentTab).setVisible(true);
-    errorMessages.get(currentTab).setText(error.toString());
+    selectedTab.errorMsg.setVisible(true);
+    selectedTab.errorMsg.setText(error.toString());
   }
 
   /**
@@ -819,16 +435,16 @@ public class DBDiffCheckerGUI extends JFrame {
     try {
       ArrayList<String> statementList = FileHandler.readFrom(file);
       if (statementList.isEmpty()) {
-        if (currentTab.equals(tabText[3])) {
-          currentDataShow.setText("There are no logs to display.");
+        if (currentTab.equals(paneTypeOptions[3].getTabText())) {
+          selectedTab.dataShow.setText("There are no logs to display.");
         } else {
-          currentDataShow.setText("The application has no record of any statements run before.");
+          selectedTab.dataShow.setText("The application has no record of any statements run before.");
         }
       } else {
-        currentDataShow.setText(null);
+        selectedTab.dataShow.setText(null);
         this.statements = statementList;
         for (String statement : statementList) {
-          currentDataShow.append(statement + "\n");
+          selectedTab.dataShow.append(statement + "\n");
         }
       }
     } catch (DatabaseDifferenceCheckerException cause) {
@@ -848,13 +464,13 @@ public class DBDiffCheckerGUI extends JFrame {
   private void displayCompareResult() {
     try {
       if (statements.isEmpty()) {
-        currentDataShow.setText("The databases are in sync.");
-        runButtons.get(currentTab).setEnabled(false);
+        selectedTab.dataShow.setText("The databases are in sync.");
+        selectedTab.runBtn.setEnabled(false);
       } else {
-        currentDataShow.setText(null);
-        runButtons.get(currentTab).setEnabled(true);
+        selectedTab.dataShow.setText(null);
+        selectedTab.runBtn.setEnabled(true);
         for (String statement : statements) {
-          currentDataShow.append(statement + "\n");
+          selectedTab.dataShow.append(statement + "\n");
         }
         FileHandler.writeToFile(statements);
       }
@@ -872,11 +488,11 @@ public class DBDiffCheckerGUI extends JFrame {
    */
   private void setupDatabases() throws DatabaseDifferenceCheckerException {
     sw.start();
-    if (currentTab.equals(tabText[0])) {
+    if (currentTab.equals(paneTypeOptions[0].getTabText())) {
       devDatabaseConnection = createDevDatabaseConnection();
       devDatabase = createDatabase(devDatabaseConnection);
     } else {
-      devDatabase = FileHandler.deserailizDatabase(databaseTypes[databaseDropdowns.get(currentTab).getSelectedIndex()]);
+      devDatabase = FileHandler.deserailizDatabase(selectedTab.getSelectedDatabase().getType());
     }
     liveDatabaseConnection = createLiveDatabaseConnection();
     liveConnectionLists.put(currentTab, liveDatabaseConnection);
@@ -888,9 +504,9 @@ public class DBDiffCheckerGUI extends JFrame {
    * them on the live database. <i>Note: most of this function is run in a
    * background thread.</i>
    */
-  private void executeStatements() {
-    runButtons.get(currentTab).setEnabled(false);
-    databaseDropdowns.get(currentTab).setEnabled(false);
+  protected void executeStatements() {
+    selectedTab.runBtn.setEnabled(false);
+    selectedTab.databaseOptions.setEnabled(false);
     prepProgressBar("Waiting On Action", false);
     SwingWorker<Boolean, Integer> swingW = new SwingWorker<Boolean, Integer>() {
       @Override
@@ -923,14 +539,14 @@ public class DBDiffCheckerGUI extends JFrame {
                 1008));
           }
         } finally {
-          databaseDropdowns.get(currentTab).setEnabled(true);
+          selectedTab.databaseOptions.setEnabled(true);
         }
       }
 
       @Override
       protected void process(List<Integer> chunks) {
-        JProgressBar currentPB = progressBars.get(currentTab);
-        runButtons.get(currentTab).setEnabled(false);
+        JProgressBar currentPB = selectedTab.progressBar;
+        selectedTab.runBtn.setEnabled(false);
         newBorder("Running SQL.. ");
         currentPB.setValue((int) ((chunks.get(chunks.size() - 1) + 1.0) * 100 / statements.size()));
         currentPB.setString(currentPB.getPercentComplete() * 100 + "%");
@@ -953,13 +569,32 @@ public class DBDiffCheckerGUI extends JFrame {
     return path;
   }
 
-  /**
-   * Disables the button that lets you run the statements.
-   */
-  private void disableRunningStatements() {
-    if (runButtons.get(currentTab) != null) {
-      runButtons.get(currentTab).setEnabled(false);
+  private void resizeWindowComponents(double width) {
+    // determine font sizes based on width of the GUI
+    Font title = new Font("Tahoma", Font.BOLD, (int) (width / 38));
+    Font reg = new Font("Tahoma", Font.PLAIN, (int) (width / 58));
+    Font button = new Font("Tahoma", Font.BOLD, (int) (width / 53));
+    // input body components
+    for (ArrayList<JPanel> inputForms : userInputForms.values()) {
+      for (JPanel inputForm : inputForms) {
+        ((TitledBorder) inputForm.getBorder()).setTitleFont(reg.deriveFont(Font.BOLD));
+        for (Component cpn : inputForm.getComponents()) {
+          cpn.setFont(reg);
+        }
+      }
     }
+    for (Component cpn : cpnr) {
+      cpn.setFont(reg);
+    }
+    // title components
+    for (Component cpn : cpnt) {
+      cpn.setFont(title);
+    }
+    // button components
+    for (Component cpn : cpnBtn) {
+      cpn.setFont(button);
+    }
+    regFont = reg;
   }
 
   /**
