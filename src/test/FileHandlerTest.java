@@ -19,7 +19,7 @@ import dbdiffchecker.nosql.Collection;
  * A unit test that makes sure that the FileHandler object works as intended.
  *
  * @author Peter Kaufman
- * @version 1-6-20
+ * @version 7-2-20
  * @since 5-11-19
  */
 public class FileHandlerTest {
@@ -29,25 +29,22 @@ public class FileHandlerTest {
   private ArrayList<String> expectedStatements = new ArrayList<>();
   private Database db;
 
-  @Before
   /**
    * Sets up for the serailization compare by resetiing the list of expected
    * statements and statements.
-   *
-   * @author Peter Kaufman
    */
+  @Before
   public void setupForCompare() {
     statements.clear();
     expectedStatements.clear();
   }
 
-  @Test
   /**
    * Tests whether the writting and reading functions work as intended.
    *
-   * @author Peter Kaufman
    * @throws Exception Error writting to or reading from log files.
    */
+  @Test
   public void testWriteToAndReadFromFile() throws Exception {
     String data = "Test addition of data", data2 = "Another addition of text...", data3 = "erroneous...";
     ArrayList<String> fileContents = new ArrayList<>(), fileContents2 = new ArrayList<>(),
@@ -82,13 +79,12 @@ public class FileHandlerTest {
         fileContents2.equals(dataToAdd));
   }
 
-  @Test
   /**
    * Tests whether the fileExists function works as intended.
    *
-   * @author Peter Kaufman
    * @throws Exception Error writting to the log file.
    */
+  @Test
   public void testFileExists() throws Exception {
     String fileName = "eroniousFile.test";
     assertEquals("The file should not exist because it has not been created", false, FileHandler.fileExists(fileName));
@@ -100,14 +96,13 @@ public class FileHandlerTest {
         FileHandler.fileExists(fileName));
   }
 
-  @Test
   /**
    * Tests whether the serialization functions work as intended on a MySQL
    * database.
    *
-   * @author Peter Kaufman
    * @throws Exception Error sereliazing or deserializing a MySQL database.
    */
+  @Test
   public void testSerializationMySQL() throws Exception {
     db = new SQLDatabase();
     expectedStatements.add("ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, "
@@ -139,7 +134,6 @@ public class FileHandlerTest {
         + " add two indexes, add a charset", expectedStatements, statements);
   }
 
-  @Test
   /**
    * Tests whether the serialization functions work as intended on an SQLite
    * database.
@@ -147,6 +141,7 @@ public class FileHandlerTest {
    * @author Peter Kaufman
    * @throws Exception Error serializing or deserializing the SQLite database.
    */
+  @Test
   public void testSerializationSQLite() throws Exception {
     db = new SQLDatabase();
     expectedStatements.add(
@@ -172,14 +167,13 @@ public class FileHandlerTest {
         statements);
   }
 
-  @Test
   /**
    * Tests whether the serialization functions work as intended on a Couchbase
    * Bucket.
    *
-   * @author Peter Kaufman
    * @throws Exception Error serializing or deserializing the Couchbase Bucket.
    */
+  @Test
   public void testSerializationCouchbase() throws Exception {
     name = "blob";
     expectedStatements.add("Create document: " + name);
@@ -219,14 +213,13 @@ public class FileHandlerTest {
         expectedStatements, statements);
   }
 
-  @Test
   /**
    * Tests whether the serialization functions work as intended on a Mongo
    * database.
-   *
-   * @author Peter Kaufman
+   * 
    * @throws Exception Error serializing or deserializing the Mongo database.
    */
+  @Test
   public void testSerializationMongo() throws Exception {
     String createPre = "Create Collection: ", deletePre = "Delete Collection: ";
     String name1 = "Skipper", name2 = "Private", name3 = "Commoner", name4 = "Creeper", name5 = "Creep",

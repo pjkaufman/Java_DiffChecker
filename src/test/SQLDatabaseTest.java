@@ -13,7 +13,7 @@ import dbdiffchecker.sql.View;
  * A unit test that makes sure that the SQLDatabase object works as intended.
  *
  * @author Peter Kaufman
- * @version 5-31-19
+ * @version 7-2-20
  * @since 5-11-19
  */
 public class SQLDatabaseTest {
@@ -22,12 +22,10 @@ public class SQLDatabaseTest {
   private String name, create;
   private SQLDatabase db;
 
-  @Test
   /**
    * Tests whether the getTables function works as intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testGetTables() {
     name = "bloat";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
@@ -47,12 +45,10 @@ public class SQLDatabaseTest {
         db.getTables().get(table2.getName()).getCreateStatement().equals(table2.getCreateStatement()));
   }
 
-  @Test
   /**
    * Tests whether the getViews function works as intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testGetViews() {
     db = new SQLDatabase();
     name = "testView";
@@ -72,12 +68,10 @@ public class SQLDatabaseTest {
         db.getViews().contains(view1) && db.getViews().contains(view2));
   }
 
-  @Test
   /**
    * Tests whether the updateViews function works as intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testUpdateViews() {
     db = new SQLDatabase();
     ArrayList<View> liveViews = new ArrayList<>();
@@ -105,12 +99,10 @@ public class SQLDatabaseTest {
         sql.contains(view1.getCreateStatement()) && sql.contains("DROP VIEW `" + view1.getName() + "`;"));
   }
 
-  @Test
   /**
    * Tests whether the tablesDiffs function works as intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testTablesDiffs() {
     db = new SQLDatabase();
     HashMap<String, String> tablesToUpdate = new HashMap<>();
@@ -147,12 +139,10 @@ public class SQLDatabaseTest {
         tablesToUpdate.size());
   }
 
-  @Test
   /**
    * Tests whether the compareTables function works as intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testCompareTables() {
     db = new SQLDatabase();
     HashMap<String, Table> liveTables = new HashMap<>();
@@ -191,12 +181,10 @@ public class SQLDatabaseTest {
         sql.contains(table1.getCreateStatement()) && sql.contains(table2.getCreateStatement()));
   }
 
-  @Test
   /**
    * Tests whether the updateTables function works as intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testUpdateTables() {
     db = new SQLDatabase();
     HashMap<String, Table> liveTables = new HashMap<>();
@@ -252,12 +240,10 @@ public class SQLDatabaseTest {
         sql.contains(expectedSQL2));
   }
 
-  @Test
   /**
    * Tests whether the first steps internal logic works as intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testFirstSteps() {
     db = new SQLDatabase();
     HashMap<String, Table> liveTables = new HashMap<>();

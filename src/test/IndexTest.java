@@ -8,19 +8,19 @@ import dbdiffchecker.sql.Index;
  * A unit test that makes sure that the Index object works as intended.
  *
  * @author Peter Kaufman
- * @version 5-30-19
+ * @version 7-2-20
  * @since 5-10-19
  */
 public class IndexTest {
   private Index test, test2;
   private String table, name, create, drop;
 
-  @Test
   /**
    * Tests whether the get statements inside of the Index object work as intended.
    *
    * @author Peter Kaufman
    */
+  @Test
   public void testGetStatements() {
     table = "shippingData";
     name = "shipment";
@@ -34,12 +34,12 @@ public class IndexTest {
     assertEquals("The drop statement of the index should be the one passed into the constructor", drop, test.getDrop());
   }
 
-  @Test
   /**
    * Tests whether Index objects are equal when intended.
    *
    * @author Peter Kaufman
    */
+  @Test
   public void testIndexEquality() {
     table = "shippingData";
     name = "shipment";

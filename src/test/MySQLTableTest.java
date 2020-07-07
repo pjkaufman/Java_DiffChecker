@@ -9,7 +9,7 @@ import dbdiffchecker.sql.MySQLTable;
  * A unit test that makes sure that the MySQLTable object works as intended.
  *
  * @author Peter Kaufman
- * @version 5-31-19
+ * @version 7-2-20
  * @since 5-10-19
  */
 public class MySQLTableTest {
@@ -17,13 +17,11 @@ public class MySQLTableTest {
   private String name, create, collation, charSet, autoIncrement, expectedSQL;
   private ArrayList<String> sql;
 
-  @Test
   /**
    * Tests whether the get statements inside of the MySQLTable object work as
    * intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testGetStatements() {
     name = "bloat";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
@@ -33,7 +31,6 @@ public class MySQLTableTest {
     collation = "latin1_swedish_c";
     table1.setCollation(collation);
     table1.setAutoIncrement(autoIncrement);
-    // start assertions
     assertEquals("The name of the table should be the one passed into the constructor", name, table1.getName());
     assertEquals("The create statement of the table should be the one passed into the constructor", create + ";",
         table1.getCreateStatement());
@@ -53,12 +50,10 @@ public class MySQLTableTest {
         table1.getCharSet());
   }
 
-  @Test
   /**
    * Tests whether the parsin function works as intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testAddColumn() {
     String column1 = "bloatware", column2 = "shipmentID";
     name = "bloat";
@@ -82,12 +77,10 @@ public class MySQLTableTest {
         table1.getColumns().containsKey(column2));
   }
 
-  @Test
   /**
    * Tests whether the parsing function works as intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testAddIndex() {
     String index1 = "shipment", index2 = "shipped";
     name = "shippingData";
@@ -115,12 +108,10 @@ public class MySQLTableTest {
         table1.getIndices().containsKey(index2));
   }
 
-  @Test
   /**
    * Tests whetehr the parsing function adds Foreign Keys
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testAddForeignKey() {
     name = "products";
     create = "CREATE TABLE `products` (\n  `prd_id` int not null auto_increment primary key,\n"
@@ -131,12 +122,10 @@ public class MySQLTableTest {
     assertEquals("There should be a Foreign Key in the index list", true, table1.getIndices().containsKey("fk_cat"));
   }
 
-  @Test
   /**
    * Tests whether the equals function works as intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testEquals() {
     expectedSQL = "ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, "
         + "\nADD COLUMN `id` varchar(40) NOT NULL, \nMODIFY COLUMN `ip_address`"
@@ -162,12 +151,10 @@ public class MySQLTableTest {
         + " add two indexes, and add a charset", expectedSQL, sql.get(0));
   }
 
-  @Test
   /**
    * Tests whether the equals function catches the adding of indices.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testIndexAddition() {
     expectedSQL = "ALTER TABLE `ci_sessions`\nADD INDEX `add` (`id`);";
     // setup tables
@@ -199,12 +186,10 @@ public class MySQLTableTest {
     assertEquals("The sql generated should add two indices", expectedSQL, sql.get(0));
   }
 
-  @Test
   /**
    * Tests whether the equals function cathces the dropping of indices.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testIndexDropping() {
     expectedSQL = "ALTER TABLE `ci_sessions`\nDROP INDEX `drop1`;";
     // setup tables
@@ -284,12 +269,10 @@ public class MySQLTableTest {
     assertEquals("The sql generated should modify two indices", expectedSQL, sql.get(0));
   }
 
-  @Test
   /**
    * Tests whether the equals function catches the adding of columns.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testColumnAddition() {
     expectedSQL = "ALTER TABLE `ci_sessions`\nADD COLUMN `id` varchar(40) NOT NULL AFTER `data`;";
     // setup tables
@@ -321,12 +304,10 @@ public class MySQLTableTest {
     assertEquals("The sql generated should be a two column addition", expectedSQL, sql.get(0));
   }
 
-  @Test
   /**
    * Tests whether the equals function cathces the dropping of columns.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testColumnDropping() {
     expectedSQL = "ALTER TABLE `ci_sessions`\nDROP COLUMN `id`;";
     // setup tables
@@ -356,12 +337,10 @@ public class MySQLTableTest {
     assertEquals("The sql generated should be a two column drop", expectedSQL, sql.get(0));
   }
 
-  @Test
   /**
    * Tests whether the equals function catches the modifiying of columns.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testColumnModification() {
     expectedSQL = "ALTER TABLE `ci_sessions`\nMODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\' AFTER `id`;";
     // setup tables

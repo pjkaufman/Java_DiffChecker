@@ -1,6 +1,6 @@
 # Compiled class file
 **/*.class
-# build data
+# application and build data
 build/
-# log data
+bin/
 log/

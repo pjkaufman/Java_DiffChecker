@@ -9,7 +9,7 @@ import dbdiffchecker.sql.SQLiteTable;
  * A unit test that makes sure that the SQLiteTable object works as intended.
  *
  * @author Peter Kaufman
- * @version 5-31-19
+ * @version 7-2-20
  * @since 5-10-19
  */
 public class SQLiteTableTest {
@@ -17,13 +17,11 @@ public class SQLiteTableTest {
   private String name, create, expectedSQL;
   private ArrayList<String> sql;
 
-  @Test
   /**
    * Tests whether the get statements inside of the SQLiteTable object work as
    * intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testGetStatements() {
     name = "helper";
     create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12))";
@@ -34,12 +32,10 @@ public class SQLiteTableTest {
         table1.getCreateStatement());
   }
 
-  @Test
   /**
    * Tests whether the add column portion of column parsing works as intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testAddColumn() {
     String column1 = "bloatware", column2 = "shipmentID";
     name = "bloat";
@@ -62,12 +58,10 @@ public class SQLiteTableTest {
         table1.getColumns().containsKey(column2));
   }
 
-  @Test
   /**
    * Tests whether the addIndex function works as intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testAddIndex() {
     String index1 = "shipment", index2 = "shipped";
     table1 = new SQLiteTable();
@@ -91,12 +85,10 @@ public class SQLiteTableTest {
         table1.getIndices().containsKey(index2));
   }
 
-  @Test
   /**
    * Tests whether the equals function catches the addition of several columns.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testAddColumns() {
     expectedSQL = "ALTER TABLE helper\n\tADD COLUMN Thor INTEGER (67) DEFAULT (12);";
     // setup tables
@@ -121,13 +113,11 @@ public class SQLiteTableTest {
     assertEquals("The sql generated should add two columns", expectedSQL, sql.get(0));
   }
 
-  @Test
   /**
    * Tests whether the equals function catches the addition of regular indices
    * (not testing primary key).
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testAddIndicesRegular() {
     expectedSQL = "CREATE UNIQUE INDEX add2 ON helper (Thor);\n" + "CREATE INDEX add1 ON helper (hulk, Thor);";
     // setup tables
@@ -147,12 +137,10 @@ public class SQLiteTableTest {
     assertEquals("The sql generated should add two indices", expectedSQL, sql.get(0));
   }
 
-  @Test
   /**
-   * Tests whetehr the parsing function adds Foreign Keys
-   *
-   * @author Peter Kaufman
+   * Tests whetehr the parsing function adds Foreign Keys.
    */
+  @Test
   public void testAddForeignKey() {
     name = "Books";
     create = "CREATE TABLE Books(BookId INTEGER PRIMARY KEY, Title TEXT, AuthorId INTEGER,"
@@ -162,13 +150,11 @@ public class SQLiteTableTest {
         table1.getIndices().containsKey("FOREIGN KEY1"));
   }
 
-  @Test
   /**
    * Tests whether the equals function catches the dropping of regular indices
    * (not testing primary key).
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testDropIndicesRegular() {
     expectedSQL = "DROP INDEX add2;\nDROP INDEX add1;";
     // setup tables
@@ -188,13 +174,11 @@ public class SQLiteTableTest {
     assertEquals("The sql generated should add drop indices", expectedSQL, sql.get(0));
   }
 
-  @Test
   /**
    * Tests whether the equals function catches the modifying of regular indices
    * (not testing primary key).
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testModifyIndicesRegular() {
     String create1, create2;
     expectedSQL = "DROP INDEX add1;\nCREATE INDEX add1 ON helper (hulk, Thor);";
@@ -225,12 +209,10 @@ public class SQLiteTableTest {
     assertEquals("The sql generated should modify two indices", expectedSQL, sql.get(0));
   }
 
-  @Test
   /**
    * Tests whether the equals function catches the need to recreate a table.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testRecreateTable() {
     ArrayList<String> expectedSQL = new ArrayList<>();
     String insert1 = "INSERT INTO helper (hulk)\n\tSELECT hulk\n\tFROM temp_table;";
@@ -305,13 +287,11 @@ public class SQLiteTableTest {
         expectedSQL, sql);
   }
 
-  @Test
   /**
    * Tests whether the equals function correctly recreates a table when special
    * conditions apply.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testRecreateTableSpecial() {
     ArrayList<String> expectedSQL = new ArrayList<>();
     String extraCreate = "CREATE INDEX addition ON helper (Thor)";
@@ -355,12 +335,10 @@ public class SQLiteTableTest {
         + "statements in the table create statement", true, expectedSQL.equals(sql));
   }
 
-  @Test
   /**
    * Tests whether the equals function works as intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testEquals() {
     ArrayList<String> sql;
     String expectedSQL = "DROP INDEX drop1;\nDROP INDEX drop2;\n"

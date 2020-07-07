@@ -8,7 +8,7 @@ import dbdiffchecker.nosql.Collection;
  * A unit test that makes sure that the Collection object works as intended.
  *
  * @author Peter Kaufman
- * @version 1-2-20
+ * @version 7-2-20
  * @since 1-1-20
  */
 public class CollectionsTest {
@@ -17,31 +17,26 @@ public class CollectionsTest {
   private boolean isCapped;
   private int size;
 
-  @Test
   /**
    * Tests whether the get statements inside of the Collection object work as
    * intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testGetStatements() {
     name = "work1";
     size = 1024;
     isCapped = true;
     test = new Collection(name, isCapped, size);
-    // // start assertions
     assertEquals("The name of the collection should be the one passed into the constructor", name, test.getName());
     assertEquals("The size of the collection should be the one passed into the constructor", size, test.getSize());
     assertEquals("The capped flag of the collection should be the one passed into the constructor", isCapped,
         test.isCapped());
   }
 
-  @Test
   /**
    * Tests whether Collection objects are equal when intended.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testCollectionEquality() {
     // initial setup for collections
     name = "work1";

@@ -40,13 +40,13 @@ public class TabPane extends JPanel {
     type = paneType;
     errorMsg.setForeground(Color.RED);
     errorMsg.setVisible(false);
-    tabTitle = new JLabel(paneType.getTabTitle(), JLabel.CENTER);
+    tabTitle = new JLabel(PaneType.getTabTitle(type.getValue()), JLabel.CENTER);
     tabHeader.add(tabTitle);
     tabHeader.add(errorMsg);
     add(tabHeader, BorderLayout.NORTH);
     String position = paneType.getValue() > 2 ? BorderLayout.CENTER : BorderLayout.SOUTH;
     if (paneType.getValue() < 3) {
-      databaseOptions = new JComboBox<String>(selectedDatabaseType.getDropdownOptions());
+      databaseOptions = new JComboBox<String>(DatabaseType.getDropdownOptions());
       tabHeader.add(databaseOptions);
       createTabBody();
       add(body, BorderLayout.CENTER);
@@ -57,47 +57,47 @@ public class TabPane extends JPanel {
     }
   }
 
-  protected JButton getRunBtn() {
+  public JButton getRunBtn() {
     return runBtn;
   }
 
-  protected JButton getExecuteBtn() {
+  public JButton getExecuteBtn() {
     return executeBtn;
   }
 
-  protected DatabaseType getSelectedDatabase() {
+  public DatabaseType getSelectedDatabase() {
     return selectedDatabaseType;
   }
 
-  protected PaneType getType() {
+  public PaneType getType() {
     return type;
   }
 
-  protected JTextArea getDataShow() {
+  public JTextArea getDataShow() {
     return dataShow;
   }
 
-  protected JComboBox<String> getDatabaseOptions() {
+  public JComboBox<String> getDatabaseOptions() {
     return databaseOptions;
   }
 
-  protected JLabel getErrorMessage() {
+  public JLabel getErrorMessage() {
     return errorMsg;
   }
 
-  protected JProgressBar getProgressBar() {
+  public JProgressBar getProgressBar() {
     return progressBar;
   }
 
-  protected ArrayList<JTextComponent> getUserInputs() {
+  public ArrayList<JTextComponent> getUserInputs() {
     return userInputComponents;
   }
 
-  protected ArrayList<JPanel> getInputForms() {
+  public ArrayList<JPanel> getInputForms() {
     return inputForms;
   }
 
-  protected void updateComponents() {
+  public void updateComponents() {
     int databasePos = databaseOptions.getSelectedIndex();
     selectedDatabaseType = databaseTypeOptions[databaseOptions.getSelectedIndex()];
     boolean contCreation = true;
@@ -108,9 +108,10 @@ public class TabPane extends JPanel {
     }
     userInputComponents = new ArrayList<>();
     if (type == PaneType.COMPARE_WITH_SNAPSHOT
-        && !FileHandler.fileExists(selectedDatabaseType.getType() + "_" + FileHandler.databaseSnapshotFileName)
+        && !FileHandler.fileExists(
+            DatabaseType.getType(selectedDatabaseType.getValue()) + "_" + FileHandler.databaseSnapshotFileName)
         && databasePos != 0) {
-      errorMsg.setText("Unable to do comparison: " + selectedDatabaseType.getType()
+      errorMsg.setText("Unable to do comparison: " + DatabaseType.getType(selectedDatabaseType.getValue())
           + " snapshot does not exist. Please run a database snapshot first.");
       errorMsg.setVisible(true);
       contCreation = false;
@@ -119,7 +120,7 @@ public class TabPane extends JPanel {
       if (databasePos == 0 || !contCreation) {
         inputForm.removeAll();
       } else {
-        createComponents(inputForm, selectedDatabaseType.getInputs(), userInputComponents);
+        createComponents(inputForm, DatabaseType.getInputs(selectedDatabaseType.getValue()), userInputComponents);
       }
       inputForm.revalidate();
       inputForm.repaint();
@@ -127,7 +128,7 @@ public class TabPane extends JPanel {
     executeBtn.setEnabled(false);
   }
 
-  protected void addComponentsToResizeList(ArrayList<Component> cpnr, ArrayList<Component> cpnBtn,
+  public void addComponentsToResizeList(ArrayList<Component> cpnr, ArrayList<Component> cpnBtn,
       ArrayList<Component> cpnt) {
     cpnr.add(errorMsg);
     cpnt.add(tabTitle);
@@ -282,6 +283,7 @@ public class TabPane extends JPanel {
           }
         });
       }
+
     }
   }
 

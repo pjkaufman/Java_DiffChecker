@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * A unit test that makes sure that the Bucket object works as intended.
  *
  * @author Peter Kaufman
- * @version 5-31-19
+ * @version 7-2-20
  * @since 5-24-19
  */
 public class BucketTest {
@@ -20,25 +20,21 @@ public class BucketTest {
   private ArrayList<String> statements = new ArrayList<>();
   private ArrayList<String> expectedStatements = new ArrayList<>();
 
-  @Before
   /**
    * Sets up for the serailization compare by resetiing the list of expected
    * statements and statements.
-   *
-   * @author Peter Kaufman
    */
+  @Before
   public void setupForCompare() {
     statements.clear();
     expectedStatements.clear();
   }
 
-  @Test
   /**
    * Tests whether Bucket object's compare method works as intended on simpler
    * situations.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testCompareSimple() {
     ArrayList<String> expectedStatements2 = new ArrayList<>();
     name = "blob";
@@ -116,13 +112,11 @@ public class BucketTest {
         expectedStatements2, statements);
   }
 
-  @Test
   /**
    * Tests whether Bucket object's compare method works as intended on complex
    * situations.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testCompareComplex() {
     name = "blob";
     expectedStatements.add("Create document: " + name);
@@ -158,13 +152,11 @@ public class BucketTest {
         expectedStatements, statements);
   }
 
-  @Test
   /**
    * Tests whether Bucket object's compare method works as intended on modifying
    * indices.
-   *
-   * @author Peter Kaufman
    */
+  @Test
   public void testModifyIndex() {
     name = "blob";
     create = "CREATE INDEX `" + name + "` ON `development`";
