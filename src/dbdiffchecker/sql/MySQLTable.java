@@ -1,7 +1,8 @@
 package dbdiffchecker.sql;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Resembles a table in MySQL and contains info about the Ttable's columns and
@@ -12,7 +13,9 @@ import java.util.HashMap;
  * @since 5-15-19
  */
 public class MySQLTable extends Table {
-  private String charSet = "", collation = "", autoIncrement = "";
+  private String charSet = "";
+  private String collation = "";
+  private String autoIncrement = "";
 
   /**
    * Sets the name and create statement of the table.
@@ -90,11 +93,11 @@ public class MySQLTable extends Table {
   }
 
   @Override
-  public ArrayList<String> equals(Table t1) {
-    ArrayList<String> sql = new ArrayList<>();
+  public List<String> equals(Table t1) {
+    List<String> sql = new ArrayList<>();
     this.count = 0;
     String sql2 = "ALTER TABLE `" + this.name + "`\n";
-    if (!this.charSet.equals(((MySQLTable) t1).charSet) | !this.collation.equals(((MySQLTable) t1).collation)) {
+    if (!this.charSet.equals(((MySQLTable) t1).charSet) || !this.collation.equals(((MySQLTable) t1).collation)) {
       sql2 += "CHARACTER SET " + this.charSet;
       if (!this.collation.equals("")) {
         sql2 += " COLLATE " + this.collation;
@@ -151,13 +154,13 @@ public class MySQLTable extends Table {
   }
 
   @Override
-  protected String dropCols(HashMap<String, Column> cols1, HashMap<String, Column> cols2) {
+  protected String dropCols(Map<String, Column> cols1, Map<String, Column> cols2) {
     String sql = "";
     Column col = null;
     for (String columnName : cols2.keySet()) {
       col = cols2.get(columnName);
       if (!cols1.containsKey(columnName)) {
-        if (!(this.count == 0)) {
+        if (this.count != 0) {
           sql += ", \n";
         }
         sql += col.getDrop();
@@ -168,40 +171,39 @@ public class MySQLTable extends Table {
   }
 
   @Override
-  protected String otherCols(HashMap<String, Column> cols1, HashMap<String, Column> cols2) {
+  protected String otherCols(Map<String, Column> cols1, Map<String, Column> cols2) {
     String sql = "";
     Column col = null;
     Column col2 = null;
     for (String columnName : cols1.keySet()) {
       col = cols1.get(columnName);
       if (!cols2.containsKey(columnName)) {
-        if (!(this.count == 0)) {
+        if (this.count != 0) {
           sql += ", \n";
         }
         sql += "ADD COLUMN `" + col.getName() + "` " + col.getDetails();
         this.count++;
       } else {
         col2 = cols2.get(columnName);
-        if (col.getName().equals(col2.getName())) {
-          if (!col.getDetails().equals(col2.getDetails())) {
-            if (!(this.count == 0)) {
-              sql += ", \n";
-            }
-            sql += "MODIFY COLUMN `" + col.getName() + "` " + col.getDetails();
-            this.count++;
+        if (col.getName().equals(col2.getName()) && !col.getDetails().equals(col2.getDetails())) {
+          if (this.count != 0) {
+            sql += ", \n";
           }
+          sql += "MODIFY COLUMN `" + col.getName() + "` " + col.getDetails();
+          this.count++;
         }
       }
     }
     return sql;
+
   }
 
   @Override
-  protected String dropIndices(HashMap<String, Index> dev, HashMap<String, Index> live) {
+  protected String dropIndices(Map<String, Index> dev, Map<String, Index> live) {
     String sql = "";
     for (String indexName : live.keySet()) {
       if (!dev.containsKey(indexName)) {
-        if (!(this.count == 0)) {
+        if (this.count != 0) {
           sql += ", \n";
         }
         sql += live.get(indexName).getDrop();
@@ -212,21 +214,21 @@ public class MySQLTable extends Table {
   }
 
   @Override
-  protected String otherIndices(HashMap<String, Index> dev, HashMap<String, Index> live) {
+  protected String otherIndices(Map<String, Index> dev, Map<String, Index> live) {
     String sql = "";
     Index indices1 = null;
     for (String indexName : dev.keySet()) {
       indices1 = dev.get(indexName);
       if (live.containsKey(indexName)) {
         if (!indices1.equals(live.get(indexName))) {
-          if (!(this.count == 0)) {
+          if (this.count != 0) {
             sql += ", \n";
           }
           sql += indices1.getDrop() + ", \n" + indices1.getCreateStatement();
           this.count++;
         }
       } else {
-        if (!(this.count == 0)) {
+        if (this.count != 0) {
           sql += ", \n";
         }
         sql += indices1.getCreateStatement();

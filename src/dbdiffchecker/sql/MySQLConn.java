@@ -9,6 +9,8 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Establishes a connection with a MySQL database based on the password,
@@ -19,7 +21,10 @@ import java.util.HashMap;
  * @since 5-21-19
  */
 public class MySQLConn extends SQLDbConn {
-  private String username = "", password = "", host = "", port = "";
+  private String username;
+  private String password;
+  private String host;
+  private String port;
 
   /**
    * Sets the instance variables and tests the database connection to make sure
@@ -93,8 +98,8 @@ public class MySQLConn extends SQLDbConn {
   }
 
   @Override
-  public HashMap<String, Table> getTableList() throws DatabaseDifferenceCheckerException {
-    HashMap<String, Table> tablesList = new HashMap<>();
+  public Map<String, Table> getTableList() throws DatabaseDifferenceCheckerException {
+    Map<String, Table> tablesList = new HashMap<>();
     String sql = "SHOW FULL TABLES IN `?` WHERE TABLE_TYPE LIKE 'BASE TABLE';";
     try (PreparedStatement query = this.con.prepareStatement(sql)) {
       // set up and run the query to get the table names
@@ -186,8 +191,8 @@ public class MySQLConn extends SQLDbConn {
   }
 
   @Override
-  public ArrayList<View> getViews() throws DatabaseDifferenceCheckerException {
-    ArrayList<View> views = new ArrayList<>();
+  public List<View> getViews() throws DatabaseDifferenceCheckerException {
+    List<View> views = new ArrayList<>();
     String sql = "SHOW FULL TABLES IN `?` WHERE TABLE_TYPE LIKE 'VIEW';";
     try (PreparedStatement query = this.con.prepareStatement(sql)) {
       query.setString(1, this.db);

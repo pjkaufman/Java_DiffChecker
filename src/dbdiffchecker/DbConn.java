@@ -8,7 +8,7 @@ package dbdiffchecker;
  * @version 6-20-20
  * @since 5-24-19
  */
-abstract public class DbConn {
+public abstract class DbConn {
   /**
    * This is the default constructor for this class, <b> Needed for
    * Serialization</b>.
@@ -21,7 +21,7 @@ abstract public class DbConn {
    *
    * @return The name of the database to connect to.
    */
-  abstract public String getDatabaseName();
+  public abstract String getDatabaseName();
 
   /**
    * Makes a connection to the database using the necessary information.
@@ -29,7 +29,7 @@ abstract public class DbConn {
    * @throws DatabaseDifferenceCheckerException Error when connecting to the
    *                                            database.
    */
-  abstract public void establishDatabaseConnection() throws DatabaseDifferenceCheckerException;
+  public abstract void establishDatabaseConnection() throws DatabaseDifferenceCheckerException;
 
   /**
    * Closes the connection to the database.
@@ -37,16 +37,16 @@ abstract public class DbConn {
    * @throws DatabaseDifferenceCheckerException Error when closing the connection
    *                                            to the database.
    */
-  abstract public void closeDatabaseConnection() throws DatabaseDifferenceCheckerException;
+  public abstract void closeDatabaseConnection() throws DatabaseDifferenceCheckerException;
 
   /**
    * Takes a statement and attempts to run it.
    *
-   * @param Statement The statement to run on the connected database.
+   * @param statement The statement to run on the connected database.
    * @throws DatabaseDifferenceCheckerException An error when running the SQL
    *                                            statement.
    */
-  abstract public void runStatement(String Statement) throws DatabaseDifferenceCheckerException;
+  public abstract void runStatement(String statement) throws DatabaseDifferenceCheckerException;
 
   /**
    * Attempts to connect to the database and responds accordingly.
@@ -55,5 +55,5 @@ abstract public class DbConn {
    *                                            database (it might be
    *                                            unavailable).
    */
-  abstract protected void testConnection() throws DatabaseDifferenceCheckerException;
+  protected abstract void testConnection() throws DatabaseDifferenceCheckerException;
 }

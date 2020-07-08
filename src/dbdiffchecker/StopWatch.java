@@ -14,18 +14,15 @@ import java.time.Instant;
  *      "https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java">https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java</a>
  */
 public class StopWatch {
-  private Instant startTime, endTime;
+  private Instant startTime;
   private Duration duration;
   private boolean isRunning = false;
 
   /**
    * Checks to see if the program is running. If it is not running, then start
    * time is set. Otherwise a RuntimeException error is thrown.
-   *
-   * @throws RuntimeException The stopwatch was running when this function was
-   *                          called.
    */
-  public void start() throws RuntimeException {
+  public void start() {
     if (isRunning) {
       throw new RuntimeException("Stopwatch is already running.");
     }
@@ -39,10 +36,9 @@ public class StopWatch {
    * a RuntimeException error is thrown.
    *
    * @return The amount of time elapsed since the last start method was called.
-   * @throws RuntimeException The stopwatch has not been started.
    */
-  public Duration stop() throws RuntimeException {
-    this.endTime = Instant.now();
+  public Duration stop() {
+    Instant endTime = Instant.now();
     if (!isRunning) {
       throw new RuntimeException("Stopwatch has not been started yet");
     }

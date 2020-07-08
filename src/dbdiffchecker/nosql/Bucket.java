@@ -5,6 +5,8 @@ import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
 import dbdiffchecker.sql.Index;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
 
 /**
@@ -15,9 +17,11 @@ import java.util.ArrayList;
  * @since 5-24-19
  */
 public class Bucket extends Database {
-  private HashMap<String, String> documents = new HashMap<>();
-  private HashMap<String, Index> indices = new HashMap<>();
-  private String name = "", bucketPlaceHolder = "", primaryKeyName = "";
+  private Map<String, String> documents = new HashMap<>();
+  private Map<String, Index> indices = new HashMap<>();
+  private String name = "";
+  private String bucketPlaceHolder = "";
+  private String primaryKeyName = "";
 
   /**
    * Creates a database that models the Couchbase bucket using the Couchbase
@@ -57,7 +61,7 @@ public class Bucket extends Database {
    *
    * @return The list of documents that exist in the bucket.
    */
-  public HashMap<String, String> getDocuments() {
+  public Map<String, String> getDocuments() {
     return this.documents;
   }
 
@@ -66,14 +70,14 @@ public class Bucket extends Database {
    *
    * @return The list of indices that exist in the bucket.
    */
-  public HashMap<String, Index> getIndices() {
+  public Map<String, Index> getIndices() {
     return this.indices;
   }
 
   @Override
-  public ArrayList<String> compare(Database liveBucket) {
+  public List<String> compare(Database liveBucket) {
     Bucket live = (Bucket) liveBucket;
-    ArrayList<String> n1ql = new ArrayList<>();
+    List<String> n1ql = new ArrayList<>();
     String liveBucketName = live.name;
     for (String documnetName : documents.keySet()) {
       if (!live.getDocuments().containsKey(documnetName)) {

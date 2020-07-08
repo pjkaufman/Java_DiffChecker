@@ -6,34 +6,30 @@ import org.junit.Test;
 import dbdiffchecker.nosql.Bucket;
 import dbdiffchecker.sql.Index;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A unit test that makes sure that the Bucket object works as intended.
  *
  * @author Peter Kaufman
- * @version 7-2-20
+ * @version 7-7-20
  * @since 5-24-19
  */
 public class BucketTest {
-  private Bucket bucket, bucket2;
-  private String name, create, drop;
-  private ArrayList<String> statements = new ArrayList<>();
-  private ArrayList<String> expectedStatements = new ArrayList<>();
+  private Bucket bucket;
+  private Bucket bucket2;
+  private String name;
+  private String create;
+  private String drop;
+  private List<String> statements = new ArrayList<>();
+  private List<String> expectedStatements = new ArrayList<>();
 
-  /**
-   * Sets up for the serailization compare by resetiing the list of expected
-   * statements and statements.
-   */
   @Before
   public void setupForCompare() {
     statements.clear();
     expectedStatements.clear();
   }
 
-  /**
-   * Tests whether Bucket object's compare method works as intended on simpler
-   * situations.
-   */
   @Test
   public void testCompareSimple() {
     ArrayList<String> expectedStatements2 = new ArrayList<>();
@@ -112,10 +108,6 @@ public class BucketTest {
         expectedStatements2, statements);
   }
 
-  /**
-   * Tests whether Bucket object's compare method works as intended on complex
-   * situations.
-   */
   @Test
   public void testCompareComplex() {
     name = "blob";
@@ -152,10 +144,6 @@ public class BucketTest {
         expectedStatements, statements);
   }
 
-  /**
-   * Tests whether Bucket object's compare method works as intended on modifying
-   * indices.
-   */
   @Test
   public void testModifyIndex() {
     name = "blob";

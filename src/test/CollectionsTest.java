@@ -12,15 +12,11 @@ import dbdiffchecker.nosql.Collection;
  * @since 1-1-20
  */
 public class CollectionsTest {
-  private Collection test, test2;
+  private Collection test;
   private String name;
   private boolean isCapped;
   private int size;
 
-  /**
-   * Tests whether the get statements inside of the Collection object work as
-   * intended.
-   */
   @Test
   public void testGetStatements() {
     name = "work1";
@@ -33,9 +29,6 @@ public class CollectionsTest {
         test.isCapped());
   }
 
-  /**
-   * Tests whether Collection objects are equal when intended.
-   */
   @Test
   public void testCollectionEquality() {
     // initial setup for collections
@@ -44,8 +37,7 @@ public class CollectionsTest {
     isCapped = true;
     test = new Collection(name, isCapped, size);
     name = "work2";
-    test2 = new Collection(name, isCapped, size);
-    // testing of the collections
+    Collection test2 = new Collection(name, isCapped, size);
     // make sure that when the name is different the collections are labeled as
     // different
     assertEquals("The two collections should not be equal if the names are not the same", false, test.equals(test2));

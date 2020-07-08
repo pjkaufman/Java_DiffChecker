@@ -1,7 +1,8 @@
 package dbdiffchecker.sql;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Resembles a table in SQLite and contains info about the table's columns and
@@ -35,10 +36,10 @@ public class SQLiteTable extends Table {
   }
 
   @Override
-  public ArrayList<String> equals(Table t1) {
+  public List<String> equals(Table t1) {
     stopCompare = false;
     this.count = 0;
-    ArrayList<String> sql = new ArrayList<>();
+    List<String> sql = new ArrayList<>();
     String sql2 = "";
     // if there are a different amount of foreing keys the table needs to be
     // recreated
@@ -78,10 +79,15 @@ public class SQLiteTable extends Table {
 
   @Override
   protected void parseCreateStatement() {
-    String[] parts, columns;
-    ArrayList<String> bodySections = new ArrayList<>();
+    String[] parts;
+    String[] columns;
+    List<String> bodySections = new ArrayList<>();
     String indexIndicator = ".*([K|k][E|e][Y|y])(\\s)*(\\().*";
-    String name = "", drop = "", details = "", create = "", body;
+    String name = "";
+    String drop = "";
+    String details = "";
+    String create = "";
+    String body;
     int nameEnd = 0;
     create = createStatement.substring(createStatement.indexOf("(") + 1).trim();
     create = create.trim();
@@ -97,7 +103,9 @@ public class SQLiteTable extends Table {
     } else if (body.endsWith(")")) {
       body = body.substring(0, body.length() - 1);
     }
-    int comma, startParen, endParen;
+    int comma;
+    int startParen;
+    int endParen;
     while (body.contains(",")) {
       comma = body.indexOf(",");
       startParen = body.indexOf("(");
@@ -155,7 +163,7 @@ public class SQLiteTable extends Table {
   }
 
   @Override
-  protected String dropCols(HashMap<String, Column> cols1, HashMap<String, Column> cols2) {
+  protected String dropCols(Map<String, Column> cols1, Map<String, Column> cols2) {
     String sql = "";
     for (String columnName : cols2.keySet()) {
       if (!cols1.containsKey(columnName)) {
@@ -167,7 +175,7 @@ public class SQLiteTable extends Table {
   }
 
   @Override
-  protected String otherCols(HashMap<String, Column> cols1, HashMap<String, Column> cols2) {
+  protected String otherCols(Map<String, Column> cols1, Map<String, Column> cols2) {
     String sql = "";
     Column col = null;
     Column col2 = null;
@@ -181,19 +189,18 @@ public class SQLiteTable extends Table {
         this.count++;
       } else {
         col2 = cols2.get(columnName);
-        if (col.getName().equals(col2.getName())) {
-          if (!col.getDetails().equals(col2.getDetails())) {
-            stopCompare = true;
-            return sql;
-          }
+        if (col.getName().equals(col2.getName()) && !col.getDetails().equals(col2.getDetails())) {
+          stopCompare = true;
+          return sql;
         }
       }
     }
     return sql;
+
   }
 
   @Override
-  protected String dropIndices(HashMap<String, Index> dev, HashMap<String, Index> live) {
+  protected String dropIndices(Map<String, Index> dev, Map<String, Index> live) {
     String sql = "";
     for (String indexName : live.keySet()) {
       if (!dev.containsKey(indexName)) {
@@ -212,7 +219,7 @@ public class SQLiteTable extends Table {
   }
 
   @Override
-  protected String otherIndices(HashMap<String, Index> dev, HashMap<String, Index> live) {
+  protected String otherIndices(Map<String, Index> dev, Map<String, Index> live) {
     String sql = "";
     Index indices1 = null;
     for (String indexName : dev.keySet()) {
@@ -253,10 +260,10 @@ public class SQLiteTable extends Table {
    *             of data for common collumns.
    * @return The SQL statements needed to recreate the development table.
    */
-  private ArrayList<String> recreateTable(HashMap<String, Column> live) {
+  private List<String> recreateTable(Map<String, Column> live) {
     String commonColumns = "";
     boolean doExtraWork = this.createStatement.lastIndexOf("CREATE") > 6;
-    ArrayList<String> sql = new ArrayList<>();
+    List<String> sql = new ArrayList<>();
     for (String columnName : live.keySet()) {
       if (this.columns.containsKey(columnName)) {
         commonColumns += "" + columnName + ",";

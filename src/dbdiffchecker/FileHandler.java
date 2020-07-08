@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -20,8 +21,17 @@ import java.util.Scanner;
  * @since 9-12-17
  */
 public class FileHandler {
-  public static final String logFileName = "activity.log", lastSequelStatementFileName = "lastRun.txt",
-      databaseSnapshotFileName = "dbsnapshot", logFolder = "log";
+  public static final String LOG_FILE = "activity.log";
+  public static final String LAST_RUN_FILE = "lastRun.txt";
+  public static final String DB_SNAPSHOT_FILE = "dbsnapshot";
+  public static final String LOG_FOLDER = "log" + File.separator;
+
+  /**
+   * Makes sure that noone can try to instantiate the utility class.
+   */
+  private FileHandler() {
+    throw new IllegalStateException("Utility class");
+  }
 
   /**
    * Serializes a database with all of its table and view data.
@@ -35,11 +45,9 @@ public class FileHandler {
   public static void serializeDatabase(Database database, String prefix) throws DatabaseDifferenceCheckerException {
     try (
         FileOutputStream fileOutput = new FileOutputStream(
-            new File(logFolder + File.separator + prefix + "_" + databaseSnapshotFileName));
+            new File(String.format("%s%s_%s", LOG_FOLDER, prefix, DB_SNAPSHOT_FILE)));
         ObjectOutputStream outputStream = new ObjectOutputStream(fileOutput)) {
       outputStream.writeObject(database);
-      outputStream.close();
-      fileOutput.close();
     } catch (IOException cause) {
       throw new DatabaseDifferenceCheckerException("There was an error when trying to take a snapshot of the database.",
           cause, 1000);
@@ -53,9 +61,8 @@ public class FileHandler {
    * @throws DatabaseDifferenceCheckerException Error writing the statements to
    *                                            the last run file.
    */
-  public static void writeToFile(ArrayList<String> sequelStatements) throws DatabaseDifferenceCheckerException {
-    try (PrintWriter out = new PrintWriter(
-        new FileWriter(new File(logFolder + File.separator + lastSequelStatementFileName)))) {
+  public static void writeToFile(List<String> sequelStatements) throws DatabaseDifferenceCheckerException {
+    try (PrintWriter out = new PrintWriter(new FileWriter(new File(LOG_FOLDER + LAST_RUN_FILE)))) {
       for (String statement : sequelStatements) {
         out.println(statement);
       }
@@ -74,7 +81,7 @@ public class FileHandler {
    */
   public static void writeToFile(String data) throws DatabaseDifferenceCheckerException {
     Date currentTime = new Date();
-    try (PrintWriter out = new PrintWriter(new FileWriter(new File(logFolder + File.separator + logFileName), true))) {
+    try (PrintWriter out = new PrintWriter(new FileWriter(new File(LOG_FOLDER + LOG_FILE), true))) {
       out.println(currentTime.toString() + " " + data);
     } catch (IOException cause) {
       throw new DatabaseDifferenceCheckerException("There was an error writing the to the log file", cause, 1002);
@@ -93,15 +100,12 @@ public class FileHandler {
    */
   public static Database deserailizDatabase(String prefix) throws DatabaseDifferenceCheckerException {
     Database database = null;
-    try (
-        FileInputStream fileInput = new FileInputStream(
-            new File(logFolder + File.separator + prefix + "_" + databaseSnapshotFileName));
+    try (FileInputStream fileInput = new FileInputStream(new File(LOG_FOLDER + prefix + "_" + DB_SNAPSHOT_FILE));
         ObjectInputStream inputStream = new ObjectInputStream(fileInput)) {
       database = (Database) inputStream.readObject();
     } catch (Exception cause) {
       throw new DatabaseDifferenceCheckerException("There was an error when trying to get the database snapshot.",
           cause, 1003);
-    } finally {
     }
     return database;
   }
@@ -114,9 +118,9 @@ public class FileHandler {
    * @throws DatabaseDifferenceCheckerException Error reading in the data from the
    *                                            specified file.
    */
-  public static ArrayList<String> readFrom(String file) throws DatabaseDifferenceCheckerException {
-    ArrayList<String> fileLines = new ArrayList<>();
-    try (Scanner in = new Scanner(new File(logFolder + File.separator + file))) {
+  public static List<String> readFrom(String file) throws DatabaseDifferenceCheckerException {
+    List<String> fileLines = new ArrayList<>();
+    try (Scanner in = new Scanner(new File(LOG_FOLDER + file))) {
       while (in.hasNextLine()) {
         fileLines.add(in.nextLine());
       }
@@ -136,6 +140,6 @@ public class FileHandler {
    *      "https://stackoverflow.com/questions/1816673/how-do-i-check-if-a-file-exists-in-java">https://stackoverflow.com/questions/1816673/how-do-i-check-if-a-file-exists-in-java</a>
    */
   public static boolean fileExists(String file) {
-    return new File(logFolder + File.separator + file).isFile();
+    return new File(LOG_FOLDER + file).isFile();
   }
 }

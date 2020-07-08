@@ -4,7 +4,7 @@ package dbdiffchecker.sql;
  * Resembles a generic index and contains index info.
  *
  * @author Peter Kaufman
- * @version 6-20-20
+ * @version 7-6-20
  * @since 9-12-17
  */
 public class Index extends Schema {
@@ -28,14 +28,11 @@ public class Index extends Schema {
   public Index() {
   }
 
-  /**
-   * Determines whether or not the indexes are the same by comparing their create
-   * statements.
-   *
-   * @param index An index with the same name as the current index.
-   * @return Whether or not the indices are the same.
-   */
-  public boolean equals(Index index) {
-    return this.createStatement.equals(index.createStatement);
+  @Override
+  public boolean equals(Object index) {
+    if (!(index instanceof Index)) {
+      return false;
+    }
+    return this.createStatement.equals(((Index) index).createStatement);
   }
 }

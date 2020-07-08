@@ -4,6 +4,8 @@ import dbdiffchecker.Database;
 import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
 
 /**
@@ -14,7 +16,7 @@ import java.util.ArrayList;
  * @since 10-26-19
  */
 public class MongoDB extends Database {
-  private HashMap<String, Collection> collections = new HashMap<>();
+  private Map<String, Collection> collections = new HashMap<>();
 
   /**
    * Creates a database that models the Mongo database using the Mongo connection
@@ -44,14 +46,16 @@ public class MongoDB extends Database {
    *
    * @return The list of documents that exist in the bucket.
    */
-  public HashMap<String, Collection> getCollections() {
+  public Map<String, Collection> getCollections() {
     return this.collections;
   }
 
   @Override
-  public ArrayList<String> compare(Database liveDatabase) {
+  public List<String> compare(Database liveDatabase) {
     MongoDB live = (MongoDB) liveDatabase;
-    ArrayList<String> statements = new ArrayList<>(), updateCollections, common = new ArrayList<>();
+    List<String> statements = new ArrayList<>();
+    List<String> common = new ArrayList<>();
+    List<String> updateCollections;
     // check for collections to create and drop
     statements.addAll(compareCollections(live.getCollections(), common));
     // determine which collections need to be updated
@@ -71,8 +75,8 @@ public class MongoDB extends Database {
    * @return A set of statmentst that have to do with dropping and or creating
    *         collections.
    */
-  private ArrayList<String> compareCollections(HashMap<String, Collection> liveCollections, ArrayList<String> common) {
-    ArrayList<String> statements = new ArrayList<>();
+  private List<String> compareCollections(Map<String, Collection> liveCollections, List<String> common) {
+    List<String> statements = new ArrayList<>();
     // check for collections to create
     String createStatement;
     for (String collectionName : collections.keySet()) {
@@ -102,8 +106,8 @@ public class MongoDB extends Database {
    * @param liveColls The collection list from the live database.
    * @return The list of collections that need to be updated.
    */
-  private ArrayList<String> collectionDiffs(ArrayList<String> common, HashMap<String, Collection> liveColls) {
-    ArrayList<String> updateCollections = new ArrayList<>();
+  private List<String> collectionDiffs(List<String> common, Map<String, Collection> liveColls) {
+    List<String> updateCollections = new ArrayList<>();
     for (String collectionName : common) {
       if (!collections.get(collectionName).equals(liveColls.get(collectionName))) {
         updateCollections.add(collectionName);
@@ -119,8 +123,8 @@ public class MongoDB extends Database {
    * @return The statements needed to make the collections from the collections to
    *         updated the same.
    */
-  private ArrayList<String> updateCollections(ArrayList<String> collectionsToUpdate) {
-    ArrayList<String> statements = new ArrayList<>();
+  private List<String> updateCollections(List<String> collectionsToUpdate) {
+    List<String> statements = new ArrayList<>();
     String createStatement;
     for (String collectionName : collectionsToUpdate) {
       statements.add("Delete Collection: " + collectionName);

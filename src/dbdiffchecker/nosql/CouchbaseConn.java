@@ -14,7 +14,7 @@ import com.couchbase.client.java.query.util.IndexInfo;
 import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
 import dbdiffchecker.sql.Index;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Establishes a connection with a Couchbase bucket based on the password,
@@ -25,8 +25,13 @@ import java.util.HashMap;
  * @since 5-23-19
  */
 public class CouchbaseConn extends DbConn {
-  private static final String bucketPlaceHolder = "dbDiffBucket", primaryKeyName = "dbDiffKey";
-  private String username = "", password = "", bucketName = "", host = "";
+  private static final String BUCKET_PLACE_HOLDER = "dbDiffBucket";
+  private static final String PRIMARY_KEY_NAME = "dbDiffKey";
+  private static final String CONN_STR_FORMAT = "couchbase://%s/%s?operation_timeout=5.5&config_total_timeout=15&http_poolsize=0";
+  private String username;
+  private String password;
+  private String bucketName;
+  private String host;
   private Bucket bucket;
   private N1qlParams params = N1qlParams.build().adhoc(false);
   private N1qlQuery query;
@@ -71,7 +76,7 @@ public class CouchbaseConn extends DbConn {
    * @return The bucket placeholder used in index create statements.
    */
   public String getBucketPlaceHolder() {
-    return bucketPlaceHolder;
+    return BUCKET_PLACE_HOLDER;
   }
 
   /**
@@ -82,16 +87,13 @@ public class CouchbaseConn extends DbConn {
    *         created.
    */
   public String getDefaultPrimaryName() {
-    return primaryKeyName;
+    return PRIMARY_KEY_NAME;
   }
 
   @Override
   public void establishDatabaseConnection() throws DatabaseDifferenceCheckerException {
-    String connString = "couchbase://" + host + "/" + bucketName
-        + "?operation_timeout=5.5&config_total_timeout=15&http_poolsize=0";
     try {
-      Cluster cluster = CouchbaseCluster.fromConnectionString(connString);
-      ;
+      Cluster cluster = CouchbaseCluster.fromConnectionString(String.format(CONN_STR_FORMAT, host, bucketName));
       cluster.authenticate(username, password);
       bucket = cluster.openBucket(bucketName);
     } catch (Exception cause) {
@@ -111,7 +113,7 @@ public class CouchbaseConn extends DbConn {
    * @param documents A list where all of the document names will be stored for
    *                  fast lookup later.
    */
-  public void getDocuments(HashMap<String, String> documents) {
+  public void getDocuments(Map<String, String> documents) {
     query = N1qlQuery.simple("SELECT META().id AS document FROM `" + bucketName + "`", params);
     result = bucket.query(query);
     String documentName;
@@ -127,36 +129,37 @@ public class CouchbaseConn extends DbConn {
    * @param indices A list where all of the index names and data that will be
    *                stored for fast lookup later.
    */
-  public void getIndices(HashMap<String, Index> indices) {
+  public void getIndices(Map<String, Index> indices) {
     query = N1qlQuery.simple("SELECT indexes FROM system:indexes WHERE keyspace_id = \"" + bucketName + "\"", params);
     result = bucket.query(query);
     IndexInfo index = null;
-    String create;
+    StringBuilder create;
     String drop;
     int size;
     for (N1qlQueryRow row : result) {
       index = new IndexInfo(row.value().getObject("indexes"));
-      if (primaryAdded && index.name().equals(primaryKeyName)) { // skip the manually added index
+      if (primaryAdded && index.name().equals(PRIMARY_KEY_NAME)) { // skip the manually added index
         continue;
       }
-      create = new IndexElement(index.name(), index.isPrimary()).export() + " ON `" + bucketPlaceHolder + "`";
+      create = new StringBuilder(
+          new IndexElement(index.name(), index.isPrimary()).export() + " ON `" + BUCKET_PLACE_HOLDER + "`");
       size = index.indexKey().size();
       if (size != 0) {
-        create += " (";
+        create.append(" (");
         for (int i = 0; i < size; i++) {
-          create += index.indexKey().getString(i);
+          create.append(index.indexKey().getString(i));
         }
-        create += ")";
+        create.append(")");
       }
       if (index.condition().length() > 0) {
-        create += " WHERE" + index.condition();
+        create.append(" WHERE" + index.condition());
       }
       // only add using statement if the key is not a primary index
       if (!index.isPrimary()) {
-        create += " USING " + index.type();
+        create.append(" USING " + index.type());
       }
-      drop = "DROP INDEX `" + bucketPlaceHolder + "`.`" + index.name() + "`;";
-      indices.put(index.name(), new Index(index.name(), create, drop));
+      drop = "DROP INDEX `" + BUCKET_PLACE_HOLDER + "`.`" + index.name() + "`;";
+      indices.put(index.name(), new Index(index.name(), create.toString(), drop));
     }
   }
 
@@ -194,7 +197,7 @@ public class CouchbaseConn extends DbConn {
       String errorMsg = error.getCause().toString();
       if (errorMsg.contains("4000") && errorMsg.contains("CREATE INDEX")) {
         // create a primary index
-        query = N1qlQuery.simple("CREATE PRIMARY INDEX " + primaryKeyName + " ON `" + bucketName + "`", params);
+        query = N1qlQuery.simple("CREATE PRIMARY INDEX " + PRIMARY_KEY_NAME + " ON `" + bucketName + "`", params);
         bucket.query(query);
         primaryAdded = true;
       } else {

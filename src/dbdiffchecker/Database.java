@@ -1,13 +1,13 @@
 package dbdiffchecker;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The model for the functions that all database representations should contain.
  *
  * @author Peter Kaufman
- * @version 6-20-20
+ * @version 7-6-20
  * @since 5-24-19
  */
 public abstract class Database implements Serializable {
@@ -27,5 +27,5 @@ public abstract class Database implements Serializable {
    * @param liveDatabase The live database model.
    * @return The statements needed to make the two databases the same.
    */
-  public abstract ArrayList<String> compare(Database liveDatabase);
+  public abstract List<String> compare(Database liveDatabase);
 }

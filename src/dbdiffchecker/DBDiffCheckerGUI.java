@@ -19,7 +19,6 @@ import javax.swing.JProgressBar;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.BorderFactory;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
@@ -31,13 +30,12 @@ import javax.swing.UnsupportedLookAndFeelException;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.lang.InterruptedException;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Dimension;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -46,33 +44,37 @@ import java.awt.event.ComponentListener;
  * A JFrame that has several tabs and includes the entire frontend.
  *
  * @author Peter Kaufman
- * @version 7-2-20
+ * @version 7-6-20
  * @since 9-20-17
  */
 public class DBDiffCheckerGUI extends JFrame {
-  DatabaseType selectedType;
-  PaneType[] paneTypeOptions = PaneType.values();
-  PaneType tabType;
-  TabPane selectedTab;
-  private ArrayList<JPanel> inputForms = new ArrayList<JPanel>(paneTypeOptions.length - 2);
-  private HashMap<String, ArrayList<String>> statementsLists = new HashMap<String, ArrayList<String>>(
-      paneTypeOptions.length - 3);
-  private HashMap<String, DbConn> liveConnectionLists = new HashMap<String, DbConn>(paneTypeOptions.length - 3);
+  private static final String FONT_FAMILY = "Tahoma";
+  private DatabaseType selectedType;
+  private PaneType[] paneTypeOptions = PaneType.values();
+  private PaneType tabType;
+  private TabPane selectedTab;
+  private List<JPanel> inputForms = new ArrayList<>(paneTypeOptions.length - 2);
+  private Map<String, List<String>> statementsLists = new HashMap<>(paneTypeOptions.length - 3);
+  private transient HashMap<String, DbConn> liveConnectionLists = new HashMap<>(paneTypeOptions.length - 3);
   private JTabbedPane jtp = new JTabbedPane();
-  private Database devDatabase, liveDatabase;
-  private DbConn devDatabaseConnection, liveDatabaseConnection;
-  private TitledBorder nBorder = null;
-  private StopWatch sw = new StopWatch();
+  private Database devDatabase;
+  private Database liveDatabase;
+  private transient DbConn devDatabaseConnection;
+  private transient DbConn liveDatabaseConnection;
+  private transient StopWatch sw = new StopWatch();
   private String currentTab = PaneType.getTabText(0);
-  private ArrayList<String> statements;
-  private ArrayList<Component> cpnt = new ArrayList<>(), cpnBtn = new ArrayList<>(), cpnr = new ArrayList<>();
-  private Font reg = new Font("Tahoma", Font.PLAIN, 12), tabFont = new Font("Tahoma", Font.PLAIN, 16);
+  private List<String> statements;
+  private List<Component> cpnt = new ArrayList<>();
+  private List<Component> cpnBtn = new ArrayList<>();
+  private List<Component> cpnr = new ArrayList<>();
+  private Font reg = new Font(FONT_FAMILY, Font.PLAIN, 12);
+  private Font tabFont = new Font(FONT_FAMILY, Font.PLAIN, 16);
   private int tabPos = 0;
   private JButton runBtn;
   private JTextArea dataShow;
   private JLabel errorMsg;
   private JComboBox<String> databaseOptions;
-  private ArrayList<JTextComponent> inputs;
+  private List<JTextComponent> inputs;
   private JProgressBar progressBar;
 
   /**
@@ -98,38 +100,36 @@ public class DBDiffCheckerGUI extends JFrame {
     selectedTab = (TabPane) jtp.getComponentAt(0);
     updateTabVariables();
     // add listener for tab changes
-    jtp.addChangeListener(new ChangeListener() {
-      @Override
-      public void stateChanged(ChangeEvent e) {
-        jtp.setTitleAt(tabPos, currentTab);
-        tabPos = jtp.getSelectedIndex();
-        currentTab = PaneType.getTabText(tabPos);
-        jtp.setTitleAt(tabPos, "<html><b>" + currentTab + "</b></html>");
-        selectedTab = (TabPane) jtp.getSelectedComponent();
-        updateTabVariables();
-        if (tabType == PaneType.LOGS) {
-          if (FileHandler.fileExists(FileHandler.logFileName)) {
-            displayLog(FileHandler.logFileName);
-          } else {
-            dataShow.setText("There are no logs to display.");
-          }
-        } else if (tabType == PaneType.LAST_RUN) {
-          if (FileHandler.fileExists(FileHandler.lastSequelStatementFileName)) {
-            displayLog(FileHandler.lastSequelStatementFileName);
-          } else {
-            dataShow.setText("The application has no record of any statements run before.");
-          }
+    jtp.addChangeListener((ChangeEvent evt) -> {
+      jtp.setTitleAt(tabPos, currentTab);
+      tabPos = jtp.getSelectedIndex();
+      currentTab = PaneType.getTabText(tabPos);
+      jtp.setTitleAt(tabPos, "<html><b>" + currentTab + "</b></html>");
+      selectedTab = (TabPane) jtp.getSelectedComponent();
+      updateTabVariables();
+      if (tabType == PaneType.LOGS) {
+        if (FileHandler.fileExists(FileHandler.LOG_FILE)) {
+          displayLog(FileHandler.LOG_FILE);
+        } else {
+          dataShow.setText("There are no logs to display.");
         }
-        // copy over statements from a previous run on the tab and the previous live
-        // connection
-        if (liveConnectionLists.containsKey(currentTab)) {
-          liveDatabaseConnection = liveConnectionLists.get(currentTab);
-        }
-        if (statementsLists.containsKey(currentTab)) {
-          statements = statementsLists.get(currentTab);
+      } else if (tabType == PaneType.LAST_RUN) {
+        if (FileHandler.fileExists(FileHandler.LAST_RUN_FILE)) {
+          displayLog(FileHandler.LAST_RUN_FILE);
+        } else {
+          dataShow.setText("The application has no record of any statements run before.");
         }
       }
+      // copy over statements from a previous run on the tab and the previous live
+      // connection
+      if (liveConnectionLists.containsKey(currentTab)) {
+        liveDatabaseConnection = liveConnectionLists.get(currentTab);
+      }
+      if (statementsLists.containsKey(currentTab)) {
+        statements = statementsLists.get(currentTab);
+      }
     });
+
     addComponentListener(new ComponentListener() {
       @Override
       public void componentResized(ComponentEvent e) {
@@ -158,6 +158,9 @@ public class DBDiffCheckerGUI extends JFrame {
     setVisible(true);
   }
 
+  /**
+   * Updates the variables that are tab specific.
+   */
   private void updateTabVariables() {
     runBtn = selectedTab.getRunBtn();
     tabType = selectedTab.getType();
@@ -169,45 +172,41 @@ public class DBDiffCheckerGUI extends JFrame {
     inputForms = selectedTab.getInputForms();
   }
 
+  /**
+   * Adds the action listeners used on the combobox and other user input
+   * components.
+   *
+   * @param tabPane The tab which needs the action listeners added.
+   * @param type    The type of pane that has is to have its listeners added.
+   */
   private void addActionListeners(TabPane tabPane, PaneType type) {
-    JButton runBtn = tabPane.getRunBtn(), execBtn = tabPane.getExecuteBtn();
+    JButton runButton = tabPane.getRunBtn();
+    JButton execBtn = tabPane.getExecuteBtn();
     switch (type) {
       case COMPARE_WITH_DB:
       case COMPARE_WITH_SNAPSHOT:
-        runBtn.addActionListener(new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent evt) {
-            executeStatements();
-          }
-        });
-        execBtn.addActionListener(new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent evt) {
-            errorMsg.setVisible(false);
-            generateStatements();
-          }
+        runButton.addActionListener((ActionEvent evt) -> executeStatements());
+        execBtn.addActionListener((ActionEvent evt) -> {
+          errorMsg.setVisible(false);
+          generateStatements();
         });
         break;
       case SNAPSHOT:
-        execBtn.addActionListener(new ActionListener() {
-
-          @Override
-          public void actionPerformed(ActionEvent evt) {
-            errorMsg.setVisible(false);
-            createSnapshot();
-          }
+        execBtn.addActionListener((ActionEvent evt) -> {
+          errorMsg.setVisible(false);
+          createSnapshot();
         });
         break;
       default:
         break;
     }
-    databaseOptions.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent event) {
-        updateInfo();
-      }
-    });
+    databaseOptions.addActionListener((ActionEvent evt) -> updateInfo());
   }
 
+  /**
+   * Updates some information related to the combobox when the combobox is
+   * modified.
+   */
   private void updateInfo() {
     newBorder("");
     selectedTab.updateComponents();
@@ -233,7 +232,7 @@ public class DBDiffCheckerGUI extends JFrame {
         publish("Writing to JSON File");
         FileHandler.serializeDatabase(devDatabase, DatabaseType.getType(selectedTab.getSelectedDatabase().getValue()));
         sw.stop();
-        log("Took a DB Snapshot in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
+        log(String.format("Took a DB Snapshot in %fs with no errors.", sw.getElapsedTime().toMillis() / 1000.0));
         return true;
       }
 
@@ -351,7 +350,7 @@ public class DBDiffCheckerGUI extends JFrame {
    * @param title The new name of the titled borders.
    */
   private void newBorder(String title) {
-    nBorder = BorderFactory.createTitledBorder(title);
+    TitledBorder nBorder = BorderFactory.createTitledBorder(title);
     nBorder.setTitleFont(reg);
     progressBar.setBorder(nBorder);
   }
@@ -468,7 +467,7 @@ public class DBDiffCheckerGUI extends JFrame {
    */
   private void displayLog(String file) {
     try {
-      ArrayList<String> statementList = FileHandler.readFrom(file);
+      List<String> statementList = FileHandler.readFrom(file);
       if (statementList.isEmpty()) {
         if (tabType == PaneType.LOGS) {
           dataShow.setText("There are no logs to display.");
@@ -556,7 +555,7 @@ public class DBDiffCheckerGUI extends JFrame {
         }
         liveDatabaseConnection.closeDatabaseConnection();
         sw.stop();
-        log("Ran SQL in " + sw.getElapsedTime().toMillis() / 1000.0 + "s with no errors.");
+        log(String.format("Ran SQL in %fs with no errors.", sw.getElapsedTime().toMillis() / 1000.0));
         return true;
       }
 
@@ -603,11 +602,13 @@ public class DBDiffCheckerGUI extends JFrame {
     return path;
   }
 
+  /**
+   * Resize components to compensate for the change in the GUI width.
+   */
   private void resizeWindowComponents(double width) {
-    // determine font sizes based on width of the GUI
-    Font title = new Font("Tahoma", Font.BOLD, (int) (width / 38));
-    reg = new Font("Tahoma", Font.PLAIN, (int) (width / 58));
-    Font button = new Font("Tahoma", Font.BOLD, (int) (width / 53));
+    Font title = new Font(FONT_FAMILY, Font.BOLD, (int) (width / 38));
+    reg = new Font(FONT_FAMILY, Font.PLAIN, (int) (width / 58));
+    Font button = new Font(FONT_FAMILY, Font.BOLD, (int) (width / 53));
     // input body components
     for (JPanel inputForm : inputForms) {
       ((TitledBorder) inputForm.getBorder()).setTitleFont(reg.deriveFont(Font.BOLD));
@@ -618,11 +619,9 @@ public class DBDiffCheckerGUI extends JFrame {
     for (Component cpn : cpnr) {
       cpn.setFont(reg);
     }
-    // title components
     for (Component cpn : cpnt) {
       cpn.setFont(title);
     }
-    // button components
     for (Component cpn : cpnBtn) {
       cpn.setFont(button);
     }

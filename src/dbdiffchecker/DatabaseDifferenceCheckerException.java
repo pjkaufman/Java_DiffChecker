@@ -1,14 +1,14 @@
 package dbdiffchecker;
 
 /**
- * Used to wrap exception that occur throughtout the program.
+ * Used to wrap exceptions that occur throughtout the program.
  *
  * @author Peter Kaufman
- * @version 6-20-20
+ * @version 7-6-20
  * @since 7-29-18
  */
 public class DatabaseDifferenceCheckerException extends Exception {
-  private int errorCode;
+  private final int errorCode;
 
   /**
    * Takes in a message and the cause of the exception and creates an exception.
@@ -24,6 +24,7 @@ public class DatabaseDifferenceCheckerException extends Exception {
 
   @Override
   public String toString() {
-    return super.toString().replace("dbdiffchecker.DatabaseDifferenceCheckerException:", errorCode + " -");
+    String message = super.toString();
+    return String.format("%d - %s", errorCode, message.substring(message.indexOf(":") + 2));
   }
 }

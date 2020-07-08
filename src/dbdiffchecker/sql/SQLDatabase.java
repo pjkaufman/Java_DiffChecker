@@ -5,6 +5,8 @@ import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Models an SQL database schema.
@@ -14,12 +16,12 @@ import java.util.HashMap;
  * @since 9-18-17
  */
 public class SQLDatabase extends Database {
-  private final static String foreignKeysOn[] = { "SET FOREIGN_KEY_CHECKS=0;", "PRAGMA foreign_keys=on;" };
-  private final static String foreignKeysOff[] = { "SET FOREIGN_KEY_CHECKS=1;", "PRAGMA foreign_keys=off;" };
-  private HashMap<String, Table> tables = new HashMap<>();
-  private HashMap<String, String> exclude = new HashMap<>();
-  private ArrayList<View> views = new ArrayList<>();
-  private ArrayList<String> firstSteps = new ArrayList<>();
+  private static final String foreignKeysOn[] = { "SET FOREIGN_KEY_CHECKS=0;", "PRAGMA foreign_keys=on;" };
+  private static final String foreignKeysOff[] = { "SET FOREIGN_KEY_CHECKS=1;", "PRAGMA foreign_keys=off;" };
+  private Map<String, Table> tables = new HashMap<>();
+  private Map<String, String> exclude = new HashMap<>();
+  private List<View> views = new ArrayList<>();
+  private List<String> firstSteps = new ArrayList<>();
   private int type;
 
   /**
@@ -64,7 +66,7 @@ public class SQLDatabase extends Database {
    *
    * @return The first steps to be taken in order to run the SQL statements.
    */
-  public ArrayList<String> getFirstSteps() {
+  public List<String> getFirstSteps() {
     checkFirstSteps();
     return this.firstSteps;
   }
@@ -75,7 +77,7 @@ public class SQLDatabase extends Database {
    *
    * @return A list of all the tables in the provided database.
    */
-  public HashMap<String, Table> getTables() {
+  public Map<String, Table> getTables() {
     return this.tables;
   }
 
@@ -84,13 +86,13 @@ public class SQLDatabase extends Database {
    *
    * @return All of the views in the database.
    */
-  public ArrayList<View> getViews() {
+  public List<View> getViews() {
     return this.views;
   }
 
   @Override
-  public ArrayList<String> compare(Database liveDatabase) {
-    ArrayList<String> sql = new ArrayList<>();
+  public List<String> compare(Database liveDatabase) {
+    List<String> sql = new ArrayList<>();
     HashMap<String, String> updateTables = new HashMap<>();
     sql.addAll(this.compareTables(((SQLDatabase) liveDatabase).getTables()));
     updateTables.putAll(this.tablesDiffs(((SQLDatabase) liveDatabase).getTables(), ((SQLDatabase) liveDatabase)));
@@ -114,8 +116,8 @@ public class SQLDatabase extends Database {
    * @return The SQL statements to run in order to make the live database have the
    *         same views as the dev one.
    */
-  public ArrayList<String> updateViews(ArrayList<View> liveViews) {
-    ArrayList<String> sql = new ArrayList<>();
+  public List<String> updateViews(List<View> liveViews) {
+    List<String> sql = new ArrayList<>();
     for (View liveView : liveViews) {
       sql.add(liveView.getDrop());
     }
@@ -134,8 +136,8 @@ public class SQLDatabase extends Database {
    * @return The SQL statements to run in order to remove and/or create tables in
    *         the live database.
    */
-  public ArrayList<String> compareTables(HashMap<String, Table> liveTables) {
-    ArrayList<String> sql = new ArrayList<>();
+  public List<String> compareTables(Map<String, Table> liveTables) {
+    List<String> sql = new ArrayList<>();
     for (String tableName : this.tables.keySet()) {
       if (!liveTables.containsKey(tableName)) {
         sql.add(this.tables.get(tableName).getCreateStatement());
@@ -163,8 +165,8 @@ public class SQLDatabase extends Database {
    * @return The SQL statements to run in order to make the live database have the
    *         same table definitions as the dev one.
    */
-  public ArrayList<String> updateTables(HashMap<String, Table> live, HashMap<String, String> updateTables) {
-    ArrayList<String> sql = new ArrayList<>();
+  public List<String> updateTables(Map<String, Table> live, Map<String, String> updateTables) {
+    List<String> sql = new ArrayList<>();
     for (String tableName : updateTables.keySet()) {
       if (!exclude.containsKey(tableName)) {
         sql.addAll(this.tables.get(tableName).equals(live.get(tableName)));
@@ -186,8 +188,8 @@ public class SQLDatabase extends Database {
    * @return The tables that are to be updated because their structures did not
    *         match between the development and live databases.
    */
-  public HashMap<String, String> tablesDiffs(HashMap<String, Table> liveTables, SQLDatabase liveDatabase) {
-    HashMap<String, String> updateTables = new HashMap<>();
+  public Map<String, String> tablesDiffs(Map<String, Table> liveTables, SQLDatabase liveDatabase) {
+    Map<String, String> updateTables = new HashMap<>();
     for (String tableName : this.tables.keySet()) {
       if (!this.exclude.containsKey(tableName)
           && !this.tables.get(tableName).getCreateStatement().equals(liveTables.get(tableName).getCreateStatement())) {

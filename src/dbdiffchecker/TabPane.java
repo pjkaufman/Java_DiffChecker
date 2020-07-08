@@ -8,6 +8,7 @@ import javax.swing.text.JTextComponent;
 import javax.swing.JPasswordField;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.BorderFactory;
@@ -16,37 +17,54 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.SwingUtilities;
 import java.util.ArrayList;
+import java.util.List;
 import java.awt.GridLayout;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 
+/**
+ * Represents a tab in the tab pane layout.
+ *
+ * @author Peter Kaufman
+ * @version 7-6-20
+ * @since 7-1-20
+ */
 public class TabPane extends JPanel {
   DatabaseType[] databaseTypeOptions = DatabaseType.values();
   DatabaseType selectedDatabaseType = databaseTypeOptions[0];
-  private JPanel tabHeader = new JPanel(new GridLayout(0, 1)), body = new JPanel(new BorderLayout()),
-      informationDisplay;
-  private ArrayList<JPanel> inputForms = new ArrayList<>();
-  private ArrayList<JTextComponent> userInputComponents;
-  private JLabel errorMsg = new JLabel("", JLabel.CENTER), tabTitle, footerTitle;
-  private JButton executeBtn, runBtn = null;
+  private JPanel tabHeader = new JPanel(new GridLayout(0, 1));
+  private JPanel body = new JPanel(new BorderLayout());
+  private JPanel informationDisplay;
+  private List<JPanel> inputForms = new ArrayList<>();
+  private List<JTextComponent> userInputComponents;
+  private JLabel errorMsg = new JLabel("", SwingConstants.CENTER);
+  private JLabel tabTitle;
+  private JLabel footerTitle;
+  private JButton executeBtn;
+  private JButton runBtn = null;
   private JTextArea dataShow = new JTextArea(5, 20);
   private JComboBox<String> databaseOptions;
   private PaneType type;
   private JProgressBar progressBar = new JProgressBar();
 
+  /**
+   * Initializes the tab, but leaves some elements to be setup later.
+   *
+   * @param paneType The pane type that the tab represents.
+   */
   public TabPane(PaneType paneType) {
     super(new BorderLayout());
     type = paneType;
     errorMsg.setForeground(Color.RED);
     errorMsg.setVisible(false);
-    tabTitle = new JLabel(PaneType.getTabTitle(type.getValue()), JLabel.CENTER);
+    tabTitle = new JLabel(PaneType.getTabTitle(type.getValue()), SwingConstants.CENTER);
     tabHeader.add(tabTitle);
     tabHeader.add(errorMsg);
     add(tabHeader, BorderLayout.NORTH);
     String position = paneType.getValue() > 2 ? BorderLayout.CENTER : BorderLayout.SOUTH;
     if (paneType.getValue() < 3) {
-      databaseOptions = new JComboBox<String>(DatabaseType.getDropdownOptions());
+      databaseOptions = new JComboBox<>(DatabaseType.getDropdownOptions());
       tabHeader.add(databaseOptions);
       createTabBody();
       add(body, BorderLayout.CENTER);
@@ -57,46 +75,99 @@ public class TabPane extends JPanel {
     }
   }
 
+  /**
+   * Returns the run button.
+   *
+   * @return The run button.
+   */
   public JButton getRunBtn() {
     return runBtn;
   }
 
+  /**
+   * Returns the execute button.
+   *
+   * @return The execute button.
+   */
   public JButton getExecuteBtn() {
     return executeBtn;
   }
 
+  /**
+   * Returns the selected database type.
+   *
+   * @return The selected database type.
+   */
   public DatabaseType getSelectedDatabase() {
     return selectedDatabaseType;
   }
 
+  /**
+   * Returns the type of pane.
+   *
+   * @return The type of pane.
+   */
   public PaneType getType() {
     return type;
   }
 
+  /**
+   * Returns the text area that the user can see.
+   *
+   * @return The text are that the user can see.
+   */
   public JTextArea getDataShow() {
     return dataShow;
   }
 
+  /**
+   * Returns the combobox that contains the database options.
+   *
+   * @return The database type selection combobox.
+   */
   public JComboBox<String> getDatabaseOptions() {
     return databaseOptions;
   }
 
+  /**
+   * Returns the error message label.
+   *
+   * @return The tab's error message label.
+   */
   public JLabel getErrorMessage() {
     return errorMsg;
   }
 
+  /**
+   * Returns the progress bar that the tab has.
+   *
+   * @return Tab's progress bar.
+   */
   public JProgressBar getProgressBar() {
     return progressBar;
   }
 
-  public ArrayList<JTextComponent> getUserInputs() {
+  /**
+   * Returns the list of components the user can add data to.
+   *
+   * @return The list of components where the user can add data.
+   */
+  public List<JTextComponent> getUserInputs() {
     return userInputComponents;
   }
 
-  public ArrayList<JPanel> getInputForms() {
+  /**
+   * Returns the panels that contain the user inputs.
+   *
+   * @return Panels containing user inputs.
+   */
+  public List<JPanel> getInputForms() {
     return inputForms;
   }
 
+  /**
+   * Updates the values associated with the combobox.
+   */
   public void updateComponents() {
     int databasePos = databaseOptions.getSelectedIndex();
     selectedDatabaseType = databaseTypeOptions[databaseOptions.getSelectedIndex()];
@@ -108,8 +179,8 @@ public class TabPane extends JPanel {
     }
     userInputComponents = new ArrayList<>();
     if (type == PaneType.COMPARE_WITH_SNAPSHOT
-        && !FileHandler.fileExists(
-            DatabaseType.getType(selectedDatabaseType.getValue()) + "_" + FileHandler.databaseSnapshotFileName)
+        && !FileHandler
+            .fileExists(DatabaseType.getType(selectedDatabaseType.getValue()) + "_" + FileHandler.DB_SNAPSHOT_FILE)
         && databasePos != 0) {
       errorMsg.setText("Unable to do comparison: " + DatabaseType.getType(selectedDatabaseType.getValue())
           + " snapshot does not exist. Please run a database snapshot first.");
@@ -128,8 +199,14 @@ public class TabPane extends JPanel {
     executeBtn.setEnabled(false);
   }
 
-  public void addComponentsToResizeList(ArrayList<Component> cpnr, ArrayList<Component> cpnBtn,
-      ArrayList<Component> cpnt) {
+  /**
+   * Adds the components from the tab to the resizing lists.
+   *
+   * @param cpnr   The list of components to resize as regular components.
+   * @param cpnBtn The list of components to resize as button components.
+   * @param cpnt   The list of components to resize as title components.
+   */
+  protected void addComponentsToResizeList(List<Component> cpnr, List<Component> cpnBtn, List<Component> cpnt) {
     cpnr.add(errorMsg);
     cpnt.add(tabTitle);
     int currentType = type.getValue();
@@ -146,9 +223,13 @@ public class TabPane extends JPanel {
     }
   }
 
+  /**
+   * Creates the view where data will be displayed to the user which is either
+   * output or log data.
+   */
   private void createInformationDisplay() {
     if (type.getValue() < 2) {
-      footerTitle = new JLabel("Preview:", JLabel.CENTER);
+      footerTitle = new JLabel("Preview:", SwingConstants.CENTER);
       informationDisplay = new JPanel(new BorderLayout());
       informationDisplay.add(footerTitle, BorderLayout.NORTH);
     } else {
@@ -172,8 +253,7 @@ public class TabPane extends JPanel {
    * @param formComponents  A list of all the form components that can have input
    *                        from the user - it is used for validating user input.
    */
-  private void createComponents(JPanel componentHolder, String[] componentList,
-      ArrayList<JTextComponent> formComponents) {
+  private void createComponents(JPanel componentHolder, String[] componentList, List<JTextComponent> formComponents) {
     JTextComponent txtcpn;
     JLabel cpnLabel;
     componentHolder.removeAll();
@@ -181,14 +261,7 @@ public class TabPane extends JPanel {
       cpnLabel = new JLabel(componentList[i] + ":");
       // tempLabel.setFont(regFont);
       componentHolder.add(cpnLabel);
-      switch (componentList[i]) {
-        case "Password":
-          txtcpn = new JPasswordField(10);
-          break;
-        default:
-          txtcpn = new JTextField(10);
-          break;
-      }
+      txtcpn = componentList[i].equals("Password") ? new JPasswordField(10) : new JTextField(10);
       // temp.setFont(regFont);
       createInputListener(txtcpn, componentList[i]);
       componentHolder.add(txtcpn);
@@ -287,10 +360,16 @@ public class TabPane extends JPanel {
     }
   }
 
+  /**
+   * Creates the tab body based on the pane type.
+   */
   private void createTabBody() {
-    JPanel mainBody = new JPanel(new GridLayout(0, 1)), inputBody1 = new JPanel(new GridLayout(0, 2)),
-        bodyFooter = new JPanel(new GridLayout(0, 1)), buttons = new JPanel(new GridLayout(1, 4));
-    JPanel inputs, inputBody2;
+    JPanel mainBody = new JPanel(new GridLayout(0, 1));
+    JPanel inputBody1 = new JPanel(new GridLayout(0, 2));
+    JPanel bodyFooter = new JPanel(new GridLayout(0, 1));
+    JPanel buttons = new JPanel(new GridLayout(1, 4));
+    JPanel inputs;
+    JPanel inputBody2;
     inputForms.add(inputBody1);
     inputs = type == PaneType.COMPARE_WITH_DB ? new JPanel(new GridLayout(0, 2)) : new JPanel(new GridLayout(0, 1));
     // add panel content and specific panels
@@ -363,13 +442,13 @@ public class TabPane extends JPanel {
    * Determines whether or not all the user input fields for the current tab are
    * filled out.
    *
-   * @return A boolean that is false if not all fields have a non-whitespace
-   *         character in them and true if all input fields have something other
-   *         than non-whitespace characters in them.
+   * @return False if not all fields have a non-whitespace character in them and
+   *         true if all input fields have something other than non-whitespace
+   *         characters in them.
    */
   private boolean allFieldsFilled() {
     for (JTextComponent cpn : userInputComponents) {
-      if (new String(cpn.getText()).trim().isEmpty()) {
+      if (cpn.getText().trim().isEmpty()) {
         return false;
       }
     }

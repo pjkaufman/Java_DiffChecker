@@ -1,6 +1,7 @@
 package dbdiffchecker.sql;
 
-import java.util.ArrayList;
+import java.util.Map;
+import java.util.List;
 import java.util.HashMap;
 
 /**
@@ -13,8 +14,8 @@ import java.util.HashMap;
  */
 public abstract class Table extends Schema {
   protected int count = 0;
-  protected HashMap<String, Column> columns = new HashMap<>();
-  protected HashMap<String, Index> indices = new HashMap<>();
+  protected Map<String, Column> columns = new HashMap<>();
+  protected Map<String, Index> indices = new HashMap<>();
 
   /**
    * Sets the name and create statement of the table.
@@ -41,7 +42,7 @@ public abstract class Table extends Schema {
    *
    * @return The table's columns.
    */
-  public HashMap<String, Column> getColumns() {
+  public Map<String, Column> getColumns() {
     return this.columns;
   }
 
@@ -50,7 +51,7 @@ public abstract class Table extends Schema {
    *
    * @return The index names and index data.
    */
-  public HashMap<String, Index> getIndices() {
+  public Map<String, Index> getIndices() {
     return this.indices;
   }
 
@@ -79,7 +80,7 @@ public abstract class Table extends Schema {
    * @param t1 A Table object which is being compared to this Table object.
    * @return The SQL needed to make the tables the same.
    */
-  public abstract ArrayList<String> equals(Table t1);
+  public abstract List<String> equals(Table t1);
 
   /**
    * Parses the create statment of the table picking up columns and indices that
@@ -96,7 +97,7 @@ public abstract class Table extends Schema {
    *              same name.
    * @return Part of an SQL statement that drops a column or several columns.
    */
-  protected abstract String dropCols(HashMap<String, Column> cols1, HashMap<String, Column> cols2);
+  protected abstract String dropCols(Map<String, Column> cols1, Map<String, Column> cols2);
 
   /**
    * Takes two column lists and returns part of an SQL statement that modifies
@@ -107,7 +108,7 @@ public abstract class Table extends Schema {
    *              same name.
    * @return Part of an SQL statement that modifies and,or adds columns.
    */
-  protected abstract String otherCols(HashMap<String, Column> cols1, HashMap<String, Column> cols2);
+  protected abstract String otherCols(Map<String, Column> cols1, Map<String, Column> cols2);
 
   /**
    * Takes two index lists and returns part of an SQL statement that drop indexes.
@@ -117,7 +118,7 @@ public abstract class Table extends Schema {
    *             name.
    * @return Part of an SQL statement that drops indexes.
    */
-  protected abstract String dropIndices(HashMap<String, Index> dev, HashMap<String, Index> live);
+  protected abstract String dropIndices(Map<String, Index> dev, Map<String, Index> live);
 
   /**
    * Takes two lists of indices and returns part of an SQL statement that either
@@ -128,5 +129,5 @@ public abstract class Table extends Schema {
    *             name.
    * @return Part of an SQL statement that either adds or drops and adds indexes.
    */
-  protected abstract String otherIndices(HashMap<String, Index> dev, HashMap<String, Index> live);
+  protected abstract String otherIndices(Map<String, Index> dev, Map<String, Index> live);
 }

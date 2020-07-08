@@ -8,21 +8,16 @@ import dbdiffchecker.sql.View;
  * A unit test that makes sure that the View object works as intended.
  *
  * @author Peter Kaufman
- * @version 7-2-20
+ * @version 7-7-20
  * @since 5-10-19
  */
 public class ViewTest {
-  private View test;
-  private String name, create;
 
-  /**
-   * Tests whether the get statements inside of the View object work as intended.
-   */
   @Test
   public void testGetStatements() {
-    name = "viewShipment";
-    create = "CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `userlist` AS select `users`.`userid` AS `userid`,`users`.`remove` AS `add` from `users`";
-    test = new View(name, create);
+    String name = "viewShipment";
+    String create = "CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `userlist` AS select `users`.`userid` AS `userid`,`users`.`remove` AS `add` from `users`";
+    View test = new View(name, create);
     // start assertions
     assertEquals("The name of the view should be the one passed into the constructor", name, test.getName());
     assertEquals("The create statement of the view should be the one passed into the constructor", create + ";",

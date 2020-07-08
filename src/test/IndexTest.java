@@ -8,24 +8,20 @@ import dbdiffchecker.sql.Index;
  * A unit test that makes sure that the Index object works as intended.
  *
  * @author Peter Kaufman
- * @version 7-2-20
+ * @version 7-7-20
  * @since 5-10-19
  */
 public class IndexTest {
-  private Index test, test2;
-  private String table, name, create, drop;
+  private static final String CREATE_FORMAT = "CREATE INDEX `%s` ON `%s` (`shippingID`,`vendor`)";
+  private static final String DROP_FORMAT = "DROP INDEX `%s`";
+  private Index test;
+  private String table = "shippingData";
+  private String name = "shipment";
+  private String create = String.format(CREATE_FORMAT, name, table);
+  private String drop = String.format(DROP_FORMAT, name);
 
-  /**
-   * Tests whether the get statements inside of the Index object work as intended.
-   *
-   * @author Peter Kaufman
-   */
   @Test
   public void testGetStatements() {
-    table = "shippingData";
-    name = "shipment";
-    drop = "DROP INDEX `" + name + "`";
-    create = "CREATE INDEX `" + name + "` ON `" + table + "` (`shippingID`,`vendor`)";
     test = new Index(name, create, drop);
     // start assertions
     assertEquals("The name of the index should be the one passed into the constructor", name, test.getName());
@@ -34,19 +30,10 @@ public class IndexTest {
     assertEquals("The drop statement of the index should be the one passed into the constructor", drop, test.getDrop());
   }
 
-  /**
-   * Tests whether Index objects are equal when intended.
-   *
-   * @author Peter Kaufman
-   */
   @Test
   public void testIndexEquality() {
-    table = "shippingData";
-    name = "shipment";
-    drop = "DROP INDEX `" + name + "`";
-    create = "CREATE INDEX `" + name + "` ON `" + table + "` (`shippingID`,`vendor`)";
     test = new Index(name, create, drop);
-    test2 = new Index(name, create, drop);
+    Index test2 = new Index(name, create, drop);
     assertEquals("Two indexes created with the same inputs to the constructor should be equal", true,
         test.getName().equals(test2.getName()) && test.equals(test2));
     // test to see if it will catch a different number of columns

@@ -15,9 +15,14 @@ import java.io.File;
 public class TestRunner {
   public static void main(String[] args) {
     // get class file names from current directory
-    String testName, result;
-    long testTime = 0, tempTime;
-    int numTests = 0, numFails = 0, tempTestCount, tempFailCount;
+    String testName;
+    String result;
+    long testTime = 0;
+    long tempTime;
+    int numTests = 0;
+    int numFails = 0;
+    int tempTestCount;
+    int tempFailCount;
     boolean success = true;
     File dir = new File("src" + File.separator + "test");
     File[] tests = dir.listFiles((d, name) -> name.endsWith(".class"));
@@ -40,7 +45,7 @@ public class TestRunner {
         if (!testResult.wasSuccessful()) {
           result = "FAIL";
         }
-        System.out.printf("%s tests: %d fails: %d in %dms \n", result, tempTestCount, tempFailCount, tempTime);
+        System.out.printf("%s tests: %d fails: %d in %dms %n", result, tempTestCount, tempFailCount, tempTime);
         testTime += tempTime;
         numTests += tempTestCount;
         numFails += tempFailCount;
@@ -55,6 +60,6 @@ public class TestRunner {
     } else {
       result = "FAIL";
     }
-    System.out.printf("Result: %s tests: %d fails: %d in %dms \n", result, numTests, numFails, testTime);
+    System.out.printf("Result: %s tests: %d fails: %d in %dms %n", result, numTests, numFails, testTime);
   }
 }

@@ -4,6 +4,9 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import dbdiffchecker.sql.SQLDatabase;
 import dbdiffchecker.sql.Table;
 import dbdiffchecker.sql.MySQLTable;
@@ -13,18 +16,18 @@ import dbdiffchecker.sql.View;
  * A unit test that makes sure that the SQLDatabase object works as intended.
  *
  * @author Peter Kaufman
- * @version 7-2-20
+ * @version 7-7-20
  * @since 5-11-19
  */
 public class SQLDatabaseTest {
-  private Table table1, table2, table3;
-  private View view1, view2;
-  private String name, create;
+  private Table table1;
+  private Table table2;
+  private View view1;
+  private View view2;
+  private String name;
+  private String create;
   private SQLDatabase db;
 
-  /**
-   * Tests whether the getTables function works as intended.
-   */
   @Test
   public void testGetTables() {
     name = "bloat";
@@ -45,9 +48,6 @@ public class SQLDatabaseTest {
         db.getTables().get(table2.getName()).getCreateStatement().equals(table2.getCreateStatement()));
   }
 
-  /**
-   * Tests whether the getViews function works as intended.
-   */
   @Test
   public void testGetViews() {
     db = new SQLDatabase();
@@ -68,14 +68,11 @@ public class SQLDatabaseTest {
         db.getViews().contains(view1) && db.getViews().contains(view2));
   }
 
-  /**
-   * Tests whether the updateViews function works as intended.
-   */
   @Test
   public void testUpdateViews() {
     db = new SQLDatabase();
-    ArrayList<View> liveViews = new ArrayList<>();
-    ArrayList<String> sql;
+    List<View> liveViews = new ArrayList<>();
+    List<String> sql;
     name = "testView";
     create = "CREATE VIEW `testView` AS SELECT * FROM Products;";
     view1 = new View(name, create);
@@ -99,14 +96,11 @@ public class SQLDatabaseTest {
         sql.contains(view1.getCreateStatement()) && sql.contains("DROP VIEW `" + view1.getName() + "`;"));
   }
 
-  /**
-   * Tests whether the tablesDiffs function works as intended.
-   */
   @Test
   public void testTablesDiffs() {
     db = new SQLDatabase();
-    HashMap<String, String> tablesToUpdate = new HashMap<>();
-    HashMap<String, Table> liveTables = new HashMap<>();
+    Map<String, String> tablesToUpdate;
+    Map<String, Table> liveTables = new HashMap<>();
     name = "bloat";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table1 = new MySQLTable(name, create);
@@ -114,7 +108,7 @@ public class SQLDatabaseTest {
     create = "CREATE TABLE `broke` (\n  `bloatware` int(11) NOT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table2 = new MySQLTable(name, create);
     create = "CREATE TABLE `broke` (\n `bloated` int(11) NOT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
-    table3 = new MySQLTable(name, create);
+    Table table3 = new MySQLTable(name, create);
     db.getTables().put(table1.getName(), table1);
     db.getTables().put(table2.getName(), table2);
     liveTables.put(table3.getName(), table3);
@@ -139,14 +133,11 @@ public class SQLDatabaseTest {
         tablesToUpdate.size());
   }
 
-  /**
-   * Tests whether the compareTables function works as intended.
-   */
   @Test
   public void testCompareTables() {
     db = new SQLDatabase();
-    HashMap<String, Table> liveTables = new HashMap<>();
-    ArrayList<String> sql;
+    Map<String, Table> liveTables = new HashMap<>();
+    List<String> sql;
     name = "bloat";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table1 = new MySQLTable(name, create);
@@ -181,15 +172,12 @@ public class SQLDatabaseTest {
         sql.contains(table1.getCreateStatement()) && sql.contains(table2.getCreateStatement()));
   }
 
-  /**
-   * Tests whether the updateTables function works as intended.
-   */
   @Test
   public void testUpdateTables() {
     db = new SQLDatabase();
-    HashMap<String, Table> liveTables = new HashMap<>();
-    HashMap<String, String> tablesToUpdate = new HashMap<>();
-    ArrayList<String> sql;
+    Map<String, Table> liveTables = new HashMap<>();
+    Map<String, String> tablesToUpdate = new HashMap<>();
+    List<String> sql;
     String expectedSQL = "ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, "
         + "\nADD COLUMN `id` varchar(40) NOT NULL, \nMODIFY COLUMN `ip_address`"
         + " varchar(45) NOT NULL AFTER `id`, \nMODIFY COLUMN `timestamp` int(10) unsigned "
@@ -240,13 +228,10 @@ public class SQLDatabaseTest {
         sql.contains(expectedSQL2));
   }
 
-  /**
-   * Tests whether the first steps internal logic works as intended.
-   */
   @Test
   public void testFirstSteps() {
     db = new SQLDatabase();
-    HashMap<String, Table> liveTables = new HashMap<>();
+    Map<String, Table> liveTables = new HashMap<>();
     String first1 = "ALTER TABLE `blob`\n ADD PRIMARY KEY (`pikapika`);";
     String first2 = "ALTER TABLE `broach`\n ADD PRIMARY KEY (`mewtwo`);";
     // initial addition of elements tests

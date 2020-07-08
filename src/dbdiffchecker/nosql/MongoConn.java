@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Establishes a connection with a Mongo database based on the password,
@@ -70,7 +70,7 @@ public class MongoConn extends DbConn {
    *
    * @param collections A list of all the collections in the Mongo database.
    */
-  public void getCollections(HashMap<String, Collection> collections) {
+  public void getCollections(Map<String, Collection> collections) {
     MongoIterable<String> collectionList = database.listCollectionNames();
     boolean isCapped = false;
     int size = 0;
