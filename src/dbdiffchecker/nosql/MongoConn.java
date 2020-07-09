@@ -17,7 +17,7 @@ import java.util.Map;
  * username, host, port, and database name provided.
  *
  * @author Peter Kaufman
- * @version 6-20-20
+ * @version 7-8-20
  * @since 10-26-19
  */
 public class MongoConn extends DbConn {
@@ -92,22 +92,22 @@ public class MongoConn extends DbConn {
    * @param statement A statement to be run on the Mongo Database.
    */
   public void runStatement(String statement) {
-    String name;
+    String collName;
     String[] options;
     int size;
     // determine if a collection is being dropped or added
     if (statement.startsWith("Create Collection: ")) {
       options = statement.split(",");
       if (options.length > 1) { // capped collection
-        name = options[0].replace("Create Collection: ", "");
+        collName = options[0].replace("Create Collection: ", "");
         size = Integer.parseInt(options[2].replace(" size=", ""));
         CreateCollectionOptions collOptions = new CreateCollectionOptions();
         collOptions.capped(true);
         collOptions.sizeInBytes((long) size);
-        database.createCollection(name, collOptions);
+        database.createCollection(collName, collOptions);
       } else {
-        name = statement.replace("Create Collection: ", "");
-        database.createCollection(name);
+        collName = statement.replace("Create Collection: ", "");
+        database.createCollection(collName);
       }
     } else {
       database.getCollection(statement.replace("Delete Collection: ", "")).drop();
@@ -116,14 +116,11 @@ public class MongoConn extends DbConn {
 
   @Override
   public void testConnection() throws DatabaseDifferenceCheckerException {
-    try {
-      mongo = new MongoClient(uri);
-      database = mongo.getDatabase(name);
+    try (MongoClient mongoConnection = new MongoClient(uri)) {
+      database = mongoConnection.getDatabase(name);
     } catch (Exception error) {
       throw new DatabaseDifferenceCheckerException(
           "There was an error testing the connection to the database named " + name, error, 1025);
-    } finally {
-      mongo.close();
     }
   }
 }

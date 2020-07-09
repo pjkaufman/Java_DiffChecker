@@ -9,7 +9,7 @@ import java.util.Map;
  * indices.
  *
  * @author Peter Kaufman
- * @version 6-20-20
+ * @version 7-8-20
  * @since 5-11-19
  */
 public class SQLiteTable extends Table {
@@ -26,6 +26,7 @@ public class SQLiteTable extends Table {
   public SQLiteTable(String name, String create) {
     super(name, create);
     this.drop = "DROP TABLE " + name + ";";
+    newLineCreation = "\n";
   }
 
   /**
@@ -38,7 +39,7 @@ public class SQLiteTable extends Table {
   @Override
   public List<String> equals(Table t1) {
     stopCompare = false;
-    this.count = 0;
+    isFirstStatement = true;
     List<String> sql = new ArrayList<>();
     String sql2 = "";
     // if there are a different amount of foreing keys the table needs to be
@@ -71,7 +72,7 @@ public class SQLiteTable extends Table {
       sql.addAll(recreateTable(t1.getColumns()));
       return sql;
     }
-    if (this.count != 0) {
+    if (!isFirstStatement) {
       sql.add(sql2);
     }
     return sql;
@@ -164,63 +165,54 @@ public class SQLiteTable extends Table {
 
   @Override
   protected String dropCols(Map<String, Column> cols1, Map<String, Column> cols2) {
-    String sql = "";
     for (String columnName : cols2.keySet()) {
       if (!cols1.containsKey(columnName)) {
         stopCompare = true;
-        return sql;
+        return "";
       }
     }
-    return sql;
+    return "";
   }
 
   @Override
   protected String otherCols(Map<String, Column> cols1, Map<String, Column> cols2) {
-    String sql = "";
-    Column col = null;
-    Column col2 = null;
+    StringBuilder sql = new StringBuilder();
+    Column col;
+    Column col2;
     for (String columnName : cols1.keySet()) {
       col = cols1.get(columnName);
       if (!cols2.containsKey(columnName)) {
-        if (this.count != 0) {
-          sql += "\n";
-        }
-        sql += "ALTER TABLE " + this.name + "\n\tADD COLUMN " + col.getName() + " " + col.getDetails() + ";";
-        this.count++;
+        appendSQLPart(sql,
+            "ALTER TABLE " + this.name + "\n\tADD COLUMN " + col.getName() + " " + col.getDetails() + ";");
       } else {
         col2 = cols2.get(columnName);
         if (col.getName().equals(col2.getName()) && !col.getDetails().equals(col2.getDetails())) {
           stopCompare = true;
-          return sql;
+          return sql.toString();
         }
       }
     }
-    return sql;
-
+    return sql.toString();
   }
 
   @Override
   protected String dropIndices(Map<String, Index> dev, Map<String, Index> live) {
-    String sql = "";
+    StringBuilder sql = new StringBuilder();
     for (String indexName : live.keySet()) {
       if (!dev.containsKey(indexName)) {
         if (live.get(indexName).getCreateStatement().contains("FOREIGN KEY")) {
           stopCompare = true;
-          return sql;
+          return sql.toString();
         }
-        if (this.count != 0) {
-          sql += "\n";
-        }
-        sql += live.get(indexName).getDrop();
-        this.count++;
+        appendSQLPart(sql, live.get(indexName).getDrop());
       }
     }
-    return sql;
+    return sql.toString();
   }
 
   @Override
   protected String otherIndices(Map<String, Index> dev, Map<String, Index> live) {
-    String sql = "";
+    StringBuilder sql = new StringBuilder();
     Index indices1 = null;
     for (String indexName : dev.keySet()) {
       indices1 = dev.get(indexName);
@@ -228,27 +220,19 @@ public class SQLiteTable extends Table {
         if (!indices1.equals(live.get(indexName))) {
           if (live.get(indexName).getCreateStatement().contains("FOREIGN KEY")) {
             stopCompare = true;
-            return sql;
+            return sql.toString();
           }
-          if (this.count != 0) {
-            sql += "\n";
-          }
-          sql += live.get(indexName).getDrop() + "\n" + indices1.getCreateStatement() + ";";
-          this.count++;
+          appendSQLPart(sql, live.get(indexName).getDrop() + "\n" + indices1.getCreateStatement() + ";");
         }
       } else {
         if (indices1.getCreateStatement().contains("FOREIGN KEY")) {
           stopCompare = true;
-          return sql;
+          return sql.toString();
         }
-        if (this.count != 0) {
-          sql += "\n";
-        }
-        sql += indices1.getCreateStatement() + ";";
-        this.count++;
+        appendSQLPart(sql, indices1.getCreateStatement() + ";");
       }
     }
-    return sql;
+    return sql.toString();
   }
 
   /**
@@ -261,18 +245,18 @@ public class SQLiteTable extends Table {
    * @return The SQL statements needed to recreate the development table.
    */
   private List<String> recreateTable(Map<String, Column> live) {
-    String commonColumns = "";
+    StringBuilder commonColumns = new StringBuilder();
     boolean doExtraWork = this.createStatement.lastIndexOf("CREATE") > 6;
     List<String> sql = new ArrayList<>();
     for (String columnName : live.keySet()) {
       if (this.columns.containsKey(columnName)) {
-        commonColumns += "" + columnName + ",";
+        commonColumns.append("" + columnName + ",");
       }
     }
     if (commonColumns.length() != 0) {
       // there are columns in common so the table needs to be renamed,
       // have its data copied into a new table of the same name, and then be deleted
-      commonColumns = commonColumns.substring(0, commonColumns.length() - 1);
+      commonColumns = new StringBuilder(commonColumns.substring(0, commonColumns.length() - 1));
       sql.add("ALTER TABLE " + this.name + " RENAME TO temp_table;");
       if (!doExtraWork) {
         sql.add(this.createStatement);

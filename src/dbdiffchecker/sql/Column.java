@@ -8,7 +8,7 @@ package dbdiffchecker.sql;
  * @since 9-10-17
  */
 public class Column extends Schema {
-  private String details = "";
+  private String details;
 
   /**
    * Sets the name and details of the column.

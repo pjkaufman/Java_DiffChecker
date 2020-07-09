@@ -9,11 +9,12 @@ import java.util.HashMap;
  * columns and indices.
  *
  * @author Peter Kaufman
- * @version 6-20-20
+ * @version 7-8-20
  * @since 9-10-17
  */
 public abstract class Table extends Schema {
-  protected int count = 0;
+  protected boolean isFirstStatement = true;
+  protected String newLineCreation;
   protected Map<String, Column> columns = new HashMap<>();
   protected Map<String, Index> indices = new HashMap<>();
 
@@ -81,6 +82,21 @@ public abstract class Table extends Schema {
    * @return The SQL needed to make the tables the same.
    */
   public abstract List<String> equals(Table t1);
+
+  /**
+   * Appends the sql addition after adding the appropriate line ending if needed.
+   *
+   * @param sql         The sql statment to append to.
+   * @param sqlAddition The sql to append to the statement.
+   */
+  protected void appendSQLPart(StringBuilder sql, String sqlAddition) {
+    if (!isFirstStatement) {
+      sql.append(newLineCreation);
+    }
+    sql.append(sqlAddition);
+    isFirstStatement = false;
+
+  }
 
   /**
    * Parses the create statment of the table picking up columns and indices that

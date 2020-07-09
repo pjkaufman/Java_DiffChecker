@@ -16,8 +16,8 @@ import java.util.Map;
  * @since 9-18-17
  */
 public class SQLDatabase extends Database {
-  private static final String foreignKeysOn[] = { "SET FOREIGN_KEY_CHECKS=0;", "PRAGMA foreign_keys=on;" };
-  private static final String foreignKeysOff[] = { "SET FOREIGN_KEY_CHECKS=1;", "PRAGMA foreign_keys=off;" };
+  private static final String[] foreignKeysOn = { "SET FOREIGN_KEY_CHECKS=0;", "PRAGMA foreign_keys=on;" };
+  private static final String[] foreignKeysOff = { "SET FOREIGN_KEY_CHECKS=1;", "PRAGMA foreign_keys=off;" };
   private Map<String, Table> tables = new HashMap<>();
   private Map<String, String> exclude = new HashMap<>();
   private List<View> views = new ArrayList<>();

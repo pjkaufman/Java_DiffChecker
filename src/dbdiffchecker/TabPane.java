@@ -31,8 +31,8 @@ import java.awt.Component;
  * @since 7-1-20
  */
 public class TabPane extends JPanel {
-  DatabaseType[] databaseTypeOptions = DatabaseType.values();
-  DatabaseType selectedDatabaseType = databaseTypeOptions[0];
+  private DatabaseType[] databaseTypeOptions = DatabaseType.values();
+  private DatabaseType selectedDatabaseType = databaseTypeOptions[0];
   private JPanel tabHeader = new JPanel(new GridLayout(0, 1));
   private JPanel body = new JPanel(new BorderLayout());
   private JPanel informationDisplay;

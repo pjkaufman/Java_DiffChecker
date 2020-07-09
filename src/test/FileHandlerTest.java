@@ -9,6 +9,7 @@ import java.util.List;
 import dbdiffchecker.sql.SQLDatabase;
 import dbdiffchecker.FileHandler;
 import dbdiffchecker.Database;
+import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.sql.Index;
 import dbdiffchecker.sql.Table;
 import dbdiffchecker.sql.MySQLTable;
@@ -40,7 +41,7 @@ public class FileHandlerTest {
     }
 
     @Test
-    public void testWriteToAndReadFromFile() {
+    public void testWriteToAndReadFromFile() throws DatabaseDifferenceCheckerException {
         String data = "Test addition of data";
         String data2 = "Another addition of text...";
         String data3 = "erroneous...";
@@ -77,13 +78,8 @@ public class FileHandlerTest {
                 fileContents2.equals(dataToAdd));
     }
 
-    /**
-     * Tests whether the fileExists function works as intended.
-     *
-     * @throws Exception Error writting to the log file.
-     */
     @Test
-    public void testFileExists() throws Exception {
+    public void testFileExists() throws DatabaseDifferenceCheckerException {
         String fileName = "eroniousFile.test";
         assertEquals("The file should not exist because it has not been created", false,
                 FileHandler.fileExists(fileName));
@@ -96,7 +92,7 @@ public class FileHandlerTest {
     }
 
     @Test
-    public void testSerializationMySQL() {
+    public void testSerializationMySQL() throws DatabaseDifferenceCheckerException {
         db = new SQLDatabase();
         expectedStatements.add("ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, "
                 + "\nADD COLUMN `id` varchar(40) NOT NULL, \nMODIFY COLUMN `ip_address`"
@@ -128,7 +124,7 @@ public class FileHandlerTest {
     }
 
     @Test
-    public void testSerializationSQLite() {
+    public void testSerializationSQLite() throws DatabaseDifferenceCheckerException {
         db = new SQLDatabase();
         expectedStatements.add("DROP INDEX drop1;\nDROP INDEX drop2;\n"
                 + "ALTER TABLE helper\n\tADD COLUMN Thor INTEGER (67) DEFAULT (12);\n"
@@ -154,7 +150,7 @@ public class FileHandlerTest {
     }
 
     @Test
-    public void testSerializationCouchbase() {
+    public void testSerializationCouchbase() throws DatabaseDifferenceCheckerException {
         name = "blob";
         expectedStatements.add("Create document: " + name);
         db = new Bucket();

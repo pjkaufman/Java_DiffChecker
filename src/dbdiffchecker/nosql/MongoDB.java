@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * Models a Mongo Database by keeping track of all collections.
  *
  * @author Peter Kaufman
- * @version 6-20-20
+ * @version 7-8-20
  * @since 10-26-19
  */
 public class MongoDB extends Database {
@@ -78,14 +78,14 @@ public class MongoDB extends Database {
   private List<String> compareCollections(Map<String, Collection> liveCollections, List<String> common) {
     List<String> statements = new ArrayList<>();
     // check for collections to create
-    String createStatement;
+    StringBuilder createStatement;
     for (String collectionName : collections.keySet()) {
       if (!liveCollections.containsKey(collectionName)) {
-        createStatement = "Create Collection: " + collectionName;
+        createStatement = new StringBuilder("Create Collection: " + collectionName);
         if (collections.get(collectionName).isCapped()) {
-          createStatement += ", capped=true, size=" + collections.get(collectionName).getSize();
+          createStatement.append(", capped=true, size=" + collections.get(collectionName).getSize());
         }
-        statements.add(createStatement);
+        statements.add(createStatement.toString());
       } else {
         common.add(collectionName);
       }
@@ -125,14 +125,14 @@ public class MongoDB extends Database {
    */
   private List<String> updateCollections(List<String> collectionsToUpdate) {
     List<String> statements = new ArrayList<>();
-    String createStatement;
+    StringBuilder createStatement;
     for (String collectionName : collectionsToUpdate) {
       statements.add("Delete Collection: " + collectionName);
-      createStatement = "Create Collection: " + collectionName;
+      createStatement = new StringBuilder("Create Collection: " + collectionName);
       if (collections.get(collectionName).isCapped()) {
-        createStatement += ", capped=true, size=" + collections.get(collectionName).getSize();
+        createStatement.append(", capped=true, size=" + collections.get(collectionName).getSize());
       }
-      statements.add(createStatement);
+      statements.add(createStatement.toString());
     }
     return statements;
   }

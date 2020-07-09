@@ -30,11 +30,12 @@ public class SQLiteConn extends SQLDbConn {
    * @param path     The path of the SQLite database.
    * @param database The SQLite database name that the connection is to be
    *                 established with.
-   * @param type     Either 'dev' or 'live'.
+   * @param isLive   Whether or not the database conenction is to the live
+   *                 database.
    * @throws DatabaseDifferenceCheckerException Error connecting to the database.
    */
-  public SQLiteConn(String path, String database, String type) throws DatabaseDifferenceCheckerException {
-    this.type = type;
+  public SQLiteConn(String path, String database, boolean isLive) throws DatabaseDifferenceCheckerException {
+    this.isLive = isLive;
     this.db = database;
     this.path = path;
     this.connString = "jdbc:sqlite:" + this.path + this.db + ".db";
@@ -65,14 +66,14 @@ public class SQLiteConn extends SQLDbConn {
     String sql = "SELECT `sql` FROM `sqlite_master` WHERE tbl_name='?' AND `sql` NOT NULL;";
     try (PreparedStatement query = this.con.prepareStatement(sql)) {
       query.setString(1, table);
-      String create = "";
-      ResultSet set = query.executeQuery();
+      StringBuilder create = new StringBuilder();
+      ResultSet set = runPreparedStatement(query);
       // get all data needed to create the table
       while (set.next()) {
-        create += set.getString("sql") + ";\n";
+        create.append(set.getString("sql") + ";\n");
       }
-      create = create.substring(0, create.length() - 2);
-      return create;
+      set.close();
+      return create.toString().substring(0, create.length() - 2);
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(
           String.format("There was an error getting the %s table's create statement.", table), e, 1021);
@@ -87,13 +88,14 @@ public class SQLiteConn extends SQLDbConn {
       String table = "";
       String create = "";
       Table add = null;
-      ResultSet tables = query.executeQuery();
+      ResultSet tables = runPreparedStatement(query);
       while (tables.next()) {
         table = tables.getString("name");
         create = getTableCreateStatement(table);
         add = new SQLiteTable(table, create);
         tablesList.put(table, add);
       }
+      tables.close();
       return tablesList;
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(
@@ -106,7 +108,7 @@ public class SQLiteConn extends SQLDbConn {
     List<View> views = new ArrayList<>();
     String sql = "SELECT `name`, `sql` FROM `sqlite_master` WHERE `type`= 'view';";
     try (PreparedStatement query = this.con.prepareStatement(sql)) {
-      ResultSet set = query.executeQuery();
+      ResultSet set = runPreparedStatement(query);
       while (set.next()) {
         views.add(new View(set.getString("name"), set.getString("sql")));
       }

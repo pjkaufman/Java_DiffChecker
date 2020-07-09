@@ -3,6 +3,8 @@ package dbdiffchecker.sql;
 import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -14,15 +16,14 @@ import java.util.Map;
  * statements to get schema information.
  *
  * @author Peter Kaufman
- * @version 7-6-20
+ * @version 7-8-20
  * @since 5-24-19
  */
 public abstract class SQLDbConn extends DbConn {
   protected String db;
   protected String connString;
-  protected String type;
-  protected String firstStep;
-  protected int count = 0;
+  protected StringBuilder firstStep = new StringBuilder();
+  protected boolean isLive;
   protected Connection con = null;
   protected List<String> firstSteps = new ArrayList<>();
 
@@ -91,6 +92,17 @@ public abstract class SQLDbConn extends DbConn {
       throw new DatabaseDifferenceCheckerException(
           String.format("There was an error running %s on the %s database.", sqlStatement, db), e, 1012);
     }
+  }
+
+  /**
+   * Runs a prepared statement.
+   *
+   * @param sqlQuery The prepared statement that will be run.
+   * @return The result of the prepared statement.
+   * @throws SQLException There was an error trying to run the prepared statement.
+   */
+  protected ResultSet runPreparedStatement(PreparedStatement sqlQuery) throws SQLException {
+    return sqlQuery.executeQuery();
   }
 
   @Override
