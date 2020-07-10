@@ -26,7 +26,7 @@ public class StopWatch {
     if (isRunning) {
       throw new RuntimeException("Stopwatch is already running.");
     }
-    this.isRunning = true;
+    isRunning = true;
     startTime = Instant.now();
   }
 
@@ -44,12 +44,12 @@ public class StopWatch {
     }
     isRunning = false;
     Duration result = Duration.between(startTime, endTime);
-    if (this.duration == null) {
-      this.duration = result;
+    if (duration == null) {
+      duration = result;
     } else {
-      this.duration = duration.plus(result);
+      duration = duration.plus(result);
     }
-    return this.getElapsedTime();
+    return getElapsedTime();
   }
 
   /**
@@ -60,16 +60,16 @@ public class StopWatch {
    *         run.
    */
   public Duration getElapsedTime() {
-    return this.duration;
+    return duration;
   }
 
   /**
    * Stops the program if it is running and sets the duration to null.
    */
   public void reset() {
-    if (this.isRunning) {
-      this.stop();
+    if (isRunning) {
+      stop();
     }
-    this.duration = null;
+    duration = null;
   }
 }

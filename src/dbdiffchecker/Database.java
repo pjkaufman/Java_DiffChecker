@@ -14,8 +14,7 @@ public abstract class Database implements Serializable {
   protected static final long serialVersionUID = 1L;
 
   /**
-   * This is the default constructor for this class, <b>Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>
    */
   public Database() {
   }

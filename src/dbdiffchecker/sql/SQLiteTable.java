@@ -13,6 +13,7 @@ import java.util.Map;
  * @since 5-11-19
  */
 public class SQLiteTable extends Table {
+  private static final long serialVersionUID = 1L;
   private boolean stopCompare = false;
   private int foreignKeyCount = 0;
 
@@ -25,13 +26,12 @@ public class SQLiteTable extends Table {
    */
   public SQLiteTable(String name, String create) {
     super(name, create);
-    this.drop = "DROP TABLE " + name + ";";
+    drop = "DROP TABLE " + name + ";";
     newLineCreation = "\n";
   }
 
   /**
-   * This is the default constructor for this class, <b> Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>
    */
   public SQLiteTable() {
   }
@@ -44,29 +44,29 @@ public class SQLiteTable extends Table {
     String sql2 = "";
     // if there are a different amount of foreing keys the table needs to be
     // recreated
-    if (this.foreignKeyCount != ((SQLiteTable) t1).foreignKeyCount) {
+    if (foreignKeyCount != ((SQLiteTable) t1).foreignKeyCount) {
       sql.addAll(recreateTable(t1.getColumns()));
       return sql;
     }
-    sql2 += dropIndices(this.indices, t1.getIndices());
+    sql2 += dropIndices(indices, t1.getIndices());
     // if a foreign key is to be dropped, recreate the table
     if (stopCompare) {
       sql.addAll(recreateTable(t1.getColumns()));
       return sql;
     }
-    sql2 += otherCols(this.columns, t1.getColumns());
+    sql2 += otherCols(columns, t1.getColumns());
     // if a column needs to be modified, recreate the table
     if (stopCompare) {
       sql.addAll(recreateTable(t1.getColumns()));
       return sql;
     }
-    sql2 += dropCols(this.columns, t1.getColumns());
+    sql2 += dropCols(columns, t1.getColumns());
     // if a column needs to be dropped, recreate the table
     if (stopCompare) {
       sql.addAll(recreateTable(t1.getColumns()));
       return sql;
     }
-    sql2 += otherIndices(this.indices, t1.getIndices());
+    sql2 += otherIndices(indices, t1.getIndices());
     // if a foreign key needs to be added or modified, recreate the table
     if (stopCompare) {
       sql.addAll(recreateTable(t1.getColumns()));
@@ -182,8 +182,7 @@ public class SQLiteTable extends Table {
     for (String columnName : cols1.keySet()) {
       col = cols1.get(columnName);
       if (!cols2.containsKey(columnName)) {
-        appendSQLPart(sql,
-            "ALTER TABLE " + this.name + "\n\tADD COLUMN " + col.getName() + " " + col.getDetails() + ";");
+        appendSQLPart(sql, "ALTER TABLE " + name + "\n\tADD COLUMN " + col.getName() + " " + col.getDetails() + ";");
       } else {
         col2 = cols2.get(columnName);
         if (col.getName().equals(col2.getName()) && !col.getDetails().equals(col2.getDetails())) {
@@ -213,7 +212,7 @@ public class SQLiteTable extends Table {
   @Override
   protected String otherIndices(Map<String, Index> dev, Map<String, Index> live) {
     StringBuilder sql = new StringBuilder();
-    Index indices1 = null;
+    Index indices1;
     for (String indexName : dev.keySet()) {
       indices1 = dev.get(indexName);
       if (live.containsKey(indexName)) {
@@ -246,10 +245,10 @@ public class SQLiteTable extends Table {
    */
   private List<String> recreateTable(Map<String, Column> live) {
     StringBuilder commonColumns = new StringBuilder();
-    boolean doExtraWork = this.createStatement.lastIndexOf("CREATE") > 6;
+    boolean doExtraWork = createStatement.lastIndexOf("CREATE") > 6;
     List<String> sql = new ArrayList<>();
     for (String columnName : live.keySet()) {
-      if (this.columns.containsKey(columnName)) {
+      if (columns.containsKey(columnName)) {
         commonColumns.append("" + columnName + ",");
       }
     }
@@ -257,21 +256,20 @@ public class SQLiteTable extends Table {
       // there are columns in common so the table needs to be renamed,
       // have its data copied into a new table of the same name, and then be deleted
       commonColumns = new StringBuilder(commonColumns.substring(0, commonColumns.length() - 1));
-      sql.add("ALTER TABLE " + this.name + " RENAME TO temp_table;");
+      sql.add("ALTER TABLE " + name + " RENAME TO temp_table;");
       if (!doExtraWork) {
-        sql.add(this.createStatement);
+        sql.add(createStatement);
       } else {
-        sql.add(this.createStatement.substring(0, this.createStatement.indexOf("CREATE", 6) - 1));
+        sql.add(createStatement.substring(0, createStatement.indexOf("CREATE", 6) - 1));
       }
-      sql.add(
-          "INSERT INTO " + this.name + " (" + commonColumns + ")\n\tSELECT " + commonColumns + "\n\tFROM temp_table;");
+      sql.add("INSERT INTO " + name + " (" + commonColumns + ")\n\tSELECT " + commonColumns + "\n\tFROM temp_table;");
       sql.add("DROP TABLE temp_table;");
       if (doExtraWork) {
-        sql.add(this.createStatement.substring(this.createStatement.indexOf("CREATE", 6)));
+        sql.add(createStatement.substring(createStatement.indexOf("CREATE", 6)));
       }
     } else {
-      sql.add(this.drop);
-      sql.add(this.createStatement);
+      sql.add(drop);
+      sql.add(createStatement);
     }
     return sql;
   }

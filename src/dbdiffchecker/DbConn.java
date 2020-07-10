@@ -5,13 +5,12 @@ package dbdiffchecker;
  * get schema information.
  *
  * @author Peter Kaufman
- * @version 6-20-20
+ * @version 7-9-20
  * @since 5-24-19
  */
 public abstract class DbConn {
   /**
-   * This is the default constructor for this class, <b> Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>.
    */
   public DbConn() {
   }

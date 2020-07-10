@@ -17,7 +17,7 @@ import java.util.Map;
  * username, host, port, and database name provided.
  *
  * @author Peter Kaufman
- * @version 7-8-20
+ * @version 7-9-20
  * @since 10-26-19
  */
 public class MongoConn extends DbConn {
@@ -96,21 +96,21 @@ public class MongoConn extends DbConn {
     String[] options;
     int size;
     // determine if a collection is being dropped or added
-    if (statement.startsWith("Create Collection: ")) {
+    if (statement.startsWith(MongoDB.CREATE_COLL_IDENTIFIER)) {
       options = statement.split(",");
       if (options.length > 1) { // capped collection
-        collName = options[0].replace("Create Collection: ", "");
+        collName = options[0].replace(MongoDB.CREATE_COLL_IDENTIFIER, "");
         size = Integer.parseInt(options[2].replace(" size=", ""));
         CreateCollectionOptions collOptions = new CreateCollectionOptions();
         collOptions.capped(true);
         collOptions.sizeInBytes((long) size);
         database.createCollection(collName, collOptions);
       } else {
-        collName = statement.replace("Create Collection: ", "");
+        collName = statement.replace(MongoDB.CREATE_COLL_IDENTIFIER, "");
         database.createCollection(collName);
       }
     } else {
-      database.getCollection(statement.replace("Delete Collection: ", "")).drop();
+      database.getCollection(statement.replace(MongoDB.DELETE_COLL_IDENTIFIER, "")).drop();
     }
   }
 

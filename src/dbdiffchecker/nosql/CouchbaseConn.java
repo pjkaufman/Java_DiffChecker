@@ -25,8 +25,6 @@ import java.util.Map;
  * @since 5-23-19
  */
 public class CouchbaseConn extends DbConn {
-  private static final String BUCKET_PLACE_HOLDER = "dbDiffBucket";
-  private static final String PRIMARY_KEY_NAME = "dbDiffKey";
   private static final String CONN_STR_FORMAT = "couchbase://%s/%s?operation_timeout=5.5&config_total_timeout=15&http_poolsize=0";
   private String username;
   private String password;
@@ -67,27 +65,6 @@ public class CouchbaseConn extends DbConn {
   @Override
   public String getDatabaseName() {
     return bucketName;
-  }
-
-  /**
-   * Gets and returns the bucket placeholder used in index create statements to
-   * hole the place of the bucket to affect.
-   *
-   * @return The bucket placeholder used in index create statements.
-   */
-  public String getBucketPlaceHolder() {
-    return BUCKET_PLACE_HOLDER;
-  }
-
-  /**
-   * Gets and returns the default name to use when creating a primary index which
-   * will be removed later if it was added.
-   *
-   * @return The default name used to create a primary index if it needed to be
-   *         created.
-   */
-  public String getDefaultPrimaryName() {
-    return PRIMARY_KEY_NAME;
   }
 
   @Override
@@ -138,11 +115,12 @@ public class CouchbaseConn extends DbConn {
     int size;
     for (N1qlQueryRow row : result) {
       index = new IndexInfo(row.value().getObject("indexes"));
-      if (primaryAdded && index.name().equals(PRIMARY_KEY_NAME)) { // skip the manually added index
+      if (primaryAdded && index.name().equals(dbdiffchecker.nosql.Bucket.PRIMARY_KEY_NAME)) { // skip the manually added
+                                                                                              // index
         continue;
       }
-      create = new StringBuilder(
-          new IndexElement(index.name(), index.isPrimary()).export() + " ON `" + BUCKET_PLACE_HOLDER + "`");
+      create = new StringBuilder(new IndexElement(index.name(), index.isPrimary()).export() + " ON `"
+          + dbdiffchecker.nosql.Bucket.BUCKET_PLACE_HOLDER + "`");
       size = index.indexKey().size();
       if (size != 0) {
         create.append(" (");
@@ -158,7 +136,7 @@ public class CouchbaseConn extends DbConn {
       if (!index.isPrimary()) {
         create.append(" USING " + index.type());
       }
-      drop = "DROP INDEX `" + BUCKET_PLACE_HOLDER + "`.`" + index.name() + "`;";
+      drop = "DROP INDEX `" + dbdiffchecker.nosql.Bucket.BUCKET_PLACE_HOLDER + "`.`" + index.name() + "`;";
       indices.put(index.name(), new Index(index.name(), create.toString(), drop));
     }
   }
@@ -197,7 +175,8 @@ public class CouchbaseConn extends DbConn {
       String errorMsg = error.getCause().toString();
       if (errorMsg.contains("4000") && errorMsg.contains("CREATE INDEX")) {
         // create a primary index
-        query = N1qlQuery.simple("CREATE PRIMARY INDEX " + PRIMARY_KEY_NAME + " ON `" + bucketName + "`", params);
+        query = N1qlQuery.simple(
+            "CREATE PRIMARY INDEX " + dbdiffchecker.nosql.Bucket.PRIMARY_KEY_NAME + " ON `" + bucketName + "`", params);
         bucket.query(query);
         primaryAdded = true;
       } else {

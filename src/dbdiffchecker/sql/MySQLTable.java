@@ -9,13 +9,14 @@ import java.util.Map;
  * indices.
  *
  * @author Peter Kaufman
- * @version 7-8-20
+ * @version 7-9-20
  * @since 5-15-19
  */
 public class MySQLTable extends Table {
-  private String charSet = "";
+  private static final long serialVersionUID = 1L;
+  private String charSet;
   private String collation = "";
-  private String autoIncrement = "";
+  private String autoIncrement;
 
   /**
    * Sets the name and create statement of the table.
@@ -26,15 +27,14 @@ public class MySQLTable extends Table {
    */
   public MySQLTable(String name, String create) {
     super(name, create);
-    this.drop = "DROP TABLE `" + name + "`;";
+    drop = "DROP TABLE `" + name + "`;";
     String temp = create.substring(create.indexOf("DEFAULT CHARSET=") + 16) + " ";
-    this.charSet = temp.substring(0, temp.indexOf(" "));
+    charSet = temp.substring(0, temp.indexOf(" "));
     newLineCreation = ", \n";
   }
 
   /**
-   * This is the default constructor for this class, <b> Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>
    */
   public MySQLTable() {
   }
@@ -45,7 +45,7 @@ public class MySQLTable extends Table {
    * @return The collation of the table.
    */
   public String getCollation() {
-    return this.collation;
+    return collation;
   }
 
   /**
@@ -54,7 +54,7 @@ public class MySQLTable extends Table {
    * @return The character set of the table.
    */
   public String getCharSet() {
-    return this.charSet;
+    return charSet;
   }
 
   /**
@@ -63,7 +63,7 @@ public class MySQLTable extends Table {
    * @return The autoIncrement count of the table.
    */
   public String getAutoIncrement() {
-    return this.autoIncrement;
+    return autoIncrement;
   }
 
   /**
@@ -97,18 +97,18 @@ public class MySQLTable extends Table {
   public List<String> equals(Table t1) {
     List<String> sql = new ArrayList<>();
     isFirstStatement = true;
-    String sql2 = "ALTER TABLE `" + this.name + "`\n";
-    if (!this.charSet.equals(((MySQLTable) t1).charSet) || !this.collation.equals(((MySQLTable) t1).collation)) {
-      sql2 += "CHARACTER SET " + this.charSet;
-      if (!this.collation.equals("")) {
-        sql2 += " COLLATE " + this.collation;
+    String sql2 = "ALTER TABLE `" + name + "`\n";
+    if (!charSet.equals(((MySQLTable) t1).charSet) || !collation.equals(((MySQLTable) t1).collation)) {
+      sql2 += "CHARACTER SET " + charSet;
+      if (!collation.equals("")) {
+        sql2 += " COLLATE " + collation;
       }
       isFirstStatement = false;
     }
-    sql2 += dropIndices(this.indices, t1.getIndices());
-    sql2 += otherCols(this.columns, t1.getColumns());
-    sql2 += dropCols(this.columns, t1.getColumns());
-    sql2 += otherIndices(this.indices, t1.getIndices()) + ";";
+    sql2 += dropIndices(indices, t1.getIndices());
+    sql2 += otherCols(columns, t1.getColumns());
+    sql2 += dropCols(columns, t1.getColumns());
+    sql2 += otherIndices(indices, t1.getIndices()) + ";";
     if (!isFirstStatement) {
       sql.add(sql2);
     }
@@ -125,7 +125,7 @@ public class MySQLTable extends Table {
     String last = "";
     String details = "";
     String create = "";
-    parts = this.createStatement.split("\n");
+    parts = createStatement.split("\n");
     for (String part : parts) {
       part = part.trim();
       if (part.endsWith(",")) {

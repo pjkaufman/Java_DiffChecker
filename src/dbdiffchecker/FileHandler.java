@@ -27,7 +27,7 @@ public class FileHandler {
   public static final String LOG_FOLDER = "log" + File.separator;
 
   /**
-   * Makes sure that noone can try to instantiate the utility class.
+   * Makes sure that no one can try to instantiate the utility class.
    */
   private FileHandler() {
     throw new IllegalStateException("Utility class");
@@ -99,7 +99,7 @@ public class FileHandler {
    *                                            file.
    */
   public static Database deserailizDatabase(String prefix) throws DatabaseDifferenceCheckerException {
-    Database database = null;
+    Database database;
     try (FileInputStream fileInput = new FileInputStream(new File(LOG_FOLDER + prefix + "_" + DB_SNAPSHOT_FILE));
         ObjectInputStream inputStream = new ObjectInputStream(fileInput)) {
       database = (Database) inputStream.readObject();

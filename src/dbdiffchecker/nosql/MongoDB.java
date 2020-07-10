@@ -12,10 +12,13 @@ import java.util.ArrayList;
  * Models a Mongo Database by keeping track of all collections.
  *
  * @author Peter Kaufman
- * @version 7-8-20
+ * @version 7-9-20
  * @since 10-26-19
  */
 public class MongoDB extends Database {
+  private static final long serialVersionUID = 1L;
+  protected static final String CREATE_COLL_IDENTIFIER = "Create Collection: ";
+  protected static final String DELETE_COLL_IDENTIFIER = "Delete Collection: ";
   private Map<String, Collection> collections = new HashMap<>();
 
   /**
@@ -35,8 +38,7 @@ public class MongoDB extends Database {
   }
 
   /**
-   * This is the default constructor for this class, <b>Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>
    */
   public MongoDB() {
   }
@@ -47,7 +49,7 @@ public class MongoDB extends Database {
    * @return The list of documents that exist in the bucket.
    */
   public Map<String, Collection> getCollections() {
-    return this.collections;
+    return collections;
   }
 
   @Override
@@ -79,21 +81,23 @@ public class MongoDB extends Database {
     List<String> statements = new ArrayList<>();
     // check for collections to create
     StringBuilder createStatement;
-    for (String collectionName : collections.keySet()) {
-      if (!liveCollections.containsKey(collectionName)) {
-        createStatement = new StringBuilder("Create Collection: " + collectionName);
-        if (collections.get(collectionName).isCapped()) {
-          createStatement.append(", capped=true, size=" + collections.get(collectionName).getSize());
+    String collName;
+    for (Map.Entry<String, Collection> coll : collections.entrySet()) {
+      collName = coll.getKey();
+      if (!liveCollections.containsKey(collName)) {
+        createStatement = new StringBuilder(CREATE_COLL_IDENTIFIER + collName);
+        if (coll.getValue().isCapped()) {
+          createStatement.append(", capped=true, size=" + coll.getValue().getSize());
         }
         statements.add(createStatement.toString());
       } else {
-        common.add(collectionName);
+        common.add(collName);
       }
     }
     // check for collections to drop
     for (String collectionName : liveCollections.keySet()) {
       if (!collections.containsKey(collectionName)) {
-        statements.add("Delete Collection: " + collectionName);
+        statements.add(DELETE_COLL_IDENTIFIER + collectionName);
       }
     }
     return statements;
@@ -127,8 +131,8 @@ public class MongoDB extends Database {
     List<String> statements = new ArrayList<>();
     StringBuilder createStatement;
     for (String collectionName : collectionsToUpdate) {
-      statements.add("Delete Collection: " + collectionName);
-      createStatement = new StringBuilder("Create Collection: " + collectionName);
+      statements.add(DELETE_COLL_IDENTIFIER + collectionName);
+      createStatement = new StringBuilder(CREATE_COLL_IDENTIFIER + collectionName);
       if (collections.get(collectionName).isCapped()) {
         createStatement.append(", capped=true, size=" + collections.get(collectionName).getSize());
       }

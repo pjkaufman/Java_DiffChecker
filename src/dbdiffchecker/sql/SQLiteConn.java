@@ -17,11 +17,10 @@ import java.util.Map;
  * database and database name.
  *
  * @author Peter Kaufman
- * @version 6-20-20
+ * @version 7-9-20
  * @since 5-5-19
  */
 public class SQLiteConn extends SQLDbConn {
-  private String path;
 
   /**
    * Sets the instance variables and tests the database connection to make sure
@@ -36,16 +35,15 @@ public class SQLiteConn extends SQLDbConn {
    */
   public SQLiteConn(String path, String database, boolean isLive) throws DatabaseDifferenceCheckerException {
     this.isLive = isLive;
-    this.db = database;
-    this.path = path;
-    this.connString = "jdbc:sqlite:" + this.path + this.db + ".db";
-    this.testConnection();
+    db = database;
+    connString = "jdbc:sqlite:" + path + db + ".db";
+    testConnection();
   }
 
   @Override
   public void establishDatabaseConnection() throws DatabaseDifferenceCheckerException {
     try {
-      this.con = DriverManager.getConnection(this.connString);
+      con = DriverManager.getConnection(connString);
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(
           String.format("There was an error connecting to the %s database.", db), e, 1020);
@@ -54,7 +52,7 @@ public class SQLiteConn extends SQLDbConn {
 
   @Override
   protected void testConnection() throws DatabaseDifferenceCheckerException {
-    try (Connection tempCon = DriverManager.getConnection(this.connString)) {
+    try (Connection tempCon = DriverManager.getConnection(connString)) {
     } catch (SQLException error) {
       throw new DatabaseDifferenceCheckerException(
           String.format("There was an error with the connection to %s. Please try again.", db), error, 1023);
@@ -64,7 +62,7 @@ public class SQLiteConn extends SQLDbConn {
   @Override
   public String getTableCreateStatement(String table) throws DatabaseDifferenceCheckerException {
     String sql = "SELECT `sql` FROM `sqlite_master` WHERE tbl_name='?' AND `sql` NOT NULL;";
-    try (PreparedStatement query = this.con.prepareStatement(sql)) {
+    try (PreparedStatement query = con.prepareStatement(sql)) {
       query.setString(1, table);
       StringBuilder create = new StringBuilder();
       ResultSet set = runPreparedStatement(query);
@@ -84,7 +82,7 @@ public class SQLiteConn extends SQLDbConn {
   public Map<String, Table> getTableList() throws DatabaseDifferenceCheckerException {
     HashMap<String, Table> tablesList = new HashMap<>();
     String sql = "SELECT `name`, `sql` FROM `sqlite_master` WHERE `type`= 'table' AND `name` NOT Like 'sqlite%'";
-    try (PreparedStatement query = this.con.prepareStatement(sql)) {
+    try (PreparedStatement query = con.prepareStatement(sql)) {
       String table = "";
       String create = "";
       Table add = null;
@@ -107,7 +105,7 @@ public class SQLiteConn extends SQLDbConn {
   public List<View> getViews() throws DatabaseDifferenceCheckerException {
     List<View> views = new ArrayList<>();
     String sql = "SELECT `name`, `sql` FROM `sqlite_master` WHERE `type`= 'view';";
-    try (PreparedStatement query = this.con.prepareStatement(sql)) {
+    try (PreparedStatement query = con.prepareStatement(sql)) {
       ResultSet set = runPreparedStatement(query);
       while (set.next()) {
         views.add(new View(set.getString("name"), set.getString("sql")));

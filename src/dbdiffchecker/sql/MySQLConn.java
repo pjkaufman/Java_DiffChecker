@@ -1,7 +1,6 @@
 package dbdiffchecker.sql;
 
 import dbdiffchecker.DatabaseDifferenceCheckerException;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -17,7 +16,7 @@ import java.util.Map;
  * username, port, host, and database provided.
  *
  * @author Peter Kaufman
- * @version 7-8-20
+ * @version 7-9-20
  * @since 5-21-19
  */
 public class MySQLConn extends SQLDbConn {
@@ -34,8 +33,7 @@ public class MySQLConn extends SQLDbConn {
    * @param username The username of the MySQL account.
    * @param password The password of the MySQL account.
    * @param host     The host of the MySQL account.
-   * @param port     The port MySQL is running on. <b>Note: the default is 3306
-   *                 </b>
+   * @param port     The port MySQL is running on.
    * @param database The database in MySQL that the connection is to be
    *                 established with.
    * @param isLive   Whether or not the database connection is to the live
@@ -48,25 +46,25 @@ public class MySQLConn extends SQLDbConn {
     this.username = username;
     this.password = password;
     this.host = host;
-    this.db = database;
+    db = database;
     this.port = port;
-    this.connString = String.format(CONN_STRING_FMT, host, port, db, 150);
-    this.testConnection();
+    connString = String.format(CONN_STRING_FMT, host, port, db, 150);
+    testConnection();
   }
 
   @Override
   public void establishDatabaseConnection() throws DatabaseDifferenceCheckerException {
     try {
-      this.con = DriverManager.getConnection(this.connString, this.username, this.password);
+      con = DriverManager.getConnection(connString, username, password);
     } catch (SQLException e) {
-      throw new DatabaseDifferenceCheckerException("There was an error connecting to the " + this.db + " database.", e,
+      throw new DatabaseDifferenceCheckerException("There was an error connecting to the " + db + " database.", e,
           1013);
     }
   }
 
   @Override
   public String getTableCreateStatement(String table) throws DatabaseDifferenceCheckerException {
-    try (PreparedStatement query = this.con.prepareStatement("SHOW CREATE TABLE `?`;")) {
+    try (PreparedStatement query = con.prepareStatement("SHOW CREATE TABLE `?`;")) {
       query.setString(1, table);
       ResultSet set = runPreparedStatement(query);
       set.next(); // move to the first result
@@ -87,7 +85,7 @@ public class MySQLConn extends SQLDbConn {
    *                                            statement.
    */
   public String getViewCreateStatement(String view) throws DatabaseDifferenceCheckerException {
-    try (PreparedStatement query = this.con.prepareStatement("SHOW CREATE VIEW `?`;")) {
+    try (PreparedStatement query = con.prepareStatement("SHOW CREATE VIEW `?`;")) {
       query.setString(1, view);
       ResultSet set = runPreparedStatement(query);
       set.next(); // move to the first result
@@ -102,9 +100,9 @@ public class MySQLConn extends SQLDbConn {
   public Map<String, Table> getTableList() throws DatabaseDifferenceCheckerException {
     Map<String, Table> tablesList = new HashMap<>();
     String sql = "SHOW FULL TABLES IN `?` WHERE TABLE_TYPE LIKE 'BASE TABLE';";
-    try (PreparedStatement query = this.con.prepareStatement(sql)) {
+    try (PreparedStatement query = con.prepareStatement(sql)) {
       // set up and run the query to get the table names
-      query.setString(1, this.db);
+      query.setString(1, db);
       ResultSet tables = query.executeQuery(sql);
       String table = "";
       String create = "";
@@ -113,7 +111,7 @@ public class MySQLConn extends SQLDbConn {
       // for each table in the database
       while (tables.next()) {
         // get the table name and its createStatement
-        table = tables.getString("Tables_in_" + this.db);
+        table = tables.getString("Tables_in_" + db);
         create = getTableCreateStatement(table);
         firstStep.append("ALTER TABLE `" + table + "`");
         count = 0;
@@ -189,7 +187,7 @@ public class MySQLConn extends SQLDbConn {
       return tablesList;
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(
-          "There was an error getting the " + this.db + " database's table, column, and index details.", e, 1017);
+          "There was an error getting the " + db + " database's table, column, and index details.", e, 1017);
     }
   }
 
@@ -197,27 +195,26 @@ public class MySQLConn extends SQLDbConn {
   public List<View> getViews() throws DatabaseDifferenceCheckerException {
     List<View> views = new ArrayList<>();
     String sql = "SHOW FULL TABLES IN `?` WHERE TABLE_TYPE LIKE 'VIEW';";
-    try (PreparedStatement query = this.con.prepareStatement(sql)) {
-      query.setString(1, this.db);
+    try (PreparedStatement query = con.prepareStatement(sql)) {
+      query.setString(1, db);
       ResultSet set = query.executeQuery(sql);
       while (set.next()) {
-        views.add(new View(set.getString("Tables_in_" + this.db),
-            getViewCreateStatement(set.getString("Tables_in_" + this.db))));
+        views.add(new View(set.getString("Tables_in_" + db), getViewCreateStatement(set.getString("Tables_in_" + db))));
       }
       return views;
     } catch (SQLException e) {
-      throw new DatabaseDifferenceCheckerException(
-          "There was an error getting the " + this.db + " database's view details.", e, 1018);
+      throw new DatabaseDifferenceCheckerException("There was an error getting the " + db + " database's view details.",
+          e, 1018);
     }
   }
 
   @Override
   protected void testConnection() throws DatabaseDifferenceCheckerException {
-    try (Connection testCon = DriverManager.getConnection(String.format(CONN_STRING_FMT, host, port, db, 5),
-        this.username, this.password)) {
+    try (Connection testCon = DriverManager.getConnection(String.format(CONN_STRING_FMT, host, port, db, 5), username,
+        password)) {
     } catch (SQLException error) {
       throw new DatabaseDifferenceCheckerException(
-          "There was an error with the connection to " + this.db + ". Please try again.", error, 1016);
+          "There was an error with the connection to " + db + ". Please try again.", error, 1016);
     }
   }
 }

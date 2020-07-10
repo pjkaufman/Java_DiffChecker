@@ -29,19 +29,18 @@ public abstract class SQLDbConn extends DbConn {
 
   @Override
   public String getDatabaseName() {
-    return this.db;
+    return db;
   }
 
   /**
    * Returns the first steps to be taken in order to run the SQL statements. These
    * SQL statements are used to drop Primary Keys and remove auto_increments on
-   * the database provided. <b>Note: this funntion will return an empty ArrayList
-   * if the function is called on the development database.</b>
+   * the database provided.
    *
    * @return The first steps to be taken in order to run the SQL statements.
    */
   public List<String> getFirstSteps() {
-    return this.firstSteps;
+    return firstSteps;
   }
 
   @Override
@@ -50,7 +49,7 @@ public abstract class SQLDbConn extends DbConn {
   @Override
   public void closeDatabaseConnection() throws DatabaseDifferenceCheckerException {
     try {
-      this.con.close();
+      con.close();
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(String.format("There was an error closing the %s database.", db), e,
           1011);
@@ -86,7 +85,7 @@ public abstract class SQLDbConn extends DbConn {
 
   @Override
   public void runStatement(String sqlStatement) throws DatabaseDifferenceCheckerException {
-    try (Statement query = this.con.createStatement()) {
+    try (Statement query = con.createStatement()) {
       query.executeUpdate(sqlStatement);
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(

@@ -12,10 +12,11 @@ import java.util.Map;
  * Models an SQL database schema.
  *
  * @author Peter Kaufman
- * @version 6-20-20
+ * @version 7-9-20
  * @since 9-18-17
  */
 public class SQLDatabase extends Database {
+  private static final long serialVersionUID = 1L;
   private static final String[] foreignKeysOn = { "SET FOREIGN_KEY_CHECKS=0;", "PRAGMA foreign_keys=on;" };
   private static final String[] foreignKeysOff = { "SET FOREIGN_KEY_CHECKS=1;", "PRAGMA foreign_keys=off;" };
   private Map<String, Table> tables = new HashMap<>();
@@ -26,9 +27,9 @@ public class SQLDatabase extends Database {
 
   /**
    * Uses a database connection to initialize a HashMap of tables and views that
-   * exist in the database provided. <b>Note: It will also SQL statements to drop
-   * all Primary Keys and remove all auot_increments in the database provided
-   * which will only be used on the live database</b>
+   * exist in the database provided. <b>Note: It will also generate SQL statements
+   * to drop all Primary Keys and remove all auot_increments in the database
+   * provided which will only be used on the live database</b>
    *
    * @param db   The database connection used to get the database information
    * @param type The type of datbase implimentation which is being used. <b>Note:
@@ -38,11 +39,11 @@ public class SQLDatabase extends Database {
    */
   public SQLDatabase(DbConn db, int type) throws DatabaseDifferenceCheckerException {
     db.establishDatabaseConnection();
-    this.views = ((SQLDbConn) db).getViews();
-    this.tables = ((SQLDbConn) db).getTableList();
+    views = ((SQLDbConn) db).getViews();
+    tables = ((SQLDbConn) db).getTableList();
     db.closeDatabaseConnection();
     // get SQL statements to drop all Primary Keys and remove all auot_increments
-    this.firstSteps = ((SQLDbConn) db).getFirstSteps();
+    firstSteps = ((SQLDbConn) db).getFirstSteps();
     // make sure that the type is valid
     if (type >= foreignKeysOn.length) {
       throw new DatabaseDifferenceCheckerException("Unable to determine the database implimentation being used.",
@@ -52,8 +53,7 @@ public class SQLDatabase extends Database {
   }
 
   /**
-   * This is the default constructor for this class, <b>Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>.
    */
   public SQLDatabase() {
   }
@@ -61,14 +61,13 @@ public class SQLDatabase extends Database {
   /**
    * Returns the first steps to be taken in order to run the SQL statements. These
    * SQL statements are used to drop Primary Keys and remove auto_increments on
-   * the database provided. <b>Note: this function will return an empty ArrayList
-   * if the function is called for the development database</b>
+   * the database provided.
    *
    * @return The first steps to be taken in order to run the SQL statements.
    */
   public List<String> getFirstSteps() {
     checkFirstSteps();
-    return this.firstSteps;
+    return firstSteps;
   }
 
   /**
@@ -78,7 +77,7 @@ public class SQLDatabase extends Database {
    * @return A list of all the tables in the provided database.
    */
   public Map<String, Table> getTables() {
-    return this.tables;
+    return tables;
   }
 
   /**
@@ -87,19 +86,19 @@ public class SQLDatabase extends Database {
    * @return All of the views in the database.
    */
   public List<View> getViews() {
-    return this.views;
+    return views;
   }
 
   @Override
   public List<String> compare(Database liveDatabase) {
     List<String> sql = new ArrayList<>();
     HashMap<String, String> updateTables = new HashMap<>();
-    sql.addAll(this.compareTables(((SQLDatabase) liveDatabase).getTables()));
-    updateTables.putAll(this.tablesDiffs(((SQLDatabase) liveDatabase).getTables(), ((SQLDatabase) liveDatabase)));
+    sql.addAll(compareTables(((SQLDatabase) liveDatabase).getTables()));
+    updateTables.putAll(tablesDiffs(((SQLDatabase) liveDatabase).getTables(), ((SQLDatabase) liveDatabase)));
     sql.addAll(0, ((SQLDatabase) liveDatabase).getFirstSteps());
-    sql.addAll(this.updateTables(((SQLDatabase) liveDatabase).getTables(), updateTables));
-    sql.addAll(this.getFirstSteps());
-    sql.addAll(this.updateViews(((SQLDatabase) liveDatabase).getViews()));
+    sql.addAll(updateTables(((SQLDatabase) liveDatabase).getTables(), updateTables));
+    sql.addAll(getFirstSteps());
+    sql.addAll(updateViews(((SQLDatabase) liveDatabase).getViews()));
     if (!sql.isEmpty()) {
       sql.add(0, foreignKeysOn[type]);
       sql.add(foreignKeysOff[type]);
@@ -122,7 +121,7 @@ public class SQLDatabase extends Database {
       sql.add(liveView.getDrop());
     }
 
-    for (View devView : this.views) {
+    for (View devView : views) {
       sql.add(devView.getCreateStatement());
     }
     return sql;
@@ -138,17 +137,20 @@ public class SQLDatabase extends Database {
    */
   public List<String> compareTables(Map<String, Table> liveTables) {
     List<String> sql = new ArrayList<>();
-    for (String tableName : this.tables.keySet()) {
+    String tableName;
+    for (Map.Entry<String, Table> table : tables.entrySet()) {
+      tableName = table.getKey();
       if (!liveTables.containsKey(tableName)) {
-        sql.add(this.tables.get(tableName).getCreateStatement());
-        this.exclude.put(tableName, tableName);
+        sql.add(table.getValue().getCreateStatement());
+        exclude.put(tableName, tableName);
       }
     }
 
-    for (String tableName : liveTables.keySet()) {
-      if (!this.tables.containsKey(tableName)) {
-        sql.add(liveTables.get(tableName).getDrop());
-        this.exclude.put(tableName, tableName);
+    for (Map.Entry<String, Table> table : liveTables.entrySet()) {
+      tableName = table.getKey();
+      if (!tables.containsKey(tableName)) {
+        sql.add(table.getValue().getDrop());
+        exclude.put(tableName, tableName);
       }
     }
     return sql;
@@ -169,7 +171,7 @@ public class SQLDatabase extends Database {
     List<String> sql = new ArrayList<>();
     for (String tableName : updateTables.keySet()) {
       if (!exclude.containsKey(tableName)) {
-        sql.addAll(this.tables.get(tableName).equals(live.get(tableName)));
+        sql.addAll(tables.get(tableName).equals(live.get(tableName)));
       }
     }
     return sql;
@@ -190,9 +192,11 @@ public class SQLDatabase extends Database {
    */
   public Map<String, String> tablesDiffs(Map<String, Table> liveTables, SQLDatabase liveDatabase) {
     Map<String, String> updateTables = new HashMap<>();
-    for (String tableName : this.tables.keySet()) {
-      if (!this.exclude.containsKey(tableName)
-          && !this.tables.get(tableName).getCreateStatement().equals(liveTables.get(tableName).getCreateStatement())) {
+    String tableName;
+    for (Map.Entry<String, Table> table : tables.entrySet()) {
+      tableName = table.getKey();
+      if (!exclude.containsKey(tableName)
+          && !table.getValue().getCreateStatement().equals(liveTables.get(tableName).getCreateStatement())) {
         updateTables.put(tableName, tableName);
       } else { // all tables that do not need to be updated are to be removed from firstSteps
         liveDatabase.exclude.put(tableName, tableName);

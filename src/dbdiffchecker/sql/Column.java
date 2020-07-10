@@ -1,13 +1,14 @@
 package dbdiffchecker.sql;
 
 /**
- * Resembles an SQL column and contains column info.
+ * Resembles a SQL column and contains column info.
  *
  * @author Peter Kaufman
- * @version 6-20-20
+ * @version 7-9-20
  * @since 9-10-17
  */
 public class Column extends Schema {
+  private static final long serialVersionUID = 1L;
   private String details;
 
   /**
@@ -19,12 +20,11 @@ public class Column extends Schema {
   public Column(String name, String details) {
     this.name = name;
     this.details = details;
-    this.drop = "DROP COLUMN `" + name + "`";
+    drop = "DROP COLUMN `" + name + "`";
   }
 
   /**
-   * This is the default constructor for this class, <b>Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>
    */
   public Column() {
   }
@@ -35,6 +35,6 @@ public class Column extends Schema {
    * @return Details about the column.
    */
   public String getDetails() {
-    return this.details;
+    return details;
   }
 }

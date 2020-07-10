@@ -7,10 +7,11 @@ import java.io.Serializable;
  * properties of a collections.
  *
  * @author Peter Kaufman
- * @version 6-20-20
+ * @version 7-9-20
  * @since 10-26-19
  */
 public class Collection implements Serializable {
+  private static final long serialVersionUID = 1L;
   private String name;
   private boolean isCapped;
   private int size;
@@ -30,8 +31,7 @@ public class Collection implements Serializable {
   }
 
   /**
-   * This is the default constructor for this class, <b>Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>
    */
   public Collection() {
   }
@@ -63,13 +63,12 @@ public class Collection implements Serializable {
     return size;
   }
 
-  /**
-   * Determines wheteher two collections are equal.
-   *
-   * @param coll2 The collection to compare the current collection to.
-   * @return Whether or not the two collections are the same.
-   */
-  public boolean equals(Collection coll2) {
-    return name.equals(coll2.getName()) && isCapped == coll2.isCapped() && size == coll2.getSize();
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof Collection) {
+      Collection coll = (Collection) obj;
+      return name.equals(coll.getName()) && isCapped == coll.isCapped() && size == coll.getSize();
+    }
+    return false;
   }
 }

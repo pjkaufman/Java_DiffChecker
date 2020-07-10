@@ -28,7 +28,7 @@ public enum DatabaseType {
    * @param type The integer representation of the database type.
    */
   private DatabaseType(int type) {
-    this.value = type;
+    value = type;
   }
 
   /**

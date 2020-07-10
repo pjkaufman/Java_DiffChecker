@@ -17,11 +17,12 @@ import java.util.ArrayList;
  * @since 5-24-19
  */
 public class Bucket extends Database {
+  protected static final String BUCKET_PLACE_HOLDER = "dbDiffBucket";
+  protected static final String PRIMARY_KEY_NAME = "dbDiffKey";
+  private static final long serialVersionUID = 1L;
   private Map<String, String> documents = new HashMap<>();
   private Map<String, Index> indices = new HashMap<>();
   private String name = "";
-  private String bucketPlaceHolder = "";
-  private String primaryKeyName = "";
 
   /**
    * Creates a database that models the Couchbase bucket using the Couchbase
@@ -39,19 +40,16 @@ public class Bucket extends Database {
     connection.testConnection();
     connection.getDocuments(documents);
     connection.getIndices(indices);
-    this.bucketPlaceHolder = connection.getBucketPlaceHolder();
-    this.primaryKeyName = connection.getDefaultPrimaryName();
-    this.name = connection.getDatabaseName();
+    name = connection.getDatabaseName();
     // drop the primary key that was added manually if it exists
     if (connection.primaryAdded()) {
-      connection.runStatement("DROP INDEX `" + name + "`.`" + primaryKeyName + "`;");
+      connection.runStatement("DROP INDEX `" + name + "`.`" + PRIMARY_KEY_NAME + "`;");
     }
     connection.closeDatabaseConnection();
   }
 
   /**
-   * This is the default constructor for this class, <b>Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>
    */
   public Bucket() {
   }
@@ -62,7 +60,7 @@ public class Bucket extends Database {
    * @return The list of documents that exist in the bucket.
    */
   public Map<String, String> getDocuments() {
-    return this.documents;
+    return documents;
   }
 
   /**
@@ -71,7 +69,7 @@ public class Bucket extends Database {
    * @return The list of indices that exist in the bucket.
    */
   public Map<String, Index> getIndices() {
-    return this.indices;
+    return indices;
   }
 
   @Override
@@ -91,20 +89,20 @@ public class Bucket extends Database {
       }
     }
     // check to see if any indices need to be dropped or modified
-    Index couchbaseIndex = null;
+    Index couchbaseIndex;
     for (String indexName : live.getIndices().keySet()) {
       couchbaseIndex = live.indices.get(indexName);
       if (!indices.containsKey(indexName)) {
         n1ql.add(couchbaseIndex.getDrop());
       } else if (!couchbaseIndex.equals(indices.get(indexName))) {
         n1ql.add(couchbaseIndex.getDrop());
-        n1ql.add(indices.get(indexName).getCreateStatement().replace(bucketPlaceHolder, liveBucketName) + ";");
+        n1ql.add(indices.get(indexName).getCreateStatement().replace(BUCKET_PLACE_HOLDER, liveBucketName) + ";");
       }
     }
     // check to see if any indices need to be added or modified
-    for (String indexName : indices.keySet()) {
-      if (!live.getIndices().containsKey(indexName)) {
-        n1ql.add(indices.get(indexName).getCreateStatement().replace(bucketPlaceHolder, liveBucketName) + ";");
+    for (Map.Entry<String, Index> index : indices.entrySet()) {
+      if (!live.getIndices().containsKey(index.getKey())) {
+        n1ql.add(index.getValue().getCreateStatement().replace(BUCKET_PLACE_HOLDER, liveBucketName) + ";");
       }
     }
     return n1ql;

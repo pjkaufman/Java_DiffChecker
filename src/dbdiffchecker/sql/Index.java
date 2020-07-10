@@ -8,6 +8,8 @@ package dbdiffchecker.sql;
  * @since 9-12-17
  */
 public class Index extends Schema {
+  private static final long serialVersionUID = 1L;
+
   /**
    * Sets the name and create statement of the index.
    *
@@ -17,22 +19,18 @@ public class Index extends Schema {
    */
   public Index(String name, String create, String drop) {
     this.name = name;
-    this.createStatement = create;
+    createStatement = create;
     this.drop = drop;
   }
 
   /**
-   * This is the default constructor for this class, <b> Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>
    */
   public Index() {
   }
 
   @Override
-  public boolean equals(Object index) {
-    if (!(index instanceof Index)) {
-      return false;
-    }
-    return this.createStatement.equals(((Index) index).createStatement);
+  public boolean equals(Object obj) {
+    return obj instanceof Index && createStatement.equals(((Index) obj).createStatement);
   }
 }

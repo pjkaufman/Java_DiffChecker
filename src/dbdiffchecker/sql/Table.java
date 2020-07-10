@@ -13,6 +13,7 @@ import java.util.HashMap;
  * @since 9-10-17
  */
 public abstract class Table extends Schema {
+  private static final long serialVersionUID = 1L;
   protected boolean isFirstStatement = true;
   protected String newLineCreation;
   protected Map<String, Column> columns = new HashMap<>();
@@ -27,13 +28,12 @@ public abstract class Table extends Schema {
    */
   public Table(String name, String create) {
     this.name = name;
-    this.createStatement = create + ";";
+    createStatement = create + ";";
     parseCreateStatement();
   }
 
   /**
-   * This is the default constructor for this class, <b> Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>
    */
   public Table() {
   }
@@ -44,7 +44,7 @@ public abstract class Table extends Schema {
    * @return The table's columns.
    */
   public Map<String, Column> getColumns() {
-    return this.columns;
+    return columns;
   }
 
   /**
@@ -53,7 +53,7 @@ public abstract class Table extends Schema {
    * @return The index names and index data.
    */
   public Map<String, Index> getIndices() {
-    return this.indices;
+    return indices;
   }
 
   /**
@@ -62,7 +62,7 @@ public abstract class Table extends Schema {
    * @param col A Ccolumn to be added to the column list.
    */
   public void addColumn(Column col) {
-    this.columns.put(col.getName(), col);
+    columns.put(col.getName(), col);
   }
 
   /**
@@ -71,7 +71,7 @@ public abstract class Table extends Schema {
    * @param index An index to be added to the index list.
    */
   public void addIndex(Index index) {
-    this.indices.put(index.getName(), index);
+    indices.put(index.getName(), index);
   }
 
   /**

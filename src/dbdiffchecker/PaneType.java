@@ -22,7 +22,7 @@ public enum PaneType {
    * @param type The integer representation of the pane type.
    */
   private PaneType(int type) {
-    this.value = type;
+    value = type;
   }
 
   /**
