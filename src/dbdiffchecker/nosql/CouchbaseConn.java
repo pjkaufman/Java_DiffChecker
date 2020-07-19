@@ -21,7 +21,7 @@ import java.util.Map;
  * username, host, and bucket name provided.
  *
  * @author Peter Kaufman
- * @version 6-20-20
+ * @version 7-10-20
  * @since 5-23-19
  */
 public class CouchbaseConn extends DbConn {
@@ -58,7 +58,7 @@ public class CouchbaseConn extends DbConn {
    *
    * @return Whether a primary key was added to the bucket.
    */
-  public boolean primaryAdded() {
+  protected boolean primaryAdded() {
     return primaryAdded;
   }
 
@@ -90,7 +90,7 @@ public class CouchbaseConn extends DbConn {
    * @param documents A list where all of the document names will be stored for
    *                  fast lookup later.
    */
-  public void getDocuments(Map<String, String> documents) {
+  protected void getDocuments(Map<String, String> documents) {
     query = N1qlQuery.simple("SELECT META().id AS document FROM `" + bucketName + "`", params);
     result = bucket.query(query);
     String documentName;
@@ -106,17 +106,17 @@ public class CouchbaseConn extends DbConn {
    * @param indices A list where all of the index names and data that will be
    *                stored for fast lookup later.
    */
-  public void getIndices(Map<String, Index> indices) {
+  protected void getIndices(Map<String, Index> indices) {
     query = N1qlQuery.simple("SELECT indexes FROM system:indexes WHERE keyspace_id = \"" + bucketName + "\"", params);
     result = bucket.query(query);
-    IndexInfo index = null;
+    IndexInfo index;
     StringBuilder create;
     String drop;
     int size;
     for (N1qlQueryRow row : result) {
       index = new IndexInfo(row.value().getObject("indexes"));
-      if (primaryAdded && index.name().equals(dbdiffchecker.nosql.Bucket.PRIMARY_KEY_NAME)) { // skip the manually added
-                                                                                              // index
+      boolean isManuallyAddedKey = primaryAdded && index.name().equals(dbdiffchecker.nosql.Bucket.PRIMARY_KEY_NAME);
+      if (isManuallyAddedKey) {
         continue;
       }
       create = new StringBuilder(new IndexElement(index.name(), index.isPrimary()).export() + " ON `"
@@ -132,7 +132,6 @@ public class CouchbaseConn extends DbConn {
       if (index.condition().length() > 0) {
         create.append(" WHERE" + index.condition());
       }
-      // only add using statement if the key is not a primary index
       if (!index.isPrimary()) {
         create.append(" USING " + index.type());
       }
@@ -147,11 +146,11 @@ public class CouchbaseConn extends DbConn {
    * @param n1qlStatement A N1QL statement to be run on the bucket.
    */
   public void runStatement(String n1qlStatement) {
-    if (n1qlStatement.startsWith("Create document: ")) {
+    if (n1qlStatement.startsWith(dbdiffchecker.nosql.Bucket.CREATE_DOC_IDENTIFIER)) {
       JsonDocument document = JsonDocument.create(n1qlStatement.substring(n1qlStatement.indexOf(": ") + 2),
           JsonObject.empty());
       bucket.insert(document);
-    } else if (n1qlStatement.startsWith("Drop document: ")) {
+    } else if (n1qlStatement.startsWith(dbdiffchecker.nosql.Bucket.DELETE_DOC_IDENTIFIER)) {
       bucket.remove(n1qlStatement.substring(n1qlStatement.indexOf(": ") + 2));
     } else {
       query = N1qlQuery.simple(n1qlStatement, params);
@@ -174,7 +173,6 @@ public class CouchbaseConn extends DbConn {
     } catch (Exception error) {
       String errorMsg = error.getCause().toString();
       if (errorMsg.contains("4000") && errorMsg.contains("CREATE INDEX")) {
-        // create a primary index
         query = N1qlQuery.simple(
             "CREATE PRIMARY INDEX " + dbdiffchecker.nosql.Bucket.PRIMARY_KEY_NAME + " ON `" + bucketName + "`", params);
         bucket.query(query);

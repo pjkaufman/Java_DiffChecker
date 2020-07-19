@@ -16,7 +16,7 @@ import java.util.Map;
  * username, port, host, and database provided.
  *
  * @author Peter Kaufman
- * @version 7-9-20
+ * @version 7-18-20
  * @since 5-21-19
  */
 public class MySQLConn extends SQLDbConn {
@@ -67,7 +67,7 @@ public class MySQLConn extends SQLDbConn {
     try (PreparedStatement query = con.prepareStatement("SHOW CREATE TABLE `?`;")) {
       query.setString(1, table);
       ResultSet set = runPreparedStatement(query);
-      set.next(); // move to the first result
+      set.next();
       return set.getString("Create Table");
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(
@@ -88,7 +88,7 @@ public class MySQLConn extends SQLDbConn {
     try (PreparedStatement query = con.prepareStatement("SHOW CREATE VIEW `?`;")) {
       query.setString(1, view);
       ResultSet set = runPreparedStatement(query);
-      set.next(); // move to the first result
+      set.next();
       return set.getString("Create View");
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(
@@ -101,94 +101,104 @@ public class MySQLConn extends SQLDbConn {
     Map<String, Table> tablesList = new HashMap<>();
     String sql = "SHOW FULL TABLES IN `?` WHERE TABLE_TYPE LIKE 'BASE TABLE';";
     try (PreparedStatement query = con.prepareStatement(sql)) {
-      // set up and run the query to get the table names
       query.setString(1, db);
       ResultSet tables = query.executeQuery(sql);
-      String table = "";
-      String create = "";
-      Table add = null;
-      int count;
-      // for each table in the database
+      String tableName;
+      String create;
+      Table newTable;
+      boolean hasFirstStep;
       while (tables.next()) {
         // get the table name and its createStatement
-        table = tables.getString("Tables_in_" + db);
-        create = getTableCreateStatement(table);
-        firstStep.append("ALTER TABLE `" + table + "`");
-        count = 0;
-        add = new MySQLTable(table, create);
-        // if the database is the live database
+        tableName = tables.getString("Tables_in_" + db);
+        create = getTableCreateStatement(tableName);
+        firstStep.append("ALTER TABLE `" + tableName + "`");
+        hasFirstStep = false;
+        newTable = new MySQLTable(tableName, create);
         if (isLive) {
-          // remove auto_increment value statement
           if (create.contains("AUTO_INCREMENT")) {
-            // find the auto-increment column and remove it
-            int endColumn = create.indexOf("AUTO_INCREMENT");
-            int startColumn = create.indexOf("\n");
-            int temp = -1;
-            while (startColumn != -1) {
-              temp = create.indexOf("\n", startColumn + 1);
-              if (temp < endColumn) {
-                startColumn = temp;
-              } else {
-                String columnDetails = create.substring(startColumn + 1, endColumn).trim();
-                int startColumnName = columnDetails.indexOf("`");
-                String columnName = columnDetails.substring(startColumnName + 1,
-                    columnDetails.indexOf("`", startColumnName + 1));
-                firstStep.append("\n MODIFY COLUMN " + columnDetails);
-                // modify the column definition in order properly generate SQL if there is a
-                // difference found
-                add.getColumns().put(columnName, new Column(columnName, columnDetails));
-                count++;
-                break;
-              }
-            }
+            removeAutoIncrement(create, newTable);
+            hasFirstStep = true;
           }
           if (create.contains("FOREIGN KEY")) {
-            // drop the all Foreign Keys before the Primary Keys are to be dropped
-            int start;
-            boolean firstTime = true;
-            StringBuilder foreignKeyDrop = new StringBuilder("ALTER TABLE `" + table + "`");
-            String name;
-            String temp = create;
-            do {
-              start = 0;
-              start = temp.indexOf("CONSTRAINT `", start) + 12;
-              // get name
-              name = temp.substring(start, temp.indexOf("`", start));
-              if (!firstTime) {
-                foreignKeyDrop.append("\n,");
-              }
-              foreignKeyDrop.append(" DROP FOREIGN KEY `" + name + "`");
-              add.getIndices().remove(name);
-              firstTime = false;
-              // update temp
-              temp = temp.substring(temp.indexOf("FOREIGN KEY") + 11);
-            } while (temp.contains("FOREIGN KEY"));
-            // remove foreign key
-            firstSteps.add(0, foreignKeyDrop + ";");
+            dropAllForeignKeys(create, newTable);
           }
           if (create.contains("PRIMARY KEY")) {
-            if (count != 0) {
-              firstStep.append(",\n ");
-            } else {
-              firstStep.append("\n ");
+            if (hasFirstStep) {
+              firstStep.append(",");
             }
-            firstStep.append("DROP PRIMARY KEY");
+            firstStep.append("\n DROP PRIMARY KEY");
             // remove the PRIMARY KEY to make sure the appropriate SQL will be generated if
-            // there is a difference
-            add.getIndices().remove("PRIMARY");
-            count++;
+            // there is a difference in schema structure for this table
+            newTable.getIndices().remove("PRIMARY");
+            hasFirstStep = true;
           }
         }
-        if (count != 0) {
+        if (hasFirstStep) {
           firstSteps.add(firstStep + ";");
         }
-        tablesList.put(table, add);
+        tablesList.put(tableName, newTable);
       }
       return tablesList;
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(
           "There was an error getting the " + db + " database's table, column, and index details.", e, 1017);
     }
+  }
+
+  /**
+   * Removes the auto increment from a the table definition and add it to the
+   * first step if the table is updated.
+   *
+   * @param createStatement The create statement to modify.
+   * @param table           The table that the column with the auto increment
+   *                        exists on.
+   */
+  private void removeAutoIncrement(String createStatement, Table table) {
+    int endColumn = createStatement.indexOf("AUTO_INCREMENT");
+    int startColumn = createStatement.indexOf("\n");
+    int currentPos = -1;
+    while (startColumn != -1) {
+      currentPos = createStatement.indexOf("\n", startColumn + 1);
+      if (currentPos < endColumn) {
+        startColumn = currentPos;
+      } else {
+        String columnDetails = createStatement.substring(startColumn + 1, endColumn).trim();
+        int startColumnName = columnDetails.indexOf("`");
+        String columnName = columnDetails.substring(startColumnName + 1,
+            columnDetails.indexOf("`", startColumnName + 1));
+        firstStep.append("\n MODIFY COLUMN " + columnDetails); // modify the column definition in order properly
+                                                               // generate SQL if there is a difference found
+        table.getColumns().put(columnName, new Column(columnName, columnDetails));
+        break;
+      }
+    }
+  }
+
+  /**
+   * Ups the foreign key count on the table and makes sure the foreign keys will
+   * be dropped if the table needs to be updated.
+   * 
+   * @param createStatement
+   * @param table
+   */
+  private void dropAllForeignKeys(String createStatement, Table table) {
+    int start;
+    boolean firstTime = true;
+    StringBuilder foreignKeyDrop = new StringBuilder("ALTER TABLE `" + table.name + "`");
+    String indexName;
+    String toSearch = createStatement;
+    do {
+      start = toSearch.indexOf("CONSTRAINT `", 0) + 12;
+      indexName = toSearch.substring(start, toSearch.indexOf("`", start));
+      if (!firstTime) {
+        foreignKeyDrop.append("\n,");
+      }
+      foreignKeyDrop.append(" DROP FOREIGN KEY `" + indexName + "`");
+      table.getIndices().remove(indexName);
+      firstTime = false;
+      toSearch = toSearch.substring(toSearch.indexOf("FOREIGN KEY") + 11);
+    } while (toSearch.contains("FOREIGN KEY"));
+    firstSteps.add(0, foreignKeyDrop + ";");
   }
 
   @Override
@@ -212,6 +222,7 @@ public class MySQLConn extends SQLDbConn {
   protected void testConnection() throws DatabaseDifferenceCheckerException {
     try (Connection testCon = DriverManager.getConnection(String.format(CONN_STRING_FMT, host, port, db, 5), username,
         password)) {
+      // just tests that the connection can be established with the database
     } catch (SQLException error) {
       throw new DatabaseDifferenceCheckerException(
           "There was an error with the connection to " + db + ". Please try again.", error, 1016);

@@ -13,7 +13,7 @@ import dbdiffchecker.sql.SQLiteTable;
  * A unit test that makes sure that the SQLiteTable object works as intended.
  *
  * @author Peter Kaufman
- * @version 7-7-20
+ * @version 7-18-20
  * @since 5-10-19
  */
 public class SQLiteTableTest {
@@ -277,6 +277,6 @@ public class SQLiteTableTest {
       String createStatement2) {
     table1 = new SQLiteTable(tableName1, createStatement1);
     SQLiteTable table2 = new SQLiteTable(tableName2, createStatement2);
-    return table1.equals(table2);
+    return table1.generateStatements(table2);
   }
 }

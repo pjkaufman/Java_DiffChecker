@@ -9,7 +9,7 @@ import java.util.Map;
  * indices.
  *
  * @author Peter Kaufman
- * @version 7-9-20
+ * @version 7-18-20
  * @since 5-15-19
  */
 public class MySQLTable extends Table {
@@ -94,7 +94,7 @@ public class MySQLTable extends Table {
   }
 
   @Override
-  public List<String> equals(Table t1) {
+  public List<String> generateStatements(Table t1) {
     List<String> sql = new ArrayList<>();
     isFirstStatement = true;
     String sql2 = "ALTER TABLE `" + name + "`\n";
@@ -157,11 +157,9 @@ public class MySQLTable extends Table {
   @Override
   protected String dropCols(Map<String, Column> cols1, Map<String, Column> cols2) {
     StringBuilder sql = new StringBuilder();
-    Column col = null;
-    for (String columnName : cols2.keySet()) {
-      col = cols2.get(columnName);
-      if (!cols1.containsKey(columnName)) {
-        appendSQLPart(sql, col.getDrop());
+    for (Map.Entry<String, Column> columnInfo : cols2.entrySet()) {
+      if (!cols1.containsKey(columnInfo.getKey())) {
+        appendSQLPart(sql, columnInfo.getValue().getDrop());
       }
     }
     return sql.toString();
@@ -170,14 +168,14 @@ public class MySQLTable extends Table {
   @Override
   protected String otherCols(Map<String, Column> cols1, Map<String, Column> cols2) {
     StringBuilder sql = new StringBuilder();
-    Column col = null;
-    Column col2 = null;
-    for (String columnName : cols1.keySet()) {
-      col = cols1.get(columnName);
-      if (!cols2.containsKey(columnName)) {
+    Column col;
+    Column col2;
+    for (Map.Entry<String, Column> columnInfo : cols1.entrySet()) {
+      col = columnInfo.getValue();
+      if (!cols2.containsKey(columnInfo.getKey())) {
         appendSQLPart(sql, "ADD COLUMN `" + col.getName() + "` " + col.getDetails());
       } else {
-        col2 = cols2.get(columnName);
+        col2 = cols2.get(columnInfo.getKey());
         if (col.getName().equals(col2.getName()) && !col.getDetails().equals(col2.getDetails())) {
           appendSQLPart(sql, "MODIFY COLUMN `" + col.getName() + "` " + col.getDetails());
         }
@@ -189,9 +187,9 @@ public class MySQLTable extends Table {
   @Override
   protected String dropIndices(Map<String, Index> dev, Map<String, Index> live) {
     StringBuilder sql = new StringBuilder();
-    for (String indexName : live.keySet()) {
-      if (!dev.containsKey(indexName)) {
-        appendSQLPart(sql, live.get(indexName).getDrop());
+    for (Map.Entry<String, Index> indexInfo : live.entrySet()) {
+      if (!dev.containsKey(indexInfo.getKey())) {
+        appendSQLPart(sql, indexInfo.getValue().getDrop());
       }
     }
     return sql.toString();
@@ -200,15 +198,15 @@ public class MySQLTable extends Table {
   @Override
   protected String otherIndices(Map<String, Index> dev, Map<String, Index> live) {
     StringBuilder sql = new StringBuilder();
-    Index indices1 = null;
-    for (String indexName : dev.keySet()) {
-      indices1 = dev.get(indexName);
-      if (live.containsKey(indexName)) {
-        if (!indices1.equals(live.get(indexName))) {
-          appendSQLPart(sql, indices1.getDrop() + ", \n" + indices1.getCreateStatement());
+    Index index;
+    for (Map.Entry<String, Index> indexInfo : dev.entrySet()) {
+      index = indexInfo.getValue();
+      if (live.containsKey(indexInfo.getKey())) {
+        if (!index.equals(live.get(indexInfo.getKey()))) {
+          appendSQLPart(sql, index.getDrop() + ", \n" + index.getCreateStatement());
         }
       } else {
-        appendSQLPart(sql, indices1.getCreateStatement());
+        appendSQLPart(sql, index.getCreateStatement());
       }
     }
     return sql.toString();

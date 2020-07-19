@@ -24,7 +24,7 @@ public abstract class SQLDbConn extends DbConn {
   protected String connString;
   protected StringBuilder firstStep = new StringBuilder();
   protected boolean isLive;
-  protected Connection con = null;
+  protected Connection con;
   protected List<String> firstSteps = new ArrayList<>();
 
   @Override

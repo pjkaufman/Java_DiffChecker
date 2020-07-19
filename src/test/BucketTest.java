@@ -34,8 +34,8 @@ public class BucketTest {
   public void testCompareSimple() {
     ArrayList<String> expectedStatements2 = new ArrayList<>();
     name = "blob";
-    expectedStatements.add("Create document: " + name);
-    expectedStatements2.add("Drop document: " + name);
+    expectedStatements.add("Create Document: " + name);
+    expectedStatements2.add("Delete Document: " + name);
     // two empty buckets
     bucket = new Bucket();
     bucket2 = new Bucket();
@@ -61,8 +61,8 @@ public class BucketTest {
     name = "Destruction";
     bucket.getDocuments().put(name, name);
     statements = bucket.compare(bucket2);
-    expectedStatements.add("Create document: " + name);
-    expectedStatements2.add("Drop document: " + name);
+    expectedStatements.add("Create Document: " + name);
+    expectedStatements2.add("Delete Document: " + name);
     assertEquals(
         "There should be two document create statements if the development database has 2 documents and live has none (no indices)",
         expectedStatements, statements);
@@ -77,7 +77,7 @@ public class BucketTest {
     expectedStatements2.clear();
     name = "dev_primary";
     create = "CREATE INDEX `" + name + "` ON `development`";
-    drop = "DROP INDEX ``.`" + name + "`;";
+    drop = "DROP INDEX `" + name + "`;";
     expectedStatements.add(create + ";");
     bucket.getIndices().put(name, new Index(name, create, drop));
     statements = bucket.compare(bucket2);
@@ -93,7 +93,7 @@ public class BucketTest {
     // create two indices
     name = "devSpeed";
     create = "CREATE INDEX `" + name + "` ON `development` WHERE (`abv` > 6)";
-    drop = "DROP INDEX ``.`" + name + "`;";
+    drop = "DROP INDEX `" + name + "`;";
     expectedStatements.add(0, create + ";");
     bucket.getIndices().put(name, new Index(name, create, drop));
     statements = bucket.compare(bucket2);
@@ -111,32 +111,32 @@ public class BucketTest {
   @Test
   public void testCompareComplex() {
     name = "blob";
-    expectedStatements.add("Create document: " + name);
+    expectedStatements.add("Create Document: " + name);
     bucket = new Bucket();
     bucket2 = new Bucket();
     // add documents to bucket and bucket2
     bucket.getDocuments().put(name, name);
     name = "dropDoc";
-    expectedStatements.add("Drop document: " + name);
+    expectedStatements.add("Delete Document: " + name);
     bucket2.getDocuments().put(name, name);
     name = "leave";
     bucket.getDocuments().put(name, name);
     bucket2.getDocuments().put(name, name);
     // create indices
     name = "create";
-    drop = "DROP INDEX ``.`" + name + "`;";
+    drop = "DROP INDEX `" + name + "`;";
     create = "CREATE INDEX `" + name + "` ON `development`";
     expectedStatements.add(create + ";");
     bucket.getIndices().put(name, new Index(name, create, drop));
     name = "leave";
-    drop = "DROP INDEX ``.`" + name + "`;";
+    drop = "DROP INDEX `" + name + "`;";
     create = "CREATE INDEX `" + name + "` ON `development`";
     bucket.getIndices().put(name, new Index(name, create, drop));
     bucket2.getIndices().put(name, new Index(name, create, drop));
     name = "drop";
-    drop = "DROP INDEX ``.`" + name + "`;";
+    drop = "DROP INDEX `" + name + "`;";
     create = "CREATE INDEX `" + name + "` ON `development` WHERE (`abv` > 6)";
-    expectedStatements.add(expectedStatements.size() - 1, "DROP INDEX ``.`" + name + "`;");
+    expectedStatements.add(expectedStatements.size() - 1, "DROP INDEX `" + name + "`;");
     bucket2.getIndices().put(name, new Index(name, create, drop));
     statements = bucket.compare(bucket2);
     assertEquals(
@@ -148,7 +148,7 @@ public class BucketTest {
   public void testModifyIndex() {
     name = "blob";
     create = "CREATE INDEX `" + name + "` ON `development`";
-    drop = "DROP INDEX ``.`" + name + "`;";
+    drop = "DROP INDEX `" + name + "`;";
     expectedStatements.add(drop);
     expectedStatements.add(create + ";");
     bucket = new Bucket();

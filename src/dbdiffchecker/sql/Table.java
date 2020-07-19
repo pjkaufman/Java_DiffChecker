@@ -9,7 +9,7 @@ import java.util.HashMap;
  * columns and indices.
  *
  * @author Peter Kaufman
- * @version 7-8-20
+ * @version 7-18-20
  * @since 9-10-17
  */
 public abstract class Table extends Schema {
@@ -81,7 +81,7 @@ public abstract class Table extends Schema {
    * @param t1 A Table object which is being compared to this Table object.
    * @return The SQL needed to make the tables the same.
    */
-  public abstract List<String> equals(Table t1);
+  public abstract List<String> generateStatements(Table t1);
 
   /**
    * Appends the sql addition after adding the appropriate line ending if needed.

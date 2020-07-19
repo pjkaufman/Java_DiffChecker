@@ -1,7 +1,6 @@
 package dbdiffchecker.sql;
 
 import dbdiffchecker.DatabaseDifferenceCheckerException;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -53,6 +52,7 @@ public class SQLiteConn extends SQLDbConn {
   @Override
   protected void testConnection() throws DatabaseDifferenceCheckerException {
     try (Connection tempCon = DriverManager.getConnection(connString)) {
+      // just tests that the connection can be established with the database
     } catch (SQLException error) {
       throw new DatabaseDifferenceCheckerException(
           String.format("There was an error with the connection to %s. Please try again.", db), error, 1023);
@@ -85,7 +85,7 @@ public class SQLiteConn extends SQLDbConn {
     try (PreparedStatement query = con.prepareStatement(sql)) {
       String table = "";
       String create = "";
-      Table add = null;
+      Table add;
       ResultSet tables = runPreparedStatement(query);
       while (tables.next()) {
         table = tables.getString("name");

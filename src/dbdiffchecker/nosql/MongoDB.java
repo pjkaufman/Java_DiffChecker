@@ -17,9 +17,9 @@ import java.util.ArrayList;
  */
 public class MongoDB extends Database {
   private static final long serialVersionUID = 1L;
+  private Map<String, Collection> collections = new HashMap<>();
   protected static final String CREATE_COLL_IDENTIFIER = "Create Collection: ";
   protected static final String DELETE_COLL_IDENTIFIER = "Delete Collection: ";
-  private Map<String, Collection> collections = new HashMap<>();
 
   /**
    * Creates a database that models the Mongo database using the Mongo connection
@@ -81,17 +81,15 @@ public class MongoDB extends Database {
     List<String> statements = new ArrayList<>();
     // check for collections to create
     StringBuilder createStatement;
-    String collName;
     for (Map.Entry<String, Collection> coll : collections.entrySet()) {
-      collName = coll.getKey();
-      if (!liveCollections.containsKey(collName)) {
-        createStatement = new StringBuilder(CREATE_COLL_IDENTIFIER + collName);
+      if (!liveCollections.containsKey(coll.getKey())) {
+        createStatement = new StringBuilder(CREATE_COLL_IDENTIFIER + coll.getKey());
         if (coll.getValue().isCapped()) {
           createStatement.append(", capped=true, size=" + coll.getValue().getSize());
         }
         statements.add(createStatement.toString());
       } else {
-        common.add(collName);
+        common.add(coll.getKey());
       }
     }
     // check for collections to drop

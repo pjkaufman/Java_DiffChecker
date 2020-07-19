@@ -171,7 +171,7 @@ public class SQLDatabase extends Database {
     List<String> sql = new ArrayList<>();
     for (String tableName : updateTables.keySet()) {
       if (!exclude.containsKey(tableName)) {
-        sql.addAll(tables.get(tableName).equals(live.get(tableName)));
+        sql.addAll(tables.get(tableName).generateStatements(live.get(tableName)));
       }
     }
     return sql;

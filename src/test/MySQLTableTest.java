@@ -10,7 +10,7 @@ import dbdiffchecker.sql.MySQLTable;
  * A unit test that makes sure that the MySQLTable object works as intended.
  *
  * @author Peter Kaufman
- * @version 7-7-20
+ * @version 7-18-20
  * @since 5-10-19
  */
 public class MySQLTableTest {
@@ -314,6 +314,6 @@ public class MySQLTableTest {
       String createStatement2) {
     table1 = new MySQLTable(tableName1, createStatement1);
     MySQLTable table2 = new MySQLTable(tableName2, createStatement2);
-    return table1.equals(table2);
+    return table1.generateStatements(table2);
   }
 }

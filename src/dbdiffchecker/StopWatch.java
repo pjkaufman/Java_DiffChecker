@@ -20,7 +20,7 @@ public class StopWatch {
 
   /**
    * Checks to see if the program is running. If it is not running, then start
-   * time is set. Otherwise a RuntimeException error is thrown.
+   * time is set.
    */
   public void start() {
     if (isRunning) {
@@ -32,8 +32,7 @@ public class StopWatch {
 
   /**
    * Checks to see if the program is running. If it is running, then stop time is
-   * set, and the duration that the program has run is set and returned. Otherwise
-   * a RuntimeException error is thrown.
+   * set, and the duration that the program has run is set and returned.
    *
    * @return The amount of time elapsed since the last start method was called.
    */
