@@ -44,8 +44,8 @@ public class FileHandlerTest {
     expectedContents.add(data2);
 
     try {
-      FileHandler.writeToFile(data);
-      FileHandler.writeToFile(data2);
+      FileHandler.log(data);
+      FileHandler.log(data2);
       fileContents = FileHandler.readFrom(FileHandler.LOG_FILE);
     } catch (DatabaseDifferenceCheckerException err) {
       fail(err.getMessage());
