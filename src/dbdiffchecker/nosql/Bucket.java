@@ -13,8 +13,6 @@ import java.util.ArrayList;
  * Models a Couchbase bucket by keeping track of all indices and documents.
  *
  * @author Peter Kaufman
- * @version 7-18-20
- * @since 5-24-19
  */
 public class Bucket extends Database {
   protected static final String BUCKET_PLACE_HOLDER = "dbDiffBucket";
@@ -87,7 +85,7 @@ public class Bucket extends Database {
    * Returns a list of statements to drop and create documents as needed.
    *
    * @param live The live bucket.
-   * @return List of statements to drop and create documents as needed
+   * @return List of statements to drop and create documents as needed.
    */
   private List<String> getCreateAndDeleteDocumentStatements(Bucket live) {
     List<String> n1ql = new ArrayList<>();

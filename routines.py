@@ -28,7 +28,7 @@ def compile_files(path, type):
   packageList = ''
   for x in os.walk(os.path.join(dirs['source'], package)):
     packageList += os.path.join(x[0], '*.java') + ' '
-  #compile the java files
+  # compile the java files
   try:
     check_output(start + ' -cp "' + libPath + '" ' + packageList, shell=True)
     print('Compiled files')
@@ -55,7 +55,7 @@ def setup_debug_env():
   except:
     pass
   create_log_dir()
-  #copy current resources to the resources folder in the test directory
+  # copy current resources to the resources folder in the test directory
   filelist = [f for f in os.listdir(os.path.join(os.getcwd(), dirs['source'], dirs['res']))]
   for f in filelist:
     copy(os.path.join(os.getcwd(), dirs['source'], dirs['res'], f), os.path.join(

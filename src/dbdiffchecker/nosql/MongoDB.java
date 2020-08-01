@@ -12,8 +12,6 @@ import java.util.ArrayList;
  * Models a Mongo Database by keeping track of all collections.
  *
  * @author Peter Kaufman
- * @version 7-9-20
- * @since 10-26-19
  */
 public class MongoDB extends Database {
   private static final long serialVersionUID = 1L;
@@ -26,8 +24,7 @@ public class MongoDB extends Database {
    * in order to get a list of collections.
    *
    * @param conn The connection to the Mongo database.
-   * @throws DatabaseDifferenceCheckerException Error connecting to the Mongo
-   *                                            database.
+   * @throws DatabaseDifferenceCheckerException Error connecting to the Mongo database.
    */
   public MongoDB(DbConn conn) throws DatabaseDifferenceCheckerException {
     MongoConn connection = (MongoConn) conn;
@@ -57,13 +54,10 @@ public class MongoDB extends Database {
     MongoDB live = (MongoDB) liveDatabase;
     List<String> statements = new ArrayList<>();
     List<String> common = new ArrayList<>();
-    List<String> updateCollections;
-    // check for collections to create and drop
-    statements.addAll(compareCollections(live.getCollections(), common));
-    // determine which collections need to be updated
-    updateCollections = collectionDiffs(common, live.getCollections());
-    // generate the statements needed to modify the collections
-    statements.addAll(updateCollections(updateCollections));
+    List<String> collectionsToUpdate;
+    statements.addAll(compareCollections(live.getCollections(), common)); // check for collections to create and drop
+    collectionsToUpdate = collectionDiffs(common, live.getCollections());
+    statements.addAll(updateCollections(collectionsToUpdate));
     return statements;
   }
 
@@ -79,7 +73,7 @@ public class MongoDB extends Database {
    */
   private List<String> compareCollections(Map<String, Collection> liveCollections, List<String> common) {
     List<String> statements = new ArrayList<>();
-    // check for collections to create
+
     StringBuilder createStatement;
     for (Map.Entry<String, Collection> coll : collections.entrySet()) {
       if (!liveCollections.containsKey(coll.getKey())) {
@@ -92,7 +86,7 @@ public class MongoDB extends Database {
         common.add(coll.getKey());
       }
     }
-    // check for collections to drop
+
     for (String collectionName : liveCollections.keySet()) {
       if (!collections.containsKey(collectionName)) {
         statements.add(DELETE_COLL_IDENTIFIER + collectionName);

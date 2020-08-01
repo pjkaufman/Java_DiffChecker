@@ -9,12 +9,9 @@ import java.io.File;
  * Runs all of the unit tests.
  *
  * @author Peter Kaufman
- * @version 6-20-20
- * @since 5-11-19
  */
 public class TestRunner {
   public static void main(String[] args) {
-    // get class file names from current directory
     String testName;
     String result;
     long testTime = 0;
@@ -25,6 +22,7 @@ public class TestRunner {
     int tempFailCount;
     boolean success = true;
     File dir = new File("src" + File.separator + "test");
+    // get class file names from current directory
     File[] tests = dir.listFiles((d, name) -> name.endsWith(".class"));
     for (File test : tests) {
       // skip current file's class file

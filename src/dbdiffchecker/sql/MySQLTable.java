@@ -5,12 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Resembles a table in MySQL and contains info about the Ttable's columns and
+ * Resembles a MySQL table and contains info about the table's columns and
  * indices.
  *
  * @author Peter Kaufman
- * @version 7-18-20
- * @since 5-15-19
  */
 public class MySQLTable extends Table {
   private static final long serialVersionUID = 1L;
@@ -58,9 +56,9 @@ public class MySQLTable extends Table {
   }
 
   /**
-   * Returns the autoIncrement count of the table.
+   * Returns the auto increment count of the table.
    *
-   * @return The autoIncrement count of the table.
+   * @return The auto increment count of the table.
    */
   public String getAutoIncrement() {
     return autoIncrement;
@@ -85,9 +83,9 @@ public class MySQLTable extends Table {
   }
 
   /**
-   * Sets the autoIncrement count of the table.
+   * Sets the auto increment count of the table.
    *
-   * @param autoIncrement The autoIncrement count of the table.
+   * @param autoIncrement The auto increment count of the table.
    */
   public void setAutoIncrement(String autoIncrement) {
     this.autoIncrement = autoIncrement;

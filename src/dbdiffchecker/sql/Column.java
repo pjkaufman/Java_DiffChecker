@@ -4,8 +4,6 @@ package dbdiffchecker.sql;
  * Resembles a SQL column and contains column info.
  *
  * @author Peter Kaufman
- * @version 7-9-20
- * @since 9-10-17
  */
 public class Column extends Schema {
   private static final long serialVersionUID = 1L;
@@ -14,8 +12,8 @@ public class Column extends Schema {
   /**
    * Sets the name and details of the column.
    *
-   * @param name    the name of the column
-   * @param details the info of the column
+   * @param name    The name of the column
+   * @param details The info of the column
    */
   public Column(String name, String details) {
     this.name = name;

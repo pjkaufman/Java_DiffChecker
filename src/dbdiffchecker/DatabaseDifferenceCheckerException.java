@@ -4,8 +4,6 @@ package dbdiffchecker;
  * Used to wrap exceptions that occur throughtout the program.
  *
  * @author Peter Kaufman
- * @version 7-9-20
- * @since 7-29-18
  */
 public class DatabaseDifferenceCheckerException extends Exception {
   private static final long serialVersionUID = 1L;
@@ -16,7 +14,7 @@ public class DatabaseDifferenceCheckerException extends Exception {
    *
    * @param message The error message to display to the user.
    * @param cause   The original exception.
-   * @param code    The errorCode of the excpetion.
+   * @param code    The error code of the excpetion.
    */
   public DatabaseDifferenceCheckerException(String message, Exception cause, int code) {
     super(message, cause);

@@ -3,12 +3,10 @@ package dbdiffchecker.nosql;
 import java.io.Serializable;
 
 /**
- * Models a Collection in a Mongo database by keeping track of specific
- * properties of a collections.
+ * Models a collection in a Mongo database by keeping track of specific
+ * properties of collections.
  *
  * @author Peter Kaufman
- * @version 7-9-20
- * @since 10-26-19
  */
 public class Collection implements Serializable {
   private static final long serialVersionUID = 1L;
@@ -17,7 +15,7 @@ public class Collection implements Serializable {
   private int size;
 
   /**
-   * Initializes a Collection using the name provided and the size as well as
+   * Initializes a collection using the name provided and the size as well as
    * marking whether it is capped.
    *
    * @param name     The name of the collection.

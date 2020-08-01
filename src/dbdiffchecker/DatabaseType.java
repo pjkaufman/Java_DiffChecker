@@ -4,8 +4,6 @@ package dbdiffchecker;
  * Deals with all database types and their related data.
  *
  * @author Peter Kaufman
- * @version 7-6-20
- * @since 7-1-20
  */
 public enum DatabaseType {
   NONE(0), MYSQL(1), SQLITE(2), COUCHBASE(3), MONGODB(4);

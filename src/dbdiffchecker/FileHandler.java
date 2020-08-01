@@ -17,8 +17,6 @@ import java.util.Scanner;
  * Deals with all data coming from and going out to files.
  *
  * @author Peter Kaufman and Chris Dail
- * @version 6-20-20
- * @since 9-12-17
  */
 public class FileHandler {
   public static final String LOG_FILE = "activity.log";
@@ -27,7 +25,7 @@ public class FileHandler {
   public static final String LOG_FOLDER = "log" + File.separator;
 
   /**
-   * Makes sure that no one can try to instantiate the utility class.
+   * Makes sure that no one can instantiate the utility class.
    */
   private FileHandler() {
     throw new IllegalStateException("Utility class");
@@ -38,8 +36,7 @@ public class FileHandler {
    *
    * @param database The database to serialize.
    * @param prefix   The prefix of the database snapshot to deserailize. <b>Note:
-   *                 it is the name of the database implimentation of the
-   *                 database</b>
+   *                 it is the name of the database type</b>
    * @throws DatabaseDifferenceCheckerException Error serializing the database.
    */
   public static void serializeDatabase(Database database, String prefix) throws DatabaseDifferenceCheckerException {
@@ -55,7 +52,7 @@ public class FileHandler {
   }
 
   /**
-   * Takes SQL statements and writes them to the last run file.
+   * Takes statements and writes them to the last run file.
    *
    * @param sequelStatements Statements to be logged.
    * @throws DatabaseDifferenceCheckerException Error writing the statements to
@@ -73,13 +70,12 @@ public class FileHandler {
   }
 
   /**
-   * Takes a String and writes it to the log file.
+   * Logs the provided data to the log file.
    *
-   * @param data The data to be written to the log file.
-   * @throws DatabaseDifferenceCheckerException Error writing the data to the log
-   *                                            file.
+   * @param data The data to be logged.
+   * @throws DatabaseDifferenceCheckerException Error logging the data.
    */
-  public static void writeToFile(String data) throws DatabaseDifferenceCheckerException {
+  public static void log(String data) throws DatabaseDifferenceCheckerException {
     Date currentTime = new Date();
     try (PrintWriter out = new PrintWriter(new FileWriter(new File(LOG_FOLDER + LOG_FILE), true))) {
       out.println(currentTime.toString() + " " + data);
@@ -92,7 +88,7 @@ public class FileHandler {
    * Deserializes a database file.
    *
    * @param prefix The prefix of the database snapshot to deserailize. <b>Note: it
-   *               is the name of the database implimentation of the database</b>
+   *               is the name of the database type</b>
    * @return The database created through deserialization with table and view
    *         data.
    * @throws DatabaseDifferenceCheckerException Error deserializing the database
@@ -137,7 +133,7 @@ public class FileHandler {
    * @param file The file path to the file.
    * @return Whether the file exists or not.
    * @see <a href=
-   *      "https://stackoverflow.com/questions/1816673/how-do-i-check-if-a-file-exists-in-java">https://stackoverflow.com/questions/1816673/how-do-i-check-if-a-file-exists-in-java</a>
+   *      "https://stackoverflow.com/questions/1816673/how-do-i-check-if-a-file-exists-in-java">How to check if a file exists Stack Overflow</a>
    */
   public static boolean fileExists(String file) {
     return new File(LOG_FOLDER + file).isFile();

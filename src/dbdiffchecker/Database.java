@@ -7,8 +7,6 @@ import java.util.List;
  * The model for the functions that all database representations should contain.
  *
  * @author Peter Kaufman
- * @version 7-6-20
- * @since 5-24-19
  */
 public abstract class Database implements Serializable {
   protected static final long serialVersionUID = 1L;

@@ -12,8 +12,6 @@ import java.util.Map;
  * Models an SQL database schema.
  *
  * @author Peter Kaufman
- * @version 7-9-20
- * @since 9-18-17
  */
 public class SQLDatabase extends Database {
   private static final long serialVersionUID = 1L;
@@ -26,7 +24,7 @@ public class SQLDatabase extends Database {
   private int type;
 
   /**
-   * Uses a database connection to initialize a HashMap of tables and views that
+   * Uses a database connection to initialize a map of tables and views that
    * exist in the database provided. <b>Note: It will also generate SQL statements
    * to drop all Primary Keys and remove all auot_increments in the database
    * provided which will only be used on the live database</b>
@@ -44,7 +42,7 @@ public class SQLDatabase extends Database {
     db.closeDatabaseConnection();
     // get SQL statements to drop all Primary Keys and remove all auot_increments
     firstSteps = ((SQLDbConn) db).getFirstSteps();
-    // make sure that the type is valid
+
     if (type >= foreignKeysOn.length) {
       throw new DatabaseDifferenceCheckerException("Unable to determine the database implimentation being used.",
           new Exception(), 1019);
@@ -60,7 +58,7 @@ public class SQLDatabase extends Database {
 
   /**
    * Returns the first steps to be taken in order to run the SQL statements. These
-   * SQL statements are used to drop Primary Keys and remove auto_increments on
+   * SQL statements are used to drop Primary Keys and remove auto increments on
    * the database provided.
    *
    * @return The first steps to be taken in order to run the SQL statements.

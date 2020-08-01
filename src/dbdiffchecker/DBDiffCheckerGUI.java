@@ -53,11 +53,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 
 /**
- * A JFrame that has several tabs and includes the entire frontend.
+ * The GUI of the application which has several tabs and includes.
  *
  * @author Peter Kaufman
- * @version 7-8-20
- * @since 9-20-17
  */
 public class DBDiffCheckerGUI extends JFrame {
   private static final long serialVersionUID = 1L;
@@ -92,7 +90,7 @@ public class DBDiffCheckerGUI extends JFrame {
   private int tabPos = 0;
 
   /**
-   * Initializes the whole frontend GUI.
+   * Initializes the whole GUI.
    */
   public DBDiffCheckerGUI() {
     createTabbedPaneContent();
@@ -156,7 +154,7 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   /**
-   * Creates the tab pane's tabs and highlights the first title.
+   * Creates the tab pane tabs and highlights the first title.
    */
   private void createTabbedPaneContent() {
     initializeTabs();
@@ -194,7 +192,7 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   /**
-   * Takes a snapshot of what the user indicates is the development database.
+   * Takes a snapshot of the development database.
    * <i>Note: most of this function is run in a background thread.</i>
    */
   private void createSnapshot() {
@@ -239,10 +237,9 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   /**
-   * Compares two databases based on user input (one can be a snapshot) and
-   * generates the statements needed to make them the same. <i>Note: most of this
-   * function runs in a background thread.</i>
-   *
+   * Compares two databases (one can be a snapshot) and generates the statements
+   * needed to make them the same. <i>Note: most of this function runs in a
+   * background thread.</i>
    */
   private void generateStatements() {
     databaseOptions.setEnabled(false);
@@ -358,9 +355,9 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   /**
-   * Stops the progressBar and sets the border to the given String.
+   * Stops the progressBar and sets the border to the given text.
    *
-   * @param title The title for the border of the progressBar
+   * @param title The title for the border of the progress bar
    */
   private void endProgressBar(String title) {
     newBorder(title);
@@ -372,7 +369,7 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   /**
-   * Takes and sets the new title for the progressbar's border.
+   * Takes and sets the new title for the progress bar's border.
    *
    * @param title The new name of the titled borders.
    */
@@ -386,9 +383,8 @@ public class DBDiffCheckerGUI extends JFrame {
    * Creates a database for the database connection provided.
    *
    * @param databaseConn The database connection to use to make the database.
-   * @return A database for the development database
-   * @throws DatabaseDifferenceCheckerException Error getting data from the
-   *                                            development database.
+   * @return A database for the database connection.
+   * @throws DatabaseDifferenceCheckerException Error getting data from the database.
    */
   private Database createDatabase(DbConn databaseConn) throws DatabaseDifferenceCheckerException {
     if (DatabaseType.MYSQL == selectedType) {
@@ -478,7 +474,7 @@ public class DBDiffCheckerGUI extends JFrame {
    */
   private void log(String info) {
     try {
-      FileHandler.writeToFile(info);
+      FileHandler.log(info);
     } catch (DatabaseDifferenceCheckerException err) {
       LOGGER.log(Level.SEVERE, String.format("Cannot write to log file: %s", err.getMessage()));
     }
@@ -500,7 +496,7 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   /**
-   * Displays the generated statements or displays that the databases are in sync.
+   * Displays the generated statements or that the databases are in sync.
    */
   private void displayCompareResult() {
     try {
@@ -595,10 +591,6 @@ public class DBDiffCheckerGUI extends JFrame {
 
   /**
    * Represents a tab in the tab pane layout.
-   *
-   * @author Peter Kaufman
-   * @version 7-10-20
-   * @since 7-1-20
    */
   private class TabPane extends JPanel {
     private static final long serialVersionUID = 1L;
@@ -712,7 +704,7 @@ public class DBDiffCheckerGUI extends JFrame {
      * @param componentList   The list of components to add to the panel as well as
      *                        the text to be displayed as the input's label.
      * @param formComponents  A list of all the form components that can have input
-     *                        from the user - it is used for validating user input.
+     *                        from the user. It is used for validating user input.
      */
     private void createComponents(JPanel componentHolder, String[] componentList, List<JTextComponent> formComponents) {
       JTextComponent txtcpn;

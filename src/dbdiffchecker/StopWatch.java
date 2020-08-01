@@ -8,10 +8,8 @@ import java.time.Instant;
  * start and end method calls.
  *
  * @author Jonas_Hess and Peter Kaufman
- * @version 6-20-20
- * @since 10-26-17
  * @see <a href=
- *      "https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java">https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java</a>
+ *      "https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java">Stopwatch in Java Stack Overflow</a>
  */
 public class StopWatch {
   private Instant startTime;

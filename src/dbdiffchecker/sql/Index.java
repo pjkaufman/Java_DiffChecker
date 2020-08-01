@@ -4,8 +4,6 @@ package dbdiffchecker.sql;
  * Resembles a generic index and contains index info.
  *
  * @author Peter Kaufman
- * @version 7-6-20
- * @since 9-12-17
  */
 public class Index extends Schema {
   private static final long serialVersionUID = 1L;

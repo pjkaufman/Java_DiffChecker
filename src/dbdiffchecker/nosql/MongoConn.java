@@ -17,8 +17,6 @@ import java.util.Map;
  * username, host, port, and database name provided.
  *
  * @author Peter Kaufman
- * @version 7-9-20
- * @since 10-26-19
  */
 public class MongoConn extends DbConn {
   private String name;

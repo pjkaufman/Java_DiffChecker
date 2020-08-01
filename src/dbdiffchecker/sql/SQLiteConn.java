@@ -16,8 +16,6 @@ import java.util.Map;
  * database and database name.
  *
  * @author Peter Kaufman
- * @version 7-9-20
- * @since 5-5-19
  */
 public class SQLiteConn extends SQLDbConn {
 
@@ -66,11 +64,12 @@ public class SQLiteConn extends SQLDbConn {
       query.setString(1, table);
       StringBuilder create = new StringBuilder();
       ResultSet set = runPreparedStatement(query);
-      // get all data needed to create the table
+
       while (set.next()) {
         create.append(set.getString("sql") + ";\n");
       }
       set.close();
+
       return create.toString().substring(0, create.length() - 2);
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(

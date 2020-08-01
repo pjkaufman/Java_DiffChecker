@@ -9,8 +9,6 @@ import java.util.HashMap;
  * columns and indices.
  *
  * @author Peter Kaufman
- * @version 7-18-20
- * @since 9-10-17
  */
 public abstract class Table extends Schema {
   private static final long serialVersionUID = 1L;
@@ -23,7 +21,7 @@ public abstract class Table extends Schema {
    * Sets the name and create statement of the table.
    *
    * @param name   The name of the table.
-   * @param create he create statement of the table which will be used to create
+   * @param create The create statement of the table which will be used to create
    *               its columns and indices.
    */
   public Table(String name, String create) {
@@ -59,7 +57,7 @@ public abstract class Table extends Schema {
   /**
    * Adds a column to the column list.
    *
-   * @param col A Ccolumn to be added to the column list.
+   * @param col A column to be added to the column list.
    */
   public void addColumn(Column col) {
     columns.put(col.getName(), col);
@@ -75,19 +73,19 @@ public abstract class Table extends Schema {
   }
 
   /**
-   * Takes in a Table and compares it to the current one, the result is SQL
+   * Takes in a table and compares it to the current one. The result is SQL
    * statements to make them the same.
    *
-   * @param t1 A Table object which is being compared to this Table object.
+   * @param t1 A table object which is being compared to this table object.
    * @return The SQL needed to make the tables the same.
    */
   public abstract List<String> generateStatements(Table t1);
 
   /**
-   * Appends the sql addition after adding the appropriate line ending if needed.
+   * Appends the SQL addition after adding the appropriate line ending if needed.
    *
-   * @param sql         The sql statment to append to.
-   * @param sqlAddition The sql to append to the statement.
+   * @param sql         The SQL statment to append to.
+   * @param sqlAddition The SQL to append to the statement.
    */
   protected void appendSQLPart(StringBuilder sql, String sqlAddition) {
     if (!isFirstStatement) {
@@ -99,7 +97,7 @@ public abstract class Table extends Schema {
   }
 
   /**
-   * Parses the create statment of the table picking up columns and indices that
+   * Parses the create statement of the table picking up columns and indices that
    * need to be added.
    */
   protected abstract void parseCreateStatement();
@@ -122,17 +120,17 @@ public abstract class Table extends Schema {
    * @param cols1 The column names and column data of the current table.
    * @param cols2 The column names and column data of a different table of the
    *              same name.
-   * @return Part of an SQL statement that modifies and,or adds columns.
+   * @return Part of an SQL statement that modifies and/or adds columns.
    */
   protected abstract String otherCols(Map<String, Column> cols1, Map<String, Column> cols2);
 
   /**
-   * Takes two index lists and returns part of an SQL statement that drop indexes.
+   * Takes two index lists and returns part of an SQL statement that drop indices.
    *
    * @param dev  The index names and index data of the current table.
    * @param live The index names and index data of a different table of the same
    *             name.
-   * @return Part of an SQL statement that drops indexes.
+   * @return Part of an SQL statement that drops indices.
    */
   protected abstract String dropIndices(Map<String, Index> dev, Map<String, Index> live);
 
@@ -143,7 +141,7 @@ public abstract class Table extends Schema {
    * @param dev  The index names and index data of the current table.
    * @param live The index names and index data of a different table of the same
    *             name.
-   * @return Part of an SQL statement that either adds or drops and adds indexes.
+   * @return Part of an SQL statement that either adds or drops and adds indices.
    */
   protected abstract String otherIndices(Map<String, Index> dev, Map<String, Index> live);
 }

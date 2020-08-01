@@ -4,8 +4,6 @@ package dbdiffchecker.sql;
  * Resembles a view in an SQL database and contains view info.
  *
  * @author Peter Kaufman
- * @version 7-9-20
- * @since 9-15-17
  */
 public class View extends Schema {
   private static final long serialVersionUID = 1L;

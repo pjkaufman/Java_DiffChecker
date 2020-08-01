@@ -16,8 +16,6 @@ import java.util.Map;
  * statements to get schema information.
  *
  * @author Peter Kaufman
- * @version 7-8-20
- * @since 5-24-19
  */
 public abstract class SQLDbConn extends DbConn {
   protected String db;
@@ -62,8 +60,7 @@ public abstract class SQLDbConn extends DbConn {
    * @param table The name of the table for which the create statement should be
    *              retrieved.
    * @return Table's create statement or an empty string if an error occurred.
-   * @throws DatabaseDifferenceCheckerException Error when getting a table's
-   *                                            create statement.
+   * @throws DatabaseDifferenceCheckerException Error getting a table's create statement.
    */
   public abstract String getTableCreateStatement(String table) throws DatabaseDifferenceCheckerException;
 
@@ -71,7 +68,7 @@ public abstract class SQLDbConn extends DbConn {
    * Gets the tables, columns, and indices of the database.
    *
    * @return The list of tables in the database where the table name is the key.
-   * @throws DatabaseDifferenceCheckerException Error when getting table data.
+   * @throws DatabaseDifferenceCheckerException Error getting table data.
    */
   public abstract Map<String, Table> getTableList() throws DatabaseDifferenceCheckerException;
 
@@ -79,7 +76,7 @@ public abstract class SQLDbConn extends DbConn {
    * Gets a list of views of that exist in the database.
    *
    * @return All of the views in the database.
-   * @throws DatabaseDifferenceCheckerException Error when getting view data.
+   * @throws DatabaseDifferenceCheckerException Error getting view data.
    */
   public abstract List<View> getViews() throws DatabaseDifferenceCheckerException;
 
@@ -98,7 +95,7 @@ public abstract class SQLDbConn extends DbConn {
    *
    * @param sqlQuery The prepared statement that will be run.
    * @return The result of the prepared statement.
-   * @throws SQLException There was an error trying to run the prepared statement.
+   * @throws SQLException Error running the prepared statement.
    */
   protected ResultSet runPreparedStatement(PreparedStatement sqlQuery) throws SQLException {
     return sqlQuery.executeQuery();

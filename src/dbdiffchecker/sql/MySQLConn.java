@@ -16,8 +16,6 @@ import java.util.Map;
  * username, port, host, and database provided.
  *
  * @author Peter Kaufman
- * @version 7-18-20
- * @since 5-21-19
  */
 public class MySQLConn extends SQLDbConn {
   private static final String CONN_STRING_FMT = "jdbc:mysql://%s:%s/%s?autoReconnect=true&useSSL=false&maxReconnects=%d";
@@ -81,8 +79,7 @@ public class MySQLConn extends SQLDbConn {
    * @param view The name of the view for which the create statement should be
    *             retrieved.
    * @return The view's create statement.
-   * @throws DatabaseDifferenceCheckerException Error when getting a view's create
-   *                                            statement.
+   * @throws DatabaseDifferenceCheckerException Error getting a view's create statement.
    */
   public String getViewCreateStatement(String view) throws DatabaseDifferenceCheckerException {
     try (PreparedStatement query = con.prepareStatement("SHOW CREATE VIEW `?`;")) {
@@ -108,7 +105,6 @@ public class MySQLConn extends SQLDbConn {
       Table newTable;
       boolean hasFirstStep;
       while (tables.next()) {
-        // get the table name and its createStatement
         tableName = tables.getString("Tables_in_" + db);
         create = getTableCreateStatement(tableName);
         firstStep.append("ALTER TABLE `" + tableName + "`");
@@ -177,7 +173,7 @@ public class MySQLConn extends SQLDbConn {
   /**
    * Ups the foreign key count on the table and makes sure the foreign keys will
    * be dropped if the table needs to be updated.
-   * 
+   *
    * @param createStatement
    * @param table
    */

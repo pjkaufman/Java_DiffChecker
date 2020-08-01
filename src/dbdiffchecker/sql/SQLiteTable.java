@@ -9,8 +9,6 @@ import java.util.Map;
  * indices.
  *
  * @author Peter Kaufman
- * @version 7-18-20
- * @since 5-11-19
  */
 public class SQLiteTable extends Table {
   private static final long serialVersionUID = 1L;
@@ -277,7 +275,7 @@ public class SQLiteTable extends Table {
    * and live tables.
    *
    * @param live A list of columns and their definitions which helps the transfer
-   *             of data for common collumns.
+   *             of data for common columns.
    * @return The SQL statements needed to recreate the development table.
    */
   private List<String> recreateTable(Map<String, Column> live) {

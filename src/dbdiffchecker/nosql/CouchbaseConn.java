@@ -21,8 +21,6 @@ import java.util.Map;
  * username, host, and bucket name provided.
  *
  * @author Peter Kaufman
- * @version 7-10-20
- * @since 5-23-19
  */
 public class CouchbaseConn extends DbConn {
   private static final String CONN_STR_FORMAT = "couchbase://%s/%s?operation_timeout=5.5&config_total_timeout=15&http_poolsize=0";
@@ -162,8 +160,7 @@ public class CouchbaseConn extends DbConn {
    * Tests to see if the bucket can be queried immediately or if a primary key
    * needs to be added first. It will add a primary key if it is needed.
    *
-   * @throws DatabaseDifferenceCheckerException Error trying to connect to the
-   *                                            bucket.
+   * @throws DatabaseDifferenceCheckerException Error trying to connect to the bucket.
    */
   @Override
   public void testConnection() throws DatabaseDifferenceCheckerException {

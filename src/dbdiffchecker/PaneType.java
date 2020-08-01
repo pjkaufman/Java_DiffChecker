@@ -4,8 +4,6 @@ package dbdiffchecker;
  * Deals with all pane types and their related data.
  *
  * @author Peter Kaufman
- * @version 7-6-20
- * @since 7-1-20
  */
 public enum PaneType {
   COMPARE_WITH_DB(0), COMPARE_WITH_SNAPSHOT(1), SNAPSHOT(2), LOGS(3), LAST_RUN(4);
@@ -44,7 +42,7 @@ public enum PaneType {
   }
 
   /**
-   * Returns the tab text associated witht the pane type.
+   * Returns the tab text associated with the pane type.
    *
    * @return The tab text representation of the pane type.
    */
