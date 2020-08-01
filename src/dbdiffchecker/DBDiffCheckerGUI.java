@@ -26,6 +26,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.WindowConstants;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +63,6 @@ public class DBDiffCheckerGUI extends JFrame {
   private static final String FONT_FAMILY = "Tahoma";
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
   private DatabaseType[] databaseTypeOptions = DatabaseType.values();
-  private DatabaseType selectedType;
   private PaneType[] paneTypeOptions = PaneType.values();
   private PaneType tabType;
   private Font reg = new Font(FONT_FAMILY, Font.PLAIN, 12);
@@ -149,7 +149,7 @@ public class DBDiffCheckerGUI extends JFrame {
     setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     setIconImage(new ImageIcon(getClass().getResource("/resources/DBCompare.png")).getImage());
     setSize(700, 600);
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     setVisible(true);
   }
 
@@ -192,11 +192,12 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   /**
-   * Takes a snapshot of the development database.
-   * <i>Note: most of this function is run in a background thread.</i>
+   * Takes a snapshot of the development database. <i>Note: most of this function
+   * is run in a background thread.</i>
    */
   private void createSnapshot() {
     databaseOptions.setEnabled(false);
+    selectedTab.executeBtn.setEnabled(false);
     prepProgressBar("Establishing Database Connection", true);
     SwingWorker<Boolean, String> worker = new SwingWorker<Boolean, String>() {
       @Override
@@ -206,10 +207,10 @@ public class DBDiffCheckerGUI extends JFrame {
         devDatabaseConnection = createDevDatabaseConnection();
         publish("Gathering Database Information");
         devDatabase = createDatabase(devDatabaseConnection);
-        publish("Writing to JSON File");
+        publish("Serializing Database");
         FileHandler.serializeDatabase(devDatabase, DatabaseType.getType(selectedTab.selectedDatabaseType.getValue()));
-        sw.stop();
-        log(String.format("Took a Database Snapshot in %lds.", sw.getElapsedTime().toMillis() / 1000.0));
+        System.out.println("Should stop now:");
+        log(String.format("Took a Database Snapshot in %lds.", sw.stop().toMillis() / 1000.0));
         return true;
       }
 
@@ -225,6 +226,7 @@ public class DBDiffCheckerGUI extends JFrame {
           handleSwingWorkerThreadException(err);
         } finally {
           databaseOptions.setEnabled(true);
+          selectedTab.executeBtn.setEnabled(true);
         }
       }
 
@@ -248,13 +250,10 @@ public class DBDiffCheckerGUI extends JFrame {
     SwingWorker<Boolean, String> swingW = new SwingWorker<Boolean, String>() {
       @Override
       protected Boolean doInBackground() throws DatabaseDifferenceCheckerException {
-        sw.start();
         setupDatabases();
         publish("Comparing Databases");
         statements = devDatabase.compare(liveDatabase);
         statementsLists.put(currentTab, statements);
-        sw.stop();
-        log(String.format("Completed database comparison in %lds.", sw.getElapsedTime().toMillis() / 1000.0));
         return true;
       }
 
@@ -303,8 +302,7 @@ public class DBDiffCheckerGUI extends JFrame {
           publish(i);
         }
         liveDatabaseConnection.closeDatabaseConnection();
-        sw.stop();
-        log(String.format("Ran statements in %lds.", sw.getElapsedTime().toMillis() / 1000.0));
+        log(String.format("Ran statements in %lds.", sw.stop().toMillis() / 1000.0));
         return true;
       }
 
@@ -334,10 +332,10 @@ public class DBDiffCheckerGUI extends JFrame {
   }
 
   /**
-   * Gets the progressBar ready by reseting the StopWatch object and determines
+   * Gets the progress bar ready by reseting the StopWatch object and determines
    * which settings to turn on.
    *
-   * @param title         The title for the border of the progressBar.
+   * @param title         The title for the border of the progress bar.
    * @param indeterminate Whether or not the progressBar is to be indeterminate.
    */
   private void prepProgressBar(String title, boolean indeterminate) {
@@ -384,14 +382,15 @@ public class DBDiffCheckerGUI extends JFrame {
    *
    * @param databaseConn The database connection to use to make the database.
    * @return A database for the database connection.
-   * @throws DatabaseDifferenceCheckerException Error getting data from the database.
+   * @throws DatabaseDifferenceCheckerException Error getting data from the
+   *                                            database.
    */
   private Database createDatabase(DbConn databaseConn) throws DatabaseDifferenceCheckerException {
-    if (DatabaseType.MYSQL == selectedType) {
+    if (DatabaseType.MYSQL == selectedTab.selectedDatabaseType) {
       return new SQLDatabase(databaseConn, 0);
-    } else if (DatabaseType.SQLITE == selectedType) {
+    } else if (DatabaseType.SQLITE == selectedTab.selectedDatabaseType) {
       return new SQLDatabase(databaseConn, 1);
-    } else if (DatabaseType.COUCHBASE == selectedType) {
+    } else if (DatabaseType.COUCHBASE == selectedTab.selectedDatabaseType) {
       return new Bucket(databaseConn);
     } else {
       return new MongoDB(databaseConn);
@@ -408,12 +407,12 @@ public class DBDiffCheckerGUI extends JFrame {
    */
   private DbConn createDevDatabaseConnection() throws DatabaseDifferenceCheckerException {
     boolean isLive = false;
-    if (DatabaseType.MYSQL == selectedType) {
+    if (DatabaseType.MYSQL == selectedTab.selectedDatabaseType) {
       return new MySQLConn(inputs.get(0).getText().trim(), inputs.get(1).getText().trim(),
           inputs.get(2).getText().trim(), inputs.get(3).getText().trim(), inputs.get(4).getText().trim(), isLive);
-    } else if (DatabaseType.SQLITE == selectedType) {
+    } else if (DatabaseType.SQLITE == selectedTab.selectedDatabaseType) {
       return new SQLiteConn(fixPath(inputs.get(0).getText().trim()), inputs.get(1).getText().trim(), isLive);
-    } else if (DatabaseType.COUCHBASE == selectedType) {
+    } else if (DatabaseType.COUCHBASE == selectedTab.selectedDatabaseType) {
       return new CouchbaseConn(inputs.get(0).getText().trim(), inputs.get(1).getText().trim(),
           inputs.get(2).getText().trim(), inputs.get(3).getText().trim());
     } else {
@@ -435,14 +434,14 @@ public class DBDiffCheckerGUI extends JFrame {
     if (PaneType.COMPARE_WITH_SNAPSHOT == tabType) {
       startIndex = 0;
     }
-    if (DatabaseType.MYSQL == selectedType) {
+    if (DatabaseType.MYSQL == selectedTab.selectedDatabaseType) {
       return new MySQLConn(inputs.get(startIndex).getText().trim(), inputs.get(startIndex + 1).getText().trim(),
           inputs.get(startIndex + 2).getText().trim(), inputs.get(startIndex + 3).getText().trim(),
           inputs.get(startIndex + 4).getText().trim(), isLive);
-    } else if (DatabaseType.SQLITE == selectedType) {
+    } else if (DatabaseType.SQLITE == selectedTab.selectedDatabaseType) {
       return new SQLiteConn(fixPath(inputs.get(startIndex).getText().trim()),
           inputs.get(startIndex + 1).getText().trim(), isLive);
-    } else if (DatabaseType.COUCHBASE == selectedType) {
+    } else if (DatabaseType.COUCHBASE == selectedTab.selectedDatabaseType) {
       return new CouchbaseConn(inputs.get(startIndex).getText().trim(), inputs.get(startIndex + 1).getText().trim(),
           inputs.get(startIndex + 2).getText().trim(), inputs.get(startIndex + 3).getText().trim());
     } else {

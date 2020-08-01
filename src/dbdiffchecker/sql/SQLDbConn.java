@@ -3,10 +3,10 @@ package dbdiffchecker.sql;
 import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +60,8 @@ public abstract class SQLDbConn extends DbConn {
    * @param table The name of the table for which the create statement should be
    *              retrieved.
    * @return Table's create statement or an empty string if an error occurred.
-   * @throws DatabaseDifferenceCheckerException Error getting a table's create statement.
+   * @throws DatabaseDifferenceCheckerException Error getting a table's create
+   *                                            statement.
    */
   public abstract String getTableCreateStatement(String table) throws DatabaseDifferenceCheckerException;
 
@@ -91,14 +92,18 @@ public abstract class SQLDbConn extends DbConn {
   }
 
   /**
-   * Runs a prepared statement.
+   * Runs a statement provided the query to run.
    *
-   * @param sqlQuery The prepared statement that will be run.
-   * @return The result of the prepared statement.
-   * @throws SQLException Error running the prepared statement.
+   * @param statement The statement that will be used to run the query.
+   * @param sqlQuery  The query to run.
+   * @return The result of the query.
+   * @throws SQLException Error executing the query.
    */
-  protected ResultSet runPreparedStatement(PreparedStatement sqlQuery) throws SQLException {
-    return sqlQuery.executeQuery();
+  protected ResultSet runQuery(Statement statement, String sqlQuery) throws SQLException {
+    if (statement instanceof PreparedStatement) {
+      return ((PreparedStatement) statement).executeQuery();
+    }
+    return statement.executeQuery(sqlQuery);
   }
 
   @Override

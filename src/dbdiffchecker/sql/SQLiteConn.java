@@ -63,7 +63,7 @@ public class SQLiteConn extends SQLDbConn {
     try (PreparedStatement query = con.prepareStatement(sql)) {
       query.setString(1, table);
       StringBuilder create = new StringBuilder();
-      ResultSet set = runPreparedStatement(query);
+      ResultSet set = runQuery(query, null);
 
       while (set.next()) {
         create.append(set.getString("sql") + ";\n");
@@ -85,7 +85,7 @@ public class SQLiteConn extends SQLDbConn {
       String table = "";
       String create = "";
       Table add;
-      ResultSet tables = runPreparedStatement(query);
+      ResultSet tables = runQuery(query, null);
       while (tables.next()) {
         table = tables.getString("name");
         create = getTableCreateStatement(table);
@@ -105,7 +105,7 @@ public class SQLiteConn extends SQLDbConn {
     List<View> views = new ArrayList<>();
     String sql = "SELECT `name`, `sql` FROM `sqlite_master` WHERE `type`= 'view';";
     try (PreparedStatement query = con.prepareStatement(sql)) {
-      ResultSet set = runPreparedStatement(query);
+      ResultSet set = runQuery(query, null);
       while (set.next()) {
         views.add(new View(set.getString("name"), set.getString("sql")));
       }

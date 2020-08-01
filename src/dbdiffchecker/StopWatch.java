@@ -9,7 +9,8 @@ import java.time.Instant;
  *
  * @author Jonas_Hess and Peter Kaufman
  * @see <a href=
- *      "https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java">Stopwatch in Java Stack Overflow</a>
+ *      "https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java">Stopwatch
+ *      in Java Stack Overflow</a>
  */
 public class StopWatch {
   private Instant startTime;
@@ -21,6 +22,7 @@ public class StopWatch {
    * time is set.
    */
   public void start() {
+    System.out.println("Started sw");
     if (isRunning) {
       throw new RuntimeException("Stopwatch is already running.");
     }
@@ -36,6 +38,7 @@ public class StopWatch {
    */
   public Duration stop() {
     Instant endTime = Instant.now();
+    System.out.println("Stopped sw");
     if (!isRunning) {
       throw new RuntimeException("Stopwatch has not been started yet");
     }
@@ -64,6 +67,7 @@ public class StopWatch {
    * Stops the program if it is running and sets the duration to null.
    */
   public void reset() {
+    System.out.println("Reset sw");
     if (isRunning) {
       stop();
     }

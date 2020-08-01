@@ -1,11 +1,13 @@
 package dbdiffchecker.sql;
 
 import dbdiffchecker.DatabaseDifferenceCheckerException;
+import com.mysql.cj.exceptions.CJException;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,16 +57,14 @@ public class MySQLConn extends SQLDbConn {
     try {
       con = DriverManager.getConnection(connString, username, password);
     } catch (SQLException e) {
-      throw new DatabaseDifferenceCheckerException("There was an error connecting to the " + db + " database.", e,
-          1013);
+      handleConnectionExceptions(e, 1013);
     }
   }
 
   @Override
   public String getTableCreateStatement(String table) throws DatabaseDifferenceCheckerException {
-    try (PreparedStatement query = con.prepareStatement("SHOW CREATE TABLE `?`;")) {
-      query.setString(1, table);
-      ResultSet set = runPreparedStatement(query);
+    try (Statement query = con.createStatement()) {
+      ResultSet set = runQuery(query, "SHOW CREATE TABLE `" + table + "`;");
       set.next();
       return set.getString("Create Table");
     } catch (SQLException e) {
@@ -79,12 +79,12 @@ public class MySQLConn extends SQLDbConn {
    * @param view The name of the view for which the create statement should be
    *             retrieved.
    * @return The view's create statement.
-   * @throws DatabaseDifferenceCheckerException Error getting a view's create statement.
+   * @throws DatabaseDifferenceCheckerException Error getting a view's create
+   *                                            statement.
    */
   public String getViewCreateStatement(String view) throws DatabaseDifferenceCheckerException {
-    try (PreparedStatement query = con.prepareStatement("SHOW CREATE VIEW `?`;")) {
-      query.setString(1, view);
-      ResultSet set = runPreparedStatement(query);
+    try (Statement query = con.createStatement()) {
+      ResultSet set = runQuery(query, "SHOW CREATE VIEW `" + view + "`;");
       set.next();
       return set.getString("Create View");
     } catch (SQLException e) {
@@ -96,10 +96,9 @@ public class MySQLConn extends SQLDbConn {
   @Override
   public Map<String, Table> getTableList() throws DatabaseDifferenceCheckerException {
     Map<String, Table> tablesList = new HashMap<>();
-    String sql = "SHOW FULL TABLES IN `?` WHERE TABLE_TYPE LIKE 'BASE TABLE';";
-    try (PreparedStatement query = con.prepareStatement(sql)) {
-      query.setString(1, db);
-      ResultSet tables = query.executeQuery(sql);
+    String sql = "SHOW FULL TABLES IN `" + db + "` WHERE TABLE_TYPE LIKE 'BASE TABLE';";
+    try (Statement query = con.createStatement()) {
+      ResultSet tables = runQuery(query, sql);
       String tableName;
       String create;
       Table newTable;
@@ -200,10 +199,9 @@ public class MySQLConn extends SQLDbConn {
   @Override
   public List<View> getViews() throws DatabaseDifferenceCheckerException {
     List<View> views = new ArrayList<>();
-    String sql = "SHOW FULL TABLES IN `?` WHERE TABLE_TYPE LIKE 'VIEW';";
-    try (PreparedStatement query = con.prepareStatement(sql)) {
-      query.setString(1, db);
-      ResultSet set = query.executeQuery(sql);
+    String sql = "SHOW FULL TABLES IN `" + db + "` WHERE TABLE_TYPE LIKE 'VIEW';";
+    try (Statement query = con.createStatement()) {
+      ResultSet set = runQuery(query, sql);
       while (set.next()) {
         views.add(new View(set.getString("Tables_in_" + db), getViewCreateStatement(set.getString("Tables_in_" + db))));
       }
@@ -220,8 +218,20 @@ public class MySQLConn extends SQLDbConn {
         password)) {
       // just tests that the connection can be established with the database
     } catch (SQLException error) {
-      throw new DatabaseDifferenceCheckerException(
-          "There was an error with the connection to " + db + ". Please try again.", error, 1016);
+      handleConnectionExceptions(error, 1016);
     }
+  }
+
+  private void handleConnectionExceptions(SQLException e, int code) throws DatabaseDifferenceCheckerException {
+    Throwable cause = e.getCause();
+    String errorMessage;
+    if (cause instanceof CJException && cause.toString().contains("Access denied")) {
+      errorMessage = "The username or passowrd provided is not correct for the provided host and port.";
+    } else if (cause.getCause() instanceof UnknownHostException) {
+      errorMessage = "Please make sure that the host is correct and valid.";
+    } else {
+      errorMessage = "There was an error connecting to the " + db + " database.";
+    }
+    throw new DatabaseDifferenceCheckerException(errorMessage, e, code);
   }
 }
