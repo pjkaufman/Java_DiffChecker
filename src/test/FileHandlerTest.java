@@ -92,11 +92,11 @@ public class FileHandlerTest {
 
   @Test
   public void testSerializationMySQL() {
-    expectedStatements.add("ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, "
-        + "\nADD COLUMN `id` varchar(40) NOT NULL, \nMODIFY COLUMN `ip_address`"
-        + " varchar(45) NOT NULL AFTER `id`, \nMODIFY COLUMN `timestamp` int(10) unsigned "
-        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`, \nDROP COLUMN `data2`, \nADD INDEX "
-        + "`add` (`id`), \nDROP INDEX `modify`, \nADD INDEX `modify` (`data`);");
+    expectedStatements.add("ALTER TABLE `ci_sessions` CHARACTER SET latin1, \n\tDROP INDEX `delete`, "
+        + "\n\tADD COLUMN `id` varchar(40) NOT NULL, \n\tMODIFY COLUMN `ip_address`"
+        + " varchar(45) NOT NULL AFTER `id`, \n\tMODIFY COLUMN `timestamp` int(10) unsigned "
+        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`, \n\tDROP COLUMN `data2`, \n\tADD INDEX "
+        + "`add` (`id`), \n\tDROP INDEX `modify`, \n\tADD INDEX `modify` (`data`);");
 
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  "
@@ -130,7 +130,7 @@ public class FileHandlerTest {
   @Test
   public void testSerializationSQLite() {
     expectedStatements.add(
-        "DROP INDEX drop1;\nDROP INDEX drop2;\n" + "ALTER TABLE helper\n\tADD COLUMN Thor INTEGER (67) DEFAULT (12);\n"
+        "DROP INDEX drop1;\nDROP INDEX drop2;\n" + "ALTER TABLE helper ADD COLUMN Thor INTEGER (67) DEFAULT (12);\n"
             + "CREATE UNIQUE INDEX add2 ON helper (Thor);\nCREATE INDEX add1 ON helper (hulk, Thor);");
 
     name = "helper";

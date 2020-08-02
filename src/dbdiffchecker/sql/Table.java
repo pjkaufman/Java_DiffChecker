@@ -93,7 +93,6 @@ public abstract class Table extends Schema {
     }
     sql.append(sqlAddition);
     isFirstStatement = false;
-
   }
 
   /**

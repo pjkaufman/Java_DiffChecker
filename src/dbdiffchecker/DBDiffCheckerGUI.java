@@ -54,7 +54,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 
 /**
- * The GUI of the application which has several tabs and includes.
+ * The GUI of the application which has several tabs.
  *
  * @author Peter Kaufman
  */
@@ -210,7 +210,7 @@ public class DBDiffCheckerGUI extends JFrame {
         publish("Serializing Database");
         FileHandler.serializeDatabase(devDatabase, DatabaseType.getType(selectedTab.selectedDatabaseType.getValue()));
         System.out.println("Should stop now:");
-        log(String.format("Took a Database Snapshot in %lds.", sw.stop().toMillis() / 1000.0));
+        log(String.format("Took a Database Snapshot in %fs.", sw.stop().toMillis() / 1000.0));
         return true;
       }
 
@@ -302,7 +302,7 @@ public class DBDiffCheckerGUI extends JFrame {
           publish(i);
         }
         liveDatabaseConnection.closeDatabaseConnection();
-        log(String.format("Ran statements in %lds.", sw.stop().toMillis() / 1000.0));
+        log(String.format("Ran statements in %fs.", sw.stop().toMillis() / 1000.0));
         return true;
       }
 

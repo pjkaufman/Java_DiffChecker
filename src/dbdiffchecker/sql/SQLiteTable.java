@@ -217,7 +217,7 @@ public class SQLiteTable extends Table {
     for (Map.Entry<String, Column> columnInfo : cols1.entrySet()) {
       col = columnInfo.getValue();
       if (!cols2.containsKey(col.getName())) {
-        appendSQLPart(sql, "ALTER TABLE " + name + "\n\tADD COLUMN " + col.getName() + " " + col.getDetails() + ";");
+        appendSQLPart(sql, "ALTER TABLE " + name + " ADD COLUMN " + col.getName() + " " + col.getDetails() + ";");
       } else {
         col2 = cols2.get(col.getName());
         if (col.getName().equals(col2.getName()) && !col.getDetails().equals(col2.getDetails())) {

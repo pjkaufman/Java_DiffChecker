@@ -20,6 +20,7 @@ public class SQLDatabaseTest {
   private String name;
   private String create;
   private SQLDatabase db;
+  private SQLDatabase liveDb;
   private List<String> expectedSQL = new ArrayList<>();
   private List<String> sql;
 
@@ -104,8 +105,9 @@ public class SQLDatabaseTest {
   @Test
   public void testTablesDiffs() {
     db = new SQLDatabase();
+    liveDb = new SQLDatabase();
     Map<String, String> tablesToUpdate;
-    Map<String, Table> liveTables = new HashMap<>();
+    Map<String, Table> liveTables = liveDb.getTables();
     name = "bloat";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table1 = new MySQLTable(name, create);
@@ -118,7 +120,7 @@ public class SQLDatabaseTest {
     db.getTables().put(table2.getName(), table2);
     liveTables.put(table3.getName(), table3);
 
-    db.compareTables(liveTables);
+    db.compareTables(liveDb);
     tablesToUpdate = db.tablesDiffs(liveTables, new SQLDatabase());
 
     assertEquals("The expected tables to update should be 1 because only one table they have in common is different", 1,
@@ -147,7 +149,8 @@ public class SQLDatabaseTest {
   @Test
   public void testTableDiffsNoCommonTables() {
     Map<String, String> tablesToUpdate;
-    Map<String, Table> liveTables = new HashMap<>();
+    liveDb = new SQLDatabase();
+    Map<String, Table> liveTables = liveDb.getTables();
     db = new SQLDatabase();
     name = "bloat";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
@@ -157,7 +160,7 @@ public class SQLDatabaseTest {
     table2 = new MySQLTable(name, create);
     liveTables.put(table2.getName(), table2);
     db.getTables().put(table1.getName(), table1);
-    db.compareTables(liveTables);
+    db.compareTables(liveDb);
 
     tablesToUpdate = db.tablesDiffs(liveTables, new SQLDatabase());
 
@@ -167,7 +170,8 @@ public class SQLDatabaseTest {
 
   @Test
   public void testCompareTablesDropAll() {
-    Map<String, Table> liveTables = new HashMap<>();
+    liveDb = new SQLDatabase();
+    Map<String, Table> liveTables = liveDb.getTables();
     name = "bloat";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table1 = new MySQLTable(name, create);
@@ -181,14 +185,15 @@ public class SQLDatabaseTest {
     expectedSQL.add(table2.getDrop());
     expectedSQL.add(table1.getDrop());
 
-    sql = db.compareTables(liveTables);
+    sql = db.compareTables(liveDb);
 
     assertEquals("The sql generated should contain a drop for all tables in the liveTables", expectedSQL, sql);
   }
 
   @Test
   public void testCompareTablesDropTable() {
-    Map<String, Table> liveTables = new HashMap<>();
+    liveDb = new SQLDatabase();
+    Map<String, Table> liveTables = liveDb.getTables();
     name = "bloat";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table1 = new MySQLTable(name, create);
@@ -202,14 +207,14 @@ public class SQLDatabaseTest {
 
     expectedSQL.add(table2.getDrop());
 
-    sql = db.compareTables(liveTables);
+    sql = db.compareTables(liveDb);
 
     assertEquals("The sql generated should contain a drop for table2", expectedSQL, sql);
   }
 
   @Test
   public void testCompareTablesAddTable() {
-    Map<String, Table> liveTables = new HashMap<>();
+    liveDb = new SQLDatabase();
     name = "bloat";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table1 = new MySQLTable(name, create);
@@ -218,14 +223,14 @@ public class SQLDatabaseTest {
 
     expectedSQL.add(table1.getCreateStatement());
 
-    sql = db.compareTables(liveTables);
+    sql = db.compareTables(liveDb);
 
     assertEquals("The sql generated should contain a create statement for table1", expectedSQL, sql);
   }
 
   @Test
   public void testCompareTablesAddAll() {
-    Map<String, Table> liveTables = new HashMap<>();
+    liveDb = new SQLDatabase();
     name = "bloat";
     create = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     table1 = new MySQLTable(name, create);
@@ -239,18 +244,18 @@ public class SQLDatabaseTest {
     expectedSQL.add(table2.getCreateStatement());
     expectedSQL.add(table1.getCreateStatement());
 
-    sql = db.compareTables(liveTables);
+    sql = db.compareTables(liveDb);
 
     assertEquals("The sql generated should contain a create statement for all tables", expectedSQL, sql);
   }
 
   @Test
   public void testUpdateTablesManyDifferencesTable() {
-    expectedSQL.add("ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, "
-        + "\nADD COLUMN `id` varchar(40) NOT NULL, \nMODIFY COLUMN `ip_address`"
-        + " varchar(45) NOT NULL AFTER `id`, \nMODIFY COLUMN `timestamp` int(10) unsigned "
-        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`, \nDROP COLUMN `data2`, \nADD INDEX "
-        + "`add` (`id`), \nDROP INDEX `modify`, \nADD INDEX `modify` (`data`);");
+    expectedSQL.add("ALTER TABLE `ci_sessions` CHARACTER SET latin1, \n\tDROP INDEX `delete`, "
+        + "\n\tADD COLUMN `id` varchar(40) NOT NULL, \n\tMODIFY COLUMN `ip_address`"
+        + " varchar(45) NOT NULL AFTER `id`, \n\tMODIFY COLUMN `timestamp` int(10) unsigned "
+        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`, \n\tDROP COLUMN `data2`, \n\tADD INDEX "
+        + "`add` (`id`), \n\tDROP INDEX `modify`, \n\tADD INDEX `modify` (`data`);");
 
     db = new SQLDatabase();
     Map<String, Table> liveTables = new HashMap<>();
@@ -278,13 +283,13 @@ public class SQLDatabaseTest {
 
   @Test
   public void testUpdateTablesManyDifferencesTables() {
-    expectedSQL.add("ALTER TABLE `ci_sessions`\nCHARACTER SET latin1, \nDROP INDEX `delete`, "
-        + "\nADD COLUMN `id` varchar(40) NOT NULL, \nMODIFY COLUMN `ip_address`"
-        + " varchar(45) NOT NULL AFTER `id`, \nMODIFY COLUMN `timestamp` int(10) unsigned "
-        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`, \nDROP COLUMN `data2`, \nADD INDEX "
-        + "`add` (`id`), \nDROP INDEX `modify`, \nADD INDEX `modify` (`data`);");
+    expectedSQL.add("ALTER TABLE `ci_sessions` CHARACTER SET latin1, \n\tDROP INDEX `delete`, "
+        + "\n\tADD COLUMN `id` varchar(40) NOT NULL, \n\tMODIFY COLUMN `ip_address`"
+        + " varchar(45) NOT NULL AFTER `id`, \n\tMODIFY COLUMN `timestamp` int(10) unsigned "
+        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`, \n\tDROP COLUMN `data2`, \n\tADD INDEX "
+        + "`add` (`id`), \n\tDROP INDEX `modify`, \n\tADD INDEX `modify` (`data`);");
     expectedSQL
-        .add("ALTER TABLE `bloat`\nMODIFY COLUMN `bloatware` int(11) NOT NULL, \n" + "ADD PRIMARY KEY (`bloatware`);");
+        .add("ALTER TABLE `bloat` MODIFY COLUMN `bloatware` int(11) NOT NULL, \n\t" + "ADD PRIMARY KEY (`bloatware`);");
 
     db = new SQLDatabase();
     Map<String, Table> liveTables = new HashMap<>();
@@ -342,9 +347,9 @@ public class SQLDatabaseTest {
   @Test
   public void testRemoveFirstStepsForTablesThatAreBeingDroppedOrAdded() {
     db = new SQLDatabase();
-    Map<String, Table> liveTables = new HashMap<>();
-    String first1 = "ALTER TABLE `blob`\n ADD PRIMARY KEY (`pikapika`);";
-    String first2 = "ALTER TABLE `broach`\n ADD PRIMARY KEY (`mewtwo`);";
+    liveDb = new SQLDatabase();
+    String first1 = "ALTER TABLE `blob` ADD PRIMARY KEY (`pikapika`);";
+    String first2 = "ALTER TABLE `broach` ADD PRIMARY KEY (`mewtwo`);";
     db.getFirstSteps().add(first1);
     db.getFirstSteps().add(first2);
     name = "blob";
@@ -355,14 +360,14 @@ public class SQLDatabaseTest {
     table2 = new MySQLTable(name, create);
     db.getTables().put(table1.getName(), table1);
 
-    db.compareTables(liveTables);
+    db.compareTables(liveDb);
 
     assertEquals("First steps should contain one sql statement after removal of exclusions", 1,
         db.getFirstSteps().size());
     assertEquals("First steps should contain the second sql statment added", true, db.getFirstSteps().contains(first2));
 
-    liveTables.put(table2.getName(), table2);
-    db.compareTables(liveTables);
+    db.getTables().put(table2.getName(), table2);
+    db.compareTables(liveDb);
 
     assertEquals("First steps should contain zero sql statement after removal of exclusions", true,
         db.getFirstSteps().isEmpty());

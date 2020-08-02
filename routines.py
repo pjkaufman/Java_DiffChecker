@@ -146,7 +146,6 @@ def main():
   elif(routine == 'debug'):
     setup_debug_env()
     if (compile_files(dirs['debug'], True)):
-      print('java -cp ' + libPath + get_java_seperator() + os.path.join(dirs['debug'], ' ') + package + '.' + mainClass)
       call('java -cp ' + libPath + get_java_seperator() + os.path.join(dirs['debug'], ' ') + package + '.' + mainClass, shell=True)
   elif (routine == 'clean'):
     clean()

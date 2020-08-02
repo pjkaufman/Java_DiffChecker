@@ -20,7 +20,6 @@ import java.util.Map;
 public abstract class SQLDbConn extends DbConn {
   protected String db;
   protected String connString;
-  protected StringBuilder firstStep = new StringBuilder();
   protected boolean isLive;
   protected Connection con;
   protected List<String> firstSteps = new ArrayList<>();

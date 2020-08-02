@@ -28,7 +28,7 @@ public class MySQLTable extends Table {
     drop = "DROP TABLE `" + name + "`;";
     String temp = create.substring(create.indexOf("DEFAULT CHARSET=") + 16) + " ";
     charSet = temp.substring(0, temp.indexOf(" "));
-    newLineCreation = ", \n";
+    newLineCreation = ", \n\t";
   }
 
   /**
@@ -95,7 +95,7 @@ public class MySQLTable extends Table {
   public List<String> generateStatements(Table t1) {
     List<String> sql = new ArrayList<>();
     isFirstStatement = true;
-    String sql2 = "ALTER TABLE `" + name + "`\n";
+    String sql2 = "ALTER TABLE `" + name + "` ";
     if (!charSet.equals(((MySQLTable) t1).charSet) || !collation.equals(((MySQLTable) t1).collation)) {
       sql2 += "CHARACTER SET " + charSet;
       if (!collation.equals("")) {
@@ -201,7 +201,7 @@ public class MySQLTable extends Table {
       index = indexInfo.getValue();
       if (live.containsKey(indexInfo.getKey())) {
         if (!index.equals(live.get(indexInfo.getKey()))) {
-          appendSQLPart(sql, index.getDrop() + ", \n" + index.getCreateStatement());
+          appendSQLPart(sql, index.getDrop() + ", \n\t" + index.getCreateStatement());
         }
       } else {
         appendSQLPart(sql, index.getCreateStatement());

@@ -102,7 +102,7 @@ public class SQLiteTableTest {
 
   @Test
   public void testSingleColumnAdditionComparison() {
-    expectedSQL.add("ALTER TABLE helper\n\tADD COLUMN Thor INTEGER (67) DEFAULT (12);");
+    expectedSQL.add("ALTER TABLE helper ADD COLUMN Thor INTEGER (67) DEFAULT (12);");
 
     sql = createTablesAndGenerateSQL(TABLE_NAME_1, CREATE_STATEMENT_1, TABLE_NAME_1, CREATE_STATEMENT_3);
 
@@ -111,8 +111,8 @@ public class SQLiteTableTest {
 
   @Test
   public void testMultipleColumnAdditionComparison() {
-    expectedSQL.add("ALTER TABLE helper\n\tADD COLUMN Thor INTEGER (67) DEFAULT (12);\n"
-        + "ALTER TABLE helper\n\tADD COLUMN truthtable STRING (12);");
+    expectedSQL.add("ALTER TABLE helper ADD COLUMN Thor INTEGER (67) DEFAULT (12);\n"
+        + "ALTER TABLE helper ADD COLUMN truthtable STRING (12);");
 
     sql = createTablesAndGenerateSQL(TABLE_NAME_1, CREATE_STATEMENT_5, TABLE_NAME_1, CREATE_STATEMENT_3);
 
@@ -312,7 +312,7 @@ public class SQLiteTableTest {
   @Test
   public void testGenerateStatments() {
     expectedSQL.add(
-        "DROP INDEX drop1;\nDROP INDEX drop2;\n" + "ALTER TABLE helper\n\tADD COLUMN Thor INTEGER (67) DEFAULT (12);\n"
+        "DROP INDEX drop1;\nDROP INDEX drop2;\n" + "ALTER TABLE helper ADD COLUMN Thor INTEGER (67) DEFAULT (12);\n"
             + "CREATE UNIQUE INDEX add2 ON helper (Thor);\nCREATE INDEX add1 ON helper (hulk, Thor);");
 
     String create = "CREATE TABLE helper (hulk STRING (12), Thor INTEGER (67) DEFAULT (12));\n"

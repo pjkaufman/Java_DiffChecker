@@ -24,10 +24,10 @@ public class SQLDatabase extends Database {
   private int type;
 
   /**
-   * Uses a database connection to initialize a map of tables and views that
-   * exist in the database provided. <b>Note: It will also generate SQL statements
-   * to drop all Primary Keys and remove all auot_increments in the database
-   * provided which will only be used on the live database</b>
+   * Uses a database connection to initialize a map of tables and views that exist
+   * in the database provided. <b>Note: It will also generate SQL statements to
+   * drop all Primary Keys and remove all auot_increments in the database provided
+   * which will only be used on the live database</b>
    *
    * @param db   The database connection used to get the database information
    * @param type The type of datbase implimentation which is being used. <b>Note:
@@ -91,7 +91,7 @@ public class SQLDatabase extends Database {
   public List<String> compare(Database liveDatabase) {
     List<String> sql = new ArrayList<>();
     HashMap<String, String> updateTables = new HashMap<>();
-    sql.addAll(compareTables(((SQLDatabase) liveDatabase).getTables()));
+    sql.addAll(compareTables(((SQLDatabase) liveDatabase)));
     updateTables.putAll(tablesDiffs(((SQLDatabase) liveDatabase).getTables(), ((SQLDatabase) liveDatabase)));
     sql.addAll(0, ((SQLDatabase) liveDatabase).getFirstSteps());
     sql.addAll(updateTables(((SQLDatabase) liveDatabase).getTables(), updateTables));
@@ -128,12 +128,12 @@ public class SQLDatabase extends Database {
   /**
    * Determines which tables are to be created and which are to be dropped.
    *
-   * @param liveTables All tables in the live database where the key is the name
-   *                   of the table.
+   * @param liveDatabase The live database that contains the live table list.
    * @return The SQL statements to run in order to remove and/or create tables in
    *         the live database.
    */
-  public List<String> compareTables(Map<String, Table> liveTables) {
+  public List<String> compareTables(SQLDatabase liveDatabase) {
+    Map<String, Table> liveTables = liveDatabase.getTables();
     List<String> sql = new ArrayList<>();
     String tableName;
     for (Map.Entry<String, Table> table : tables.entrySet()) {
@@ -148,7 +148,7 @@ public class SQLDatabase extends Database {
       tableName = table.getKey();
       if (!tables.containsKey(tableName)) {
         sql.add(table.getValue().getDrop());
-        exclude.put(tableName, tableName);
+        liveDatabase.exclude.put(tableName, tableName);
       }
     }
     return sql;
@@ -198,6 +198,7 @@ public class SQLDatabase extends Database {
         updateTables.put(tableName, tableName);
       } else { // all tables that do not need to be updated are to be removed from firstSteps
         liveDatabase.exclude.put(tableName, tableName);
+        exclude.put(tableName, tableName);
       }
     }
     return updateTables;

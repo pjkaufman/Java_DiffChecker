@@ -25,6 +25,7 @@ public class MySQLConn extends SQLDbConn {
   private String password;
   private String host;
   private String port;
+  private StringBuilder firstStep;
 
   /**
    * Sets the instance variables and tests the database connection to make sure
@@ -106,7 +107,7 @@ public class MySQLConn extends SQLDbConn {
       while (tables.next()) {
         tableName = tables.getString("Tables_in_" + db);
         create = getTableCreateStatement(tableName);
-        firstStep.append("ALTER TABLE `" + tableName + "`");
+        firstStep = new StringBuilder("ALTER TABLE `" + tableName + "`");
         hasFirstStep = false;
         newTable = new MySQLTable(tableName, create);
         if (isLive) {
@@ -119,9 +120,9 @@ public class MySQLConn extends SQLDbConn {
           }
           if (create.contains("PRIMARY KEY")) {
             if (hasFirstStep) {
-              firstStep.append(",");
+              firstStep.append(", \n");
             }
-            firstStep.append("\n DROP PRIMARY KEY");
+            firstStep.append(" DROP PRIMARY KEY");
             // remove the PRIMARY KEY to make sure the appropriate SQL will be generated if
             // there is a difference in schema structure for this table
             newTable.getIndices().remove("PRIMARY");
@@ -226,9 +227,9 @@ public class MySQLConn extends SQLDbConn {
     Throwable cause = e.getCause();
     String errorMessage;
     if (cause instanceof CJException && cause.toString().contains("Access denied")) {
-      errorMessage = "The username or passowrd provided is not correct for the provided host and port.";
+      errorMessage = "The username or passowrd provided is not correct for the provided host and port for " + db + ".";
     } else if (cause.getCause() instanceof UnknownHostException) {
-      errorMessage = "Please make sure that the host is correct and valid.";
+      errorMessage = "Please make sure that the host is correct and valid for " + db + ".";
     } else {
       errorMessage = "There was an error connecting to the " + db + " database.";
     }
