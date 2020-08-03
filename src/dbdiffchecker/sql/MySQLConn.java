@@ -64,9 +64,10 @@ public class MySQLConn extends SQLDbConn {
 
   @Override
   public String getTableCreateStatement(String table) throws DatabaseDifferenceCheckerException {
-    try (Statement query = con.createStatement()) {
-      ResultSet set = runQuery(query, "SHOW CREATE TABLE `" + table + "`;");
+    String sql = "SHOW CREATE TABLE `" + table + "`;";
+    try (Statement query = con.createStatement(); ResultSet set = query.executeQuery(sql)) {
       set.next();
+
       return set.getString("Create Table");
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(
@@ -84,9 +85,10 @@ public class MySQLConn extends SQLDbConn {
    *                                            statement.
    */
   public String getViewCreateStatement(String view) throws DatabaseDifferenceCheckerException {
-    try (Statement query = con.createStatement()) {
-      ResultSet set = runQuery(query, "SHOW CREATE VIEW `" + view + "`;");
+    String sql = "SHOW CREATE VIEW `" + view + "`;";
+    try (Statement query = con.createStatement(); ResultSet set = query.executeQuery(sql)) {
       set.next();
+
       return set.getString("Create View");
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(
@@ -98,8 +100,7 @@ public class MySQLConn extends SQLDbConn {
   public Map<String, Table> getTableList() throws DatabaseDifferenceCheckerException {
     Map<String, Table> tablesList = new HashMap<>();
     String sql = "SHOW FULL TABLES IN `" + db + "` WHERE TABLE_TYPE LIKE 'BASE TABLE';";
-    try (Statement query = con.createStatement()) {
-      ResultSet tables = runQuery(query, sql);
+    try (Statement query = con.createStatement(); ResultSet tables = query.executeQuery(sql)) {
       String tableName;
       String create;
       Table newTable;
@@ -134,6 +135,7 @@ public class MySQLConn extends SQLDbConn {
         }
         tablesList.put(tableName, newTable);
       }
+
       return tablesList;
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(
@@ -201,11 +203,11 @@ public class MySQLConn extends SQLDbConn {
   public List<View> getViews() throws DatabaseDifferenceCheckerException {
     List<View> views = new ArrayList<>();
     String sql = "SHOW FULL TABLES IN `" + db + "` WHERE TABLE_TYPE LIKE 'VIEW';";
-    try (Statement query = con.createStatement()) {
-      ResultSet set = runQuery(query, sql);
+    try (Statement query = con.createStatement(); ResultSet set = query.executeQuery(sql)) {
       while (set.next()) {
         views.add(new View(set.getString("Tables_in_" + db), getViewCreateStatement(set.getString("Tables_in_" + db))));
       }
+
       return views;
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException("There was an error getting the " + db + " database's view details.",
@@ -223,6 +225,14 @@ public class MySQLConn extends SQLDbConn {
     }
   }
 
+  /**
+   * Determines what the error message should be based on the cause of the error
+   * that occurred while conecting to the database.
+   *
+   * @param e    The error that occurred while connecting to the database.
+   * @param code The error code to associate with the error message.
+   * @throws DatabaseDifferenceCheckerException
+   */
   private void handleConnectionExceptions(SQLException e, int code) throws DatabaseDifferenceCheckerException {
     Throwable cause = e.getCause();
     String errorMessage;

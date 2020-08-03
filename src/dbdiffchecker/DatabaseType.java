@@ -17,7 +17,8 @@ public enum DatabaseType {
   private static final String PORT = "Port";
   private static final String[][] databaseInputs = new String[][] {
       new String[] { USERNAME, PASSWORD, HOST, PORT, DB_NAME }, new String[] { "Database Path", DB_NAME },
-      new String[] { USERNAME, PASSWORD, HOST, DB_NAME }, new String[] { USERNAME, PASSWORD, HOST, PORT, DB_NAME } };
+      new String[] { USERNAME, PASSWORD, HOST, "Bucket Name" },
+      new String[] { USERNAME, PASSWORD, HOST, PORT, DB_NAME } };
   int value;
 
   /**

@@ -35,6 +35,7 @@ public enum PaneType {
   /**
    * Returns the tab title associated witht the pane type.
    *
+   * @param paneType The pane type represented by an integer.
    * @return The tab title representation of the pane type.
    */
   public static String getTabTitle(int paneType) {
@@ -44,6 +45,7 @@ public enum PaneType {
   /**
    * Returns the tab text associated with the pane type.
    *
+   * @param paneType The pane type represented by an integer.
    * @return The tab text representation of the pane type.
    */
   public static String getTabText(int paneType) {

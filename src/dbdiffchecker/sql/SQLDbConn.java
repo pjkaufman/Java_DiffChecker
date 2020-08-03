@@ -3,10 +3,8 @@ package dbdiffchecker.sql;
 import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -88,21 +86,6 @@ public abstract class SQLDbConn extends DbConn {
       throw new DatabaseDifferenceCheckerException(
           String.format("There was an error running %s on the %s database.", sqlStatement, db), e, 1012);
     }
-  }
-
-  /**
-   * Runs a statement provided the query to run.
-   *
-   * @param statement The statement that will be used to run the query.
-   * @param sqlQuery  The query to run.
-   * @return The result of the query.
-   * @throws SQLException Error executing the query.
-   */
-  protected ResultSet runQuery(Statement statement, String sqlQuery) throws SQLException {
-    if (statement instanceof PreparedStatement) {
-      return ((PreparedStatement) statement).executeQuery();
-    }
-    return statement.executeQuery(sqlQuery);
   }
 
   @Override

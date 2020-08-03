@@ -5,7 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,16 +59,13 @@ public class SQLiteConn extends SQLDbConn {
 
   @Override
   public String getTableCreateStatement(String table) throws DatabaseDifferenceCheckerException {
-    String sql = "SELECT `sql` FROM `sqlite_master` WHERE tbl_name='?' AND `sql` NOT NULL;";
-    try (PreparedStatement query = con.prepareStatement(sql)) {
-      query.setString(1, table);
+    String sql = "SELECT `sql` FROM `sqlite_master` WHERE tbl_name='" + table + "' AND `sql` NOT NULL;";
+    try (Statement query = con.createStatement(); ResultSet set = query.executeQuery(sql)) {
       StringBuilder create = new StringBuilder();
-      ResultSet set = runQuery(query, null);
 
       while (set.next()) {
         create.append(set.getString("sql") + ";\n");
       }
-      set.close();
 
       return create.toString().substring(0, create.length() - 2);
     } catch (SQLException e) {
@@ -81,18 +78,17 @@ public class SQLiteConn extends SQLDbConn {
   public Map<String, Table> getTableList() throws DatabaseDifferenceCheckerException {
     HashMap<String, Table> tablesList = new HashMap<>();
     String sql = "SELECT `name`, `sql` FROM `sqlite_master` WHERE `type`= 'table' AND `name` NOT Like 'sqlite%'";
-    try (PreparedStatement query = con.prepareStatement(sql)) {
-      String table = "";
-      String create = "";
+    try (Statement query = con.createStatement(); ResultSet tables = query.executeQuery(sql)) {
+      String table;
+      String create;
       Table add;
-      ResultSet tables = runQuery(query, null);
       while (tables.next()) {
         table = tables.getString("name");
         create = getTableCreateStatement(table);
         add = new SQLiteTable(table, create);
         tablesList.put(table, add);
       }
-      tables.close();
+
       return tablesList;
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(
@@ -104,11 +100,12 @@ public class SQLiteConn extends SQLDbConn {
   public List<View> getViews() throws DatabaseDifferenceCheckerException {
     List<View> views = new ArrayList<>();
     String sql = "SELECT `name`, `sql` FROM `sqlite_master` WHERE `type`= 'view';";
-    try (PreparedStatement query = con.prepareStatement(sql)) {
-      ResultSet set = runQuery(query, null);
+    try (Statement query = con.createStatement(); ResultSet set = query.executeQuery(sql)) {
+
       while (set.next()) {
         views.add(new View(set.getString("name"), set.getString("sql")));
       }
+
       return views;
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(

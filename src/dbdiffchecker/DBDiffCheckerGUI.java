@@ -202,14 +202,12 @@ public class DBDiffCheckerGUI extends JFrame {
     SwingWorker<Boolean, String> worker = new SwingWorker<Boolean, String>() {
       @Override
       protected Boolean doInBackground() throws Exception {
-        publish("Establishing Database Connection");
         sw.start();
         devDatabaseConnection = createDevDatabaseConnection();
         publish("Gathering Database Information");
         devDatabase = createDatabase(devDatabaseConnection);
         publish("Serializing Database");
         FileHandler.serializeDatabase(devDatabase, DatabaseType.getType(selectedTab.selectedDatabaseType.getValue()));
-        System.out.println("Should stop now:");
         log(String.format("Took a Database Snapshot in %fs.", sw.stop().toMillis() / 1000.0));
         return true;
       }
