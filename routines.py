@@ -8,7 +8,7 @@ from subprocess import check_output
 from shutil import rmtree
 from shutil import copy
 
-dirs = {'debug': 'build', 'dist':'build', 'jar': 'lib', 'res': 'resources',
+dirs = {'debug': 'build', 'dist':'bin', 'jar': 'lib', 'res': 'resources',
   'source': 'src', 'test': 'test', 'log': 'log'}
 libPath = os.path.join(dirs['jar'], '*')
 package = 'dbdiffchecker'
@@ -28,7 +28,7 @@ def compile_files(path, type):
   packageList = ''
   for x in os.walk(os.path.join(dirs['source'], package)):
     packageList += os.path.join(x[0], '*.java') + ' '
-  #compile the java files
+  # compile the java files
   try:
     check_output(start + ' -cp "' + libPath + '" ' + packageList, shell=True)
     print('Compiled files')
@@ -55,7 +55,7 @@ def setup_debug_env():
   except:
     pass
   create_log_dir()
-  #copy current resources to the resources folder in the test directory
+  # copy current resources to the resources folder in the test directory
   filelist = [f for f in os.listdir(os.path.join(os.getcwd(), dirs['source'], dirs['res']))]
   for f in filelist:
     copy(os.path.join(os.getcwd(), dirs['source'], dirs['res'], f), os.path.join(
@@ -86,11 +86,11 @@ def update_manifest():
 
 def setup_run_env():
   try:
-    os.mkdir(dirs['debug'])
+    os.mkdir(dirs['dist'])
   except:
     pass
   try:
-    os.mkdir(os.path.join(dirs['debug'], dirs['jar']))
+    os.mkdir(os.path.join(dirs['dist'], dirs['jar']))
   except:
     pass
   create_log_dir()
@@ -146,7 +146,7 @@ def main():
   elif(routine == 'debug'):
     setup_debug_env()
     if (compile_files(dirs['debug'], True)):
-      call('java -cp ' + os.path.join(dirs['debug'], ' ') + package + '.' + mainClass, shell=True)
+      call('java -cp ' + libPath + get_java_seperator() + os.path.join(dirs['debug'], ' ') + package + '.' + mainClass, shell=True)
   elif (routine == 'clean'):
     clean()
   elif (routine == 'test'):

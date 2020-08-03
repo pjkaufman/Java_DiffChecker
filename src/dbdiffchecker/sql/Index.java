@@ -4,10 +4,10 @@ package dbdiffchecker.sql;
  * Resembles a generic index and contains index info.
  *
  * @author Peter Kaufman
- * @version 6-20-20
- * @since 9-12-17
  */
 public class Index extends Schema {
+  private static final long serialVersionUID = 1L;
+
   /**
    * Sets the name and create statement of the index.
    *
@@ -17,25 +17,18 @@ public class Index extends Schema {
    */
   public Index(String name, String create, String drop) {
     this.name = name;
-    this.createStatement = create;
+    createStatement = create;
     this.drop = drop;
   }
 
   /**
-   * This is the default constructor for this class, <b> Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>
    */
   public Index() {
   }
 
-  /**
-   * Determines whether or not the indexes are the same by comparing their create
-   * statements.
-   *
-   * @param index An index with the same name as the current index.
-   * @return Whether or not the indices are the same.
-   */
-  public boolean equals(Index index) {
-    return this.createStatement.equals(index.createStatement);
+  @Override
+  public boolean equals(Object obj) {
+    return obj instanceof Index && createStatement.equals(((Index) obj).createStatement);
   }
 }

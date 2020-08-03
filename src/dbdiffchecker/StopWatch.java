@@ -8,52 +8,46 @@ import java.time.Instant;
  * start and end method calls.
  *
  * @author Jonas_Hess and Peter Kaufman
- * @version 6-20-20
- * @since 10-26-17
  * @see <a href=
- *      "https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java">https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java</a>
+ *      "https://stackoverflow.com/questions/8255738/is-there-a-stopwatch-in-java">Stopwatch
+ *      in Java Stack Overflow</a>
  */
 public class StopWatch {
-  private Instant startTime, endTime;
+  private Instant startTime;
   private Duration duration;
   private boolean isRunning = false;
 
   /**
    * Checks to see if the program is running. If it is not running, then start
-   * time is set. Otherwise a RuntimeException error is thrown.
-   *
-   * @throws RuntimeException The stopwatch was running when this function was
-   *                          called.
+   * time is set.
    */
-  public void start() throws RuntimeException {
+  public void start() {
     if (isRunning) {
       throw new RuntimeException("Stopwatch is already running.");
     }
-    this.isRunning = true;
+    isRunning = true;
     startTime = Instant.now();
   }
 
   /**
    * Checks to see if the program is running. If it is running, then stop time is
-   * set, and the duration that the program has run is set and returned. Otherwise
-   * a RuntimeException error is thrown.
+   * set, and the duration that the program has run is set and returned.
    *
    * @return The amount of time elapsed since the last start method was called.
-   * @throws RuntimeException The stopwatch has not been started.
    */
-  public Duration stop() throws RuntimeException {
-    this.endTime = Instant.now();
+  public Duration stop() {
+    Instant endTime = Instant.now();
     if (!isRunning) {
       throw new RuntimeException("Stopwatch has not been started yet");
     }
     isRunning = false;
     Duration result = Duration.between(startTime, endTime);
-    if (this.duration == null) {
-      this.duration = result;
+    if (duration == null) {
+      duration = result;
     } else {
-      this.duration = duration.plus(result);
+      duration = duration.plus(result);
     }
-    return this.getElapsedTime();
+    return getElapsedTime();
   }
 
   /**
@@ -64,16 +58,16 @@ public class StopWatch {
    *         run.
    */
   public Duration getElapsedTime() {
-    return this.duration;
+    return duration;
   }
 
   /**
    * Stops the program if it is running and sets the duration to null.
    */
   public void reset() {
-    if (this.isRunning) {
-      this.stop();
+    if (isRunning) {
+      stop();
     }
-    this.duration = null;
+    duration = null;
   }
 }

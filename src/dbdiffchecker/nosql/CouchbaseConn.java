@@ -14,19 +14,20 @@ import com.couchbase.client.java.query.util.IndexInfo;
 import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
 import dbdiffchecker.sql.Index;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Establishes a connection with a Couchbase bucket based on the password,
  * username, host, and bucket name provided.
  *
  * @author Peter Kaufman
- * @version 6-20-20
- * @since 5-23-19
  */
 public class CouchbaseConn extends DbConn {
-  private static final String bucketPlaceHolder = "dbDiffBucket", primaryKeyName = "dbDiffKey";
-  private String username = "", password = "", bucketName = "", host = "";
+  private static final String CONN_STR_FORMAT = "couchbase://%s/%s?operation_timeout=5.5&config_total_timeout=15&http_poolsize=0";
+  private String username;
+  private String password;
+  private String bucketName;
+  private String host;
   private Bucket bucket;
   private N1qlParams params = N1qlParams.build().adhoc(false);
   private N1qlQuery query;
@@ -55,7 +56,7 @@ public class CouchbaseConn extends DbConn {
    *
    * @return Whether a primary key was added to the bucket.
    */
-  public boolean primaryAdded() {
+  protected boolean primaryAdded() {
     return primaryAdded;
   }
 
@@ -64,34 +65,10 @@ public class CouchbaseConn extends DbConn {
     return bucketName;
   }
 
-  /**
-   * Gets and returns the bucket placeholder used in index create statements to
-   * hole the place of the bucket to affect.
-   *
-   * @return The bucket placeholder used in index create statements.
-   */
-  public String getBucketPlaceHolder() {
-    return bucketPlaceHolder;
-  }
-
-  /**
-   * Gets and returns the default name to use when creating a primary index which
-   * will be removed later if it was added.
-   *
-   * @return The default name used to create a primary index if it needed to be
-   *         created.
-   */
-  public String getDefaultPrimaryName() {
-    return primaryKeyName;
-  }
-
   @Override
   public void establishDatabaseConnection() throws DatabaseDifferenceCheckerException {
-    String connString = "couchbase://" + host + "/" + bucketName
-        + "?operation_timeout=5.5&config_total_timeout=15&http_poolsize=0";
     try {
-      Cluster cluster = CouchbaseCluster.fromConnectionString(connString);
-      ;
+      Cluster cluster = CouchbaseCluster.fromConnectionString(String.format(CONN_STR_FORMAT, host, bucketName));
       cluster.authenticate(username, password);
       bucket = cluster.openBucket(bucketName);
     } catch (Exception cause) {
@@ -111,7 +88,7 @@ public class CouchbaseConn extends DbConn {
    * @param documents A list where all of the document names will be stored for
    *                  fast lookup later.
    */
-  public void getDocuments(HashMap<String, String> documents) {
+  protected void getDocuments(Map<String, String> documents) {
     query = N1qlQuery.simple("SELECT META().id AS document FROM `" + bucketName + "`", params);
     result = bucket.query(query);
     String documentName;
@@ -127,36 +104,37 @@ public class CouchbaseConn extends DbConn {
    * @param indices A list where all of the index names and data that will be
    *                stored for fast lookup later.
    */
-  public void getIndices(HashMap<String, Index> indices) {
+  protected void getIndices(Map<String, Index> indices) {
     query = N1qlQuery.simple("SELECT indexes FROM system:indexes WHERE keyspace_id = \"" + bucketName + "\"", params);
     result = bucket.query(query);
-    IndexInfo index = null;
-    String create;
+    IndexInfo index;
+    StringBuilder create;
     String drop;
     int size;
     for (N1qlQueryRow row : result) {
       index = new IndexInfo(row.value().getObject("indexes"));
-      if (primaryAdded && index.name().equals(primaryKeyName)) { // skip the manually added index
+      boolean isManuallyAddedKey = primaryAdded && index.name().equals(dbdiffchecker.nosql.Bucket.PRIMARY_KEY_NAME);
+      if (isManuallyAddedKey) {
         continue;
       }
-      create = new IndexElement(index.name(), index.isPrimary()).export() + " ON `" + bucketPlaceHolder + "`";
+      create = new StringBuilder(new IndexElement(index.name(), index.isPrimary()).export() + " ON `"
+          + dbdiffchecker.nosql.Bucket.BUCKET_PLACE_HOLDER + "`");
       size = index.indexKey().size();
       if (size != 0) {
-        create += " (";
+        create.append(" (");
         for (int i = 0; i < size; i++) {
-          create += index.indexKey().getString(i);
+          create.append(index.indexKey().getString(i));
         }
-        create += ")";
+        create.append(")");
       }
       if (index.condition().length() > 0) {
-        create += " WHERE" + index.condition();
+        create.append(" WHERE" + index.condition());
       }
-      // only add using statement if the key is not a primary index
       if (!index.isPrimary()) {
-        create += " USING " + index.type();
+        create.append(" USING " + index.type());
       }
-      drop = "DROP INDEX `" + bucketPlaceHolder + "`.`" + index.name() + "`;";
-      indices.put(index.name(), new Index(index.name(), create, drop));
+      drop = "DROP INDEX `" + dbdiffchecker.nosql.Bucket.BUCKET_PLACE_HOLDER + "`.`" + index.name() + "`;";
+      indices.put(index.name(), new Index(index.name(), create.toString(), drop));
     }
   }
 
@@ -166,11 +144,11 @@ public class CouchbaseConn extends DbConn {
    * @param n1qlStatement A N1QL statement to be run on the bucket.
    */
   public void runStatement(String n1qlStatement) {
-    if (n1qlStatement.startsWith("Create document: ")) {
+    if (n1qlStatement.startsWith(dbdiffchecker.nosql.Bucket.CREATE_DOC_IDENTIFIER)) {
       JsonDocument document = JsonDocument.create(n1qlStatement.substring(n1qlStatement.indexOf(": ") + 2),
           JsonObject.empty());
       bucket.insert(document);
-    } else if (n1qlStatement.startsWith("Drop document: ")) {
+    } else if (n1qlStatement.startsWith(dbdiffchecker.nosql.Bucket.DELETE_DOC_IDENTIFIER)) {
       bucket.remove(n1qlStatement.substring(n1qlStatement.indexOf(": ") + 2));
     } else {
       query = N1qlQuery.simple(n1qlStatement, params);
@@ -182,8 +160,7 @@ public class CouchbaseConn extends DbConn {
    * Tests to see if the bucket can be queried immediately or if a primary key
    * needs to be added first. It will add a primary key if it is needed.
    *
-   * @throws DatabaseDifferenceCheckerException Error trying to connect to the
-   *                                            bucket.
+   * @throws DatabaseDifferenceCheckerException Error trying to connect to the bucket.
    */
   @Override
   public void testConnection() throws DatabaseDifferenceCheckerException {
@@ -193,8 +170,8 @@ public class CouchbaseConn extends DbConn {
     } catch (Exception error) {
       String errorMsg = error.getCause().toString();
       if (errorMsg.contains("4000") && errorMsg.contains("CREATE INDEX")) {
-        // create a primary index
-        query = N1qlQuery.simple("CREATE PRIMARY INDEX " + primaryKeyName + " ON `" + bucketName + "`", params);
+        query = N1qlQuery.simple(
+            "CREATE PRIMARY INDEX " + dbdiffchecker.nosql.Bucket.PRIMARY_KEY_NAME + " ON `" + bucketName + "`", params);
         bucket.query(query);
         primaryAdded = true;
       } else {

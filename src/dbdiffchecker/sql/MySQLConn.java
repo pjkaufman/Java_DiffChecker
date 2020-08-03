@@ -1,25 +1,31 @@
 package dbdiffchecker.sql;
 
 import dbdiffchecker.DatabaseDifferenceCheckerException;
-
+import com.mysql.cj.exceptions.CJException;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Establishes a connection with a MySQL database based on the password,
  * username, port, host, and database provided.
  *
  * @author Peter Kaufman
- * @version 6-20-20
- * @since 5-21-19
  */
 public class MySQLConn extends SQLDbConn {
-  private String username = "", password = "", host = "", port = "";
+  private static final String CONN_STRING_FMT = "jdbc:mysql://%s:%s/%s?autoReconnect=true&useSSL=false&maxReconnects=%d";
+  private String username;
+  private String password;
+  private String host;
+  private String port;
+  private StringBuilder firstStep;
 
   /**
    * Sets the instance variables and tests the database connection to make sure
@@ -28,42 +34,40 @@ public class MySQLConn extends SQLDbConn {
    * @param username The username of the MySQL account.
    * @param password The password of the MySQL account.
    * @param host     The host of the MySQL account.
-   * @param port     The port MySQL is running on. <b>Note: the default is 3306
-   *                 </b>
+   * @param port     The port MySQL is running on.
    * @param database The database in MySQL that the connection is to be
    *                 established with.
-   * @param type     Either 'dev' or 'live'.
+   * @param isLive   Whether or not the database connection is to the live
+   *                 database.
    * @throws DatabaseDifferenceCheckerException Error connecting to the database.
    */
-  public MySQLConn(String username, String password, String host, String port, String database, String type)
+  public MySQLConn(String username, String password, String host, String port, String database, boolean isLive)
       throws DatabaseDifferenceCheckerException {
-    this.type = type;
+    this.isLive = isLive;
     this.username = username;
     this.password = password;
     this.host = host;
-    this.db = database;
+    db = database;
     this.port = port;
-    this.connString = "jdbc:mysql://" + this.host + ":" + this.port + "/" + this.db
-        + "?autoReconnect=true&useSSL=false&maxReconnects=150";
-    this.testConnection();
+    connString = String.format(CONN_STRING_FMT, host, port, db, 150);
+    testConnection();
   }
 
   @Override
   public void establishDatabaseConnection() throws DatabaseDifferenceCheckerException {
     try {
-      this.con = DriverManager.getConnection(this.connString, this.username, this.password);
+      con = DriverManager.getConnection(connString, username, password);
     } catch (SQLException e) {
-      throw new DatabaseDifferenceCheckerException("There was an error connecting to the " + this.db + " database.", e,
-          1013);
+      handleConnectionExceptions(e, 1013);
     }
   }
 
   @Override
   public String getTableCreateStatement(String table) throws DatabaseDifferenceCheckerException {
-    try (PreparedStatement query = this.con.prepareStatement("SHOW CREATE TABLE `?`;")) {
-      query.setString(1, table);
-      ResultSet set = query.executeQuery();
-      set.next(); // move to the first result
+    String sql = "SHOW CREATE TABLE `" + table + "`;";
+    try (Statement query = con.createStatement(); ResultSet set = query.executeQuery(sql)) {
+      set.next();
+
       return set.getString("Create Table");
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(
@@ -77,14 +81,14 @@ public class MySQLConn extends SQLDbConn {
    * @param view The name of the view for which the create statement should be
    *             retrieved.
    * @return The view's create statement.
-   * @throws DatabaseDifferenceCheckerException Error when getting a view's create
+   * @throws DatabaseDifferenceCheckerException Error getting a view's create
    *                                            statement.
    */
   public String getViewCreateStatement(String view) throws DatabaseDifferenceCheckerException {
-    try (PreparedStatement query = this.con.prepareStatement("SHOW CREATE VIEW `?`;")) {
-      query.setString(1, view);
-      ResultSet set = query.executeQuery();
-      set.next(); // move to the first result
+    String sql = "SHOW CREATE VIEW `" + view + "`;";
+    try (Statement query = con.createStatement(); ResultSet set = query.executeQuery(sql)) {
+      set.next();
+
       return set.getString("Create View");
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(
@@ -93,123 +97,152 @@ public class MySQLConn extends SQLDbConn {
   }
 
   @Override
-  public HashMap<String, Table> getTableList() throws DatabaseDifferenceCheckerException {
-    HashMap<String, Table> tablesList = new HashMap<>();
-    String sql = "SHOW FULL TABLES IN `?` WHERE TABLE_TYPE LIKE 'BASE TABLE';";
-    try (PreparedStatement query = this.con.prepareStatement(sql)) {
-      // set up and run the query to get the table names
-      query.setString(1, this.db);
-      ResultSet tables = query.executeQuery(sql);
-      String table = "", create = "";
-      Table add = null;
-      // for each table in the database
+  public Map<String, Table> getTableList() throws DatabaseDifferenceCheckerException {
+    Map<String, Table> tablesList = new HashMap<>();
+    String sql = "SHOW FULL TABLES IN `" + db + "` WHERE TABLE_TYPE LIKE 'BASE TABLE';";
+    try (Statement query = con.createStatement(); ResultSet tables = query.executeQuery(sql)) {
+      String tableName;
+      String create;
+      Table newTable;
+      boolean hasFirstStep;
       while (tables.next()) {
-        // get the table name and its createStatement
-        table = tables.getString("Tables_in_" + this.db);
-        create = getTableCreateStatement(table);
-        this.firstStep = "ALTER TABLE `" + table + "`";
-        this.count = 0;
-        add = new MySQLTable(table, create);
-        // if the database is the live database
-        if (this.type.equals("live")) {
-          // remove auto_increment value statement
+        tableName = tables.getString("Tables_in_" + db);
+        create = getTableCreateStatement(tableName);
+        firstStep = new StringBuilder("ALTER TABLE `" + tableName + "`");
+        hasFirstStep = false;
+        newTable = new MySQLTable(tableName, create);
+        if (isLive) {
           if (create.contains("AUTO_INCREMENT")) {
-            // find the auto-increment column and remove it
-            int endColumn = create.indexOf("AUTO_INCREMENT");
-            int startColumn = create.indexOf("\n");
-            int temp = -1;
-            while (startColumn != -1) {
-              temp = create.indexOf("\n", startColumn + 1);
-              if (temp < endColumn) {
-                startColumn = temp;
-              } else {
-                String columnDetails = create.substring(startColumn + 1, endColumn).trim();
-                int startColumnName = columnDetails.indexOf("`");
-                String columnName = columnDetails.substring(startColumnName + 1,
-                    columnDetails.indexOf("`", startColumnName + 1));
-                this.firstStep += "\n MODIFY COLUMN " + columnDetails;
-                // modify the column definition in order properly generate SQL if there is a
-                // difference found
-                add.getColumns().put(columnName, new Column(columnName, columnDetails));
-                count++;
-                break;
-              }
-            }
+            removeAutoIncrement(create, newTable);
+            hasFirstStep = true;
           }
           if (create.contains("FOREIGN KEY")) {
-            // drop the all Foreign Keys before the Primary Keys are to be dropped
-            int start;
-            boolean firstTime = true;
-            String foreignKeyDrop = "ALTER TABLE `" + table + "`";
-            String name;
-            String temp = create;
-            do {
-              start = 0;
-              start = temp.indexOf("CONSTRAINT `", start) + 12;
-              // get name
-              name = temp.substring(start, temp.indexOf("`", start));
-              if (!firstTime) {
-                foreignKeyDrop += "\n,";
-              }
-              foreignKeyDrop += " DROP FOREIGN KEY `" + name + "`";
-              add.getIndices().remove(name);
-              firstTime = false;
-              // update temp
-              temp = temp.substring(temp.indexOf("FOREIGN KEY") + 11);
-            } while (temp.contains("FOREIGN KEY"));
-            // remove foreign key
-            firstSteps.add(0, foreignKeyDrop + ";");
+            dropAllForeignKeys(create, newTable);
           }
           if (create.contains("PRIMARY KEY")) {
-            if (count != 0) {
-              this.firstStep += ",\n ";
-            } else {
-              this.firstStep += "\n ";
+            if (hasFirstStep) {
+              firstStep.append(", \n");
             }
-            this.firstStep += "DROP PRIMARY KEY";
+            firstStep.append(" DROP PRIMARY KEY");
             // remove the PRIMARY KEY to make sure the appropriate SQL will be generated if
-            // there is a difference
-            add.getIndices().remove("PRIMARY");
-            count++;
+            // there is a difference in schema structure for this table
+            newTable.getIndices().remove("PRIMARY");
+            hasFirstStep = true;
           }
         }
-        if (this.count != 0) {
+        if (hasFirstStep) {
           firstSteps.add(firstStep + ";");
         }
-        tablesList.put(table, add);
+        tablesList.put(tableName, newTable);
       }
+
       return tablesList;
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(
-          "There was an error getting the " + this.db + " database's table, column, and index details.", e, 1017);
+          "There was an error getting the " + db + " database's table, column, and index details.", e, 1017);
     }
   }
 
-  @Override
-  public ArrayList<View> getViews() throws DatabaseDifferenceCheckerException {
-    ArrayList<View> views = new ArrayList<>();
-    String sql = "SHOW FULL TABLES IN `?` WHERE TABLE_TYPE LIKE 'VIEW';";
-    try (PreparedStatement query = this.con.prepareStatement(sql)) {
-      query.setString(1, this.db);
-      ResultSet set = query.executeQuery(sql);
-      while (set.next()) {
-        views.add(new View(set.getString("Tables_in_" + this.db),
-            getViewCreateStatement(set.getString("Tables_in_" + this.db))));
+  /**
+   * Removes the auto increment from a the table definition and add it to the
+   * first step if the table is updated.
+   *
+   * @param createStatement The create statement to modify.
+   * @param table           The table that the column with the auto increment
+   *                        exists on.
+   */
+  private void removeAutoIncrement(String createStatement, Table table) {
+    int endColumn = createStatement.indexOf("AUTO_INCREMENT");
+    int startColumn = createStatement.indexOf("\n");
+    int currentPos = -1;
+    while (startColumn != -1) {
+      currentPos = createStatement.indexOf("\n", startColumn + 1);
+      if (currentPos < endColumn) {
+        startColumn = currentPos;
+      } else {
+        String columnDetails = createStatement.substring(startColumn + 1, endColumn).trim();
+        int startColumnName = columnDetails.indexOf("`");
+        String columnName = columnDetails.substring(startColumnName + 1,
+            columnDetails.indexOf("`", startColumnName + 1));
+        firstStep.append("\n MODIFY COLUMN " + columnDetails); // modify the column definition in order properly
+                                                               // generate SQL if there is a difference found
+        table.getColumns().put(columnName, new Column(columnName, columnDetails));
+        break;
       }
+    }
+  }
+
+  /**
+   * Ups the foreign key count on the table and makes sure the foreign keys will
+   * be dropped if the table needs to be updated.
+   *
+   * @param createStatement
+   * @param table
+   */
+  private void dropAllForeignKeys(String createStatement, Table table) {
+    int start;
+    boolean firstTime = true;
+    StringBuilder foreignKeyDrop = new StringBuilder("ALTER TABLE `" + table.name + "`");
+    String indexName;
+    String toSearch = createStatement;
+    do {
+      start = toSearch.indexOf("CONSTRAINT `", 0) + 12;
+      indexName = toSearch.substring(start, toSearch.indexOf("`", start));
+      if (!firstTime) {
+        foreignKeyDrop.append("\n,");
+      }
+      foreignKeyDrop.append(" DROP FOREIGN KEY `" + indexName + "`");
+      table.getIndices().remove(indexName);
+      firstTime = false;
+      toSearch = toSearch.substring(toSearch.indexOf("FOREIGN KEY") + 11);
+    } while (toSearch.contains("FOREIGN KEY"));
+    firstSteps.add(0, foreignKeyDrop + ";");
+  }
+
+  @Override
+  public List<View> getViews() throws DatabaseDifferenceCheckerException {
+    List<View> views = new ArrayList<>();
+    String sql = "SHOW FULL TABLES IN `" + db + "` WHERE TABLE_TYPE LIKE 'VIEW';";
+    try (Statement query = con.createStatement(); ResultSet set = query.executeQuery(sql)) {
+      while (set.next()) {
+        views.add(new View(set.getString("Tables_in_" + db), getViewCreateStatement(set.getString("Tables_in_" + db))));
+      }
+
       return views;
     } catch (SQLException e) {
-      throw new DatabaseDifferenceCheckerException(
-          "There was an error getting the " + this.db + " database's view details.", e, 1018);
+      throw new DatabaseDifferenceCheckerException("There was an error getting the " + db + " database's view details.",
+          e, 1018);
     }
   }
 
   @Override
   protected void testConnection() throws DatabaseDifferenceCheckerException {
-    try (Connection testCon = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.db
-        + "?autoReconnect=true&useSSL=false&maxReconnects=5", this.username, this.password)) {
+    try (Connection testCon = DriverManager.getConnection(String.format(CONN_STRING_FMT, host, port, db, 5), username,
+        password)) {
+      // just tests that the connection can be established with the database
     } catch (SQLException error) {
-      throw new DatabaseDifferenceCheckerException(
-          "There was an error with the connection to " + this.db + ". Please try again.", error, 1016);
+      handleConnectionExceptions(error, 1016);
     }
+  }
+
+  /**
+   * Determines what the error message should be based on the cause of the error
+   * that occurred while conecting to the database.
+   *
+   * @param e    The error that occurred while connecting to the database.
+   * @param code The error code to associate with the error message.
+   * @throws DatabaseDifferenceCheckerException
+   */
+  private void handleConnectionExceptions(SQLException e, int code) throws DatabaseDifferenceCheckerException {
+    Throwable cause = e.getCause();
+    String errorMessage;
+    if (cause instanceof CJException && cause.toString().contains("Access denied")) {
+      errorMessage = "The username or passowrd provided is not correct for the provided host and port for " + db + ".";
+    } else if (cause.getCause() instanceof UnknownHostException) {
+      errorMessage = "Please make sure that the host is correct and valid for " + db + ".";
+    } else {
+      errorMessage = "There was an error connecting to the " + db + " database.";
+    }
+    throw new DatabaseDifferenceCheckerException(errorMessage, e, code);
   }
 }

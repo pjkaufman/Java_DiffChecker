@@ -1,18 +1,20 @@
 package dbdiffchecker.sql;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Resembles a table in MySQL and contains info about the Ttable's columns and
+ * Resembles a MySQL table and contains info about the table's columns and
  * indices.
  *
  * @author Peter Kaufman
- * @version 6-20-20
- * @since 5-15-19
  */
 public class MySQLTable extends Table {
-  private String charSet = "", collation = "", autoIncrement = "";
+  private static final long serialVersionUID = 1L;
+  private String charSet;
+  private String collation = "";
+  private String autoIncrement;
 
   /**
    * Sets the name and create statement of the table.
@@ -23,14 +25,14 @@ public class MySQLTable extends Table {
    */
   public MySQLTable(String name, String create) {
     super(name, create);
-    this.drop = "DROP TABLE `" + name + "`;";
+    drop = "DROP TABLE `" + name + "`;";
     String temp = create.substring(create.indexOf("DEFAULT CHARSET=") + 16) + " ";
-    this.charSet = temp.substring(0, temp.indexOf(" "));
+    charSet = temp.substring(0, temp.indexOf(" "));
+    newLineCreation = ", \n\t";
   }
 
   /**
-   * This is the default constructor for this class, <b> Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>
    */
   public MySQLTable() {
   }
@@ -41,7 +43,7 @@ public class MySQLTable extends Table {
    * @return The collation of the table.
    */
   public String getCollation() {
-    return this.collation;
+    return collation;
   }
 
   /**
@@ -50,16 +52,16 @@ public class MySQLTable extends Table {
    * @return The character set of the table.
    */
   public String getCharSet() {
-    return this.charSet;
+    return charSet;
   }
 
   /**
-   * Returns the autoIncrement count of the table.
+   * Returns the auto increment count of the table.
    *
-   * @return The autoIncrement count of the table.
+   * @return The auto increment count of the table.
    */
   public String getAutoIncrement() {
-    return this.autoIncrement;
+    return autoIncrement;
   }
 
   /**
@@ -81,31 +83,31 @@ public class MySQLTable extends Table {
   }
 
   /**
-   * Sets the autoIncrement count of the table.
+   * Sets the auto increment count of the table.
    *
-   * @param autoIncrement The autoIncrement count of the table.
+   * @param autoIncrement The auto increment count of the table.
    */
   public void setAutoIncrement(String autoIncrement) {
     this.autoIncrement = autoIncrement;
   }
 
   @Override
-  public ArrayList<String> equals(Table t1) {
-    ArrayList<String> sql = new ArrayList<>();
-    this.count = 0;
-    String sql2 = "ALTER TABLE `" + this.name + "`\n";
-    if (!this.charSet.equals(((MySQLTable) t1).charSet) | !this.collation.equals(((MySQLTable) t1).collation)) {
-      sql2 += "CHARACTER SET " + this.charSet;
-      if (!this.collation.equals("")) {
-        sql2 += " COLLATE " + this.collation;
+  public List<String> generateStatements(Table t1) {
+    List<String> sql = new ArrayList<>();
+    isFirstStatement = true;
+    String sql2 = "ALTER TABLE `" + name + "` ";
+    if (!charSet.equals(((MySQLTable) t1).charSet) || !collation.equals(((MySQLTable) t1).collation)) {
+      sql2 += "CHARACTER SET " + charSet;
+      if (!collation.equals("")) {
+        sql2 += " COLLATE " + collation;
       }
-      this.count++;
+      isFirstStatement = false;
     }
-    sql2 += dropIndices(this.indices, t1.getIndices());
-    sql2 += otherCols(this.columns, t1.getColumns());
-    sql2 += dropCols(this.columns, t1.getColumns());
-    sql2 += otherIndices(this.indices, t1.getIndices()) + ";";
-    if (this.count != 0) {
+    sql2 += dropIndices(indices, t1.getIndices());
+    sql2 += otherCols(columns, t1.getColumns());
+    sql2 += dropCols(columns, t1.getColumns());
+    sql2 += otherIndices(indices, t1.getIndices()) + ";";
+    if (!isFirstStatement) {
       sql.add(sql2);
     }
     return sql;
@@ -121,7 +123,7 @@ public class MySQLTable extends Table {
     String last = "";
     String details = "";
     String create = "";
-    parts = this.createStatement.split("\n");
+    parts = createStatement.split("\n");
     for (String part : parts) {
       part = part.trim();
       if (part.endsWith(",")) {
@@ -151,88 +153,60 @@ public class MySQLTable extends Table {
   }
 
   @Override
-  protected String dropCols(HashMap<String, Column> cols1, HashMap<String, Column> cols2) {
-    String sql = "";
-    Column col = null;
-    for (String columnName : cols2.keySet()) {
-      col = cols2.get(columnName);
-      if (!cols1.containsKey(columnName)) {
-        if (!(this.count == 0)) {
-          sql += ", \n";
-        }
-        sql += col.getDrop();
-        this.count++;
+  protected String dropCols(Map<String, Column> cols1, Map<String, Column> cols2) {
+    StringBuilder sql = new StringBuilder();
+    for (Map.Entry<String, Column> columnInfo : cols2.entrySet()) {
+      if (!cols1.containsKey(columnInfo.getKey())) {
+        appendSQLPart(sql, columnInfo.getValue().getDrop());
       }
     }
-    return sql;
+    return sql.toString();
   }
 
   @Override
-  protected String otherCols(HashMap<String, Column> cols1, HashMap<String, Column> cols2) {
-    String sql = "";
-    Column col = null;
-    Column col2 = null;
-    for (String columnName : cols1.keySet()) {
-      col = cols1.get(columnName);
-      if (!cols2.containsKey(columnName)) {
-        if (!(this.count == 0)) {
-          sql += ", \n";
-        }
-        sql += "ADD COLUMN `" + col.getName() + "` " + col.getDetails();
-        this.count++;
+  protected String otherCols(Map<String, Column> cols1, Map<String, Column> cols2) {
+    StringBuilder sql = new StringBuilder();
+    Column col;
+    Column col2;
+    for (Map.Entry<String, Column> columnInfo : cols1.entrySet()) {
+      col = columnInfo.getValue();
+      if (!cols2.containsKey(columnInfo.getKey())) {
+        appendSQLPart(sql, "ADD COLUMN `" + col.getName() + "` " + col.getDetails());
       } else {
-        col2 = cols2.get(columnName);
-        if (col.getName().equals(col2.getName())) {
-          if (!col.getDetails().equals(col2.getDetails())) {
-            if (!(this.count == 0)) {
-              sql += ", \n";
-            }
-            sql += "MODIFY COLUMN `" + col.getName() + "` " + col.getDetails();
-            this.count++;
-          }
+        col2 = cols2.get(columnInfo.getKey());
+        if (col.getName().equals(col2.getName()) && !col.getDetails().equals(col2.getDetails())) {
+          appendSQLPart(sql, "MODIFY COLUMN `" + col.getName() + "` " + col.getDetails());
         }
       }
     }
-    return sql;
+    return sql.toString();
   }
 
   @Override
-  protected String dropIndices(HashMap<String, Index> dev, HashMap<String, Index> live) {
-    String sql = "";
-    for (String indexName : live.keySet()) {
-      if (!dev.containsKey(indexName)) {
-        if (!(this.count == 0)) {
-          sql += ", \n";
-        }
-        sql += live.get(indexName).getDrop();
-        this.count++;
+  protected String dropIndices(Map<String, Index> dev, Map<String, Index> live) {
+    StringBuilder sql = new StringBuilder();
+    for (Map.Entry<String, Index> indexInfo : live.entrySet()) {
+      if (!dev.containsKey(indexInfo.getKey())) {
+        appendSQLPart(sql, indexInfo.getValue().getDrop());
       }
     }
-    return sql;
+    return sql.toString();
   }
 
   @Override
-  protected String otherIndices(HashMap<String, Index> dev, HashMap<String, Index> live) {
-    String sql = "";
-    Index indices1 = null;
-    for (String indexName : dev.keySet()) {
-      indices1 = dev.get(indexName);
-      if (live.containsKey(indexName)) {
-        if (!indices1.equals(live.get(indexName))) {
-          if (!(this.count == 0)) {
-            sql += ", \n";
-          }
-          sql += indices1.getDrop() + ", \n" + indices1.getCreateStatement();
-          this.count++;
+  protected String otherIndices(Map<String, Index> dev, Map<String, Index> live) {
+    StringBuilder sql = new StringBuilder();
+    Index index;
+    for (Map.Entry<String, Index> indexInfo : dev.entrySet()) {
+      index = indexInfo.getValue();
+      if (live.containsKey(indexInfo.getKey())) {
+        if (!index.equals(live.get(indexInfo.getKey()))) {
+          appendSQLPart(sql, index.getDrop() + ", \n\t" + index.getCreateStatement());
         }
       } else {
-        if (!(this.count == 0)) {
-          sql += ", \n";
-        }
-        sql += indices1.getCreateStatement();
-        this.count++;
+        appendSQLPart(sql, index.getCreateStatement());
       }
     }
-    return sql;
+    return sql.toString();
   }
 }

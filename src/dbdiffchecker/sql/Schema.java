@@ -6,18 +6,15 @@ import java.io.Serializable;
  * Holds common methods and instance variables for Schema subclasses.
  *
  * @author Peter Kaufman
- * @version 6-20-20
- * @since 5-17-18
  */
 public class Schema implements Serializable {
   protected static final long serialVersionUID = 1L;
-  protected String name = "";
-  protected String drop = "";
-  protected String createStatement = "";
+  protected String name;
+  protected String drop;
+  protected String createStatement;
 
   /**
-   * This is the default constructor for this class, <b> Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>
    */
   public Schema() {
   }
@@ -28,7 +25,7 @@ public class Schema implements Serializable {
    * @return The name of the Schema object.
    */
   public String getName() {
-    return this.name;
+    return name;
   }
 
   /**
@@ -37,7 +34,7 @@ public class Schema implements Serializable {
    * @return The create statement of the of the Schema object.
    */
   public String getCreateStatement() {
-    return this.createStatement;
+    return createStatement;
   }
 
   /**
@@ -46,6 +43,6 @@ public class Schema implements Serializable {
    * @return The drop statement of the of the Schema object.
    */
   public String getDrop() {
-    return this.drop;
+    return drop;
   }
 }

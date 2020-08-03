@@ -1,17 +1,18 @@
 package dbdiffchecker.sql;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Resembles a table in SQLite and contains info about the table's columns and
  * indices.
  *
  * @author Peter Kaufman
- * @version 6-20-20
- * @since 5-11-19
  */
 public class SQLiteTable extends Table {
+  private static final long serialVersionUID = 1L;
+  private static final String FOREIGN_KEY_IDENTIFIER = "FOREIGN KEY";
   private boolean stopCompare = false;
   private int foreignKeyCount = 0;
 
@@ -24,53 +25,53 @@ public class SQLiteTable extends Table {
    */
   public SQLiteTable(String name, String create) {
     super(name, create);
-    this.drop = "DROP TABLE " + name + ";";
+    drop = "DROP TABLE " + name + ";";
+    newLineCreation = "\n";
   }
 
   /**
-   * This is the default constructor for this class, <b> Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>
    */
   public SQLiteTable() {
   }
 
   @Override
-  public ArrayList<String> equals(Table t1) {
+  public List<String> generateStatements(Table t1) {
     stopCompare = false;
-    this.count = 0;
-    ArrayList<String> sql = new ArrayList<>();
+    isFirstStatement = true;
+    List<String> sql = new ArrayList<>();
     String sql2 = "";
     // if there are a different amount of foreing keys the table needs to be
     // recreated
-    if (this.foreignKeyCount != ((SQLiteTable) t1).foreignKeyCount) {
+    if (foreignKeyCount != ((SQLiteTable) t1).foreignKeyCount) {
       sql.addAll(recreateTable(t1.getColumns()));
       return sql;
     }
-    sql2 += dropIndices(this.indices, t1.getIndices());
+    sql2 += dropIndices(indices, t1.getIndices());
     // if a foreign key is to be dropped, recreate the table
     if (stopCompare) {
       sql.addAll(recreateTable(t1.getColumns()));
       return sql;
     }
-    sql2 += otherCols(this.columns, t1.getColumns());
+    sql2 += otherCols(columns, t1.getColumns());
     // if a column needs to be modified, recreate the table
     if (stopCompare) {
       sql.addAll(recreateTable(t1.getColumns()));
       return sql;
     }
-    sql2 += dropCols(this.columns, t1.getColumns());
+    sql2 += dropCols(columns, t1.getColumns());
     // if a column needs to be dropped, recreate the table
     if (stopCompare) {
       sql.addAll(recreateTable(t1.getColumns()));
       return sql;
     }
-    sql2 += otherIndices(this.indices, t1.getIndices());
+    sql2 += otherIndices(indices, t1.getIndices());
     // if a foreign key needs to be added or modified, recreate the table
     if (stopCompare) {
       sql.addAll(recreateTable(t1.getColumns()));
       return sql;
     }
-    if (this.count != 0) {
+    if (!isFirstStatement) {
       sql.add(sql2);
     }
     return sql;
@@ -78,26 +79,37 @@ public class SQLiteTable extends Table {
 
   @Override
   protected void parseCreateStatement() {
-    String[] parts, columns;
-    ArrayList<String> bodySections = new ArrayList<>();
-    String indexIndicator = ".*([K|k][E|e][Y|y])(\\s)*(\\().*";
-    String name = "", drop = "", details = "", create = "", body;
-    int nameEnd = 0;
-    create = createStatement.substring(createStatement.indexOf("(") + 1).trim();
-    create = create.trim();
+    List<String> bodySections = new ArrayList<>();
+    String[] parts = separateCreateIntoParts(bodySections);
+    addBodyColumnsAndIndices(bodySections);
+    addRemainingIndices(parts);
+  }
+
+  /**
+   * Separates the create statement into several parts and returns them.
+   *
+   * @param bodySections The list of different sections of the body.
+   * @return The parts of the create statements needed to create the table.
+   */
+  private String[] separateCreateIntoParts(List<String> bodySections) {
+    String[] sections;
+    String create = createStatement.substring(createStatement.indexOf("(") + 1).trim();
+    String body;
+
     if (create.endsWith(";")) {
       create = create.substring(0, create.indexOf(";", create.length() - 6));
     }
-    // separate the main create statement from other add-ons
-    parts = create.split(";");
-    body = parts[0];
+    sections = create.split(";");
+    body = sections[0];
     body = body.trim();
     if (body.endsWith(");")) {
       body = body.substring(0, body.length() - 2);
     } else if (body.endsWith(")")) {
       body = body.substring(0, body.length() - 1);
     }
-    int comma, startParen, endParen;
+    int comma;
+    int startParen;
+    int endParen;
     while (body.contains(",")) {
       comma = body.indexOf(",");
       startParen = body.indexOf("(");
@@ -114,7 +126,19 @@ public class SQLiteTable extends Table {
       body = body.substring(comma + 1);
     }
     bodySections.add(body);
-    // parse the columns, PRIMARY KEYs, FOREIGN KEYs, and constraints
+    return sections;
+  }
+
+  /**
+   * Goes through the body and adds indices and columns.
+   *
+   * @param bodySections The parts of the body.
+   */
+  private void addBodyColumnsAndIndices(List<String> bodySections) {
+    String indexIndicator = ".*([K|k][E|e][Y|y])(\\s)*(\\().*";
+    int nameEnd = 0;
+    String name;
+    String details;
     for (String part : bodySections) {
       part = part.trim();
       if (!part.matches(indexIndicator)) {
@@ -123,29 +147,49 @@ public class SQLiteTable extends Table {
         details = part.substring(nameEnd + 1);
         addColumn(new Column(name, details));
       } else {
-        if (part.contains("PRIMARY KEY")) { // dealing with PRIMARY KEY
-          String temp = part.substring(part.indexOf("(") + 1, part.indexOf(")"));
-          columns = temp.split(",");
-          // add PRIMARY KEY label to each column affected by the PRIMARY KEY
-          for (String column : columns) {
-            // recreate columns
-            column = column.trim();
-            addColumn(new Column(column, this.columns.get(column.trim()).getDetails().concat(" PRIMARY KEY")));
-          }
-        } else if (part.contains("FOREIGN KEY")) {
-          foreignKeyCount++;
-          if (part.contains("CONSTRAINT ")) {
-            int start = part.indexOf("CONSTRAINT ") + 11;
-            name = part.substring(start, part.indexOf(" ", start));
-          } else {
-            name = "FOREIGN KEY" + foreignKeyCount;
-          }
-          drop = "";
-          addIndex(new Index(name, part.trim(), drop));
-        }
+        addPrimaryAndForeignIndices(part);
       }
     }
-    // parse the remaining indices ...
+  }
+
+  /**
+   * Adds Primary and Foreign keys to the table by making sure the appropriate
+   * steps are taken if the table needs to be updated.
+   *
+   * @param part The current part of the table's create statement that is being
+   *             parsed.
+   */
+  private void addPrimaryAndForeignIndices(String part) {
+    String[] columns;
+    String drop;
+    if (part.contains("PRIMARY KEY")) {
+      String temp = part.substring(part.indexOf("(") + 1, part.indexOf(")"));
+      columns = temp.split(",");
+      for (String column : columns) { // recreate columns with PRIMARY KEY label
+        addColumn(new Column(column, this.columns.get(column.trim()).getDetails().concat(" PRIMARY KEY")));
+      }
+    } else if (part.contains(FOREIGN_KEY_IDENTIFIER)) {
+      foreignKeyCount++;
+      if (part.contains("CONSTRAINT ")) {
+        int start = part.indexOf("CONSTRAINT ") + 11;
+        name = part.substring(start, part.indexOf(" ", start));
+      } else {
+        name = FOREIGN_KEY_IDENTIFIER + foreignKeyCount;
+      }
+      drop = "";
+      addIndex(new Index(name, part.trim(), drop));
+    }
+  }
+
+  /**
+   * Adds the rest of the indices that were not a part of the initial create
+   * statement.
+   *
+   * @param parts The parts that make up the table's create statement(s).
+   */
+  private void addRemainingIndices(final String[] parts) {
+    String name;
+    String drop;
     for (int i = 1; i < parts.length; i++) {
       String part = parts[i];
       name = part.substring(part.indexOf("INDEX ") + 6, part.indexOf(" ON"));
@@ -155,93 +199,74 @@ public class SQLiteTable extends Table {
   }
 
   @Override
-  protected String dropCols(HashMap<String, Column> cols1, HashMap<String, Column> cols2) {
-    String sql = "";
+  protected String dropCols(Map<String, Column> cols1, Map<String, Column> cols2) {
     for (String columnName : cols2.keySet()) {
       if (!cols1.containsKey(columnName)) {
         stopCompare = true;
-        return sql;
+        return "";
       }
     }
-    return sql;
+    return "";
   }
 
   @Override
-  protected String otherCols(HashMap<String, Column> cols1, HashMap<String, Column> cols2) {
-    String sql = "";
-    Column col = null;
-    Column col2 = null;
-    for (String columnName : cols1.keySet()) {
-      col = cols1.get(columnName);
-      if (!cols2.containsKey(columnName)) {
-        if (this.count != 0) {
-          sql += "\n";
-        }
-        sql += "ALTER TABLE " + this.name + "\n\tADD COLUMN " + col.getName() + " " + col.getDetails() + ";";
-        this.count++;
+  protected String otherCols(Map<String, Column> cols1, Map<String, Column> cols2) {
+    StringBuilder sql = new StringBuilder();
+    Column col;
+    Column col2;
+    for (Map.Entry<String, Column> columnInfo : cols1.entrySet()) {
+      col = columnInfo.getValue();
+      if (!cols2.containsKey(col.getName())) {
+        appendSQLPart(sql, "ALTER TABLE " + name + " ADD COLUMN " + col.getName() + " " + col.getDetails() + ";");
       } else {
-        col2 = cols2.get(columnName);
-        if (col.getName().equals(col2.getName())) {
-          if (!col.getDetails().equals(col2.getDetails())) {
-            stopCompare = true;
-            return sql;
-          }
-        }
-      }
-    }
-    return sql;
-  }
-
-  @Override
-  protected String dropIndices(HashMap<String, Index> dev, HashMap<String, Index> live) {
-    String sql = "";
-    for (String indexName : live.keySet()) {
-      if (!dev.containsKey(indexName)) {
-        if (live.get(indexName).getCreateStatement().contains("FOREIGN KEY")) {
+        col2 = cols2.get(col.getName());
+        if (col.getName().equals(col2.getName()) && !col.getDetails().equals(col2.getDetails())) {
           stopCompare = true;
-          return sql;
+          return sql.toString();
         }
-        if (this.count != 0) {
-          sql += "\n";
-        }
-        sql += live.get(indexName).getDrop();
-        this.count++;
       }
     }
-    return sql;
+    return sql.toString();
   }
 
   @Override
-  protected String otherIndices(HashMap<String, Index> dev, HashMap<String, Index> live) {
-    String sql = "";
-    Index indices1 = null;
-    for (String indexName : dev.keySet()) {
-      indices1 = dev.get(indexName);
-      if (live.containsKey(indexName)) {
-        if (!indices1.equals(live.get(indexName))) {
-          if (live.get(indexName).getCreateStatement().contains("FOREIGN KEY")) {
+  protected String dropIndices(Map<String, Index> dev, Map<String, Index> live) {
+    StringBuilder sql = new StringBuilder();
+    for (Map.Entry<String, Index> indexInfo : live.entrySet()) {
+      if (!dev.containsKey(indexInfo.getKey())) {
+        if (indexInfo.getValue().getCreateStatement().contains(FOREIGN_KEY_IDENTIFIER)) {
+          stopCompare = true;
+          return sql.toString();
+        }
+        appendSQLPart(sql, indexInfo.getValue().getDrop());
+      }
+    }
+    return sql.toString();
+  }
+
+  @Override
+  protected String otherIndices(Map<String, Index> dev, Map<String, Index> live) {
+    StringBuilder sql = new StringBuilder();
+    Index index;
+    for (Map.Entry<String, Index> indexInfo : dev.entrySet()) {
+      index = indexInfo.getValue();
+      if (live.containsKey(indexInfo.getKey())) {
+        if (!index.equals(live.get(indexInfo.getKey()))) {
+          if (live.get(indexInfo.getKey()).getCreateStatement().contains(FOREIGN_KEY_IDENTIFIER)) {
             stopCompare = true;
-            return sql;
+            return sql.toString();
           }
-          if (this.count != 0) {
-            sql += "\n";
-          }
-          sql += live.get(indexName).getDrop() + "\n" + indices1.getCreateStatement() + ";";
-          this.count++;
+          appendSQLPart(sql, live.get(indexInfo.getKey()).getDrop() + "\n" + index.getCreateStatement() + ";");
         }
       } else {
-        if (indices1.getCreateStatement().contains("FOREIGN KEY")) {
+        if (index.getCreateStatement().contains(FOREIGN_KEY_IDENTIFIER)) {
           stopCompare = true;
-          return sql;
+          return sql.toString();
         }
-        if (this.count != 0) {
-          sql += "\n";
-        }
-        sql += indices1.getCreateStatement() + ";";
-        this.count++;
+        appendSQLPart(sql, index.getCreateStatement() + ";");
       }
     }
-    return sql;
+    return sql.toString();
   }
 
   /**
@@ -250,37 +275,36 @@ public class SQLiteTable extends Table {
    * and live tables.
    *
    * @param live A list of columns and their definitions which helps the transfer
-   *             of data for common collumns.
+   *             of data for common columns.
    * @return The SQL statements needed to recreate the development table.
    */
-  private ArrayList<String> recreateTable(HashMap<String, Column> live) {
-    String commonColumns = "";
-    boolean doExtraWork = this.createStatement.lastIndexOf("CREATE") > 6;
-    ArrayList<String> sql = new ArrayList<>();
+  private List<String> recreateTable(Map<String, Column> live) {
+    StringBuilder commonColumns = new StringBuilder();
+    boolean hasExtraParts = createStatement.lastIndexOf("CREATE") > 6;
+    List<String> sql = new ArrayList<>();
     for (String columnName : live.keySet()) {
-      if (this.columns.containsKey(columnName)) {
-        commonColumns += "" + columnName + ",";
+      if (columns.containsKey(columnName)) {
+        commonColumns.append("" + columnName + ",");
       }
     }
     if (commonColumns.length() != 0) {
       // there are columns in common so the table needs to be renamed,
       // have its data copied into a new table of the same name, and then be deleted
-      commonColumns = commonColumns.substring(0, commonColumns.length() - 1);
-      sql.add("ALTER TABLE " + this.name + " RENAME TO temp_table;");
-      if (!doExtraWork) {
-        sql.add(this.createStatement);
+      commonColumns = new StringBuilder(commonColumns.substring(0, commonColumns.length() - 1));
+      sql.add("ALTER TABLE " + name + " RENAME TO temp_table;");
+      if (!hasExtraParts) {
+        sql.add(createStatement);
       } else {
-        sql.add(this.createStatement.substring(0, this.createStatement.indexOf("CREATE", 6) - 1));
+        sql.add(createStatement.substring(0, createStatement.indexOf("CREATE", 6) - 1));
       }
-      sql.add(
-          "INSERT INTO " + this.name + " (" + commonColumns + ")\n\tSELECT " + commonColumns + "\n\tFROM temp_table;");
+      sql.add("INSERT INTO " + name + " (" + commonColumns + ")\n\tSELECT " + commonColumns + "\n\tFROM temp_table;");
       sql.add("DROP TABLE temp_table;");
-      if (doExtraWork) {
-        sql.add(this.createStatement.substring(this.createStatement.indexOf("CREATE", 6)));
+      if (hasExtraParts) {
+        sql.add(createStatement.substring(createStatement.indexOf("CREATE", 6)));
       }
     } else {
-      sql.add(this.drop);
-      sql.add(this.createStatement);
+      sql.add(drop);
+      sql.add(createStatement);
     }
     return sql;
   }

@@ -4,25 +4,27 @@ import dbdiffchecker.Database;
 import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
 
 /**
  * Models a Mongo Database by keeping track of all collections.
  *
  * @author Peter Kaufman
- * @version 6-20-20
- * @since 10-26-19
  */
 public class MongoDB extends Database {
-  private HashMap<String, Collection> collections = new HashMap<>();
+  private static final long serialVersionUID = 1L;
+  private Map<String, Collection> collections = new HashMap<>();
+  protected static final String CREATE_COLL_IDENTIFIER = "Create Collection: ";
+  protected static final String DELETE_COLL_IDENTIFIER = "Delete Collection: ";
 
   /**
    * Creates a database that models the Mongo database using the Mongo connection
    * in order to get a list of collections.
    *
    * @param conn The connection to the Mongo database.
-   * @throws DatabaseDifferenceCheckerException Error connecting to the Mongo
-   *                                            database.
+   * @throws DatabaseDifferenceCheckerException Error connecting to the Mongo database.
    */
   public MongoDB(DbConn conn) throws DatabaseDifferenceCheckerException {
     MongoConn connection = (MongoConn) conn;
@@ -33,8 +35,7 @@ public class MongoDB extends Database {
   }
 
   /**
-   * This is the default constructor for this class, <b>Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>
    */
   public MongoDB() {
   }
@@ -44,20 +45,19 @@ public class MongoDB extends Database {
    *
    * @return The list of documents that exist in the bucket.
    */
-  public HashMap<String, Collection> getCollections() {
-    return this.collections;
+  public Map<String, Collection> getCollections() {
+    return collections;
   }
 
   @Override
-  public ArrayList<String> compare(Database liveDatabase) {
+  public List<String> compare(Database liveDatabase) {
     MongoDB live = (MongoDB) liveDatabase;
-    ArrayList<String> statements = new ArrayList<>(), updateCollections, common = new ArrayList<>();
-    // check for collections to create and drop
-    statements.addAll(compareCollections(live.getCollections(), common));
-    // determine which collections need to be updated
-    updateCollections = collectionDiffs(common, live.getCollections());
-    // generate the statements needed to modify the collections
-    statements.addAll(updateCollections(updateCollections));
+    List<String> statements = new ArrayList<>();
+    List<String> common = new ArrayList<>();
+    List<String> collectionsToUpdate;
+    statements.addAll(compareCollections(live.getCollections(), common)); // check for collections to create and drop
+    collectionsToUpdate = collectionDiffs(common, live.getCollections());
+    statements.addAll(updateCollections(collectionsToUpdate));
     return statements;
   }
 
@@ -71,25 +71,25 @@ public class MongoDB extends Database {
    * @return A set of statmentst that have to do with dropping and or creating
    *         collections.
    */
-  private ArrayList<String> compareCollections(HashMap<String, Collection> liveCollections, ArrayList<String> common) {
-    ArrayList<String> statements = new ArrayList<>();
-    // check for collections to create
-    String createStatement;
-    for (String collectionName : collections.keySet()) {
-      if (!liveCollections.containsKey(collectionName)) {
-        createStatement = "Create Collection: " + collectionName;
-        if (collections.get(collectionName).isCapped()) {
-          createStatement += ", capped=true, size=" + collections.get(collectionName).getSize();
+  private List<String> compareCollections(Map<String, Collection> liveCollections, List<String> common) {
+    List<String> statements = new ArrayList<>();
+
+    StringBuilder createStatement;
+    for (Map.Entry<String, Collection> coll : collections.entrySet()) {
+      if (!liveCollections.containsKey(coll.getKey())) {
+        createStatement = new StringBuilder(CREATE_COLL_IDENTIFIER + coll.getKey());
+        if (coll.getValue().isCapped()) {
+          createStatement.append(", capped=true, size=" + coll.getValue().getSize());
         }
-        statements.add(createStatement);
+        statements.add(createStatement.toString());
       } else {
-        common.add(collectionName);
+        common.add(coll.getKey());
       }
     }
-    // check for collections to drop
+
     for (String collectionName : liveCollections.keySet()) {
       if (!collections.containsKey(collectionName)) {
-        statements.add("Delete Collection: " + collectionName);
+        statements.add(DELETE_COLL_IDENTIFIER + collectionName);
       }
     }
     return statements;
@@ -102,8 +102,8 @@ public class MongoDB extends Database {
    * @param liveColls The collection list from the live database.
    * @return The list of collections that need to be updated.
    */
-  private ArrayList<String> collectionDiffs(ArrayList<String> common, HashMap<String, Collection> liveColls) {
-    ArrayList<String> updateCollections = new ArrayList<>();
+  private List<String> collectionDiffs(List<String> common, Map<String, Collection> liveColls) {
+    List<String> updateCollections = new ArrayList<>();
     for (String collectionName : common) {
       if (!collections.get(collectionName).equals(liveColls.get(collectionName))) {
         updateCollections.add(collectionName);
@@ -119,16 +119,16 @@ public class MongoDB extends Database {
    * @return The statements needed to make the collections from the collections to
    *         updated the same.
    */
-  private ArrayList<String> updateCollections(ArrayList<String> collectionsToUpdate) {
-    ArrayList<String> statements = new ArrayList<>();
-    String createStatement;
+  private List<String> updateCollections(List<String> collectionsToUpdate) {
+    List<String> statements = new ArrayList<>();
+    StringBuilder createStatement;
     for (String collectionName : collectionsToUpdate) {
-      statements.add("Delete Collection: " + collectionName);
-      createStatement = "Create Collection: " + collectionName;
+      statements.add(DELETE_COLL_IDENTIFIER + collectionName);
+      createStatement = new StringBuilder(CREATE_COLL_IDENTIFIER + collectionName);
       if (collections.get(collectionName).isCapped()) {
-        createStatement += ", capped=true, size=" + collections.get(collectionName).getSize();
+        createStatement.append(", capped=true, size=" + collections.get(collectionName).getSize());
       }
-      statements.add(createStatement);
+      statements.add(createStatement.toString());
     }
     return statements;
   }

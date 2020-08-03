@@ -3,20 +3,19 @@ package dbdiffchecker.nosql;
 import java.io.Serializable;
 
 /**
- * Models a Collection in a Mongo database by keeping track of specific
- * properties of a collections.
+ * Models a collection in a Mongo database by keeping track of specific
+ * properties of collections.
  *
  * @author Peter Kaufman
- * @version 6-20-20
- * @since 10-26-19
  */
 public class Collection implements Serializable {
+  private static final long serialVersionUID = 1L;
   private String name;
   private boolean isCapped;
   private int size;
 
   /**
-   * Initializes a Collection using the name provided and the size as well as
+   * Initializes a collection using the name provided and the size as well as
    * marking whether it is capped.
    *
    * @param name     The name of the collection.
@@ -30,8 +29,7 @@ public class Collection implements Serializable {
   }
 
   /**
-   * This is the default constructor for this class, <b>Needed for
-   * Serialization</b>.
+   * <b>Needed for Serialization</b>
    */
   public Collection() {
   }
@@ -63,13 +61,12 @@ public class Collection implements Serializable {
     return size;
   }
 
-  /**
-   * Determines wheteher two collections are equal.
-   *
-   * @param coll2 The collection to compare the current collection to.
-   * @return Whether or not the two collections are the same.
-   */
-  public boolean equals(Collection coll2) {
-    return name.equals(coll2.getName()) && isCapped == coll2.isCapped() && size == coll2.getSize();
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof Collection) {
+      Collection coll = (Collection) obj;
+      return name.equals(coll.getName()) && isCapped == coll.isCapped() && size == coll.getSize();
+    }
+    return false;
   }
 }
