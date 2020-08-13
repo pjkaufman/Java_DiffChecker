@@ -251,11 +251,11 @@ public class SQLDatabaseTest {
 
   @Test
   public void testUpdateTablesManyDifferencesTable() {
-    expectedSQL.add("ALTER TABLE `ci_sessions` CHARACTER SET latin1, \n\tDROP INDEX `delete`, "
-        + "\n\tADD COLUMN `id` varchar(40) NOT NULL, \n\tMODIFY COLUMN `ip_address`"
-        + " varchar(45) NOT NULL AFTER `id`, \n\tMODIFY COLUMN `timestamp` int(10) unsigned "
-        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`, \n\tDROP COLUMN `data2`, \n\tADD INDEX "
-        + "`add` (`id`), \n\tDROP INDEX `modify`, \n\tADD INDEX `modify` (`data`);");
+    expectedSQL.add("ALTER TABLE `ci_sessions` CHARACTER SET latin1,\n  DROP INDEX `delete`,"
+        + "\n  ADD COLUMN `id` varchar(40) NOT NULL,\n  MODIFY COLUMN `ip_address`"
+        + " varchar(45) NOT NULL AFTER `id`,\n  MODIFY COLUMN `timestamp` int(10) unsigned "
+        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`,\n  DROP COLUMN `data2`,\n  ADD INDEX "
+        + "`add` (`id`),\n  DROP INDEX `modify`,\n  ADD INDEX `modify` (`data`);");
 
     db = new SQLDatabase();
     Map<String, Table> liveTables = new HashMap<>();
@@ -283,13 +283,13 @@ public class SQLDatabaseTest {
 
   @Test
   public void testUpdateTablesManyDifferencesTables() {
-    expectedSQL.add("ALTER TABLE `ci_sessions` CHARACTER SET latin1, \n\tDROP INDEX `delete`, "
-        + "\n\tADD COLUMN `id` varchar(40) NOT NULL, \n\tMODIFY COLUMN `ip_address`"
-        + " varchar(45) NOT NULL AFTER `id`, \n\tMODIFY COLUMN `timestamp` int(10) unsigned "
-        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`, \n\tDROP COLUMN `data2`, \n\tADD INDEX "
-        + "`add` (`id`), \n\tDROP INDEX `modify`, \n\tADD INDEX `modify` (`data`);");
+    expectedSQL.add("ALTER TABLE `ci_sessions` CHARACTER SET latin1,\n  DROP INDEX `delete`,"
+        + "\n  ADD COLUMN `id` varchar(40) NOT NULL,\n  MODIFY COLUMN `ip_address`"
+        + " varchar(45) NOT NULL AFTER `id`,\n  MODIFY COLUMN `timestamp` int(10) unsigned "
+        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`,\n  DROP COLUMN `data2`,\n  ADD INDEX "
+        + "`add` (`id`),\n  DROP INDEX `modify`,\n  ADD INDEX `modify` (`data`);");
     expectedSQL
-        .add("ALTER TABLE `bloat` MODIFY COLUMN `bloatware` int(11) NOT NULL, \n\t" + "ADD PRIMARY KEY (`bloatware`);");
+        .add("ALTER TABLE `bloat` MODIFY COLUMN `bloatware` int(11) NOT NULL,\n  " + "ADD PRIMARY KEY (`bloatware`);");
 
     db = new SQLDatabase();
     Map<String, Table> liveTables = new HashMap<>();

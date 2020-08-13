@@ -297,7 +297,7 @@ public class SQLiteTable extends Table {
       } else {
         sql.add(createStatement.substring(0, createStatement.indexOf("CREATE", 6) - 1));
       }
-      sql.add("INSERT INTO " + name + " (" + commonColumns + ")\n\tSELECT " + commonColumns + "\n\tFROM temp_table;");
+      sql.add("INSERT INTO " + name + " (" + commonColumns + ")\n  SELECT " + commonColumns + "\n  FROM temp_table;");
       sql.add("DROP TABLE temp_table;");
       if (hasExtraParts) {
         sql.add(createStatement.substring(createStatement.indexOf("CREATE", 6)));

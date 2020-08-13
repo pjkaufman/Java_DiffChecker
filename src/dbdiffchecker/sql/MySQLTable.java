@@ -14,7 +14,7 @@ public class MySQLTable extends Table {
   private static final long serialVersionUID = 1L;
   private String charSet;
   private String collation = "";
-  private String autoIncrement;
+  private int autoIncrement;
 
   /**
    * Sets the name and create statement of the table.
@@ -28,7 +28,7 @@ public class MySQLTable extends Table {
     drop = "DROP TABLE `" + name + "`;";
     String temp = create.substring(create.indexOf("DEFAULT CHARSET=") + 16) + " ";
     charSet = temp.substring(0, temp.indexOf(" "));
-    newLineCreation = ", \n\t";
+    newLineCreation = ",\n  ";
   }
 
   /**
@@ -60,7 +60,7 @@ public class MySQLTable extends Table {
    *
    * @return The auto increment count of the table.
    */
-  public String getAutoIncrement() {
+  public int getAutoIncrement() {
     return autoIncrement;
   }
 
@@ -87,7 +87,7 @@ public class MySQLTable extends Table {
    *
    * @param autoIncrement The auto increment count of the table.
    */
-  public void setAutoIncrement(String autoIncrement) {
+  public void setAutoIncrement(int autoIncrement) {
     this.autoIncrement = autoIncrement;
   }
 
@@ -106,9 +106,14 @@ public class MySQLTable extends Table {
     sql2 += dropIndices(indices, t1.getIndices());
     sql2 += otherCols(columns, t1.getColumns());
     sql2 += dropCols(columns, t1.getColumns());
-    sql2 += otherIndices(indices, t1.getIndices()) + ";";
+    sql2 += otherIndices(indices, t1.getIndices());
+
+    if (autoIncrement > 0 && !isFirstStatement) {
+      sql2 += newLineCreation + "AUTO_INCREMENT=" + autoIncrement;
+    }
+
     if (!isFirstStatement) {
-      sql.add(sql2);
+      sql.add(sql2 + ";");
     }
     return sql;
   }
@@ -149,6 +154,13 @@ public class MySQLTable extends Table {
         }
         addIndex(new Index(name, create, drop));
       }
+    }
+    int autoIncrementValueIndex = createStatement.indexOf("AUTO_INCREMENT=") + 15;
+    if (autoIncrementValueIndex > 14) {
+      int endIndex = createStatement.indexOf(" ", autoIncrementValueIndex);
+      endIndex = endIndex != -1 ? endIndex : createStatement.indexOf(";", autoIncrementValueIndex);
+
+      autoIncrement = Integer.parseInt(createStatement.substring(autoIncrementValueIndex, endIndex));
     }
   }
 
@@ -201,7 +213,7 @@ public class MySQLTable extends Table {
       index = indexInfo.getValue();
       if (live.containsKey(indexInfo.getKey())) {
         if (!index.equals(live.get(indexInfo.getKey()))) {
-          appendSQLPart(sql, index.getDrop() + ", \n\t" + index.getCreateStatement());
+          appendSQLPart(sql, index.getDrop() + ",\n  " + index.getCreateStatement());
         }
       } else {
         appendSQLPart(sql, index.getCreateStatement());

@@ -121,7 +121,7 @@ public class MySQLConn extends SQLDbConn {
           }
           if (create.contains("PRIMARY KEY")) {
             if (hasFirstStep) {
-              firstStep.append(", \n");
+              firstStep.append(",\n ");
             }
             firstStep.append(" DROP PRIMARY KEY");
             // remove the PRIMARY KEY to make sure the appropriate SQL will be generated if
@@ -164,8 +164,8 @@ public class MySQLConn extends SQLDbConn {
         int startColumnName = columnDetails.indexOf("`");
         String columnName = columnDetails.substring(startColumnName + 1,
             columnDetails.indexOf("`", startColumnName + 1));
-        firstStep.append("\n MODIFY COLUMN " + columnDetails); // modify the column definition in order properly
-                                                               // generate SQL if there is a difference found
+        firstStep.append(" MODIFY COLUMN " + columnDetails); // modify the column definition in order properly
+                                                             // generate SQL if there is a difference found
         table.getColumns().put(columnName, new Column(columnName, columnDetails));
         break;
       }

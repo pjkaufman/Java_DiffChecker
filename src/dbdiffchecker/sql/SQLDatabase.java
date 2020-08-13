@@ -2,7 +2,6 @@ package dbdiffchecker.sql;
 
 import dbdiffchecker.Database;
 import dbdiffchecker.DatabaseDifferenceCheckerException;
-import dbdiffchecker.DbConn;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,13 +34,13 @@ public class SQLDatabase extends Database {
    * @throws DatabaseDifferenceCheckerException Error connecting or closing the
    *                                            database connection.
    */
-  public SQLDatabase(DbConn db, int type) throws DatabaseDifferenceCheckerException {
+  public SQLDatabase(SQLDbConn db, int type) throws DatabaseDifferenceCheckerException {
     db.establishDatabaseConnection();
-    views = ((SQLDbConn) db).getViews();
-    tables = ((SQLDbConn) db).getTableList();
+    views = db.getViews();
+    tables = db.getTableList();
     db.closeDatabaseConnection();
     // get SQL statements to drop all Primary Keys and remove all auot_increments
-    firstSteps = ((SQLDbConn) db).getFirstSteps();
+    firstSteps = db.getFirstSteps();
 
     if (type >= foreignKeysOn.length) {
       throw new DatabaseDifferenceCheckerException("Unable to determine the database implimentation being used.",
@@ -95,7 +94,6 @@ public class SQLDatabase extends Database {
     updateTables.putAll(tablesDiffs(((SQLDatabase) liveDatabase).getTables(), ((SQLDatabase) liveDatabase)));
     sql.addAll(0, ((SQLDatabase) liveDatabase).getFirstSteps());
     sql.addAll(updateTables(((SQLDatabase) liveDatabase).getTables(), updateTables));
-    sql.addAll(getFirstSteps());
     sql.addAll(updateViews(((SQLDatabase) liveDatabase).getViews()));
     if (!sql.isEmpty()) {
       sql.add(0, foreignKeysOn[type]);

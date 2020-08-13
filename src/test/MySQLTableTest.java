@@ -45,7 +45,7 @@ public class MySQLTableTest {
     name = "bloat";
     create1 = "CREATE TABLE `bloat` (\n  `bloatware` int(11) NOT NULL,\n  PRIMARY KEY (`bloatware`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     String charSet = "latin1";
-    String autoIncrement = "17";
+    int autoIncrement = 17;
     table1 = new MySQLTable(name, create1);
     String collation = "latin1_swedish_c";
     table1.setCollation(collation);
@@ -61,7 +61,7 @@ public class MySQLTableTest {
     assertEquals("The collation of the table should be equal to the one passed to setCollation", collation,
         table1.getCollation());
 
-    autoIncrement = "19";
+    autoIncrement = 19;
     table1.setAutoIncrement(autoIncrement);
 
     assertEquals("The autoIncrement value of the table should be equal to the one passed to setAutoIncrement",
@@ -141,11 +141,11 @@ public class MySQLTableTest {
 
   @Test
   public void testGenerateStatements() {
-    expectedSQL.add("ALTER TABLE `ci_sessions` CHARACTER SET latin1, \n\tDROP INDEX `delete`, "
-        + "\n\tADD COLUMN `id` varchar(40) NOT NULL, \n\tMODIFY COLUMN `ip_address`"
-        + " varchar(45) NOT NULL AFTER `id`, \n\tMODIFY COLUMN `timestamp` int(10) unsigned "
-        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`, \n\tDROP COLUMN `data2`, \n\tADD INDEX "
-        + "`add` (`id`), \n\tDROP INDEX `modify`, \n\tADD INDEX `modify` (`data`);");
+    expectedSQL.add("ALTER TABLE `ci_sessions` CHARACTER SET latin1,\n  DROP INDEX `delete`,"
+        + "\n  ADD COLUMN `id` varchar(40) NOT NULL,\n  MODIFY COLUMN `ip_address`"
+        + " varchar(45) NOT NULL AFTER `id`,\n  MODIFY COLUMN `timestamp` int(10) unsigned "
+        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`,\n  DROP COLUMN `data2`,\n  ADD INDEX "
+        + "`add` (`id`),\n  DROP INDEX `modify`,\n  ADD INDEX `modify` (`data`);");
 
     create1 = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  "
         + "`ip_address` varchar(45) NOT NULL,\n  `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\',\n  "
@@ -153,7 +153,7 @@ public class MySQLTableTest {
         + "KEY `leave` (`data`,`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin1";
     create2 = "CREATE TABLE `ci_sessions` (\n  `ip_address` varchar(40) NOT NULL,\n  "
         + "`timestamp` int(11) unsigned NOT NULL DEFAULT \'0\',\n  `data` blob NOT NULL,\n  "
-        + "`data2` blob NOT NULL,\n  UNIQUE KEY `delete` (`id`)\n,  KEY `modify` (`data`,`ip_address`),\n  "
+        + "`data2` blob NOT NULL,\n  UNIQUE KEY `delete` (`id`),\n  KEY `modify` (`data`,`ip_address`),\n  "
         + "KEY `leave` (`data`,`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=latin2";
 
     sql = createTablesAndGenerateSQL(TABLE_NAME_1, create1, TABLE_NAME_1, create2);
@@ -204,7 +204,7 @@ public class MySQLTableTest {
 
   @Test
   public void testMultipleIndexAdditionComparison() {
-    expectedSQL.add("ALTER TABLE `ci_sessions` ADD INDEX `add` (`id`), \n\tADD PRIMARY KEY (`id`,`ip_address`);");
+    expectedSQL.add("ALTER TABLE `ci_sessions` ADD INDEX `add` (`id`),\n  ADD PRIMARY KEY (`id`,`ip_address`);");
 
     create1 = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  "
         + "`ip_address` varchar(45) NOT NULL,\n  `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\',\n  "
@@ -232,7 +232,7 @@ public class MySQLTableTest {
 
   @Test
   public void testMultipleIndexDropComparison() {
-    expectedSQL.add("ALTER TABLE `ci_sessions` DROP INDEX `drop1`, \n\tDROP INDEX `drop2`;");
+    expectedSQL.add("ALTER TABLE `ci_sessions` DROP INDEX `drop1`,\n  DROP INDEX `drop2`;");
 
     create1 = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  "
         + "`ip_address` varchar(45) NOT NULL,\n  `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\',\n  "
@@ -246,7 +246,7 @@ public class MySQLTableTest {
 
   @Test
   public void testSingleIndexModificationComparison() {
-    expectedSQL.add("ALTER TABLE `ci_sessions` DROP INDEX `modify1`, \n\tADD UNIQUE INDEX `modify1` (`id`);");
+    expectedSQL.add("ALTER TABLE `ci_sessions` DROP INDEX `modify1`,\n  ADD UNIQUE INDEX `modify1` (`id`);");
 
     create1 = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  "
         + "`ip_address` varchar(45) NOT NULL,\n  `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\',\n  "
@@ -264,8 +264,8 @@ public class MySQLTableTest {
 
   @Test
   public void testMultipleIndexModificationComparison() {
-    expectedSQL.add("ALTER TABLE `ci_sessions` DROP INDEX `modify1`, \n\tADD UNIQUE INDEX `modify1` (`id`)"
-        + ", \n\tDROP INDEX `modify2`, \n\tADD INDEX `modify2` (`ip_address`);");
+    expectedSQL.add("ALTER TABLE `ci_sessions` DROP INDEX `modify1`,\n  ADD UNIQUE INDEX `modify1` (`id`)"
+        + ",\n  DROP INDEX `modify2`,\n  ADD INDEX `modify2` (`ip_address`);");
 
     create1 = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  "
         + "`ip_address` varchar(45) NOT NULL,\n  `timestamp` int(10) unsigned NOT NULL DEFAULT \'0\',\n  "
@@ -296,7 +296,7 @@ public class MySQLTableTest {
 
   @Test
   public void testMultipleColumnAdditionComparison() {
-    expectedSQL.add("ALTER TABLE `ci_sessions` ADD COLUMN `data2` blob NOT NULL AFTER `id`, \n\t"
+    expectedSQL.add("ALTER TABLE `ci_sessions` ADD COLUMN `data2` blob NOT NULL AFTER `id`,\n  "
         + "ADD COLUMN `id` varchar(40) NOT NULL AFTER `data`;");
 
     create1 = "CREATE TABLE `ci_sessions` (\n  `ip_address` varchar(45) NOT NULL,\n  "
@@ -324,7 +324,7 @@ public class MySQLTableTest {
 
   @Test
   public void testMultipleColumnDropComparison() {
-    expectedSQL.add("ALTER TABLE `ci_sessions` DROP COLUMN `data2`, \n\tDROP COLUMN `id`;");
+    expectedSQL.add("ALTER TABLE `ci_sessions` DROP COLUMN `data2`,\n  DROP COLUMN `id`;");
 
     create1 = "CREATE TABLE `ci_sessions` (\n  `ip_address` varchar(45) NOT NULL,\n  "
         + "`timestamp` int(10) unsigned NOT NULL DEFAULT \'0\',\n  `data` blob NOT NULL,\n  "
@@ -352,7 +352,7 @@ public class MySQLTableTest {
 
   @Test
   public void testMultipleColumnModificationComparison() {
-    expectedSQL.add("ALTER TABLE `ci_sessions` MODIFY COLUMN `data2` blob NOT NULL AFTER `timestamp`, \n\t"
+    expectedSQL.add("ALTER TABLE `ci_sessions` MODIFY COLUMN `data2` blob NOT NULL AFTER `timestamp`,\n  "
         + "MODIFY COLUMN `timestamp` int(10) unsigned NOT NULL DEFAULT '0' AFTER `id`;");
 
     create1 = "CREATE TABLE `ci_sessions` (\n  `id` varchar(45) NOT NULL,\n  "

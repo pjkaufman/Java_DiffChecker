@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `3` (
   KEY `dfjsalkldskj` (`new_table2col`,`new_table2col1`),
   SPATIAL KEY `index4` (`3col`),
   FULLTEXT KEY `index5` (`new_table2col2`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -224,15 +224,29 @@ CREATE TABLE IF NOT EXISTS `lab` (
   PRIMARY KEY (`idnew_table2`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `charsetcheck`
+--
+
+DROP TABLE IF EXISTS `charsetcheck`;
+CREATE TABLE IF NOT EXISTS `charsetcheck` (
+  `id` int(11) NOT NULL,
+  `name` varchar(45) DEFAULT NULL,
+  `default` varchar(45) DEFAULT NULL,
+  `expectedresults` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `droppedGroceries`
+-- Table structure for table `droppedgroceries`
 --
 
-DROP TABLE IF EXISTS `droppedGroceries`;
-CREATE TABLE IF NOT EXISTS `droppedGroceries` (
+DROP TABLE IF EXISTS `droppedgroceries`;
+CREATE TABLE IF NOT EXISTS `droppedgroceries` (
   `id` int(11) NOT NULL,
   `name` varchar(45) DEFAULT NULL,
   `brand` varchar(45) DEFAULT NULL,

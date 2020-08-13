@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import dbdiffchecker.DatabaseDifferenceCheckerException;
+import dbdiffchecker.sql.Column;
 import dbdiffchecker.sql.MySQLConn;
 import dbdiffchecker.sql.MySQLTable;
 import dbdiffchecker.sql.SQLDatabase;
@@ -23,7 +25,31 @@ import dbdiffchecker.sql.Table;
 import dbdiffchecker.sql.View;
 
 public class MySQLIntegrationTest {
+  private static boolean devIsSetup = false;
+  private static boolean liveIsSetup = false;
   private Connection con;
+  private List<String> expectedStatements = new ArrayList<>(Arrays.asList("SET FOREIGN_KEY_CHECKS=0;",
+      "ALTER TABLE `3` MODIFY COLUMN `idnew_table2` int(11) NOT NULL,\n  DROP PRIMARY KEY;",
+      "ALTER TABLE `charsetcheck` DROP PRIMARY KEY;",
+      "CREATE TABLE `new_table2` (\n  `idnew_table2` int(11) NOT NULL,\n  `new_table2col` varchar(45) DEFAULT NULL,\n"
+          + "  `new_table2col1` varchar(45) DEFAULT NULL,\n  `new_table2col2` varchar(45) DEFAULT NULL,\n"
+          + "  PRIMARY KEY (`idnew_table2`)\n) ENGINE=MyISAM DEFAULT CHARSET=latin1;",
+      "CREATE TABLE `new_table` (\n  `idnew_table` int(11) NOT NULL,\n  `new_tablecol` varchar(45) DEFAULT NULL,\n"
+          + "  `new_tablecol1` varchar(45) DEFAULT NULL,\n  PRIMARY KEY (`idnew_table`)\n"
+          + ") ENGINE=MyISAM DEFAULT CHARSET=latin1;",
+      "DROP TABLE `planes`;", "DROP TABLE `droppedgroceries`;",
+      "ALTER TABLE `3` MODIFY COLUMN `idnew_table2` int(11) NOT NULL AUTO_INCREMENT,"
+          + "  ADD PRIMARY KEY (`idnew_table2`),\n  AUTO_INCREMENT=1000;",
+      "ALTER TABLE `charsetcheck` CHARACTER SET latin1,\n  ADD PRIMARY KEY (`id`);", "DROP VIEW `view1`;",
+      "DROP VIEW `view2`;", "DROP VIEW `view3`;",
+      "CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view1`"
+          + " AS select `3`.`idnew_table2` AS `idnew_table2`,`3`.`new_table2col` AS `new_table2col`,"
+          + "`3`.`new_table2col1` AS `new_table2col1`,`3`.`new_table2col2` AS `new_table2col2`,"
+          + "`3`.`3col` AS `3col`,`3`.`3col1` AS `3col1` from `3`;",
+      "CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view3`"
+          + " AS select `afa`.`idnew_table2` AS `idnew_table2`,`afa`.`new_table2col` AS `new_table2col`,"
+          + "`afa`.`new_table2col1` AS `new_table2col1`,`afa`.`new_table2col2` AS `new_table2col2` from `afa`;",
+      "SET FOREIGN_KEY_CHECKS=1;"));
   private Map<String, Table> devTableList = new HashMap<>();
   private Map<String, View> devViewList = new HashMap<>();
   private Map<String, Table> liveTableList = new HashMap<>();
@@ -36,6 +62,8 @@ public class MySQLIntegrationTest {
       String statement = "";
       String lineContents;
       String name;
+      Table newTable;
+      View newView;
       while (fileInput.hasNext()) {
         lineContents = fileInput.nextLine();
         if (!lineContents.startsWith("--") && !lineContents.trim().isEmpty()) {
@@ -45,19 +73,30 @@ public class MySQLIntegrationTest {
             statements.add(statement);
             if (statement.contains("CREATE TABLE")) {
               name = statement.substring(28, statement.indexOf("`", 28));
+              newTable = new MySQLTable(name, statement.replace(" IF NOT EXISTS", ""));
               if (isLive) {
-                liveTableList.put(name, new MySQLTable(name, statement.replace(" IF NOT EXISTS", "")));
+                if (statement.contains("PRIMARY KEY")) {
+                  newTable.getIndices().remove("PRIMARY");
+                }
+                if (statement.contains("AUTO_INCREMENT")) {
+                  removeAutoIncrement(statement, newTable);
+                }
+                if (statement.contains("FOREIGN KEY")) {
+                  dropAllForeignKeys(statement, newTable);
+                }
+                liveTableList.put(name, newTable);
               } else {
-                devTableList.put(name, new MySQLTable(name, statement.replace(" IF NOT EXISTS", "")));
+                devTableList.put(name, newTable);
               }
             } else if (statement.contains("DEFINER VIEW")) {
               int startIndex = statement.indexOf("DEFINER VIEW `") + 14;
               name = statement.substring(startIndex, statement.indexOf("`", startIndex));
+              newView = new View(name, statement.replace("  ", " ").trim());
               if (isLive) {
-                liveViewList.put(name, new View(name, statement.replace("  ", " ").trim()));
+                liveViewList.put(name, newView);
                 liveTableList.remove(name);
               } else {
-                devViewList.put(name, new View(name, statement.replace("  ", " ").trim()));
+                devViewList.put(name, newView);
                 devTableList.remove(name);
               }
             }
@@ -91,45 +130,94 @@ public class MySQLIntegrationTest {
 
   private SQLDatabase devDatabaseSetup() {
     List<String> createDevDatabaseStatements = readInFile("intTestDev.sql", false);
-    connectToDB();
-    for (String statement : createDevDatabaseStatements) {
-      try {
-        con.createStatement().execute(statement);
-      } catch (Exception err) {
-        Assert.fail(err.toString());
+    if (!devIsSetup) {
+      connectToDB();
+      for (String statement : createDevDatabaseStatements) {
+        try {
+          con.createStatement().execute(statement);
+        } catch (Exception err) {
+          Assert.fail(err.toString());
+        }
       }
+
+      closeDB();
+      devIsSetup = true;
     }
 
-    closeDB();
     try {
-      MySQLConn devConn = new MySQLConn("root", "", "localhost", "3308", "intTestDev", true);
+      MySQLConn devConn = new MySQLConn("root", "", "localhost", "3308", "intTestDev", false);
+
       return new SQLDatabase(devConn, 0);
     } catch (DatabaseDifferenceCheckerException err) {
       Assert.fail(err.toString());
     }
-    return null;
+    return new SQLDatabase();
   }
 
   private SQLDatabase liveDatabaseSetup() {
     List<String> createLiveDatabaseStatements = readInFile("intTestLive.sql", true);
     connectToDB();
-
-    for (String statement : createLiveDatabaseStatements) {
-      try {
-        con.createStatement().execute(statement);
-      } catch (Exception err) {
-        Assert.fail(err.toString());
+    if (!liveIsSetup) {
+      connectToDB();
+      for (String statement : createLiveDatabaseStatements) {
+        try {
+          con.createStatement().execute(statement);
+        } catch (Exception err) {
+          Assert.fail(err.toString());
+        }
       }
+
+      closeDB();
+      liveIsSetup = true;
     }
-    closeDB();
+
     try {
-      MySQLConn liveConn = new MySQLConn("root", "", "localhost", "3308", "intTestLive", false);
+      MySQLConn liveConn = new MySQLConn("root", "", "localhost", "3308", "intTestLive", true);
+
       return new SQLDatabase(liveConn, 0);
     } catch (DatabaseDifferenceCheckerException err) {
       Assert.fail(err.toString());
     }
 
-    return null;
+    return new SQLDatabase();
+  }
+
+  private void removeAutoIncrement(String createStatement, Table table) {
+    int endColumn = createStatement.indexOf("AUTO_INCREMENT");
+    int startColumn = createStatement.indexOf("\n");
+    int currentPos = -1;
+    while (startColumn != -1) {
+      currentPos = createStatement.indexOf("\n", startColumn + 1);
+      if (currentPos < endColumn) {
+        startColumn = currentPos;
+      } else {
+        String columnDetails = createStatement.substring(startColumn + 1, endColumn).trim();
+        int startColumnName = columnDetails.indexOf("`");
+        String columnName = columnDetails.substring(startColumnName + 1,
+            columnDetails.indexOf("`", startColumnName + 1));
+        table.getColumns().put(columnName, new Column(columnName, columnDetails));
+        break;
+      }
+    }
+  }
+
+  private void dropAllForeignKeys(String createStatement, Table table) {
+    int start;
+    boolean firstTime = true;
+    StringBuilder foreignKeyDrop = new StringBuilder("ALTER TABLE `" + table.getName() + "`");
+    String indexName;
+    String toSearch = createStatement;
+    do {
+      start = toSearch.indexOf("CONSTRAINT `", 0) + 12;
+      indexName = toSearch.substring(start, toSearch.indexOf("`", start));
+      if (!firstTime) {
+        foreignKeyDrop.append("\n,");
+      }
+      foreignKeyDrop.append(" DROP FOREIGN KEY `" + indexName + "`");
+      table.getIndices().remove(indexName);
+      firstTime = false;
+      toSearch = toSearch.substring(toSearch.indexOf("FOREIGN KEY") + 11);
+    } while (toSearch.contains("FOREIGN KEY"));
   }
 
   @Test
@@ -196,8 +284,16 @@ public class MySQLIntegrationTest {
     }
   }
 
-  // @Test
-  // public void testCompleteComparison() {
+  @Test
+  public void testCompleteComparisonRegular() {
+    List<String> generatedStatments;
+    SQLDatabase liveDb = liveDatabaseSetup();
+    SQLDatabase devDb = devDatabaseSetup();
 
-  // }
+    generatedStatments = devDb.compare(liveDb);
+    for (int i = 0; i < generatedStatments.size(); i++) {
+      assertEquals(expectedStatements.get(i), generatedStatments.get(i));
+    }
+    assertEquals("All of the expected statements should have been generated", expectedStatements, generatedStatments);
+  }
 }

@@ -22,7 +22,7 @@ public class SQLiteTableTest {
   private static final String CREATE_STATEMENT_5 = String.format(
       "CREATE TABLE %s (hulk STRING (12), Thor INTEGER (67) DEFAULT (12), truthtable STRING (12))", TABLE_NAME_1);
   private static final String INSERT_STATEMENT = String
-      .format("INSERT INTO %s (hulk)\n\tSELECT hulk\n\tFROM temp_table;", TABLE_NAME_1);
+      .format("INSERT INTO %s (hulk)\n  SELECT hulk\n  FROM temp_table;", TABLE_NAME_1);
   private SQLiteTable table1;
   private List<String> expectedSQL = new ArrayList<>();
   private List<String> sql;
@@ -212,7 +212,7 @@ public class SQLiteTableTest {
 
   @Test
   public void testRecreateTableDueToModifyColumns() {
-    String insert = "INSERT INTO helper (truthtable,hulk)\n\tSELECT truthtable,hulk\n\tFROM temp_table;";
+    String insert = "INSERT INTO helper (truthtable,hulk)\n  SELECT truthtable,hulk\n  FROM temp_table;";
     String create = "CREATE TABLE helper (hulk STRING (11), truthtable STRING (12))";
     String create2 = "CREATE TABLE helper (hulk STRING (12), truthtable INTEGER (67) DEFAULT (12))";
     setUpExpectedSQLForSpecialCases();
@@ -229,7 +229,7 @@ public class SQLiteTableTest {
   public void testRecreateTableDueToAddPrimaryKey() {
     expectedSQL.add("ALTER TABLE bloat RENAME TO temp_table;");
     expectedSQL.add("CREATE TABLE bloat (Thor INTEGER (67) DEFAULT (12), ache BLOB (66) PRIMARY KEY);");
-    expectedSQL.add("INSERT INTO bloat (Thor,ache)\n\tSELECT Thor,ache\n\tFROM temp_table;");
+    expectedSQL.add("INSERT INTO bloat (Thor,ache)\n  SELECT Thor,ache\n  FROM temp_table;");
     expectedSQL.add("DROP TABLE temp_table;");
 
     String create = "CREATE TABLE bloat (Thor INTEGER (67) DEFAULT (12), ache BLOB (66) PRIMARY KEY)";
@@ -244,7 +244,7 @@ public class SQLiteTableTest {
   public void testRecreateTableDueToModifyPrimaryKey() {
     expectedSQL.add("ALTER TABLE bloat RENAME TO temp_table;");
     expectedSQL.add("CREATE TABLE bloat (Thor INTEGER (67) DEFAULT (12), ache BLOB (66) PRIMARY KEY);");
-    expectedSQL.add("INSERT INTO bloat (Thor,ache)\n\tSELECT Thor,ache\n\tFROM temp_table;");
+    expectedSQL.add("INSERT INTO bloat (Thor,ache)\n  SELECT Thor,ache\n  FROM temp_table;");
     expectedSQL.add("DROP TABLE temp_table;");
 
     String create = "CREATE TABLE bloat (Thor INTEGER (67) DEFAULT (12), ache BLOB (66) PRIMARY KEY)";
@@ -259,7 +259,7 @@ public class SQLiteTableTest {
   public void testRecreateTableDueToDropPrimaryKey() {
     expectedSQL.add("ALTER TABLE bloat RENAME TO temp_table;");
     expectedSQL.add("CREATE TABLE bloat (Thor INTEGER (67) DEFAULT (12), ache BLOB (66));");
-    expectedSQL.add("INSERT INTO bloat (Thor,ache)\n\tSELECT Thor,ache\n\tFROM temp_table;");
+    expectedSQL.add("INSERT INTO bloat (Thor,ache)\n  SELECT Thor,ache\n  FROM temp_table;");
     expectedSQL.add("DROP TABLE temp_table;");
 
     String create = "CREATE TABLE bloat (Thor INTEGER (67) DEFAULT (12), ache BLOB (66) PRIMARY KEY)";

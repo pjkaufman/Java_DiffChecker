@@ -92,11 +92,11 @@ public class FileHandlerTest {
 
   @Test
   public void testSerializationMySQL() {
-    expectedStatements.add("ALTER TABLE `ci_sessions` CHARACTER SET latin1, \n\tDROP INDEX `delete`, "
-        + "\n\tADD COLUMN `id` varchar(40) NOT NULL, \n\tMODIFY COLUMN `ip_address`"
-        + " varchar(45) NOT NULL AFTER `id`, \n\tMODIFY COLUMN `timestamp` int(10) unsigned "
-        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`, \n\tDROP COLUMN `data2`, \n\tADD INDEX "
-        + "`add` (`id`), \n\tDROP INDEX `modify`, \n\tADD INDEX `modify` (`data`);");
+    expectedStatements.add("ALTER TABLE `ci_sessions` CHARACTER SET latin1,\n  DROP INDEX `delete`,"
+        + "\n  ADD COLUMN `id` varchar(40) NOT NULL,\n  MODIFY COLUMN `ip_address`"
+        + " varchar(45) NOT NULL AFTER `id`,\n  MODIFY COLUMN `timestamp` int(10) unsigned "
+        + "NOT NULL DEFAULT \'0\' AFTER `ip_address`,\n  DROP COLUMN `data2`,\n  ADD INDEX "
+        + "`add` (`id`),\n  DROP INDEX `modify`,\n  ADD INDEX `modify` (`data`);");
 
     name = "ci_sessions";
     create = "CREATE TABLE `ci_sessions` (\n  `id` varchar(40) NOT NULL,\n  "
