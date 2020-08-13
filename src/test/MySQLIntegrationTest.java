@@ -38,7 +38,7 @@ public class MySQLIntegrationTest {
           + "  `new_tablecol1` varchar(45) DEFAULT NULL,\n  PRIMARY KEY (`idnew_table`)\n"
           + ") ENGINE=MyISAM DEFAULT CHARSET=latin1;",
       "DROP TABLE `planes`;", "DROP TABLE `droppedgroceries`;",
-      "ALTER TABLE `3` MODIFY COLUMN `idnew_table2` int(11) NOT NULL AUTO_INCREMENT,"
+      "ALTER TABLE `3` MODIFY COLUMN `idnew_table2` int(11) NOT NULL AUTO_INCREMENT,\n"
           + "  ADD PRIMARY KEY (`idnew_table2`),\n  AUTO_INCREMENT=1000;",
       "ALTER TABLE `charsetcheck` CHARACTER SET latin1,\n  ADD PRIMARY KEY (`id`);", "DROP VIEW `view1`;",
       "DROP VIEW `view2`;", "DROP VIEW `view3`;",

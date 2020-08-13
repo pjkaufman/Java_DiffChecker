@@ -17,8 +17,8 @@ public class TestRunner {
 
   public static void main(String[] args) {
 
-    // System.out.println("Unit Tests:");
-    // runTestSuite(UnitTestSuite.class);
+    System.out.println("Unit Tests:");
+    runTestSuite(UnitTestSuite.class);
 
     System.out.println("Integration Tests:");
     runTestSuite(IntegrationTestSuite.class);
