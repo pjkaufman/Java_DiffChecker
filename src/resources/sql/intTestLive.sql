@@ -33,6 +33,27 @@ CREATE TABLE IF NOT EXISTS `3` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `compositemodify`
+--
+
+DROP TABLE IF EXISTS `compositemodify`;
+CREATE TABLE IF NOT EXISTS `compositemodify` (
+  `idnew_table2` int(11) NOT NULL AUTO_INCREMENT,
+  `new_table2col` varchar(45) DEFAULT NULL,
+  `new_table2col1` varchar(45) DEFAULT NULL,
+  `new_table2col2` varchar(45) DEFAULT 'b',
+  `3col` geometry NOT NULL,
+  `3col1` geometry NOT NULL,
+  PRIMARY KEY (`idnew_table2`),
+  UNIQUE KEY `index3` (`new_table2col2`,`new_table2col1`),
+  KEY `dfjsalkldskj` (`new_table2col`,`new_table2col1`),
+  SPATIAL KEY `index4` (`3col`),
+  FULLTEXT KEY `index5` (`new_table2col2`)
+) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `af`
 --
 
@@ -41,7 +62,9 @@ CREATE TABLE IF NOT EXISTS `af` (
   `idnew_table2` int(11) NOT NULL,
   `new_table2col` varchar(45) DEFAULT NULL,
   `new_table2col1` varchar(45) DEFAULT NULL,
-  `new_table2col2` varchar(45) DEFAULT NULL
+  `new_table2col2` varchar(45) DEFAULT NULL,
+  `dropme` varchar(45) DEFAULT NULL,
+  UNIQUE KEY `common_index` (`new_table2col2`,`new_table2col1`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -71,6 +94,8 @@ CREATE TABLE IF NOT EXISTS `d` (
   `new_table2col` varchar(45) DEFAULT NULL,
   `new_table2col1` varchar(45) DEFAULT NULL,
   `new_table2col2` varchar(45) DEFAULT NULL,
+  `dropme2` varchar(45) DEFAULT NULL,
+  UNIQUE KEY `drop_index` (`dropme2`),
   PRIMARY KEY (`idnew_table2`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
@@ -160,8 +185,7 @@ CREATE TABLE IF NOT EXISTS `dfasdfsa` (
   `new_table2fdascol2` varchar(45) DEFAULT NULL,
   `new_table2adfscol` varchar(45) DEFAULT NULL,
   `new_table2coldf1` varchar(45) DEFAULT NULL,
-  `new_table2col2aasfd` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`idnew_table2`)
+  `new_table2col2aasfd` varchar(45) DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -202,11 +226,12 @@ CREATE TABLE IF NOT EXISTS `dfasdfsafff` (
 
 DROP TABLE IF EXISTS `l`;
 CREATE TABLE IF NOT EXISTS `l` (
-  `idnew_table2` int(11) NOT NULL,
+  `id1` int(11) NOT NULL,
+  `id2` int(11) NOT NULL,
   `new_table2col` varchar(45) DEFAULT NULL,
   `new_table2col1` varchar(45) DEFAULT NULL,
   `new_table2col2` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`idnew_table2`)
+  PRIMARY KEY (`id2`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -218,10 +243,28 @@ CREATE TABLE IF NOT EXISTS `l` (
 DROP TABLE IF EXISTS `lab`;
 CREATE TABLE IF NOT EXISTS `lab` (
   `idnew_table2` int(11) NOT NULL,
+  `idnew_table3` int(11) NOT NULL,
   `new_table2col` varchar(45) DEFAULT NULL,
   `new_table2col1` varchar(45) DEFAULT NULL,
   `new_table2col2` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`idnew_table2`)
+  PRIMARY KEY (`idnew_table2`,`idnew_table3`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `compositeprimarymodification`
+--
+
+DROP TABLE IF EXISTS `compositeprimarymodification`;
+CREATE TABLE IF NOT EXISTS `compositeprimarymodification` (
+  `idnew_table2` int(11) NOT NULL,
+  `part2` int(8) NOT NULL,
+  `part3` int(5) NOT NULL,
+  `new_table2col` varchar(45) DEFAULT NULL,
+  `new_table2col1` varchar(45) DEFAULT NULL,
+  `new_table2col2` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`idnew_table2`,`part3`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
