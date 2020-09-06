@@ -80,7 +80,40 @@ CREATE TABLE IF NOT EXISTS `afa` (
   `new_table2col1` varchar(45) DEFAULT NULL,
   `new_table2col2` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`idnew_table2`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `fkchanges`
+--
+
+DROP TABLE IF EXISTS `fkchanges`;
+CREATE TABLE IF NOT EXISTS `fkchanges` (
+  `id` int(11) NOT NULL,
+  `id2` int(11) NOT NULL,
+  `id3` int(11) NOT NULL,
+  `id4` int(11) NOT NULL,
+  `id5` int(11) NOT NULL,
+  `part2` int(8) NOT NULL,
+  `part3` int(5) NOT NULL,
+  FOREIGN KEY (`id3`) REFERENCES `3`(`idnew_table2`),
+  FOREIGN KEY (`id5`,`part3`) REFERENCES `compositeprimarymodification`(`idnew_table2`,`part3`),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `fkignore`
+--
+
+DROP TABLE IF EXISTS `fkignore`;
+CREATE TABLE IF NOT EXISTS `fkignore` (
+  `id` int(11) NOT NULL,
+  `idnew_table2` int(11) NOT NULL,
+  FOREIGN KEY (`idnew_table2`) REFERENCES `afa`(`idnew_table2`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 

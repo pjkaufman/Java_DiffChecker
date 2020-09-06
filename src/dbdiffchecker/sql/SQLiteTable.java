@@ -13,6 +13,7 @@ import java.util.Map;
 public class SQLiteTable extends Table {
   private static final long serialVersionUID = 1L;
   private static final String FOREIGN_KEY_IDENTIFIER = "FOREIGN KEY";
+  private static final String MULTIPLE_CREATE_INDICATOR = "CREATE";
   private boolean stopCompare = false;
   private int foreignKeyCount = 0;
 
@@ -40,40 +41,47 @@ public class SQLiteTable extends Table {
     stopCompare = false;
     isFirstStatement = true;
     List<String> sql = new ArrayList<>();
-    String sql2 = "";
+    List<String> sqlBody = new ArrayList<>();
     // if there are a different amount of foreing keys the table needs to be
     // recreated
     if (foreignKeyCount != ((SQLiteTable) t1).foreignKeyCount) {
       sql.addAll(recreateTable(t1.getColumns()));
+
       return sql;
     }
-    sql2 += dropIndices(indices, t1.getIndices());
+    sqlBody.addAll(dropIndices(indices, t1.getIndices()));
     // if a foreign key is to be dropped, recreate the table
     if (stopCompare) {
       sql.addAll(recreateTable(t1.getColumns()));
+
       return sql;
     }
-    sql2 += otherCols(columns, t1.getColumns());
+    sqlBody.addAll(otherCols(columns, t1.getColumns()));
     // if a column needs to be modified, recreate the table
     if (stopCompare) {
       sql.addAll(recreateTable(t1.getColumns()));
+
       return sql;
     }
-    sql2 += dropCols(columns, t1.getColumns());
+    sqlBody.addAll(dropCols(columns, t1.getColumns()));
     // if a column needs to be dropped, recreate the table
     if (stopCompare) {
       sql.addAll(recreateTable(t1.getColumns()));
+
       return sql;
     }
-    sql2 += otherIndices(indices, t1.getIndices());
+    sqlBody.addAll(otherIndices(indices, t1.getIndices()));
     // if a foreign key needs to be added or modified, recreate the table
     if (stopCompare) {
       sql.addAll(recreateTable(t1.getColumns()));
+
       return sql;
     }
-    if (!isFirstStatement) {
-      sql.add(sql2);
+
+    if (!sqlBody.isEmpty()) {
+      sql.add(String.join(newLineCreation, sqlBody));
     }
+
     return sql;
   }
 
@@ -199,74 +207,83 @@ public class SQLiteTable extends Table {
   }
 
   @Override
-  protected String dropCols(Map<String, Column> cols1, Map<String, Column> cols2) {
+  protected List<String> dropCols(Map<String, Column> cols1, Map<String, Column> cols2) {
+    List<String> emptyList = new ArrayList<>();
+
     for (String columnName : cols2.keySet()) {
       if (!cols1.containsKey(columnName)) {
         stopCompare = true;
-        return "";
+        break;
       }
     }
-    return "";
+
+    return emptyList;
   }
 
   @Override
-  protected String otherCols(Map<String, Column> cols1, Map<String, Column> cols2) {
-    StringBuilder sql = new StringBuilder();
+  protected List<String> otherCols(Map<String, Column> cols1, Map<String, Column> cols2) {
+    List<String> sql = new ArrayList<>();
     Column col;
     Column col2;
+
     for (Map.Entry<String, Column> columnInfo : cols1.entrySet()) {
       col = columnInfo.getValue();
       if (!cols2.containsKey(col.getName())) {
-        appendSQLPart(sql, "ALTER TABLE " + name + " ADD COLUMN " + col.getName() + " " + col.getDetails() + ";");
+        sql.add("ALTER TABLE " + name + " ADD COLUMN " + col.getName() + " " + col.getDetails() + ";");
       } else {
         col2 = cols2.get(col.getName());
         if (col.getName().equals(col2.getName()) && !col.getDetails().equals(col2.getDetails())) {
           stopCompare = true;
-          return sql.toString();
+          break;
         }
       }
     }
-    return sql.toString();
+
+    return sql;
   }
 
   @Override
-  protected String dropIndices(Map<String, Index> dev, Map<String, Index> live) {
-    StringBuilder sql = new StringBuilder();
+  protected List<String> dropIndices(Map<String, Index> dev, Map<String, Index> live) {
+    List<String> sql = new ArrayList<>();
+
     for (Map.Entry<String, Index> indexInfo : live.entrySet()) {
       if (!dev.containsKey(indexInfo.getKey())) {
         if (indexInfo.getValue().getCreateStatement().contains(FOREIGN_KEY_IDENTIFIER)) {
           stopCompare = true;
-          return sql.toString();
+          break;
         }
-        appendSQLPart(sql, indexInfo.getValue().getDrop());
+
+        sql.add(indexInfo.getValue().getDrop());
       }
     }
-    return sql.toString();
+
+    return sql;
   }
 
   @Override
-  protected String otherIndices(Map<String, Index> dev, Map<String, Index> live) {
-    StringBuilder sql = new StringBuilder();
+  protected List<String> otherIndices(Map<String, Index> dev, Map<String, Index> live) {
+    List<String> sql = new ArrayList<>();
     Index index;
+
     for (Map.Entry<String, Index> indexInfo : dev.entrySet()) {
       index = indexInfo.getValue();
       if (live.containsKey(indexInfo.getKey())) {
         if (!index.equals(live.get(indexInfo.getKey()))) {
           if (live.get(indexInfo.getKey()).getCreateStatement().contains(FOREIGN_KEY_IDENTIFIER)) {
             stopCompare = true;
-            return sql.toString();
+            break;
           }
-          appendSQLPart(sql, live.get(indexInfo.getKey()).getDrop() + "\n" + index.getCreateStatement() + ";");
+          sql.add(live.get(indexInfo.getKey()).getDrop() + newLineCreation + index.getCreateStatement() + ";");
         }
       } else {
         if (index.getCreateStatement().contains(FOREIGN_KEY_IDENTIFIER)) {
           stopCompare = true;
-          return sql.toString();
+          break;
         }
-        appendSQLPart(sql, index.getCreateStatement() + ";");
+        sql.add(index.getCreateStatement() + ";");
       }
     }
-    return sql.toString();
+    return sql;
   }
 
   /**
@@ -280,7 +297,7 @@ public class SQLiteTable extends Table {
    */
   private List<String> recreateTable(Map<String, Column> live) {
     StringBuilder commonColumns = new StringBuilder();
-    boolean hasExtraParts = createStatement.lastIndexOf("CREATE") > 6;
+    boolean hasExtraParts = createStatement.lastIndexOf(MULTIPLE_CREATE_INDICATOR) > 6;
     List<String> sql = new ArrayList<>();
     for (String columnName : live.keySet()) {
       if (columns.containsKey(columnName)) {
@@ -295,12 +312,12 @@ public class SQLiteTable extends Table {
       if (!hasExtraParts) {
         sql.add(createStatement);
       } else {
-        sql.add(createStatement.substring(0, createStatement.indexOf("CREATE", 6) - 1));
+        sql.add(createStatement.substring(0, createStatement.indexOf(MULTIPLE_CREATE_INDICATOR, 6) - 1));
       }
       sql.add("INSERT INTO " + name + " (" + commonColumns + ")\n  SELECT " + commonColumns + "\n  FROM temp_table;");
       sql.add("DROP TABLE temp_table;");
       if (hasExtraParts) {
-        sql.add(createStatement.substring(createStatement.indexOf("CREATE", 6)));
+        sql.add(createStatement.substring(createStatement.indexOf(MULTIPLE_CREATE_INDICATOR, 6)));
       }
     } else {
       sql.add(drop);

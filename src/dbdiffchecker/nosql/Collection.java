@@ -67,6 +67,7 @@ public class Collection implements Serializable {
       Collection coll = (Collection) obj;
       return name.equals(coll.getName()) && isCapped == coll.isCapped() && size == coll.getSize();
     }
+
     return false;
   }
 }

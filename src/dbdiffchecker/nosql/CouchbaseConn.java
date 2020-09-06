@@ -1,20 +1,22 @@
 package dbdiffchecker.nosql;
 
+import java.util.Map;
+
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
-import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlParams;
-import com.couchbase.client.java.query.N1qlQueryRow;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
+import com.couchbase.client.java.query.N1qlQueryRow;
 import com.couchbase.client.java.query.dsl.element.IndexElement;
 import com.couchbase.client.java.query.util.IndexInfo;
+
 import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
 import dbdiffchecker.sql.Index;
-import java.util.Map;
 
 /**
  * Establishes a connection with a Couchbase bucket based on the password,
@@ -160,7 +162,8 @@ public class CouchbaseConn extends DbConn {
    * Tests to see if the bucket can be queried immediately or if a primary key
    * needs to be added first. It will add a primary key if it is needed.
    *
-   * @throws DatabaseDifferenceCheckerException Error trying to connect to the bucket.
+   * @throws DatabaseDifferenceCheckerException Error trying to connect to the
+   *                                            bucket.
    */
   @Override
   public void testConnection() throws DatabaseDifferenceCheckerException {

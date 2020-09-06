@@ -1,13 +1,14 @@
 package dbdiffchecker.sql;
 
-import dbdiffchecker.DatabaseDifferenceCheckerException;
-import dbdiffchecker.DbConn;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import dbdiffchecker.DatabaseDifferenceCheckerException;
+import dbdiffchecker.DbConn;
 
 /**
  * Establishes a connection with an SQL database and runs the necessary SQL

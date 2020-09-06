@@ -1,12 +1,13 @@
 package dbdiffchecker.nosql;
 
-import dbdiffchecker.Database;
-import dbdiffchecker.DatabaseDifferenceCheckerException;
-import dbdiffchecker.DbConn;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
+
+import dbdiffchecker.Database;
+import dbdiffchecker.DatabaseDifferenceCheckerException;
+import dbdiffchecker.DbConn;
 
 /**
  * Models a Mongo Database by keeping track of all collections.
@@ -24,7 +25,8 @@ public class MongoDB extends Database {
    * in order to get a list of collections.
    *
    * @param conn The connection to the Mongo database.
-   * @throws DatabaseDifferenceCheckerException Error connecting to the Mongo database.
+   * @throws DatabaseDifferenceCheckerException Error connecting to the Mongo
+   *                                            database.
    */
   public MongoDB(DbConn conn) throws DatabaseDifferenceCheckerException {
     MongoConn connection = (MongoConn) conn;

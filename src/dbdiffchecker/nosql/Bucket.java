@@ -1,13 +1,14 @@
 package dbdiffchecker.nosql;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import dbdiffchecker.Database;
 import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
 import dbdiffchecker.sql.Index;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
 
 /**
  * Models a Couchbase bucket by keeping track of all indices and documents.

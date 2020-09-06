@@ -1,57 +1,60 @@
 package dbdiffchecker;
 
-import dbdiffchecker.sql.SQLDatabase;
-import dbdiffchecker.sql.MySQLConn;
-import dbdiffchecker.sql.SQLiteConn;
-import dbdiffchecker.nosql.Bucket;
-import dbdiffchecker.nosql.CouchbaseConn;
-import dbdiffchecker.nosql.MongoConn;
-import dbdiffchecker.nosql.MongoDB;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.text.JTextComponent;
-import javax.swing.JProgressBar;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.BorderFactory;
-import javax.swing.event.ChangeEvent;
-import javax.swing.SwingWorker;
-import javax.swing.border.TitledBorder;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.WindowConstants;
-import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Font;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.JScrollPane;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.DocumentEvent;
 import javax.swing.SwingUtilities;
-import java.awt.GridLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
+import javax.swing.SwingWorker;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.WindowConstants;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.JTextComponent;
+
+import dbdiffchecker.nosql.Bucket;
+import dbdiffchecker.nosql.CouchbaseConn;
+import dbdiffchecker.nosql.MongoConn;
+import dbdiffchecker.nosql.MongoDB;
+import dbdiffchecker.sql.MySQLConn;
+import dbdiffchecker.sql.SQLDatabase;
+import dbdiffchecker.sql.SQLDbConn;
+import dbdiffchecker.sql.SQLiteConn;
 
 /**
  * The GUI of the application which has several tabs.
@@ -385,9 +388,9 @@ public class DBDiffCheckerGUI extends JFrame {
    */
   private Database createDatabase(DbConn databaseConn) throws DatabaseDifferenceCheckerException {
     if (DatabaseType.MYSQL == selectedTab.selectedDatabaseType) {
-      return new SQLDatabase(databaseConn, 0);
+      return new SQLDatabase((SQLDbConn) databaseConn, 0);
     } else if (DatabaseType.SQLITE == selectedTab.selectedDatabaseType) {
-      return new SQLDatabase(databaseConn, 1);
+      return new SQLDatabase((SQLDbConn) databaseConn, 1);
     } else if (DatabaseType.COUCHBASE == selectedTab.selectedDatabaseType) {
       return new Bucket(databaseConn);
     } else {
@@ -927,7 +930,8 @@ public class DBDiffCheckerGUI extends JFrame {
       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException
         | IllegalAccessException e) {
-      LOGGER.log(Level.INFO, "Unable to get the system\'s look and feel.");
+
+      LOGGER.log(Level.WARNING, "Unable to get the system\'s look and feel: {0}", e.toString());
     }
     new DBDiffCheckerGUI();
   }

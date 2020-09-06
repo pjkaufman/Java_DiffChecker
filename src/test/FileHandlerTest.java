@@ -2,21 +2,24 @@ package test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import org.junit.Before;
-import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
-import dbdiffchecker.sql.SQLDatabase;
-import dbdiffchecker.FileHandler;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import dbdiffchecker.Database;
 import dbdiffchecker.DatabaseDifferenceCheckerException;
-import dbdiffchecker.sql.Index;
-import dbdiffchecker.sql.Table;
-import dbdiffchecker.sql.MySQLTable;
-import dbdiffchecker.sql.SQLiteTable;
+import dbdiffchecker.FileHandler;
 import dbdiffchecker.nosql.Bucket;
-import dbdiffchecker.nosql.MongoDB;
 import dbdiffchecker.nosql.Collection;
+import dbdiffchecker.nosql.MongoDB;
+import dbdiffchecker.sql.Index;
+import dbdiffchecker.sql.MySQLTable;
+import dbdiffchecker.sql.SQLDatabase;
+import dbdiffchecker.sql.SQLiteTable;
+import dbdiffchecker.sql.Table;
 
 public class FileHandlerTest {
   private Table table1;

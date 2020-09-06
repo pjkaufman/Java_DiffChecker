@@ -17,8 +17,8 @@ public class TestRunner {
 
   public static void main(String[] args) {
 
-    System.out.println("Unit Tests:");
-    runTestSuite(UnitTestSuite.class);
+    // System.out.println("Unit Tests:");
+    // runTestSuite(UnitTestSuite.class);
 
     System.out.println("Integration Tests:");
     runTestSuite(IntegrationTestSuite.class);
@@ -26,7 +26,7 @@ public class TestRunner {
     System.out.printf("Result: %s tests: %d fails: %d in %dms %n", result, numTests, numFails, testTime);
   }
 
-  public static void runTestSuite(Class c) {
+  public static <T> void runTestSuite(Class<T> c) {
     Result testSuiteResults = JUnitCore.runClasses(c);
     long tempTime = testSuiteResults.getRunTime();
     int tempTestCount = testSuiteResults.getRunCount();

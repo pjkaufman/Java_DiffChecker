@@ -1,16 +1,19 @@
 package dbdiffchecker.nosql;
 
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.MongoClientURI;
-import com.mongodb.client.model.CreateCollectionOptions;
-import org.bson.Document;
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoIterable;
-import java.util.logging.Logger;
+import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoIterable;
+import com.mongodb.client.model.CreateCollectionOptions;
+
+import org.bson.Document;
+
 import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.DbConn;
-import java.util.Map;
 
 /**
  * Establishes a connection with a Mongo database based on the password,
@@ -39,7 +42,7 @@ public class MongoConn extends DbConn {
     uri = new MongoClientURI("mongodb://" + username + ":" + password + "@" + host + "/?authSource=admin");
     this.name = name;
     Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
-    mongoLogger.setLevel(Level.WARNING);
+    mongoLogger.setLevel(Level.OFF);
   }
 
   @Override

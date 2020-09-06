@@ -94,27 +94,28 @@ public class MySQLTable extends Table {
   @Override
   public List<String> generateStatements(Table t1) {
     List<String> sql = new ArrayList<>();
-    isFirstStatement = true;
-    String sql2 = "ALTER TABLE `" + name + "` ";
+    List<String> sqlBody = new ArrayList<>();
+
     if (!charSet.equals(((MySQLTable) t1).charSet) || !collation.equals(((MySQLTable) t1).collation)) {
-      sql2 += "CHARACTER SET " + charSet;
+      sqlBody.add("CHARACTER SET " + charSet);
       if (!collation.equals("")) {
-        sql2 += " COLLATE " + collation;
+        sqlBody.add("COLLATE " + collation);
       }
-      isFirstStatement = false;
-    }
-    sql2 += dropIndices(indices, t1.getIndices());
-    sql2 += otherCols(columns, t1.getColumns());
-    sql2 += dropCols(columns, t1.getColumns());
-    sql2 += otherIndices(indices, t1.getIndices());
-
-    if (autoIncrement > 0 && !isFirstStatement) {
-      sql2 += newLineCreation + "AUTO_INCREMENT=" + autoIncrement;
     }
 
-    if (!isFirstStatement) {
-      sql.add(sql2 + ";");
+    sqlBody.addAll(dropIndices(indices, t1.getIndices()));
+    sqlBody.addAll(otherCols(columns, t1.getColumns()));
+    sqlBody.addAll(dropCols(columns, t1.getColumns()));
+    sqlBody.addAll(otherIndices(indices, t1.getIndices()));
+
+    if (autoIncrement > 0 && !sqlBody.isEmpty()) {
+      sqlBody.add("AUTO_INCREMENT=" + autoIncrement);
     }
+
+    if (!sqlBody.isEmpty()) {
+      sql.add("ALTER TABLE `" + name + "` " + String.join(newLineCreation, sqlBody) + ";");
+    }
+
     return sql;
   }
 
@@ -165,60 +166,84 @@ public class MySQLTable extends Table {
   }
 
   @Override
-  protected String dropCols(Map<String, Column> cols1, Map<String, Column> cols2) {
-    StringBuilder sql = new StringBuilder();
+  protected List<String> dropCols(Map<String, Column> cols1, Map<String, Column> cols2) {
+    List<String> sql = new ArrayList<>();
+
     for (Map.Entry<String, Column> columnInfo : cols2.entrySet()) {
       if (!cols1.containsKey(columnInfo.getKey())) {
-        appendSQLPart(sql, columnInfo.getValue().getDrop());
+        sql.add(columnInfo.getValue().getDrop());
       }
     }
-    return sql.toString();
+
+    return sql;
   }
 
   @Override
-  protected String otherCols(Map<String, Column> cols1, Map<String, Column> cols2) {
-    StringBuilder sql = new StringBuilder();
+  protected List<String> otherCols(Map<String, Column> cols1, Map<String, Column> cols2) {
+    List<String> sql = new ArrayList<>();
+    int numColumnAdditions = 0;
     Column col;
     Column col2;
+    String columnAddStmnt;
+
     for (Map.Entry<String, Column> columnInfo : cols1.entrySet()) {
       col = columnInfo.getValue();
       if (!cols2.containsKey(columnInfo.getKey())) {
-        appendSQLPart(sql, "ADD COLUMN `" + col.getName() + "` " + col.getDetails());
+        columnAddStmnt = "ADD COLUMN `" + col.getName() + "` " + col.getDetails();
+        if (numColumnAdditions > 0) {
+          for (int i = 0; i < numColumnAdditions; i++) {
+            if (sql.get(i).contains("`" + col.getName() + "`")) {
+              sql.add(i, columnAddStmnt);
+              break;
+            } else if (i + 1 == numColumnAdditions) {
+              sql.add(numColumnAdditions, columnAddStmnt);
+            }
+          }
+        } else {
+          sql.add(numColumnAdditions, "ADD COLUMN `" + col.getName() + "` " + col.getDetails());
+        }
+
+        numColumnAdditions++;
       } else {
         col2 = cols2.get(columnInfo.getKey());
         if (col.getName().equals(col2.getName()) && !col.getDetails().equals(col2.getDetails())) {
-          appendSQLPart(sql, "MODIFY COLUMN `" + col.getName() + "` " + col.getDetails());
+          sql.add("MODIFY COLUMN `" + col.getName() + "` " + col.getDetails());
         }
       }
     }
-    return sql.toString();
+
+    return sql;
   }
 
   @Override
-  protected String dropIndices(Map<String, Index> dev, Map<String, Index> live) {
-    StringBuilder sql = new StringBuilder();
+  protected List<String> dropIndices(Map<String, Index> dev, Map<String, Index> live) {
+    List<String> sql = new ArrayList<>();
+
     for (Map.Entry<String, Index> indexInfo : live.entrySet()) {
       if (!dev.containsKey(indexInfo.getKey())) {
-        appendSQLPart(sql, indexInfo.getValue().getDrop());
+        sql.add(indexInfo.getValue().getDrop());
       }
     }
-    return sql.toString();
+
+    return sql;
   }
 
   @Override
-  protected String otherIndices(Map<String, Index> dev, Map<String, Index> live) {
-    StringBuilder sql = new StringBuilder();
+  protected List<String> otherIndices(Map<String, Index> dev, Map<String, Index> live) {
+    List<String> sql = new ArrayList<>();
     Index index;
+
     for (Map.Entry<String, Index> indexInfo : dev.entrySet()) {
       index = indexInfo.getValue();
       if (live.containsKey(indexInfo.getKey())) {
         if (!index.equals(live.get(indexInfo.getKey()))) {
-          appendSQLPart(sql, index.getDrop() + ",\n  " + index.getCreateStatement());
+          sql.add(index.getDrop());
+          sql.add(index.getCreateStatement());
         }
       } else {
-        appendSQLPart(sql, index.getCreateStatement());
+        sql.add(index.getCreateStatement());
       }
     }
-    return sql.toString();
+    return sql;
   }
 }

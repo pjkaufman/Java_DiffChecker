@@ -1,12 +1,15 @@
 package test;
 
 import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.Test;
-import dbdiffchecker.nosql.Bucket;
-import dbdiffchecker.sql.Index;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import dbdiffchecker.nosql.Bucket;
+import dbdiffchecker.sql.Index;
 
 public class BucketTest {
   private static final String CREATE_PRE = "Create Document: ";

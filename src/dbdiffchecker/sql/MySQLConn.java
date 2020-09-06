@@ -1,7 +1,5 @@
 package dbdiffchecker.sql;
 
-import dbdiffchecker.DatabaseDifferenceCheckerException;
-import com.mysql.cj.exceptions.CJException;
 import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,6 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.mysql.cj.exceptions.CJException;
+
+import dbdiffchecker.DatabaseDifferenceCheckerException;
+
 /**
  * Establishes a connection with a MySQL database based on the password,
  * username, port, host, and database provided.
@@ -21,6 +23,8 @@ import java.util.Map;
  */
 public class MySQLConn extends SQLDbConn {
   private static final String CONN_STRING_FMT = "jdbc:mysql://%s:%s/%s?autoReconnect=true&useSSL=false&maxReconnects=%d";
+  private static final String DB_ACTION_ERR_MSG_START = "There was an error getting the ";
+  private static final String FOREIGN_KEY_INDICATOR = "FOREIGN KEY";
   private String username;
   private String password;
   private String host;
@@ -70,8 +74,8 @@ public class MySQLConn extends SQLDbConn {
 
       return set.getString("Create Table");
     } catch (SQLException e) {
-      throw new DatabaseDifferenceCheckerException(
-          "There was an error getting the " + table + " table's create statement.", e, 1014);
+      throw new DatabaseDifferenceCheckerException(DB_ACTION_ERR_MSG_START + table + " table's create statement.", e,
+          1014);
     }
   }
 
@@ -91,8 +95,8 @@ public class MySQLConn extends SQLDbConn {
 
       return set.getString("Create View");
     } catch (SQLException e) {
-      throw new DatabaseDifferenceCheckerException(
-          "There was an error getting the " + view + " view's create statement.", e, 1015);
+      throw new DatabaseDifferenceCheckerException(DB_ACTION_ERR_MSG_START + view + " view's create statement.", e,
+          1015);
     }
   }
 
@@ -116,7 +120,7 @@ public class MySQLConn extends SQLDbConn {
             removeAutoIncrement(create, newTable);
             hasFirstStep = true;
           }
-          if (create.contains("FOREIGN KEY")) {
+          if (create.contains(FOREIGN_KEY_INDICATOR)) {
             dropAllForeignKeys(create, newTable);
           }
           if (create.contains("PRIMARY KEY")) {
@@ -139,7 +143,7 @@ public class MySQLConn extends SQLDbConn {
       return tablesList;
     } catch (SQLException e) {
       throw new DatabaseDifferenceCheckerException(
-          "There was an error getting the " + db + " database's table, column, and index details.", e, 1017);
+          DB_ACTION_ERR_MSG_START + db + " database's table, column, and index details.", e, 1017);
     }
   }
 
@@ -189,13 +193,13 @@ public class MySQLConn extends SQLDbConn {
       start = toSearch.indexOf("CONSTRAINT `", 0) + 12;
       indexName = toSearch.substring(start, toSearch.indexOf("`", start));
       if (!firstTime) {
-        foreignKeyDrop.append("\n,");
+        foreignKeyDrop.append(",\n ");
       }
       foreignKeyDrop.append(" DROP FOREIGN KEY `" + indexName + "`");
       table.getIndices().remove(indexName);
       firstTime = false;
-      toSearch = toSearch.substring(toSearch.indexOf("FOREIGN KEY") + 11);
-    } while (toSearch.contains("FOREIGN KEY"));
+      toSearch = toSearch.substring(toSearch.indexOf(FOREIGN_KEY_INDICATOR) + 11);
+    } while (toSearch.contains(FOREIGN_KEY_INDICATOR));
     firstSteps.add(0, foreignKeyDrop + ";");
   }
 
@@ -203,15 +207,17 @@ public class MySQLConn extends SQLDbConn {
   public List<View> getViews() throws DatabaseDifferenceCheckerException {
     List<View> views = new ArrayList<>();
     String sql = "SHOW FULL TABLES IN `" + db + "` WHERE TABLE_TYPE LIKE 'VIEW';";
+    String viewName;
     try (Statement query = con.createStatement(); ResultSet set = query.executeQuery(sql)) {
       while (set.next()) {
-        views.add(new View(set.getString("Tables_in_" + db), getViewCreateStatement(set.getString("Tables_in_" + db))));
+        viewName = set.getString("Tables_in_" + db);
+
+        views.add(new View(viewName, getViewCreateStatement(viewName)));
       }
 
       return views;
     } catch (SQLException e) {
-      throw new DatabaseDifferenceCheckerException("There was an error getting the " + db + " database's view details.",
-          e, 1018);
+      throw new DatabaseDifferenceCheckerException(DB_ACTION_ERR_MSG_START + db + " database's view details.", e, 1018);
     }
   }
 

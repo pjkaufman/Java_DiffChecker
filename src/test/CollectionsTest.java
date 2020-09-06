@@ -1,7 +1,9 @@
 package test;
 
 import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
+
 import dbdiffchecker.nosql.Collection;
 
 public class CollectionsTest {

@@ -1,12 +1,15 @@
 package test;
 
 import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.Test;
-import dbdiffchecker.nosql.MongoDB;
-import dbdiffchecker.nosql.Collection;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import dbdiffchecker.nosql.Collection;
+import dbdiffchecker.nosql.MongoDB;
 
 public class MongoDBTest {
   private static final String COLL_NAME_1 = "Skipper";

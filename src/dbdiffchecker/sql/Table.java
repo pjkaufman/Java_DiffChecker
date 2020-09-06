@@ -1,8 +1,8 @@
 package dbdiffchecker.sql;
 
-import java.util.Map;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Resembles a table in an SQL database and contains info about the table's
@@ -110,7 +110,7 @@ public abstract class Table extends Schema {
    *              same name.
    * @return Part of an SQL statement that drops a column or several columns.
    */
-  protected abstract String dropCols(Map<String, Column> cols1, Map<String, Column> cols2);
+  protected abstract List<String> dropCols(Map<String, Column> cols1, Map<String, Column> cols2);
 
   /**
    * Takes two column lists and returns part of an SQL statement that modifies
@@ -121,7 +121,7 @@ public abstract class Table extends Schema {
    *              same name.
    * @return Part of an SQL statement that modifies and/or adds columns.
    */
-  protected abstract String otherCols(Map<String, Column> cols1, Map<String, Column> cols2);
+  protected abstract List<String> otherCols(Map<String, Column> cols1, Map<String, Column> cols2);
 
   /**
    * Takes two index lists and returns part of an SQL statement that drop indices.
@@ -131,7 +131,7 @@ public abstract class Table extends Schema {
    *             name.
    * @return Part of an SQL statement that drops indices.
    */
-  protected abstract String dropIndices(Map<String, Index> dev, Map<String, Index> live);
+  protected abstract List<String> dropIndices(Map<String, Index> dev, Map<String, Index> live);
 
   /**
    * Takes two lists of indices and returns part of an SQL statement that either
@@ -142,5 +142,5 @@ public abstract class Table extends Schema {
    *             name.
    * @return Part of an SQL statement that either adds or drops and adds indices.
    */
-  protected abstract String otherIndices(Map<String, Index> dev, Map<String, Index> live);
+  protected abstract List<String> otherIndices(Map<String, Index> dev, Map<String, Index> live);
 }

@@ -1,7 +1,9 @@
 package test;
 
 import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
+
 import dbdiffchecker.sql.Column;
 
 public class ColumnTest {

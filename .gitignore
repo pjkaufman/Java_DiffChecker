@@ -4,3 +4,5 @@
 build/
 bin/
 log/
+#editor files
+.vscode
