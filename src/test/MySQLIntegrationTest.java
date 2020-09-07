@@ -34,26 +34,26 @@ public class MySQLIntegrationTest {
       "ALTER TABLE `charsetcheck` DROP PRIMARY KEY;",
       "ALTER TABLE `compositemodify` MODIFY COLUMN `idnew_table2` int(11) NOT NULL,\n  DROP PRIMARY KEY;",
       "ALTER TABLE `compositeprimarymodification` DROP PRIMARY KEY;", "ALTER TABLE `d` DROP PRIMARY KEY;",
-      "ALTER TABLE `fkchanges` DROP PRIMARY KEY;", "ALTER TABLE `l` DROP PRIMARY KEY;",
+      "ALTER TABLE `fkchanges` DROP PRIMARY KEY;", "ALTER TABLE `modifyprimarykey` DROP PRIMARY KEY;",
       "CREATE TABLE `new_table2` (\n  `idnew_table2` int(11) NOT NULL,\n  `new_table2col` varchar(45) DEFAULT NULL,\n"
           + "  `new_table2col1` varchar(45) DEFAULT NULL,\n  `new_table2col2` varchar(45) DEFAULT NULL,\n"
           + "  PRIMARY KEY (`idnew_table2`)\n) ENGINE=MyISAM DEFAULT CHARSET=latin1;",
       "CREATE TABLE `new_table` (\n  `idnew_table` int(11) NOT NULL,\n  `new_tablecol` varchar(45) DEFAULT NULL,\n"
           + "  `new_tablecol1` varchar(45) DEFAULT NULL,\n  PRIMARY KEY (`idnew_table`)\n"
           + ") ENGINE=MyISAM DEFAULT CHARSET=latin1;",
-      "DROP TABLE `droppedgroceries`;", "DROP TABLE `planes`;",
+      "DROP TABLE `planes`;", "DROP TABLE `droppedgroceries`;",
       "ALTER TABLE `3` MODIFY COLUMN `idnew_table2` int(11) NOT NULL AUTO_INCREMENT,\n"
           + "  ADD PRIMARY KEY (`idnew_table2`),\n  AUTO_INCREMENT=1000;",
       "ALTER TABLE `fkchanges` DROP INDEX `id3`,\n  ADD INDEX `id2` (`id2`),\n  ADD INDEX `id4` (`id4`),\n  "
           + "ADD PRIMARY KEY (`id`),\n  DROP INDEX `id5`,\n  ADD INDEX `id5` (`id5`,`part2`),\n  "
           + "ADD CONSTRAINT `fkchanges_ibfk_1` FOREIGN KEY (`id2`) REFERENCES `afa` (`idnew_table2`),\n  "
           + "ADD CONSTRAINT `fkchanges_ibfk_3` FOREIGN KEY (`id5`, `part2`) REFERENCES `compositeprimarymodification` (`idnew_table2`, `part2`),\n  "
-          + "ADD CONSTRAINT `fkchanges_ibfk_2` FOREIGN KEY (`id4`) REFERENCES `dfas` (`idnew_table2`);",
+          + "ADD CONSTRAINT `fkchanges_ibfk_2` FOREIGN KEY (`id4`) REFERENCES `nochanges` (`id`);",
       "ALTER TABLE `d` DROP INDEX `drop_index`,\n  DROP COLUMN `dropme2`,\n"
-          + "  ADD FULLTEXT INDEX `add_index` (`new_table2col2`);",
+          + "  ADD FULLTEXT INDEX `add_index` (`new_table2col`);",
       "ALTER TABLE `af` ADD COLUMN `addme` int(24) NOT NULL AFTER `new_table2col2`,\n"
           + "  MODIFY COLUMN `new_table2col2` varchar(45) DEFAULT '' AFTER `new_table2col1`,\n  DROP COLUMN `dropme`;",
-      "ALTER TABLE `charsetcheck` CHARACTER SET latin1,\n  ADD PRIMARY KEY (`id`);",
+      "ALTER TABLE `modifyprimarykey` ADD PRIMARY KEY (`id1`);", "ALTER TABLE `charsetcheck` CHARACTER SET latin1,\n  ADD PRIMARY KEY (`id`);",
       "ALTER TABLE `compositemodify` ADD COLUMN `new_table2col10` varchar(45) DEFAULT NULL AFTER `new_table2col`,\n"
           + "  MODIFY COLUMN `new_table2col2` varchar(45) DEFAULT 'b' AFTER `new_table2col10`,\n  MODIFY COLUMN `idnew_table2`"
           + " int(11) NOT NULL AUTO_INCREMENT,\n  DROP COLUMN `new_table2col1`,\n  DROP INDEX `dfjsalkldskj`,\n"
@@ -61,16 +61,13 @@ public class MySQLIntegrationTest {
           + "ADD UNIQUE INDEX `index3` (`new_table2col2`,`new_table2col10`),\n  ADD PRIMARY KEY (`idnew_table2`),\n  "
           + "DROP INDEX `index5`,\n  ADD FULLTEXT INDEX `index5` (`new_table2col`),\n  AUTO_INCREMENT=12;",
       "ALTER TABLE `compositeprimarymodification` ADD PRIMARY KEY (`idnew_table2`,`part2`);",
-      "ALTER TABLE `l` ADD PRIMARY KEY (`id1`);",
-      "ALTER TABLE `dfasdfsa` ADD PRIMARY KEY (`idnew_table2`);", "DROP VIEW `view1`;", "DROP VIEW `view2`;",
-      "DROP VIEW `view3`;",
+      "ALTER TABLE `addprimarykey` ADD PRIMARY KEY (`id`);",  "DROP VIEW `view1`;", "DROP VIEW `view2`;", "DROP VIEW `view3`;",
       "CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view1`"
           + " AS select `3`.`idnew_table2` AS `idnew_table2`,`3`.`new_table2col` AS `new_table2col`,"
           + "`3`.`new_table2col1` AS `new_table2col1`,`3`.`new_table2col2` AS `new_table2col2`,"
           + "`3`.`3col` AS `3col`,`3`.`3col1` AS `3col1` from `3`;",
       "CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view3`"
-          + " AS select `afa`.`idnew_table2` AS `idnew_table2`,`afa`.`new_table2col` AS `new_table2col`,"
-          + "`afa`.`new_table2col1` AS `new_table2col1`,`afa`.`new_table2col2` AS `new_table2col2` from `afa`;",
+          + " AS select `afa`.`idnew_table2` AS `idnew_table2` from `afa`;",
       "SET FOREIGN_KEY_CHECKS=1;"));
   private Map<String, Table> devTableList = new HashMap<>();
   private Map<String, View> devViewList = new HashMap<>();
