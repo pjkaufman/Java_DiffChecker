@@ -192,7 +192,7 @@ public class SQLDatabase extends Database {
     String tableName;
     for (Map.Entry<String, Table> table : tables.entrySet()) {
       tableName = table.getKey();
-      if (!exclude.containsKey(tableName)
+      if (!exclude.containsKey(tableName) && liveTables.containsKey(tableName)
           && !table.getValue().getCreateStatement().equals(liveTables.get(tableName).getCreateStatement())) {
         updateTables.put(tableName, tableName);
       } else { // all tables that do not need to be updated are to be removed from firstSteps

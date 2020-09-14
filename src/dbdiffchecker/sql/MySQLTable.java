@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class MySQLTable extends Table {
   private static final long serialVersionUID = 1L;
-  private String charSet;
+  private String charSet = "";
   private String collation = "";
   private int autoIncrement;
 
@@ -26,8 +26,12 @@ public class MySQLTable extends Table {
   public MySQLTable(String name, String create) {
     super(name, create);
     drop = "DROP TABLE `" + name + "`;";
-    String temp = create.substring(create.indexOf("DEFAULT CHARSET=") + 16) + " ";
-    charSet = temp.substring(0, temp.indexOf(" "));
+
+    if (create.contains("DEFAULT CHARSET=")) {
+      String temp = create.substring(create.indexOf("DEFAULT CHARSET=") + 16) + " ";
+      charSet = temp.substring(0, temp.indexOf(" "));
+    }
+
     newLineCreation = ",\n  ";
   }
 

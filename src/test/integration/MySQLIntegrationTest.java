@@ -1,6 +1,4 @@
-package test;
-
-import static org.junit.Assert.assertEquals;
+package test.integration;
 
 import java.io.File;
 import java.sql.Connection;
@@ -13,8 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 import dbdiffchecker.DatabaseDifferenceCheckerException;
 import dbdiffchecker.sql.Column;
@@ -133,13 +132,9 @@ public class MySQLIntegrationTest {
     return statements;
   }
 
-  private void connectToDB() {
+  private Connection getDbConnection() throws SQLException {
     String connString = "jdbc:mysql://localhost:3308?&autoReconnect=true&useSSL=false&maxReconnects=5";
-    try {
-      con = DriverManager.getConnection(connString, "root", "");
-    } catch (SQLException err) {
-      System.out.println(err);
-    }
+    return con = DriverManager.getConnection(connString, "root", "");
   }
 
   private void closeDB() {
@@ -150,63 +145,67 @@ public class MySQLIntegrationTest {
     }
   }
 
-  private SQLDatabase devDatabaseSetup() {
-    List<String> createDevDatabaseStatements = readInFile("intTestDev.sql", false);
-    if (!devIsSetup) {
-      connectToDB();
-      try {
+  //"intTestDev.sql"
+  private SQLDatabase databaseSetup(String fileName, boolean isLive) {
+    List<String> createDatabaseStatements = readInFile(fileName, isLive);
+    boolean isSetup = isLive ? liveIsSetup : devIsSetup;
+
+    if (!isSetup) {
+      assertDoesNotThrow(()->{
+        con = getDbConnection();
         con.createStatement().execute("SET FOREIGN_KEY_CHECKS=0;");
-        for (String statement : createDevDatabaseStatements) {
+        for (String statement : createDatabaseStatements) {
           con.createStatement().execute(statement);
         }
         con.createStatement().execute("SET FOREIGN_KEY_CHECKS=1;");
-      } catch (Exception err) {
-        Assert.fail(err.toString());
-      }
+      });
 
       closeDB();
-      devIsSetup = true;
+      if (isLive) {
+        liveIsSetup = true;
+      } else {
+        devIsSetup = true;
+      }
     }
 
-    try {
-      MySQLConn devConn = new MySQLConn("root", "", "localhost", "3308", "intTestDev", false);
+   SQLDatabase db = assertDoesNotThrow(()->{
+      MySQLConn devConn = new MySQLConn("root", "", "localhost", "3308", fileName.replace(".sql", ""), isLive);
 
       return new SQLDatabase(devConn, 0);
-    } catch (DatabaseDifferenceCheckerException err) {
-      Assert.fail(err.toString());
-    }
-    return new SQLDatabase();
+    });
+
+    return db == null ? new SQLDatabase() : db;
   }
 
-  private SQLDatabase liveDatabaseSetup() {
-    List<String> createLiveDatabaseStatements = readInFile("intTestLive.sql", true);
-    connectToDB();
-    if (!liveIsSetup) {
-      connectToDB();
-      try {
-        con.createStatement().execute("SET FOREIGN_KEY_CHECKS=0;");
-        for (String statement : createLiveDatabaseStatements) {
-          con.createStatement().execute(statement);
-        }
-        con.createStatement().execute("SET FOREIGN_KEY_CHECKS=1;");
-      } catch (Exception err) {
-        Assert.fail(err.toString());
-      }
+  // private SQLDatabase liveDatabaseSetup() {
+  //   List<String> createLiveDatabaseStatements = readInFile("intTestLive.sql", true);
+  //   connectToDB();
+  //   if (!liveIsSetup) {
+  //     connectToDB();
+  //     try {
+  //       con.createStatement().execute("SET FOREIGN_KEY_CHECKS=0;");
+  //       for (String statement : createLiveDatabaseStatements) {
+  //         con.createStatement().execute(statement);
+  //       }
+  //       con.createStatement().execute("SET FOREIGN_KEY_CHECKS=1;");
+  //     } catch (Exception err) {
+  //       fail(err.toString());
+  //     }
 
-      closeDB();
-      liveIsSetup = true;
-    }
+  //     closeDB();
+  //     liveIsSetup = true;
+  //   }
 
-    try {
-      MySQLConn liveConn = new MySQLConn("root", "", "localhost", "3308", "intTestLive", true);
+  //   try {
+  //     MySQLConn liveConn = new MySQLConn("root", "", "localhost", "3308", "intTestLive", true);
 
-      return new SQLDatabase(liveConn, 0);
-    } catch (DatabaseDifferenceCheckerException err) {
-      Assert.fail(err.toString());
-    }
+  //     return new SQLDatabase(liveConn, 0);
+  //   } catch (DatabaseDifferenceCheckerException err) {
+  //     fail(err.toString());
+  //   }
 
-    return new SQLDatabase();
-  }
+  //   return new SQLDatabase();
+  // }
 
   private void removeAutoIncrement(String createStatement, Table table) {
     int endColumn = createStatement.indexOf("AUTO_INCREMENT");
@@ -246,93 +245,78 @@ public class MySQLIntegrationTest {
     } while (toSearch.contains("FOREIGN KEY"));
   }
 
-  // @Test
-  // public void testDevTableInstantiation() {
-  // SQLDatabase devDb = devDatabaseSetup();
-  // String tableName;
+  @Test
+  public void testDevTableInstantiation() {
+    SQLDatabase devDb = databaseSetup("intTestDev.sql", false);
+    String tableName;
 
-  // assertEquals("The amount of tables should be the same as those in the
-  // database", devTableList.size(),
-  // devDb.getTables().size());
-  // for (Map.Entry<String, Table> tableEntry : devTableList.entrySet()) {
-  // tableName = tableEntry.getKey();
-  // assertEquals("All tables in the database should be in the database table
-  // list", true,
-  // devDb.getTables().containsKey(tableName));
-  // assertEquals("All table info should be the same", true,
-  // tableEntry.getValue().generateStatements(devDb.getTables().get(tableName)).isEmpty());
-  // }
-  // }
+    assertEquals(devTableList.size(), devDb.getTables().size());
+    for (Map.Entry<String, Table> tableEntry : devTableList.entrySet()) {
+      tableName = tableEntry.getKey();
+      assertTrue(devDb.getTables().containsKey(tableName));
+      assertTrue(tableEntry.getValue().generateStatements(devDb.getTables().get(tableName)).isEmpty());
+    }
+  }
 
   // @Test
   // public void testDevViewInstantiation() {
-  // SQLDatabase devDb = devDatabaseSetup();
-  // String viewName;
+  //   SQLDatabase devDb = devDatabaseSetup();
+  //   String viewName;
 
-  // assertEquals("The amount of views should be the same as those in the
-  // database", devViewList.size(),
-  // devDb.getViews().size());
-  // for (View view : devDb.getViews()) {
-  // viewName = view.getName();
-  // assertEquals("All views in the database should be in the database table
-  // list", true,
-  // devViewList.containsKey(viewName));
-  // assertEquals("All view info should be the same",
-  // devViewList.get(viewName).getCreateStatement(),
-  // view.getCreateStatement());
-  // }
+  //   assertEquals("The amount of views should be the same as those in the database", devViewList.size(),
+  //     devDb.getViews().size());
+  //   for (View view : devDb.getViews()) {
+  //     viewName = view.getName();
+  //     assertEquals("All views in the database should be in the database table list", true,
+  //       devViewList.containsKey(viewName));
+  //     assertEquals("All view info should be the same", devViewList.get(viewName).getCreateStatement(),
+  //       view.getCreateStatement());
+  //   }
   // }
 
   // @Test
   // public void testLiveViewInstantiation() {
-  // SQLDatabase liveDb = liveDatabaseSetup();
-  // String viewName;
+  //   SQLDatabase liveDb = liveDatabaseSetup();
+  //   String viewName;
 
-  // assertEquals("The amount of views should be the same as those in the
-  // database", liveViewList.size(),
-  // liveDb.getViews().size());
-  // for (View view : liveDb.getViews()) {
-  // viewName = view.getName();
-  // assertEquals("All views in the database should be in the database table
-  // list", true,
-  // liveViewList.containsKey(viewName));
-  // assertEquals("All view info should be the same",
-  // liveViewList.get(viewName).getCreateStatement(),
-  // view.getCreateStatement());
-  // }
+  //   assertEquals("The amount of views should be the same as those in the database", liveViewList.size(), liveDb.getViews().size());
+  //   for (View view : liveDb.getViews()) {
+  //     viewName = view.getName();
+  //     assertEquals("All views in the database should be in the database table list", true,
+  //       liveViewList.containsKey(viewName));
+  //     assertEquals("All view info should be the same", liveViewList.get(viewName).getCreateStatement(),
+  //       view.getCreateStatement());
+  //   }
   // }
 
   // @Test
   // public void testLiveTableInstantiation() {
-  // SQLDatabase liveDb = liveDatabaseSetup();
-  // String tableName;
+  //   SQLDatabase liveDb = liveDatabaseSetup();
+  //   String tableName;
 
-  // assertEquals("The amount of tables should be the same as those in the
-  // database", liveTableList.size(),
-  // liveDb.getTables().size());
-  // for (Map.Entry<String, Table> tableEntry : liveTableList.entrySet()) {
-  // tableName = tableEntry.getKey();
-  // assertEquals("All tables in the database should be in the database table
-  // list", true,
-  // liveDb.getTables().containsKey(tableName));
-  // assertEquals("All table info should be the same", true,
-  // tableEntry.getValue().generateStatements(liveDb.getTables().get(tableName)).isEmpty());
-  // }
+  //   assertEquals("The amount of tables should be the same as those in the database", liveTableList.size(),
+  //   liveDb.getTables().size());
+  //   for (Map.Entry<String, Table> tableEntry : liveTableList.entrySet()) {
+  //     tableName = tableEntry.getKey();
+  //     assertEquals("All tables in the database should be in the database table list", true, liveDb.getTables().containsKey(tableName));
+  //     assertEquals("All table info should be the same", true,
+  //     tableEntry.getValue().generateStatements(liveDb.getTables().get(tableName)).isEmpty());
+  //   }
   // }
 
-  @Test
-  public void testCompleteComparisonRegular() {
-    List<String> generatedStatments;
-    SQLDatabase liveDb = liveDatabaseSetup();
-    SQLDatabase devDb = devDatabaseSetup();
+//   @Test
+//   public void testCompleteComparisonRegular() {
+//     List<String> generatedStatments;
+//     SQLDatabase liveDb = liveDatabaseSetup();
+//     SQLDatabase devDb = devDatabaseSetup();
 
-    generatedStatments = devDb.compare(liveDb);
-    // System.out.println(generatedStatments);
-    for (int i = 0; i < generatedStatments.size(); i++) {
-      // System.out.printf("Expected: %s%nWas: %s%n", expectedStatements.get(i),
-      // generatedStatments.get(i));
-      assertEquals(expectedStatements.get(i), generatedStatments.get(i));
-    }
-    assertEquals("All of the expected statements should have been generated", expectedStatements, generatedStatments);
-  }
+//     generatedStatments = devDb.compare(liveDb);
+//     // System.out.println(generatedStatments);
+//     for (int i = 0; i < generatedStatments.size(); i++) {
+//       // System.out.printf("Expected: %s%nWas: %s%n", expectedStatements.get(i),
+//       // generatedStatments.get(i));
+//       assertEquals(expectedStatements.get(i), generatedStatments.get(i));
+//     }
+//     assertIterableEquals(expectedStatements, generatedStatments, "All of the expected statements should have been generated");
+//   }
 }

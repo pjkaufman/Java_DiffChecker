@@ -221,27 +221,25 @@ CREATE TABLE IF NOT EXISTS `droppedgroceries` (
 
 DROP TABLE IF EXISTS `rds`;
 CREATE TABLE IF NOT EXISTS `rds` (
-  `idnew_table2` int(11) NOT NULL,
-  `new_table2col` varchar(45) DEFAULT NULL,
-  `new_table2col1ds` varchar(45) DEFAULT NULL,
-  `new_table2col2afd` varchar(45) DEFAULT NULL,
-  `new_table2colfaddsa` varchar(45) DEFAULT NULL,
-  `new_table2col1afdds` varchar(45) DEFAULT NULL,
-  `new_table2col2afdas` varchar(45) DEFAULT NULL,
-  `new_table2colf` varchar(45) DEFAULT NULL,
-  `new_table2colad1` varchar(45) DEFAULT NULL,
-  `new_table2codasl2` varchar(45) DEFAULT NULL,
-  `new_table2coadl` varchar(45) DEFAULT NULL,
-  `new_table2col1` varchar(45) DEFAULT NULL,
-  `new_tafble2col2` varchar(45) DEFAULT NULL,
-  `new_tabdsafle2col` varchar(45) DEFAULT NULL,
-  `new_table2cdafol1` varchar(45) DEFAULT NULL,
-  `new_table2fdascol2` varchar(45) DEFAULT NULL,
-  `new_table2adfscol` varchar(45) DEFAULT NULL,
-  `new_table2coldf1` varchar(45) DEFAULT NULL,
-  `new_table2col2aasfd` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`idnew_table2`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `id` int(11) NOT NULL,
+  `foreignkey`int(11) NOT NULL,
+  `uniquecolumn1` varchar(45) DEFAULT NULL,
+  `uniquecolumn2` varchar(45) DEFAULT NULL,
+  `keycolumn1` varchar(45) DEFAULT NULL,
+  `keycolumn2` varchar(45) DEFAULT NULL,
+  `fulltextindexcolumn` varchar(45) DEFAULT NULL,
+  `blobcolumn` blob DEFAULT NULL,
+  `ignoredcolumn1` varchar(45) DEFAULT NULL,
+  `ignoredcolumn2` int DEFAULT NULL,
+  `geometric1` geometry NOT NULL,
+  `geometric2` geometry NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ignoreduniqueindex` (`uniquecolumn1`,`uniquecolumn2`),
+  KEY `ignoredindex` (`keycolumn1`,`keycolumn2`),
+  SPATIAL KEY `ignoredgeometricindex` (`geometric1`),
+  FULLTEXT KEY `ignoredfulltextindex` (`fulltextindexcolumn`),
+  FOREIGN KEY (`foreignkey`) REFERENCES `nochanges`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -282,25 +280,18 @@ CREATE TABLE IF NOT EXISTS `view1` (
 --
 DROP VIEW IF EXISTS `view2`;
 CREATE TABLE IF NOT EXISTS `view2` (
-`idnew_table2` int(11)
-,`new_tabdsafle2col` varchar(45)
-,`new_table2adfscol` varchar(45)
-,`new_table2cdafol1` varchar(45)
-,`new_table2coadl` varchar(45)
-,`new_table2codasl2` varchar(45)
-,`new_table2col` varchar(45)
-,`new_table2col1` varchar(45)
-,`new_table2col1afdds` varchar(45)
-,`new_table2col1ds` varchar(45)
-,`new_table2col2aasfd` varchar(45)
-,`new_table2col2afd` varchar(45)
-,`new_table2col2afdas` varchar(45)
-,`new_table2colad1` varchar(45)
-,`new_table2coldf1` varchar(45)
-,`new_table2colf` varchar(45)
-,`new_table2colfaddsa` varchar(45)
-,`new_table2fdascol2` varchar(45)
-,`new_tafble2col2` varchar(45)
+`id` int(11) NOT NULL
+,`foreignkey`int(11) NOT NULL
+,`uniquecolumn1` varchar(45) DEFAULT NULL
+,`uniquecolumn2` varchar(45) DEFAULT NULL
+,`keycolumn1` varchar(45) DEFAULT NULL
+,`keycolumn2` varchar(45) DEFAULT NULL
+,`fulltextindexcolumn` varchar(45) DEFAULT NULL
+,`blobcolumn` blob DEFAULT NULL
+,`ignoredcolumn1` varchar(45) DEFAULT NULL
+,`ignoredcolumn2` int DEFAULT NULL
+,`geometric1` geometry NOT NULL
+,`geometric2` geometry NOT NULL
 );
 
 -- --------------------------------------------------------
@@ -330,7 +321,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `view2`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view2`  AS  select `rds`.`idnew_table2` AS `idnew_table2`,`rds`.`new_table2col` AS `new_table2col`,`rds`.`new_table2col1ds` AS `new_table2col1ds`,`rds`.`new_table2col2afd` AS `new_table2col2afd`,`rds`.`new_table2colfaddsa` AS `new_table2colfaddsa`,`rds`.`new_table2col1afdds` AS `new_table2col1afdds`,`rds`.`new_table2col2afdas` AS `new_table2col2afdas`,`rds`.`new_table2colf` AS `new_table2colf`,`rds`.`new_table2colad1` AS `new_table2colad1`,`rds`.`new_table2codasl2` AS `new_table2codasl2`,`rds`.`new_table2coadl` AS `new_table2coadl`,`rds`.`new_table2col1` AS `new_table2col1`,`rds`.`new_tafble2col2` AS `new_tafble2col2`,`rds`.`new_tabdsafle2col` AS `new_tabdsafle2col`,`rds`.`new_table2cdafol1` AS `new_table2cdafol1`,`rds`.`new_table2fdascol2` AS `new_table2fdascol2`,`rds`.`new_table2adfscol` AS `new_table2adfscol`,`rds`.`new_table2coldf1` AS `new_table2coldf1`,`rds`.`new_table2col2aasfd` AS `new_table2col2aasfd` from `rds` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view2`  AS  select `rds`.`id` AS `id`,`rds`.`foreignkey` AS `foreignkey`,`rds`.`uniquecolumn1` AS `uniquecolumn1`,`rds`.`uniquecolumn2` AS `uniquecolumn2`,`rds`.`keycolumn1` AS `keycolumn1`,`rds`.`keycolumn2` AS `keycolumn2`,`rds`.`fulltextindexcolumn` AS `fulltextindexcolumn`,`rds`.`blobcolumn` AS `blobcolumn`,`rds`.`ignoredcolumn1` AS `ignoredcolumn1`,`rds`.`ignoredcolumn2` AS `ignoredcolumn2`,`rds`.`geometric1` AS `geometric1`,`rds`.`geometric2` AS `geometric2` from `rds` ;
 
 -- --------------------------------------------------------
 

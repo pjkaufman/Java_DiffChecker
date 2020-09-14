@@ -222,27 +222,25 @@ CREATE TABLE IF NOT EXISTS `compositeprimarymodification` (
 
 DROP TABLE IF EXISTS `rds`;
 CREATE TABLE IF NOT EXISTS `rds` (
-  `idnew_table2` int(11) NOT NULL,
-  `new_table2col` varchar(45) DEFAULT NULL,
-  `new_table2col1ds` varchar(45) DEFAULT NULL,
-  `new_table2col2afd` varchar(45) DEFAULT NULL,
-  `new_table2colfaddsa` varchar(45) DEFAULT NULL,
-  `new_table2col1afdds` varchar(45) DEFAULT NULL,
-  `new_table2col2afdas` varchar(45) DEFAULT NULL,
-  `new_table2colf` varchar(45) DEFAULT NULL,
-  `new_table2colad1` varchar(45) DEFAULT NULL,
-  `new_table2codasl2` varchar(45) DEFAULT NULL,
-  `new_table2coadl` varchar(45) DEFAULT NULL,
-  `new_table2col1` varchar(45) DEFAULT NULL,
-  `new_tafble2col2` varchar(45) DEFAULT NULL,
-  `new_tabdsafle2col` varchar(45) DEFAULT NULL,
-  `new_table2cdafol1` varchar(45) DEFAULT NULL,
-  `new_table2fdascol2` varchar(45) DEFAULT NULL,
-  `new_table2adfscol` varchar(45) DEFAULT NULL,
-  `new_table2coldf1` varchar(45) DEFAULT NULL,
-  `new_table2col2aasfd` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`idnew_table2`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `id` int(11) NOT NULL,
+  `foreignkey`int(11) NOT NULL,
+  `uniquecolumn1` varchar(45) DEFAULT NULL,
+  `uniquecolumn2` varchar(45) DEFAULT NULL,
+  `keycolumn1` varchar(45) DEFAULT NULL,
+  `keycolumn2` varchar(45) DEFAULT NULL,
+  `fulltextindexcolumn` varchar(45) DEFAULT NULL,
+  `blobcolumn` blob DEFAULT NULL,
+  `ignoredcolumn1` varchar(45) DEFAULT NULL,
+  `ignoredcolumn2` int DEFAULT NULL,
+  `geometric1` geometry NOT NULL,
+  `geometric2` geometry NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ignoreduniqueindex` (`uniquecolumn1`,`uniquecolumn2`),
+  KEY `ignoredindex` (`keycolumn1`,`keycolumn2`),
+  SPATIAL KEY `ignoredgeometricindex` (`geometric1`),
+  FULLTEXT KEY `ignoredfulltextindex` (`fulltextindexcolumn`),
+  FOREIGN KEY (`foreignkey`) REFERENCES `nochanges`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 

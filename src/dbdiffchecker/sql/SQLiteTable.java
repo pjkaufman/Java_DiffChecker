@@ -170,6 +170,7 @@ public class SQLiteTable extends Table {
   private void addPrimaryAndForeignIndices(String part) {
     String[] columns;
     String drop;
+    String name;
     if (part.contains("PRIMARY KEY")) {
       String temp = part.substring(part.indexOf("(") + 1, part.indexOf(")"));
       columns = temp.split(",");
@@ -301,7 +302,7 @@ public class SQLiteTable extends Table {
     List<String> sql = new ArrayList<>();
     for (String columnName : live.keySet()) {
       if (columns.containsKey(columnName)) {
-        commonColumns.append("" + columnName + ",");
+        commonColumns.append(columnName + ",");
       }
     }
     if (commonColumns.length() != 0) {
